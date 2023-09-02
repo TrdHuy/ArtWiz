@@ -13,21 +13,32 @@ namespace SPRNetTool.View
     /// </summary>
     public partial class InputWindow : Window
     {
+        public enum ContentType
+        {
+            TEXT, CHECKBOX
+        }
         public enum Res
         {
             CANCEL, AGREE
         }
         public class InputBuilder
         {
-            private List<(string, string, Func<string, string, bool>)> res = new List<(string, string, Func<string, string, bool>)>();
+            private List<(string, (string, bool), (Func<string, string, bool>?, Func<bool>?), ContentType)> res
+                = new List<(string, (string, bool), (Func<string, string, bool>?, Func<bool>?), ContentType)>();
 
             public InputBuilder Add(string tilte, string inputDefault, Func<string, string, bool> condition)
             {
-                res.Add((tilte, inputDefault, condition));
+                res.Add((tilte, (inputDefault, false), (condition, null), ContentType.TEXT));
                 return this;
             }
 
-            public List<(string, string, Func<string, string, bool>)> Build()
+            public InputBuilder Add(string tilte, bool inputDefault, Func<bool> condition)
+            {
+                res.Add((tilte, ("", inputDefault), (null, condition), ContentType.CHECKBOX));
+                return this;
+            }
+
+            public List<(string, (string, bool), (Func<string, string, bool>?, Func<bool>?), ContentType)> Build()
             {
                 return res;
             }
@@ -37,6 +48,8 @@ namespace SPRNetTool.View
         class ItemViewModel : BaseViewModel
         {
             private string _content = "";
+            private bool _checkContent = false;
+            private ContentType _contentType = ContentType.TEXT;
             public string Content
             {
                 get { return _content; }
@@ -47,25 +60,45 @@ namespace SPRNetTool.View
                 }
             }
 
-            public Func<string, string, bool>? Condition { get; set; }
+            public bool CheckContent
+            {
+                get { return _checkContent; }
+                set
+                {
+                    _checkContent = value;
+                    Invalidate();
+                }
+            }
+
+            public ContentType ContentType
+            {
+                get { return _contentType; }
+                set
+                {
+                    _contentType = value;
+                    Invalidate();
+                }
+            }
+
+            public Func<string, string, bool>? TextCondition { get; set; }
+            public Func<bool>? CheckCondition { get; set; }
         }
 
         private ObservableCollection<ItemViewModel> TitleSource = new ObservableCollection<ItemViewModel>();
         private ObservableCollection<ItemViewModel> InputSource = new ObservableCollection<ItemViewModel>();
 
-        private Action<Dictionary<string, string>>? AgreeButtonClicked;
+        private Action<Dictionary<string, object>>? AgreeButtonClicked;
         private Action? CancelButtonClicked;
         private Res curRes = Res.CANCEL;
-        private List<(string, string, Func<string, string, bool>)> Src;
-        public InputWindow(List<(string, string, Func<string, string, bool>)> src
+
+        public InputWindow(List<(string, (string, bool), (Func<string, string, bool>?, Func<bool>?), ContentType)> src
             , Window? owner = null
-            , Action<Dictionary<string, string>>? agreeButtonClicked = null
+            , Action<Dictionary<string, object>>? agreeButtonClicked = null
             , Action? cancelButtonClicked = null)
         {
             InitializeComponent();
             if (src.Count == 0) throw new Exception("Source is empty");
             Owner = owner;
-            Src = src;
 
             AgreeButtonClicked = agreeButtonClicked;
             CancelButtonClicked = cancelButtonClicked;
@@ -75,11 +108,14 @@ namespace SPRNetTool.View
                 TitleSource.Add(new ItemViewModel() { Content = item.Item1 });
                 InputSource.Add(new ItemViewModel()
                 {
-                    Content = item.Item2,
-                    Condition = item.Item3
+                    ContentType = item.Item4,
+                    Content = item.Item2.Item1,
+                    CheckContent = item.Item2.Item2,
+                    TextCondition = item.Item3.Item1,
+                    CheckCondition = item.Item3.Item2
                 });
             }
-            TitleListView.ItemsSource = TitleSource;
+           // TitleListView.ItemsSource = TitleSource;
             InputListView.ItemsSource = InputSource;
 
         }
@@ -103,11 +139,18 @@ namespace SPRNetTool.View
 
         private void ButtonAgreeClick(object sender, RoutedEventArgs e)
         {
-            var newSource = new Dictionary<string, string>();
+            var newSource = new Dictionary<string, object>();
             int i = 0;
             foreach (var item in TitleSource)
             {
-                newSource.Add(item.Content, InputSource[i++].Content);
+                if (InputSource[i].ContentType == ContentType.TEXT)
+                {
+                    newSource.Add(item.Content, InputSource[i++].Content);
+                }
+                else if (InputSource[i].ContentType == ContentType.CHECKBOX)
+                {
+                    newSource.Add(item.Content, InputSource[i++].CheckContent);
+                }
             }
             AgreeButtonClicked?.Invoke(newSource);
             curRes = Res.AGREE;
@@ -119,7 +162,7 @@ namespace SPRNetTool.View
             var context = (sender as TextBox)?.DataContext as ItemViewModel;
             if (context != null)
             {
-                var shouldContinue = context.Condition?.Invoke((sender as TextBox)?.Text ?? "", e.Text) ?? true;
+                var shouldContinue = context.TextCondition?.Invoke((sender as TextBox)?.Text ?? "", e.Text) ?? true;
                 e.Handled = !shouldContinue;
             }
         }

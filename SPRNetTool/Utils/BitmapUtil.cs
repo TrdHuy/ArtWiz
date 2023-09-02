@@ -96,7 +96,9 @@ namespace SPRNetTool.Utils
         }
 
 
-        public static BitmapSource? FloydSteinbergDithering(BitmapSource sourceImage, List<System.Windows.Media.Color> palette)
+        public static BitmapSource? FloydSteinbergDithering(BitmapSource sourceImage
+            , List<System.Windows.Media.Color> palette
+            , bool isUsingAlpha)
         {
             if (sourceImage.Format != PixelFormats.Bgra32 &&
                 sourceImage.Format != PixelFormats.Bgr32 &&
@@ -108,7 +110,6 @@ namespace SPRNetTool.Utils
             int height = sourceImage.PixelHeight;
             int stride = (width * sourceImage.Format.BitsPerPixel + 7) / 8;
 
-            FormatConvertedBitmap oldCopiedBmp = new FormatConvertedBitmap(sourceImage, sourceImage.Format, null, 0);
             byte[] oldBmpPixels = new byte[stride * height];
             sourceImage.CopyPixels(oldBmpPixels, stride, 0);
 
@@ -123,7 +124,7 @@ namespace SPRNetTool.Utils
 
 
                 Color sourceColor = Color.FromArgb(alpha, red, green, blue);
-                Color closestColor = FindClosestPaletteColor(sourceColor, palette);
+                Color closestColor = FindClosestPaletteColor(sourceColor, palette, isUsingAlpha);
 
                 resultPixels[i] = closestColor.B;
                 resultPixels[i + 1] = closestColor.G;
@@ -170,8 +171,12 @@ namespace SPRNetTool.Utils
             return bitmap;
         }
 
-        private static Color FindClosestPaletteColor(Color sourceColor, List<Color> palette)
+        private static Color FindClosestPaletteColor(Color sourceColor, List<Color> palette, bool isUsingAlpha = false)
         {
+            //TODO: Set blend bg color
+
+            var blendBackgroundColor = Colors.White;
+            var threshHoldAlpha = 80;
             // Tìm màu gần nhất trong bảng màu giới hạn
             double minDistanceSquared = double.MaxValue;
             Color closestColor = Colors.Black;
@@ -179,13 +184,33 @@ namespace SPRNetTool.Utils
             for (int i = 0; i < palette.Count; i++)
             {
                 Color paletteColor = palette[i];
-                double distanceSquared = sourceColor.CalculateEuclideanDistance(paletteColor);
-
-                if (distanceSquared < minDistanceSquared)
+                if (isUsingAlpha)
                 {
-                    minDistanceSquared = distanceSquared;
-                    closestColor = paletteColor;
+                    for (int j = 255; j >= 0; j -= threshHoldAlpha)
+                    {
+                        paletteColor = palette[i];
+                        paletteColor.A = (byte)j;
+                        paletteColor = paletteColor.BlendColors(blendBackgroundColor);
+                        double distanceSquared = sourceColor.CalculateEuclideanDistance(paletteColor);
+
+                        if (distanceSquared < minDistanceSquared)
+                        {
+                            minDistanceSquared = distanceSquared;
+                            closestColor = paletteColor;
+                        }
+                    }
                 }
+                else
+                {
+                    double distanceSquared = sourceColor.CalculateEuclideanDistance(paletteColor);
+
+                    if (distanceSquared < minDistanceSquared)
+                    {
+                        minDistanceSquared = distanceSquared;
+                        closestColor = paletteColor;
+                    }
+                }
+
             }
 
             return closestColor;

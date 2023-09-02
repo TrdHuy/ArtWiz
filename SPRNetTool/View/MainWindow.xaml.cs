@@ -128,6 +128,8 @@ namespace SPRNetTool.View
             var colorCountDef = "256";
             var deltaKey = "Độ chênh lệch tối đa giữa 2 màu";
             var deltaDef = "100";
+            var isUsingAlphaKey = "Sử dụng alpha để tính được nhiều màu cho palette";
+            var isUsingAlphaDef = false;
 
             var srcInput = builder.Add(colorCountKey
                 , colorCountDef
@@ -135,15 +137,19 @@ namespace SPRNetTool.View
                 .Add(deltaKey
                 , deltaDef
                 , (cur, input) => input.Any(char.IsNumber))
+                .Add(isUsingAlphaKey
+                , isUsingAlphaDef
+                , () => true)
                 .Build();
 
             int colorSize = 256;
             int delta = 100;
-
+            var isUsingAlpha = false;
             InputWindow inputWindow = new InputWindow(srcInput, this, (res) =>
             {
                 colorSize = Convert.ToInt32(res[colorCountKey]);
                 delta = Convert.ToInt32(res[deltaKey]);
+                isUsingAlpha = Convert.ToBoolean(res[isUsingAlphaKey]);
             });
             var res = inputWindow.Show();
             if (res == Res.CANCEL) return;
@@ -199,7 +205,7 @@ namespace SPRNetTool.View
                     }));
                     if (selectedColorList.Count == colorSize && oldBmpSource != null)
                     {
-                        var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, selectedColorList);
+                        var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, selectedColorList, isUsingAlpha);
                         newBmpSrc?.Freeze();
                         this.Dispatcher.Invoke(new Action(() =>
                         {

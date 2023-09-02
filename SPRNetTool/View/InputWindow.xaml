@@ -12,6 +12,22 @@
 		WindowStartupLocation="CenterOwner"
 		ResizeMode="NoResize"
 		Title="InputWindow">
+	<Window.Resources>
+		<ControlTemplate TargetType="ListViewItem"
+						 x:Key="TextInputItem">
+			<TextBox Text="{Binding Content}"
+					 Margin="5"
+					 PreviewTextInput="TextBox_PreviewTextInput"
+					 Height="20" />
+		</ControlTemplate>
+
+		<ControlTemplate TargetType="ListViewItem"
+						 x:Key="CheckBoxInputItem">
+			<CheckBox IsChecked="{Binding CheckContent}"
+					  Margin="5"
+					  Height="20" />
+		</ControlTemplate>
+	</Window.Resources>
 	<Border BorderThickness="2"
 			BorderBrush="Gray">
 		<Grid>
@@ -59,19 +75,22 @@
 							  ScrollViewer.VerticalScrollBarVisibility="Disabled">
 						<ListView.ItemContainerStyle>
 							<Style TargetType="ListViewItem">
-								<Setter Property="Template">
-									<Setter.Value>
-										<ControlTemplate TargetType="ListViewItem">
-											<TextBox Text="{Binding Content}"
-													 PreviewTextInput="TextBox_PreviewTextInput"
-													 Margin="5"
-													 Height="20" />
-										</ControlTemplate>
-									</Setter.Value>
-								</Setter>
+								<EventSetter Event="PreviewTextInput"
+											 Handler="TextBox_PreviewTextInput" />
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding ContentType}"
+												 Value="TEXT">
+										<Setter Property="Template"
+												Value="{StaticResource TextInputItem}" />
+									</DataTrigger>
+									<DataTrigger Binding="{Binding ContentType}"
+												 Value="CHECKBOX">
+										<Setter Property="Template"
+												Value="{StaticResource CheckBoxInputItem}" />
+									</DataTrigger>
+								</Style.Triggers>
 							</Style>
 						</ListView.ItemContainerStyle>
-
 					</ListView>
 				</Grid>
 			</ScrollViewer>
@@ -101,5 +120,5 @@
 			</StackPanel>
 		</Grid>
 	</Border>
-	
+
 </Window>
