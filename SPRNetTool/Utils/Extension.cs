@@ -1,0 +1,179 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Runtime.InteropServices;
+
+namespace SPRNetTool.Utils
+{
+
+    public static class Extension
+    {
+
+        
+        public static T? BinToStruct<T>(this FileStream fs, long position = 0) where T : struct
+        {
+            int structSize = Marshal.SizeOf(typeof(T));
+            byte[] buffer = new byte[structSize];
+            long oldPosition = fs.Position;
+            fs.Position = position;
+
+            int bytesRead = fs.Read(buffer, 0, structSize);
+            if (bytesRead != structSize)
+            {
+                Console.WriteLine("Không thể đọc đủ dữ liệu từ tệp.");
+                return null;
+            }
+
+            IntPtr ptr = Marshal.AllocHGlobal(structSize);
+            Marshal.Copy(buffer, 0, ptr, structSize);
+            var temp = (T?)Marshal.PtrToStructure(ptr, typeof(T));
+            Marshal.FreeHGlobal(ptr);
+            fs.Position = oldPosition;
+            return temp;
+        }
+
+        public static string FullPath(this string relativePath)
+        {
+            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
+            return fullPath;
+        }
+    }
+    public static class SharpExtension
+    {
+        public static void Apply<T>(this T self, Action<T> block)
+        {
+            block(self);
+        }
+
+        public static R Let<T, R>(this T self, Func<T, R> block)
+        {
+            return block(self);
+        }
+
+        public static T Also<T>(this T self, Action<T> block)
+        {
+            block(self);
+            return self;
+        }
+
+        public static void FoEach<T>(this IEnumerable<T> self, Action<T> block)
+        {
+            foreach (var item in self)
+            {
+                block(item);
+            }
+        }
+
+        public static void FoEach<T>(this IEnumerable<T> self, Action<int, T> block)
+        {
+            IEnumerator<T> enumerator = self.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                block(i++, enumerator.Current);
+            }
+            enumerator.Dispose();
+        }
+
+        public static void IfNullOrEmpty(this string? self, Action block)
+        {
+            if (string.IsNullOrEmpty(self))
+            {
+                block();
+            }
+        }
+
+        public static void IfNotNullOrEmpty(this string? self, Action<string> block)
+        {
+            if (!string.IsNullOrEmpty(self))
+            {
+                block(self);
+            }
+        }
+
+        public static void FoEach<T>(this IEnumerable<T> self, Func<int, T, bool> block)
+        {
+            IEnumerator<T> enumerator = self.GetEnumerator();
+            int i = 0;
+            var isContinue = true;
+            while (enumerator.MoveNext() && isContinue)
+            {
+                isContinue = block(i++, enumerator.Current);
+            }
+            enumerator.Dispose();
+        }
+
+        public static bool FoEach<T>(this IEnumerable<T> self, Func<T, bool> block)
+        {
+            var res = true;
+            foreach (var item in self)
+            {
+                res = res & block(item);
+            }
+            return res;
+        }
+
+        public static void For<T>(this int self, out T? result, Func<int, T?, T> block)
+        {
+            result = default;
+            for (int i = 0; i < self; i++)
+            {
+                result = block(i, result);
+            }
+        }
+
+        public static void ForEachNonEmptyLine(this string self, Action<string> block)
+        {
+            var lines = self.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                block(line);
+            }
+        }
+
+        public static void ForEachLine(this string self, Action<string> block)
+        {
+            var lines = self.Split("\n");
+            foreach (var line in lines)
+            {
+                block(line);
+            }
+        }
+
+        public static bool IfFalseApply(this bool condition, Action<bool> block)
+        {
+            if (!condition)
+            {
+                block(condition);
+            }
+            return condition;
+        }
+
+        public static bool IfTrueApply(this bool condition, Action<bool> block)
+        {
+            if (condition)
+            {
+                block(condition);
+            }
+            return condition;
+        }
+
+        public static void ThrowIfNull<T>(this T self)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+        }
+
+        public static T? IfNull<T>(this T? self, Action<T?> block)
+        {
+            if (self == null)
+                block(self);
+            return self;
+        }
+
+        public static T ThrowIfNull<T>(this T? self, Exception e)
+        {
+            return self ?? throw e;
+        }
+    }
+}
