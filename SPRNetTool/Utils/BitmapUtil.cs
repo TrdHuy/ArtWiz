@@ -10,6 +10,7 @@ using ImageMagick;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace SPRNetTool.Utils
 {
@@ -97,8 +98,7 @@ namespace SPRNetTool.Utils
 
 
         public static BitmapSource? FloydSteinbergDithering(BitmapSource sourceImage
-            , List<System.Windows.Media.Color> palette
-            , bool isUsingAlpha)
+            , List<Color> rgbPalette)
         {
             if (sourceImage.Format != PixelFormats.Bgra32 &&
                 sourceImage.Format != PixelFormats.Bgr32 &&
@@ -124,7 +124,7 @@ namespace SPRNetTool.Utils
 
 
                 Color sourceColor = Color.FromArgb(alpha, red, green, blue);
-                Color closestColor = FindClosestPaletteColor(sourceColor, palette, isUsingAlpha);
+                Color closestColor = FindClosestPaletteColor(sourceColor, rgbPalette);
 
                 resultPixels[i] = closestColor.B;
                 resultPixels[i + 1] = closestColor.G;
@@ -132,31 +132,6 @@ namespace SPRNetTool.Utils
                 resultPixels[i + 3] = closestColor.A;
             }
 
-            // Duyệt qua từng pixel trong ảnh
-            //for (int y = 0; y < height; y++)
-            //{
-            //    for (int x = 0; x < width; x++)
-            //    {
-            //        Color sourceColor = sourceImage.GetPixel(x, y);
-            //        Color closestColor = FindClosestPaletteColor(sourceColor, palette);
-
-            //        resultImage.SetPixel(x, y, closestColor);
-
-            //        int quantizationErrorR = sourceColor.R - closestColor.R;
-            //        int quantizationErrorG = sourceColor.G - closestColor.G;
-            //        int quantizationErrorB = sourceColor.B - closestColor.B;
-
-            //        // Phân phối sai số sang các pixel lân cận
-            //        if (x + 1 < width)
-            //            PropagateError(sourceImage, x + 1, y, quantizationErrorR, quantizationErrorG, quantizationErrorB, 7 / 16.0);
-            //        if (x - 1 >= 0 && y + 1 < height)
-            //            PropagateError(sourceImage, x - 1, y + 1, quantizationErrorR, quantizationErrorG, quantizationErrorB, 3 / 16.0);
-            //        if (y + 1 < height)
-            //            PropagateError(sourceImage, x, y + 1, quantizationErrorR, quantizationErrorG, quantizationErrorB, 5 / 16.0);
-            //        if (x + 1 < width && y + 1 < height)
-            //            PropagateError(sourceImage, x + 1, y + 1, quantizationErrorR, quantizationErrorG, quantizationErrorB, 1 / 16.0);
-            //    }
-            //}
             var formats = sourceImage.Format;
             WriteableBitmap bitmap = new WriteableBitmap(width, height, 96, 96, formats, null);
 
@@ -171,12 +146,85 @@ namespace SPRNetTool.Utils
             return bitmap;
         }
 
-        private static Color FindClosestPaletteColor(Color sourceColor, List<Color> palette, bool isUsingAlpha = false)
+        public static BitmapSource? FloydSteinbergDithering(BitmapSource sourceImage
+            , List<Color> rgbPalette
+            , bool isUsingAlpha
+            , List<Color>? argbPalette
+            , Color blendedBGColor)
         {
-            //TODO: Set blend bg color
+            if (sourceImage.Format != PixelFormats.Bgra32 &&
+                sourceImage.Format != PixelFormats.Bgr32 &&
+                sourceImage.Format != PixelFormats.Bgr24)
+            {
+                return null;
+            }
+            int width = sourceImage.PixelWidth;
+            int height = sourceImage.PixelHeight;
+            int stride = (width * sourceImage.Format.BitsPerPixel + 7) / 8;
 
-            var blendBackgroundColor = Colors.White;
-            var threshHoldAlpha = 80;
+            byte[] oldBmpPixels = new byte[stride * height];
+            sourceImage.CopyPixels(oldBmpPixels, stride, 0);
+
+            byte[] resultPixels = new byte[stride * height];
+
+            List<(Color, Color, long)> countedList = new List<(Color, Color, long)>();
+
+            var recalculateRGBColor = new List<Color>();
+            if (isUsingAlpha && argbPalette != null)
+            {
+                foreach (var color in rgbPalette)
+                {
+                    recalculateRGBColor.Add(color);
+                }
+                foreach (var color in argbPalette)
+                {
+                    recalculateRGBColor.Add(color.BlendColors(blendedBGColor));
+                }
+
+                recalculateRGBColor = recalculateRGBColor.GroupBy(c => c).Select(g => g.First()).ToList();
+            }
+
+            for (int i = 0; i < oldBmpPixels.Length; i += sourceImage.Format.BitsPerPixel / 8)
+            {
+                byte blue = oldBmpPixels[i];
+                byte green = oldBmpPixels[i + 1];
+                byte red = oldBmpPixels[i + 2];
+                byte alpha = oldBmpPixels[i + 3];
+
+
+                Color sourceColor = Color.FromArgb(alpha, red, green, blue);
+                Color closestColor = sourceColor;
+                if (isUsingAlpha)
+                {
+                    closestColor = FindClosestPaletteColor(sourceColor, recalculateRGBColor);
+                }
+                else
+                {
+                    closestColor = FindClosestPaletteColor(closestColor, rgbPalette);
+                }
+
+                resultPixels[i] = closestColor.B;
+                resultPixels[i + 1] = closestColor.G;
+                resultPixels[i + 2] = closestColor.R;
+                resultPixels[i + 3] = closestColor.A;
+            }
+
+            var formats = sourceImage.Format;
+            WriteableBitmap bitmap = new WriteableBitmap(width, height, 96, 96, formats, null);
+
+            // Gán dữ liệu từ mảng imageData vào WriteableBitmap
+            bitmap.Lock();
+            if (formats == PixelFormats.Bgra32 || formats == PixelFormats.Pbgra32 || formats == PixelFormats.Bgr32)
+                bitmap.WritePixels(new Int32Rect(0, 0, width, height), resultPixels, width * 4, 0);
+            else if (formats == PixelFormats.Rgb24 || formats == PixelFormats.Bgr24)
+                bitmap.WritePixels(new Int32Rect(0, 0, width, height), resultPixels, width * 3, 0);
+            bitmap.Unlock();
+
+            return bitmap;
+        }
+
+        private static Color FindClosestPaletteColor(Color sourceColor, List<Color> palette)
+        {
             // Tìm màu gần nhất trong bảng màu giới hạn
             double minDistanceSquared = double.MaxValue;
             Color closestColor = Colors.Black;
@@ -184,31 +232,13 @@ namespace SPRNetTool.Utils
             for (int i = 0; i < palette.Count; i++)
             {
                 Color paletteColor = palette[i];
-                if (isUsingAlpha)
-                {
-                    for (int j = 255; j >= 0; j -= threshHoldAlpha)
-                    {
-                        paletteColor = palette[i];
-                        paletteColor.A = (byte)j;
-                        paletteColor = paletteColor.BlendColors(blendBackgroundColor);
-                        double distanceSquared = sourceColor.CalculateEuclideanDistance(paletteColor);
 
-                        if (distanceSquared < minDistanceSquared)
-                        {
-                            minDistanceSquared = distanceSquared;
-                            closestColor = paletteColor;
-                        }
-                    }
-                }
-                else
-                {
-                    double distanceSquared = sourceColor.CalculateEuclideanDistance(paletteColor);
+                double distanceSquared = sourceColor.CalculateEuclideanDistance(paletteColor);
 
-                    if (distanceSquared < minDistanceSquared)
-                    {
-                        minDistanceSquared = distanceSquared;
-                        closestColor = paletteColor;
-                    }
+                if (distanceSquared < minDistanceSquared)
+                {
+                    minDistanceSquared = distanceSquared;
+                    closestColor = paletteColor;
                 }
 
             }

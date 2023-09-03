@@ -115,7 +115,7 @@ namespace SPRNetTool.View
                     CheckCondition = item.Item3.Item2
                 });
             }
-           // TitleListView.ItemsSource = TitleSource;
+            TitleListView.ItemsSource = TitleSource;
             InputListView.ItemsSource = InputSource;
 
         }

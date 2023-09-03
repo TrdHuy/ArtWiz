@@ -21,6 +21,13 @@ using static SPRNetTool.View.InputWindow;
 
 namespace SPRNetTool.View
 {
+    public enum MainWindowTagID
+    {
+        OptimizeList_RGBHeader,
+        OriginalList_RGBHeader,
+        OriginalList_CountHeader,
+        OptimizeList_CombineRGBHeader
+    }
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -162,31 +169,55 @@ namespace SPRNetTool.View
                 await Task.Run(async () =>
                 {
                     var orderedList = viewModel.OrderByDescendingCount(isSetToDisplaySource: false).ToList();
-                    var selectedList = new ObservableCollection<ColorItemViewModel>();
+                    var selectedList = new ObservableCollection<OptimizedColorItemViewModel>();
                     var selectedColorList = new List<Color>();
 
+
+                    // TODO: Dynamic this
+                    var selectedColorRecalculatedAlapha = new List<Color>();
+                    var expectedRGBList = new List<Color>();
+                    var deltaForCompareRecalculate = 10;
+                    var deltaDistanceForNewARGBColor = 10;
+                    var backgroundForBlendColor = Colors.White;
+                    var deltaForAlphaAvarageDeviation = 3;
+
+                    // Calculate palette
                     while (selectedList.Count < colorSize && orderedList.Count > 0 && delta >= 0)
                     {
                         for (int i = 0; i < orderedList.Count; i++)
                         {
                             var item = orderedList[i];
+                            var expectedColor = item.ItemColor;
                             var shouldAdd = true;
                             foreach (var item2 in selectedList)
                             {
-                                if (item.ItemColor.CalculateEuclideanDistance(item2.ItemColor) < delta)
+                                var distance = expectedColor.CalculateEuclideanDistance(item2.ItemColor);
+                                if (distance < delta)
                                 {
+                                    if (isUsingAlpha && distance < deltaForCompareRecalculate)
+                                    {
+                                        var alpha = item2.ItemColor.FindAlphaColors(backgroundForBlendColor, expectedColor, out byte averageAbsoluteDeviation);
+                                        var newRGBColor = Color.FromArgb(alpha, item2.ItemColor.R, item2.ItemColor.G, item2.ItemColor.B).BlendColors(backgroundForBlendColor);
+                                        var distanceNewRGBColor = newRGBColor.CalculateEuclideanDistance(expectedColor);
+                                        if (averageAbsoluteDeviation <= deltaForAlphaAvarageDeviation && distanceNewRGBColor <= deltaDistanceForNewARGBColor)
+                                        {
+                                            expectedRGBList.Add(expectedColor);
+                                            selectedColorRecalculatedAlapha.Add(Color.FromArgb(alpha, item2.ItemColor.R, item2.ItemColor.G, item2.ItemColor.B));
+                                            orderedList.RemoveAt(i);
+                                            i--;
+                                        }
+                                    }
                                     shouldAdd = false;
                                     break;
                                 }
                             }
                             if (shouldAdd)
                             {
-                                selectedList.Add<ColorItemViewModel>(new ColorItemViewModel()
+                                selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel()
                                 {
-                                    ItemColor = item.ItemColor,
-                                    Count = item.Count
+                                    ItemColor = expectedColor
                                 });
-                                selectedColorList.Add(item.ItemColor);
+                                selectedColorList.Add(expectedColor);
                                 orderedList.RemoveAt(i);
                                 i--;
                             }
@@ -195,17 +226,37 @@ namespace SPRNetTool.View
                         }
                         delta -= 2;
                     }
-                    viewModel.OptimizedColorSource = selectedList;
 
+                    //Combine RGB and ARGB color to selected list
+                    var optimizedRGBCount = selectedList.Count;
+                    int iii = 0;
+                    foreach (var item in selectedColorRecalculatedAlapha)
+                    {
+                        selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel(backgroundForBlendColor)
+                        {
+                            ItemColor = item,
+                            ExpectedColor = expectedRGBList[iii++]
+                        });
+                    }
+
+                    //reduce same combined color
+                    selectedList = selectedList.GroupBy(c => c.CombinedColor).Select(g => g.First()).ToIndexableObservableCollection();
+                    var combinedColorList = selectedList.Select(c => c.CombinedColor).ToList();
+
+                    viewModel.SetOptimizedColorSource(selectedList);
+
+                    //======================================================
+                    //Dithering
                     BitmapSource? oldBmpSource = null;
                     this.Dispatcher.Invoke(new Action(() =>
                     {
                         oldBmpSource = StaticImageView.Source as BitmapSource;
 
                     }));
-                    if (selectedColorList.Count == colorSize && oldBmpSource != null)
+                    if (optimizedRGBCount > 0 && optimizedRGBCount <= colorSize && oldBmpSource != null)
                     {
-                        var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, selectedColorList, isUsingAlpha);
+                        //var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, selectedColorList, isUsingAlpha, selectedColorRecalculatedAlapha, backgroundForBlendColor);
+                        var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, combinedColorList);
                         newBmpSrc?.Freeze();
                         this.Dispatcher.Invoke(new Action(() =>
                         {
@@ -215,59 +266,90 @@ namespace SPRNetTool.View
                         if (newBmpSrc != null)
                         {
                             var src = await BitmapUtil.CountColorsAsync(newBmpSrc);
-                            var newCountedSrc = new ObservableCollection<ColorItemViewModel>();
+                            var newCountedSrc = new ObservableCollection<OptimizedColorItemViewModel>();
                             await Task.Run(() =>
                             {
                                 foreach (var color in src)
                                 {
                                     var newColor = color.Key;
-                                    newCountedSrc.Add<ColorItemViewModel>(new ColorItemViewModel { ItemColor = newColor, Count = color.Value });
+                                    newCountedSrc.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel { ItemColor = newColor, Count = color.Value });
                                 }
                             });
 
-                            viewModel.OptimizedColorSource = newCountedSrc;
+                            viewModel.SetOptimizedColorSource(newCountedSrc);
                         }
-
-
                     }
                 });
             });
 
         }
 
-        private int countClick = 0;
-        private void ColorCountHeaderMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private int originalCountClick = 0;
+        private int originalRgbClick = 0;
+        private int optimizeCombinedRgbClick = 0;
+        private int optimizeRgbClick = 0;
+        private void HeaderMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (countClick == 0)
+            var tag = (sender as TextBlock)?.Tag;
+            if (tag == null || !(tag is MainWindowTagID)) return;
+            tag = (MainWindowTagID)tag;
+            switch (tag)
             {
-                viewModel.OrderByCount();
-                countClick = 1;
+                case MainWindowTagID.OptimizeList_CombineRGBHeader:
+                    if (optimizeCombinedRgbClick == 0)
+                    {
+                        viewModel.OptimizedOrderByCombinedRGB();
+                        optimizeCombinedRgbClick = 1;
+                    }
+                    else if (optimizeCombinedRgbClick == 1)
+                    {
+                        viewModel.ResetOptimizedOrder();
+                        optimizeCombinedRgbClick = 0;
+                    }
+                    break;
+                case MainWindowTagID.OptimizeList_RGBHeader:
+                    if (optimizeRgbClick == 0)
+                    {
+                        viewModel.OptimizedOrderByRGB();
+                        optimizeRgbClick = 1;
+                    }
+                    else if (optimizeRgbClick == 1)
+                    {
+                        viewModel.ResetOptimizedOrder();
+                        optimizeRgbClick = 0;
+                    }
+                    break;
+                case MainWindowTagID.OriginalList_CountHeader:
+                    if (originalCountClick == 0)
+                    {
+                        viewModel.OrderByCount();
+                        originalCountClick = 1;
+                    }
+                    else if (originalCountClick == 1)
+                    {
+                        viewModel.OrderByDescendingCount();
+                        originalCountClick = 2;
+                    }
+                    else if (originalCountClick == 2)
+                    {
+                        viewModel.ResetOrder();
+                        originalCountClick = 0;
+                    }
+                    break;
+                case MainWindowTagID.OriginalList_RGBHeader:
+                    if (originalRgbClick == 0)
+                    {
+                        viewModel.OrderByRGB();
+                        originalRgbClick = 1;
+                    }
+                    else if (originalRgbClick == 1)
+                    {
+                        viewModel.ResetOrder();
+                        originalRgbClick = 0;
+                    }
+                    break;
             }
-            else if (countClick == 1)
-            {
-                viewModel.OrderByDescendingCount();
-                countClick = 2;
-            }
-            else if (countClick == 2)
-            {
-                viewModel.ResetOrder();
-                countClick = 0;
-            }
-        }
 
-        private int rgbClick = 0;
-        private void RGBHeaderMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (rgbClick == 0)
-            {
-                viewModel.OrderByRGB();
-                rgbClick = 1;
-            }
-            else if (rgbClick == 1)
-            {
-                viewModel.ResetOrder();
-                rgbClick = 0;
-            }
         }
 
         public void DisableWindow(bool isDisabled)
@@ -287,6 +369,22 @@ namespace SPRNetTool.View
             viewModel.ResetViewModel();
             StaticImageView.Source = null;
             StaticImageView2.Source = null;
+        }
+
+        private void TestBtnClick(object sender, RoutedEventArgs e)
+        {
+            var newColor = Color.FromArgb(127, 20, 30, 40).BlendColors(Colors.White);
+
+
+            var background = Colors.White;
+            var foreGround = Color.FromRgb(100, 179, 150);
+            var combinedColor = Color.FromRgb(0, 0, 0);
+
+            var colorDistance = foreGround.CalculateEuclideanDistance(combinedColor);
+            var alphaChanel = foreGround.FindAlphaColors(background, combinedColor, out byte averageAbsoluteDeviation);
+
+            colorDistance = Color.FromArgb(alphaChanel, 100, 179, 150).CalculateEuclideanDistance(combinedColor);
+
         }
     }
 

@@ -14,15 +14,16 @@ namespace SPRNetTool.ViewModel
     public class MainWindowViewModel : BaseViewModel
     {
         private ObservableCollection<ColorItemViewModel> _rawSource = new ObservableCollection<ColorItemViewModel>();
+        private ObservableCollection<OptimizedColorItemViewModel>? _rawOptimizedSource = null;
 
         private ObservableCollection<ColorItemViewModel> _ColorSource = new ObservableCollection<ColorItemViewModel>();
-        private ObservableCollection<ColorItemViewModel>? _optimizedSource = null;
+        private ObservableCollection<OptimizedColorItemViewModel>? _optimizedSource = null;
 
         [Bindable(true)]
         public ObservableCollection<ColorItemViewModel> ColorSource
         {
             get { return _ColorSource; }
-            set
+            private set
             {
                 _ColorSource = value;
                 Invalidate();
@@ -30,10 +31,10 @@ namespace SPRNetTool.ViewModel
         }
 
         [Bindable(true)]
-        public ObservableCollection<ColorItemViewModel>? OptimizedColorSource
+        public ObservableCollection<OptimizedColorItemViewModel>? OptimizedColorSource
         {
             get { return _optimizedSource; }
-            set
+            private set
             {
                 _optimizedSource = value;
                 Invalidate();
@@ -49,7 +50,7 @@ namespace SPRNetTool.ViewModel
         {
             _rawSource.Clear();
             _ColorSource.Clear();
-            _optimizedSource = null;
+            _rawOptimizedSource = null;
             _cachedOrderByCount = null;
             _cachedOrderByDescendingCount = null;
             _cachedOrderByRGB = null;
@@ -105,6 +106,33 @@ namespace SPRNetTool.ViewModel
             if (_cachedOrderByRGB == null)
                 _cachedOrderByRGB = _rawSource.OrderBy(x => x.RGBValue).ToIndexableObservableCollection();
             ColorSource = _cachedOrderByRGB;
+        }
+
+
+        public void SetOptimizedColorSource(ObservableCollection<OptimizedColorItemViewModel> optimizedSource)
+        {
+            _rawOptimizedSource = optimizedSource;
+            OptimizedColorSource = optimizedSource;
+        }
+
+        public void ResetOptimizedOrder()
+        {
+            OptimizedColorSource = _rawOptimizedSource;
+        }
+        private ObservableCollection<OptimizedColorItemViewModel>? _cachedOptimizedOrderByRGB = null;
+        public void OptimizedOrderByRGB()
+        {
+            if (_cachedOptimizedOrderByRGB == null)
+                _cachedOptimizedOrderByRGB = _rawOptimizedSource?.OrderBy(x => x.RGBValue).ToIndexableObservableCollection();
+            OptimizedColorSource = _cachedOptimizedOrderByRGB;
+        }
+
+        private ObservableCollection<OptimizedColorItemViewModel>? _cachedOptimizedOrderByCombinedRGB = null;
+        public void OptimizedOrderByCombinedRGB()
+        {
+            if (_cachedOptimizedOrderByCombinedRGB == null)
+                _cachedOptimizedOrderByCombinedRGB = _rawOptimizedSource?.OrderBy(x => x.CombinedRGBValue).ToIndexableObservableCollection();
+            OptimizedColorSource = _cachedOptimizedOrderByCombinedRGB;
         }
     }
 }
