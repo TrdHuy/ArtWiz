@@ -4,6 +4,7 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:SPRNetTool.View"
+		xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
 		SizeToContent="WidthAndHeight"
 		MinHeight="200"
 		MinWidth="300"
@@ -12,8 +13,12 @@
 		WindowStartupLocation="CenterOwner"
 		ResizeMode="NoResize"
 		Title="InputWindow">
+
+
 	<Window.Resources>
-		<ControlTemplate TargetType="ListViewItem"
+		<local:InputWindowItemHeightConverter x:Key="tcvt" />
+		<cvt:BoolToVisibilityConverter x:Key="bcvt" />
+		<ControlTemplate TargetType="Control"
 						 x:Key="TextInputItem">
 			<TextBox Text="{Binding Content}"
 					 Margin="5"
@@ -21,10 +26,12 @@
 					 Height="20" />
 		</ControlTemplate>
 
-		<ControlTemplate TargetType="ListViewItem"
+		<ControlTemplate TargetType="Control"
 						 x:Key="CheckBoxInputItem">
 			<CheckBox IsChecked="{Binding CheckContent}"
 					  Margin="5"
+					  Checked="CheckBox_Checked"
+					  Unchecked="CheckBox_Checked"
 					  Height="20" />
 		</ControlTemplate>
 	</Window.Resources>
@@ -52,9 +59,17 @@
 								<Setter Property="Template">
 									<Setter.Value>
 										<ControlTemplate TargetType="ListViewItem">
-											<TextBlock Text="{Binding Content}"
-													   Margin="5"
-													   Height="20" />
+											<Grid>
+												<TextBlock Text="{Binding Title}"
+														   ToolTip="{Binding Description}"
+														   Margin="5"
+														   TextWrapping="Wrap"
+														   MaxWidth="150"
+														   MinHeight="20" />
+												<Rectangle Fill="#667F7F7F"
+														   ToolTip="{Binding Description}"
+														   Visibility="{Binding IsDisabled, Converter={StaticResource bcvt}}" />
+											</Grid>
 										</ControlTemplate>
 									</Setter.Value>
 								</Setter>
@@ -77,18 +92,44 @@
 							<Style TargetType="ListViewItem">
 								<EventSetter Event="PreviewTextInput"
 											 Handler="TextBox_PreviewTextInput" />
-								<Style.Triggers>
-									<DataTrigger Binding="{Binding ContentType}"
-												 Value="TEXT">
-										<Setter Property="Template"
-												Value="{StaticResource TextInputItem}" />
-									</DataTrigger>
-									<DataTrigger Binding="{Binding ContentType}"
-												 Value="CHECKBOX">
-										<Setter Property="Template"
-												Value="{StaticResource CheckBoxInputItem}" />
-									</DataTrigger>
-								</Style.Triggers>
+								<Setter Property="Template">
+									<Setter.Value>
+										<ControlTemplate TargetType="ListViewItem">
+											<Grid>
+												<Control>
+													<Control.Height>
+														<MultiBinding Converter="{StaticResource tcvt}">
+															<Binding ElementName="TitleListView" />
+															<Binding ElementName="InputListView"
+																	 Path="ItemsSource" />
+															<Binding Path="." />
+														</MultiBinding>
+													</Control.Height>
+													<Control.Style>
+														<Style TargetType="Control">
+															<Style.Triggers>
+																<DataTrigger Binding="{Binding ContentType}"
+																			 Value="TEXT">
+																	<Setter Property="Template"
+																			Value="{StaticResource TextInputItem}" />
+																</DataTrigger>
+																<DataTrigger Binding="{Binding ContentType}"
+																			 Value="CHECKBOX">
+																	<Setter Property="Template"
+																			Value="{StaticResource CheckBoxInputItem}" />
+																</DataTrigger>
+															</Style.Triggers>
+														</Style>
+													</Control.Style>
+												</Control>
+
+												<Rectangle Fill="#667F7F7F"
+														   Visibility="{Binding IsDisabled, Converter={StaticResource bcvt}}"/>
+											</Grid>
+
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
 							</Style>
 						</ListView.ItemContainerStyle>
 					</ListView>

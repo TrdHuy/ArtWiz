@@ -134,29 +134,60 @@ namespace SPRNetTool.View
             var colorCountKey = "Số màu (max = 256)";
             var colorCountDef = "256";
             var deltaKey = "Độ chênh lệch tối đa giữa 2 màu";
+            var deltaDes = 
+                "Độ chênh lệch tối đa giữa 2 màu là tham số thể xác định màu chưa được chọn tiếp theo có nên add vào list các màu\n" +
+                "được chọn không.\n\n" +
+                "Ví dụ:\n" +
+                "Màu đã chọn RGB (10,10,10)\n" +
+                "Màu chưa chọn tiếp theo (11,11,11)\n" +
+                "Độ chênh lệch = 1,7 < delta = 10 => Màu này sẽ không được chọn vì giống màu đã chọn (10,10,10)";
             var deltaDef = "100";
             var isUsingAlphaKey = "Sử dụng alpha để tính được nhiều màu cho palette";
             var isUsingAlphaDef = false;
+            var deltaForCompareRecalculateKey = "Độ chênh lệch màu ARGB";
+            var deltaForCompareRecalculateDes =
+                "Độ chênh lệch màu ARGB là tham số để xác định màu tiếp theo có cần cân nhắc để tính giá trị cho kênh alpha hay không.\n" +
+                "Nếu giữa màu đã chọn và màu chưa được chọn tiếp theo có độ chênh lệch nhỏ hơn 'Độ chênh lệch màu ARGB'\n" +
+                "thì màu chưa được chọn tiếp theo sẽ được cân nhắc để tính giá trị Alpha từ màu đã chọn.\n\n" +
+                "Ví dụ:\n" +
+                "Màu đã chọn RGB (10,10,10)\n" +
+                "Màu chưa chọn tiếp theo (11,11,11)\n" +
+                "Độ chênh lệch = 1,7 < delta = 10 => Màu này sẽ được cân nhắc tính giá trị alpha dựa theo Màu đã chọn (10,10,10)";
+            var deltaForCompareRecalculateDef = "10";
 
             var srcInput = builder.Add(colorCountKey
+                , colorCountKey
                 , colorCountDef
                 , (cur, input) => input.Any(char.IsNumber) && Convert.ToInt32(cur + input) <= 256)
                 .Add(deltaKey
+                , deltaDes
                 , deltaDef
                 , (cur, input) => input.Any(char.IsNumber))
                 .Add(isUsingAlphaKey
+                , isUsingAlphaKey
                 , isUsingAlphaDef
-                , () => true)
+                , () => true
+                , (src, isChecked) =>
+                {
+                    src[3].IsDisabled = !isChecked;
+                })
+                .Add(deltaForCompareRecalculateKey
+                , deltaForCompareRecalculateDes
+                , deltaForCompareRecalculateDef
+                , (cur, input) => input.Any(char.IsNumber) && Convert.ToInt32(cur + input) <= 10)
                 .Build();
 
             int colorSize = 256;
             int delta = 100;
             var isUsingAlpha = false;
+            var deltaForCompareRecalculate = 10;
+
             InputWindow inputWindow = new InputWindow(srcInput, this, (res) =>
             {
                 colorSize = Convert.ToInt32(res[colorCountKey]);
                 delta = Convert.ToInt32(res[deltaKey]);
                 isUsingAlpha = Convert.ToBoolean(res[isUsingAlphaKey]);
+                deltaForCompareRecalculate = Convert.ToInt32(res[deltaForCompareRecalculateKey]);
             });
             var res = inputWindow.Show();
             if (res == Res.CANCEL) return;
@@ -176,7 +207,6 @@ namespace SPRNetTool.View
                     // TODO: Dynamic this
                     var selectedColorRecalculatedAlapha = new List<Color>();
                     var expectedRGBList = new List<Color>();
-                    var deltaForCompareRecalculate = 10;
                     var deltaDistanceForNewARGBColor = 10;
                     var backgroundForBlendColor = Colors.White;
                     var deltaForAlphaAvarageDeviation = 3;
