@@ -90,9 +90,9 @@ namespace SPRNetTool.View
                         StaticImageView.Source = bmpSrc;
                         BitmapUtil.CountColors(bmpSrc, out long argbCount, out long rgbCount, out Dictionary<Color, long> src);
 
-                        var ditheringBmp = BitmapUtil.ApplyDithering(bmpSrc, 100);
+                        //var ditheringBmp = BitmapUtil.ApplyDithering(bmpSrc, 100);
                         //CountColors(ditheringBmp, out long argbCount2, out long rgbCount2);
-                        StaticImageView2.Source = ditheringBmp;
+                        //StaticImageView2.Source = ditheringBmp;
 
                     }
 

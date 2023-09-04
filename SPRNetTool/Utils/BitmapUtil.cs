@@ -6,7 +6,6 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows;
 using System.Windows.Media;
-using ImageMagick;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -45,24 +44,27 @@ namespace SPRNetTool.Utils
 
             bitmap.CopyPixels(pixelData, stride, 0);
 
+            var isIncludedAlphaChannel = bitmap.Format.BitsPerPixel / 8 == 4;
             for (int i = 0; i < pixelData.Length; i += bitmap.Format.BitsPerPixel / 8)
             {
                 byte blue = pixelData[i];
                 byte green = pixelData[i + 1];
                 byte red = pixelData[i + 2];
-                byte alpha = pixelData[i + 3];
+                if (isIncludedAlphaChannel)
+                {
+                    byte alpha = pixelData[i + 3];
+                    Color colorARGB = Color.FromArgb(alpha, red, green, blue);
+                    if (!aRGBColorSet.ContainsKey(colorARGB))
+                    {
+                        aRGBColorSet[colorARGB] = 1;
+                    }
+                    else
+                    {
+                        aRGBColorSet[colorARGB]++;
+                    }
+                }
 
-                Color colorARGB = Color.FromArgb(alpha, red, green, blue);
                 Color colorRGB = Color.FromRgb(red, green, blue);
-
-                if (!aRGBColorSet.ContainsKey(colorARGB))
-                {
-                    aRGBColorSet[colorARGB] = 1;
-                }
-                else
-                {
-                    aRGBColorSet[colorARGB]++;
-                }
                 rGBColorSet.Add(colorRGB);
             }
             argbCount = aRGBColorSet.Count;
@@ -287,35 +289,6 @@ namespace SPRNetTool.Utils
         //    BitmapSource ditheredBitmap = BitmapSource.Create(width, height, 96, 96, sourceImage.Format, null, resultPixels, stride);
         //    return ditheredBitmap;
         //}
-
-        public static BitmapSource ApplyDithering(BitmapSource sourceImage, int colorCount)
-        {
-            // Chuyển đổi BitmapSource thành mảng byte
-            int width = sourceImage.PixelWidth;
-            int height = sourceImage.PixelHeight;
-            int stride = (width * sourceImage.Format.BitsPerPixel + 7) / 8;
-            byte[] pixelData = new byte[stride * height];
-            sourceImage.CopyPixels(pixelData, stride, 0);
-
-            // Tạo MagickImage từ mảng byte
-            using (var magickImage = new MagickImage(pixelData, width, height, MagickFormat.Bgra))
-            {
-                // Thiết lập số lượng màu
-                magickImage.Quantize(new QuantizeSettings
-                {
-                    Colors = colorCount,
-                    DitherMethod = DitherMethod.FloydSteinberg // Hoặc DitherMethod.Stucki
-                });
-
-                // Chuyển đổi MagickImage thành BitmapSource
-                byte[] resultPixelData = magickImage.ToByteArray(MagickFormat.Bmp);
-                using (var memoryStream = new MemoryStream(resultPixelData))
-                {
-                    var decoder = new BmpBitmapDecoder(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.Default);
-                    return decoder.Frames[0];
-                }
-            }
-        }
 
         public static BitmapSource GetBitmapFromRGBArray(byte[] imageData, int width, int height, PixelFormat formats)
         {
