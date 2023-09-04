@@ -37,7 +37,7 @@ namespace SPRNetTool.View
 
         public enum ContentType
         {
-            TEXT, CHECKBOX
+            TEXT, CHECKBOX, COMBO
         }
         public enum Res
         {
@@ -46,22 +46,35 @@ namespace SPRNetTool.View
         public class InputBuilder
         {
             // Title, description, input type, condition, ContentType(equal input type), value changed callback
-            private List<(string, string, (string, bool), (Func<string, string, bool>?, Func<bool>?), ContentType, Action<ObservableCollection<ItemViewModel>, bool>?)> res
-                = new List<(string, string, (string, bool), (Func<string, string, bool>?, Func<bool>?), ContentType, Action<ObservableCollection<ItemViewModel>, bool>?)>();
+            private List<(string, string, (string, bool, (List<string>, int)?), (Func<string, string, bool>?, Func<bool>?)
+                , ContentType, Action<ObservableCollection<ItemViewModel>, bool>?
+                , Action<ObservableCollection<ItemViewModel>, int>?)> res
+                = new List<(string, string, (string, bool, (List<string>, int)?), (Func<string, string, bool>?, Func<bool>?),
+                    ContentType, Action<ObservableCollection<ItemViewModel>, bool>?
+                , Action<ObservableCollection<ItemViewModel>, int>?)>();
 
             public InputBuilder Add(string tilte, string description, string inputDefault, Func<string, string, bool> condition)
             {
-                res.Add((tilte, description, (inputDefault, false), (condition, null), ContentType.TEXT, null));
+                res.Add((tilte, description, (inputDefault, false, null), (condition, null), ContentType.TEXT, null, null));
                 return this;
             }
 
             public InputBuilder Add(string tilte, string description, bool inputDefault, Func<bool> condition, Action<ObservableCollection<ItemViewModel>, bool>? callback = null)
             {
-                res.Add((tilte, description, ("", inputDefault), (null, condition), ContentType.CHECKBOX, callback));
+                res.Add((tilte, description, ("", inputDefault, null), (null, condition), ContentType.CHECKBOX, callback, null));
                 return this;
             }
 
-            public List<(string, string, (string, bool), (Func<string, string, bool>?, Func<bool>?), ContentType, Action<ObservableCollection<ItemViewModel>, bool>?)> Build()
+            public InputBuilder Add(string tilte, string description, List<string> options, int defaultSelection, Func<bool> condition, Action<ObservableCollection<ItemViewModel>, int>? callback = null)
+            {
+                res.Add((tilte, description, ("", false, (options, defaultSelection)), (null, condition), ContentType.COMBO, null, callback));
+                return this;
+            }
+
+            public List<(string, string, (string, bool, (List<string>, int)?)
+                , (Func<string, string, bool>?, Func<bool>?)
+                , ContentType, Action<ObservableCollection<ItemViewModel>, bool>?
+                , Action<ObservableCollection<ItemViewModel>, int>?)> Build()
             {
                 return res;
             }
@@ -70,8 +83,10 @@ namespace SPRNetTool.View
 
         public class ItemViewModel : BaseViewModel
         {
+            private ObservableCollection<string> _comboOptions = new ObservableCollection<string>();
             private string _content = "";
             private bool _isDisabled = false;
+            private int _comboSelection = 0;
             private string _title = "";
             private string _description = "";
             private bool _checkContent = false;
@@ -100,6 +115,25 @@ namespace SPRNetTool.View
                 set
                 {
                     _content = value;
+                    Invalidate();
+                }
+            }
+
+            public ObservableCollection<string> ComboOptions
+            {
+                get { return _comboOptions; }
+                set
+                {
+                    _comboOptions = value;
+                    Invalidate();
+                }
+            }
+            public int ComboSelection
+            {
+                get { return _comboSelection; }
+                set
+                {
+                    _comboSelection = value;
                     Invalidate();
                 }
             }
@@ -144,7 +178,10 @@ namespace SPRNetTool.View
         private Action? CancelButtonClicked;
         private Res curRes = Res.CANCEL;
 
-        public InputWindow(List<(string, string, (string, bool), (Func<string, string, bool>?, Func<bool>?), ContentType, Action<ObservableCollection<ItemViewModel>, bool>?)> src
+        public InputWindow(
+            List<(string, string, (string, bool, (List<string>, int)?), (Func<string, string, bool>?, Func<bool>?)
+                , ContentType, Action<ObservableCollection<ItemViewModel>, bool>?
+                , Action<ObservableCollection<ItemViewModel>, int>?)> src
             , Window? owner = null
             , Action<Dictionary<string, object>>? agreeButtonClicked = null
             , Action? cancelButtonClicked = null)
@@ -158,18 +195,24 @@ namespace SPRNetTool.View
 
             foreach (var item in src)
             {
-
-                InputSource.Add(new ItemViewModel()
+                var newItemVM = new ItemViewModel()
                 {
                     Description = item.Item2,
                     Title = item.Item1,
                     ContentType = item.Item5,
                     Content = item.Item3.Item1,
+                    //ComboOptions = new ObservableCollection<string>(item.Item3.Item3?.Item1),
                     CheckContent = item.Item3.Item2,
                     TextCondition = item.Item4.Item1,
                     CheckCondition = item.Item4.Item2,
                     CheckChangedCallback = item.Item6
-                });
+                };
+                if (item.Item3.Item3?.Item1 != null)
+                {
+                    newItemVM.ComboOptions = new ObservableCollection<string>(item.Item3.Item3?.Item1);
+                    newItemVM.ComboSelection = item.Item3.Item3?.Item2 ?? 0;
+                }
+                InputSource.Add(newItemVM);
             }
             TitleListView.ItemsSource = InputSource;
             InputListView.ItemsSource = InputSource;
@@ -208,6 +251,10 @@ namespace SPRNetTool.View
                 else if (item.ContentType == ContentType.CHECKBOX)
                 {
                     newSource.Add(item.Title, item.CheckContent);
+                }
+                else if (item.ContentType == ContentType.COMBO)
+                {
+                    newSource.Add(item.Title, item.ComboSelection);
                 }
             }
             AgreeButtonClicked?.Invoke(newSource);

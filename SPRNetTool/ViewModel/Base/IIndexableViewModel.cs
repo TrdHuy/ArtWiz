@@ -30,6 +30,15 @@ namespace SPRNetTool.ViewModel.Base
             }
             return new ObservableCollection<T>(src);
         }
+
+        public static void ReIndexObservableCollection<T>(this IEnumerable<T> src) where T : IIndexableViewModel
+        {
+            var i = 0;
+            foreach (var item in src)
+            {
+                item.Index = i++;
+            }
+        }
     }
 
 }

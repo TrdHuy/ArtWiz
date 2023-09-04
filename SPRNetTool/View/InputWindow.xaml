@@ -34,6 +34,14 @@
 					  Unchecked="CheckBox_Checked"
 					  Height="20" />
 		</ControlTemplate>
+
+		<ControlTemplate TargetType="Control"
+						 x:Key="ComboBoxInputItem">
+			<ComboBox ItemsSource="{Binding ComboOptions}"
+					  Margin="5"
+					  SelectedIndex="{Binding ComboSelection}"
+					  Height="20" />
+		</ControlTemplate>
 	</Window.Resources>
 	<Border BorderThickness="2"
 			BorderBrush="Gray">
@@ -117,6 +125,11 @@
 																			 Value="CHECKBOX">
 																	<Setter Property="Template"
 																			Value="{StaticResource CheckBoxInputItem}" />
+																</DataTrigger>
+																<DataTrigger Binding="{Binding ContentType}"
+																			 Value="COMBO">
+																	<Setter Property="Template"
+																			Value="{StaticResource ComboBoxInputItem}" />
 																</DataTrigger>
 															</Style.Triggers>
 														</Style>

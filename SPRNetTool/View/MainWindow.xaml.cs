@@ -24,9 +24,10 @@ namespace SPRNetTool.View
     public enum MainWindowTagID
     {
         OptimizeList_RGBHeader,
+        OptimizeList_ARGBHeader,
+        OptimizeList_CombineRGBHeader,
         OriginalList_RGBHeader,
         OriginalList_CountHeader,
-        OptimizeList_CombineRGBHeader
     }
 
     /// <summary>
@@ -134,7 +135,7 @@ namespace SPRNetTool.View
             var colorCountKey = "Số màu (max = 256)";
             var colorCountDef = "256";
             var deltaKey = "Độ chênh lệch tối đa giữa 2 màu";
-            var deltaDes = 
+            var deltaDes =
                 "Độ chênh lệch tối đa giữa 2 màu là tham số thể xác định màu chưa được chọn tiếp theo có nên add vào list các màu\n" +
                 "được chọn không.\n\n" +
                 "Ví dụ:\n" +
@@ -154,6 +155,11 @@ namespace SPRNetTool.View
                 "Màu chưa chọn tiếp theo (11,11,11)\n" +
                 "Độ chênh lệch = 1,7 < delta = 10 => Màu này sẽ được cân nhắc tính giá trị alpha dựa theo Màu đã chọn (10,10,10)";
             var deltaForCompareRecalculateDef = "10";
+            var backgroundForBlendColorKey = "Màu nền cho blend";
+            var backgroundForBlendColorDes = "Màu nền được dùng cho việc blend màu foreground với kênh alpha.\n" +
+                "https://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color";
+
+
 
             var srcInput = builder.Add(colorCountKey
                 , colorCountKey
@@ -170,17 +176,25 @@ namespace SPRNetTool.View
                 , (src, isChecked) =>
                 {
                     src[3].IsDisabled = !isChecked;
+                    src[4].IsDisabled = !isChecked;
                 })
                 .Add(deltaForCompareRecalculateKey
                 , deltaForCompareRecalculateDes
                 , deltaForCompareRecalculateDef
                 , (cur, input) => input.Any(char.IsNumber) && Convert.ToInt32(cur + input) <= 10)
+                .Add(backgroundForBlendColorKey
+                , backgroundForBlendColorDes
+                , new List<string> { "WHITE (255,255,255)", "BLACK (0,0,0)" }
+                , 0
+                , () => true
+                , (cur, input) => { })
                 .Build();
 
             int colorSize = 256;
             int delta = 100;
             var isUsingAlpha = false;
             var deltaForCompareRecalculate = 10;
+            var backgroundForBlendColor = Colors.White;
 
             InputWindow inputWindow = new InputWindow(srcInput, this, (res) =>
             {
@@ -188,6 +202,15 @@ namespace SPRNetTool.View
                 delta = Convert.ToInt32(res[deltaKey]);
                 isUsingAlpha = Convert.ToBoolean(res[isUsingAlphaKey]);
                 deltaForCompareRecalculate = Convert.ToInt32(res[deltaForCompareRecalculateKey]);
+                switch (Convert.ToInt32(res[backgroundForBlendColorKey]))
+                {
+                    case 0:
+                        backgroundForBlendColor = Colors.White;
+                        break;
+                    case 1:
+                        backgroundForBlendColor = Colors.Black;
+                        break;
+                }
             });
             var res = inputWindow.Show();
             if (res == Res.CANCEL) return;
@@ -195,7 +218,7 @@ namespace SPRNetTool.View
             LoadingWindow l = new LoadingWindow(this, "Optimizing!");
             l.Show(block: async () =>
             {
-                if (viewModel.ColorSource.Count == 0) return;
+                if (viewModel.OriginalColorSource.Count == 0) return;
 
                 await Task.Run(async () =>
                 {
@@ -208,7 +231,6 @@ namespace SPRNetTool.View
                     var selectedColorRecalculatedAlapha = new List<Color>();
                     var expectedRGBList = new List<Color>();
                     var deltaDistanceForNewARGBColor = 10;
-                    var backgroundForBlendColor = Colors.White;
                     var deltaForAlphaAvarageDeviation = 3;
 
                     // Calculate palette
@@ -296,17 +318,17 @@ namespace SPRNetTool.View
                         if (newBmpSrc != null)
                         {
                             var src = await BitmapUtil.CountColorsAsync(newBmpSrc);
-                            var newCountedSrc = new ObservableCollection<OptimizedColorItemViewModel>();
+                            var newCountedSrc = new ObservableCollection<ColorItemViewModel>();
                             await Task.Run(() =>
                             {
                                 foreach (var color in src)
                                 {
                                     var newColor = color.Key;
-                                    newCountedSrc.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel { ItemColor = newColor, Count = color.Value });
+                                    newCountedSrc.Add<ColorItemViewModel>(new ColorItemViewModel { ItemColor = newColor, Count = color.Value });
                                 }
                             });
 
-                            viewModel.SetOptimizedColorSource(newCountedSrc);
+                            viewModel.SetResultRGBColorSource(newCountedSrc);
                         }
                     }
                 });
@@ -318,6 +340,7 @@ namespace SPRNetTool.View
         private int originalRgbClick = 0;
         private int optimizeCombinedRgbClick = 0;
         private int optimizeRgbClick = 0;
+        private int optimizeArgbClick = 0;
         private void HeaderMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             var tag = (sender as TextBlock)?.Tag;
@@ -347,6 +370,18 @@ namespace SPRNetTool.View
                     {
                         viewModel.ResetOptimizedOrder();
                         optimizeRgbClick = 0;
+                    }
+                    break;
+                case MainWindowTagID.OptimizeList_ARGBHeader:
+                    if (optimizeArgbClick == 0)
+                    {
+                        viewModel.OptimizedOrderByARGB();
+                        optimizeArgbClick = 1;
+                    }
+                    else if (optimizeArgbClick == 1)
+                    {
+                        viewModel.ResetOptimizedOrder();
+                        optimizeArgbClick = 0;
                     }
                     break;
                 case MainWindowTagID.OriginalList_CountHeader:
