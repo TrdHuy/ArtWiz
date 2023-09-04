@@ -1,4 +1,6 @@
-﻿using SPRNetTool.ViewModel.Base;
+﻿using SPRNetTool.Domain;
+using SPRNetTool.Domain.Base;
+using SPRNetTool.ViewModel.Base;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,11 +10,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.ViewModel
 {
     public class MainWindowViewModel : BaseViewModel
     {
+        private BitmapSource? _currentDisplayingBmpSrc;
         private ObservableCollection<ColorItemViewModel> _rawOriginalSource = new ObservableCollection<ColorItemViewModel>();
         private ObservableCollection<OptimizedColorItemViewModel>? _rawOptimizedSource = null;
         private ObservableCollection<ColorItemViewModel>? _rawResultRGBSource = null;
@@ -42,6 +46,7 @@ namespace SPRNetTool.ViewModel
                 Invalidate();
             }
         }
+
         [Bindable(true)]
         public ObservableCollection<OptimizedColorItemViewModel>? OptimizedColorSource
         {
@@ -49,6 +54,17 @@ namespace SPRNetTool.ViewModel
             private set
             {
                 _optimizedSource = value;
+                Invalidate();
+            }
+        }
+
+        [Bindable(true)]
+        public BitmapSource? CurrentDisplayingBmpSrc
+        {
+            get { return _currentDisplayingBmpSrc; }
+            private set
+            {
+                _currentDisplayingBmpSrc = value;
                 Invalidate();
             }
         }
@@ -70,25 +86,29 @@ namespace SPRNetTool.ViewModel
             _cachedOrderByCount = null;
             _cachedOrderByDescendingCount = null;
             _cachedOrderByRGB = null;
+            _currentDisplayingBmpSrc = null;
             InvalidateAll();
         }
 
         #region OriginalSource
-        public async Task SetColorSource(Dictionary<Color, long> colorsSource)
+        public async Task SetColorSource(Dictionary<Color, long>? colorsSource)
         {
             _cachedOrderByCount = null;
             _cachedOrderByDescendingCount = null;
             _cachedOrderByRGB = null;
             _rawOriginalSource.Clear();
-            await Task.Run(() =>
-            {
-                foreach (var color in colorsSource)
-                {
-                    var newColor = color.Key;
-                    _rawOriginalSource.Add<ColorItemViewModel>(new ColorItemViewModel { ItemColor = newColor, Count = color.Value });
-                }
-            });
 
+            if(colorsSource != null)
+            {
+                await Task.Run(() =>
+                {
+                    foreach (var color in colorsSource)
+                    {
+                        var newColor = color.Key;
+                        _rawOriginalSource.Add<ColorItemViewModel>(new ColorItemViewModel { ItemColor = newColor, Count = color.Value });
+                    }
+                });
+            }
             OriginalColorSource = _rawOriginalSource;
         }
 
@@ -171,7 +191,7 @@ namespace SPRNetTool.ViewModel
 
         #endregion
 
-
+        #region ResultRGBSource
         public void SetResultRGBColorSource(ObservableCollection<ColorItemViewModel> resultRGBColorSource)
         {
             _rawResultRGBSource = resultRGBColorSource;
@@ -181,6 +201,24 @@ namespace SPRNetTool.ViewModel
         public void ResetResultRGBColorSourceOrder()
         {
             ResultRGBSource = _rawResultRGBSource;
+        }
+        #endregion
+
+        protected async override void OnDomainChanged(IDomainChangedArgs args)
+        {
+            switch (args)
+            {
+                case BitmapDisplayMangerChangedArg castArgs:
+                    CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
+                    await SetColorSource(castArgs.CurrentColorSource);
+                    break;
+
+            }
+        }
+
+        public void OpenImageFromFile(string filePath)
+        {
+            BitmapDisplayManager.OpenBitmapFromFile(filePath, true);
         }
     }
 }

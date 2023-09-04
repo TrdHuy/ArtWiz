@@ -1,4 +1,5 @@
-﻿using SPRNetTool.Utils;
+﻿using SPRNetTool.Domain.Base;
+using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -123,6 +124,10 @@ namespace SPRNetTool.ViewModel
                 _index = value;
                 Invalidate();
             }
+        }
+
+        protected override void OnDomainChanged(IDomainChangedArgs args)
+        {
         }
     }
 

@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SPRNetTool.Domain;
+using SPRNetTool.Domain.Base;
+using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SPRNetTool.ViewModel
 {
-    public class BaseViewModel : INotifyPropertyChanged
-    {
+    public abstract class BaseViewModel : INotifyPropertyChanged, IDomainObserver
+    {   
+        protected static readonly IBitmapDisplayManager BitmapDisplayManager = new BitmapDisplayManager();
+
         protected void Invalidate([CallerMemberName] string caller = "")
         {
             OnPropertyChanged(caller);
         }
-        
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -39,5 +39,12 @@ namespace SPRNetTool.ViewModel
                 }
             }
         }
+
+        void IDomainObserver.OnDomainChanged(IDomainChangedArgs args)
+        {
+            OnDomainChanged(args);
+        }
+
+        protected virtual void OnDomainChanged(IDomainChangedArgs args) { }
     }
 }
