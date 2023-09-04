@@ -1,16 +1,14 @@
 ﻿using SPRNetTool.Data;
+using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain
 {
-    public class WorkManager
+    public class WorkManager : BaseDomain
     {
         public SprFileHead FileHead;
         public Palette PaletteData = new Palette();
@@ -161,6 +159,7 @@ namespace SPRNetTool.Domain
 
         private PaletteColour[]? InitGlobalizedFrameData(int index)
         {
+            BitmapSource v;
             var decodedFrameData = FrameData?[index].decodedFrameData;
             if (decodedFrameData == null)
             {
