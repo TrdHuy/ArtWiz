@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -10,7 +9,27 @@ namespace SPRNetTool.Utils
     public static class Extension
     {
 
-        
+        public static void CopyStructToArray<T>(this T value, byte[] arr, int offset) where T : struct
+        {
+            int structSize = Marshal.SizeOf(typeof(T));
+            if (offset + structSize > arr.Length) throw new Exception("Failed to copy struct to array!");
+            IntPtr structPtr = Marshal.AllocHGlobal(structSize);
+            Marshal.StructureToPtr(value, structPtr, false);
+            Marshal.Copy(structPtr, arr, offset, structSize);
+            Marshal.FreeHGlobal(structPtr);
+        }
+
+        public static void CopyStructToList<T>(this T value, List<byte> list) where T : struct
+        {
+            int structSize = Marshal.SizeOf(typeof(T));
+            byte[] byteArray = new byte[structSize];
+            IntPtr structPtr = Marshal.AllocHGlobal(structSize);
+            Marshal.StructureToPtr(value, structPtr, false);
+            Marshal.Copy(structPtr, byteArray, 0, structSize);
+            Marshal.FreeHGlobal(structPtr);
+            list.AddRange(byteArray);
+        }
+
         public static T? BinToStruct<T>(this FileStream fs, long position = 0) where T : struct
         {
             int structSize = Marshal.SizeOf(typeof(T));
