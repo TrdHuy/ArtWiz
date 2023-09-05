@@ -12,6 +12,7 @@ namespace SPRNetTool.Domain.Base
         List<IDomainObserver> IObservableDomain.GetDomainObserver()
         {
             return domainObservers;
+
         }
 
         protected void NotifyChanged(IDomainChangedArgs args)
