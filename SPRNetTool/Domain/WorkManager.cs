@@ -2,6 +2,7 @@
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
@@ -96,6 +97,7 @@ namespace SPRNetTool.Domain
                 return null;
             }
 
+
             var frameInfo = fs.BinToStruct<FrameInfo>(frameBeginPos);
             long decdatalength = (frameInfo?.Width * frameInfo?.Height) ?? 0;
             frameWidth = frameInfo?.Width ?? 0;
@@ -106,6 +108,9 @@ namespace SPRNetTool.Domain
             {
                 return null;
             }
+
+            var encryptedData = new byte[datalength];
+            frameInfo?.CopyStructToArray(encryptedData, 0);
 
             PaletteColour[] decData = new PaletteColour[decdatalength];
             var frameDataPos = frameBeginPos + Marshal.SizeOf(typeof(FrameInfo));
@@ -118,7 +123,10 @@ namespace SPRNetTool.Domain
                     return null;
                 }
                 int size = fs.ReadByte();
+                encryptedData[i + 8] = (byte)size;
                 int alpha = fs.ReadByte();
+                encryptedData[i + 9] = (byte)alpha;
+
                 if (size == -1 || alpha == -1)
                 {
                     return null;
@@ -140,6 +148,7 @@ namespace SPRNetTool.Domain
                     for (int j = 0; j < size; j++)
                     {
                         int colorIndex = (int)fs.ReadByte();
+                        encryptedData[i + 10] = (byte)colorIndex;
                         if (colorIndex == -1)
                         {
                             return null;
@@ -154,7 +163,107 @@ namespace SPRNetTool.Domain
                 }
                 i += 2;
             }
+
+            //TODO: remove me
+#if DEBUG
+            var encryptData2 = EncryptFrameData(decData, PaletteData.Data, frameWidth, frameHeight, frameOffX, frameOffY) ?? throw new Exception("Failed to decrypt SPR");
+            if (!AreByteArraysEqual(encryptData2, encryptedData))
+            {
+                throw new Exception("Failed to decrypted");
+            }
+#endif
             return decData;
+        }
+
+        public static bool AreByteArraysEqual(byte[] array1, byte[] array2)
+        {
+            // Nếu mảng có chiều dài khác nhau, chúng không giống nhau
+            if (array1.Length != array2.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < array1.Length; i++)
+            {
+                // So sánh từng phần tử của hai mảng
+                if (array1[i] != array2[i])
+                {
+                    return false;
+                }
+            }
+
+            // Nếu không có phần tử nào khác nhau, chúng giống nhau
+            return true;
+        }
+
+        private byte FindPaletteIndex(PaletteColour targetColor, PaletteColour[] paletteData)
+        {
+            for (byte i = 0; i < paletteData.Length; i++)
+            {
+                if (targetColor.Red == paletteData[i].Red &&
+                    targetColor.Green == paletteData[i].Green &&
+                    targetColor.Blue == paletteData[i].Blue)
+                {
+                    return i;
+                }
+            }
+
+            return 0;
+        }
+
+        public byte[]? EncryptFrameData(PaletteColour[] pixelArray, PaletteColour[] paletteData
+                   , int frameWidth, int frameHeigth, int frameOffX, int frameOffY)
+        {
+
+            var encryptedFrameDataList = new List<byte>();
+
+            var frameInfo = new FrameInfo();
+            frameInfo.OffX = (short)frameOffX;
+            frameInfo.OffY = (short)frameOffY;
+            frameInfo.Height = (short)frameHeigth;
+            frameInfo.Width = (short)frameWidth;
+            frameInfo.CopyStructToList(encryptedFrameDataList);
+
+            for (int i = 0; i < pixelArray.Length;)
+            {
+                byte size = 0;
+                byte alpha = pixelArray[i].Alpha;
+                if (alpha == 0)
+                {
+                    while (i < pixelArray.Length && pixelArray[i].Alpha == 0 && size < 255)
+                    {
+                        i++;
+                        size++;
+
+                        if (i % frameWidth == 0)
+                        {
+                            break;
+                        }
+                    }
+                    encryptedFrameDataList.Add(size);
+                    encryptedFrameDataList.Add(alpha);
+                }
+                else
+                {
+                    List<byte> temp = new List<byte>();
+                    while (i < pixelArray.Length && pixelArray[i].Alpha == alpha && size < 255)
+                    {
+                        byte index = FindPaletteIndex(pixelArray[i], paletteData);
+                        temp.Add(index);
+                        i++;
+                        size++;
+
+                        if (i % frameWidth == 0)
+                        {
+                            break;
+                        }
+                    }
+                    encryptedFrameDataList.Add(size);
+                    encryptedFrameDataList.Add(alpha);
+                    encryptedFrameDataList.AddRange(temp);
+                }
+            }
+            return encryptedFrameDataList.ToArray();
         }
 
         private PaletteColour[]? InitGlobalizedFrameData(int index)
