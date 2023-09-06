@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SPRNetTool.View.Base
 {
-    internal interface INetView
+    public interface IWindowViewer : IViewerElement
     {
         public void DisableWindow(bool isDisabled);
     }
