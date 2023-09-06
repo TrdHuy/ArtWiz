@@ -1,0 +1,322 @@
+﻿<base:BasePageViewer x:Class="SPRNetTool.View.Pages.DebugPage"
+					 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+					 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+					 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+					 xmlns:local="clr-namespace:SPRNetTool.View"
+					 xmlns:base="clr-namespace:SPRNetTool.View.Base"
+					 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
+					 mc:Ignorable="d"
+					 d:DesignWidth="800"
+					 xmlns:vm="clr-namespace:SPRNetTool.ViewModel">
+	<UserControl.DataContext>
+		<vm:DebugPageViewModel />
+	</UserControl.DataContext>
+
+	<UserControl.Resources>
+		<cvt:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+		<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+		<FontFamily x:Key="FontAwsome">
+			/SPRNetTool;component/Resources/Font Awesome 6 Free-Solid-900.otf#Font Awesome 6 Free Solid
+		</FontFamily>
+		<Style x:Key="ListViewStyle"
+			   TargetType="{x:Type GridViewColumnHeader}">
+			<Setter Property="HorizontalContentAlignment"
+					Value="Left" />
+		</Style>
+	</UserControl.Resources>
+	<Grid Background="#FFA1A1A1">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<StackPanel Margin="5,0,5,0">
+			<Button Width="100"
+					Height="30"
+					BorderThickness="0,0,0,1"
+					Content="Com1"
+					Click="Button_Click" />
+			<Button Width="100"
+					BorderThickness="0,0,0,1"
+					Height="30"
+					Content="Open Image"
+					Click="OpenImageClick" />
+			<Button Width="100"
+					BorderThickness="0,0,0,1"
+					Height="30"
+					Content="Optimize Image"
+					Click="OptimizeImageColorClick" />
+			<Button Width="100"
+					BorderThickness="0,0,0,1"
+					Height="30"
+					Content="Resize Image"
+					Click="ResizeImageClick" />
+			<Button Width="100"
+					Height="30"
+					BorderThickness="0"
+					Foreground="White"
+					Content="Clear"
+					Background="Red"
+					Click="ClearClick" />
+
+			<Button Width="100"
+					Height="30"
+					BorderThickness="0"
+					Foreground="White"
+					Content="TestCMD"
+					Background="Green"
+					Click="TestBtnClick" />
+		</StackPanel>
+
+
+		<Grid Height="Auto"
+			  Grid.Column="1"
+			  Grid.ColumnSpan="2">
+
+			<Grid.RowDefinitions>
+				<RowDefinition Height="250" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="30" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+			<Grid Grid.Column="0"
+				  Background="Black">
+				<Image x:Name="StaticImageView"
+					   Source="../../Resources/bg.jpg" />
+			</Grid>
+
+			<Grid Grid.Column="1"
+				  Background="Black">
+				<Image x:Name="StaticImageView2"
+					   Source="../../Resources/bg.jpg" />
+			</Grid>
+
+			<StackPanel Grid.Row="1"
+						Margin="10">
+				<Rectangle Height="2"
+						   Fill="Black" />
+				<TextBlock Text="ORIGINAL SOURCE"
+						   FontSize="15"
+						   Margin="0,5,0,0"
+						   FontWeight="Bold" />
+				<ListView ItemsSource="{Binding OriginalColorSource}"
+						  Height="300"
+						  Margin="5,10,5,0">
+					<ListView.View>
+						<GridView>
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="#"
+											DisplayMemberBinding="{Binding Index}" />
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="Màu"
+											Width="50">
+								<GridViewColumn.CellTemplate>
+									<DataTemplate>
+										<Rectangle Fill="{Binding ColorValue}"
+												   Height="20"
+												   Width="20" />
+									</DataTemplate>
+								</GridViewColumn.CellTemplate>
+							</GridViewColumn>
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="RGBA"
+											Width="100"
+											DisplayMemberBinding="{Binding RGBAValue}" />
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Width="100"
+											DisplayMemberBinding="{Binding RGBValue}">
+								<GridViewColumn.Header>
+									<TextBlock Text="RGB"
+											   Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid, Mode=FindAncestor}}"
+											   Tag="{x:Static local:MainWindowTagID.OriginalList_RGBHeader}"
+											   MouseDown="HeaderMouseDown" />
+								</GridViewColumn.Header>
+							</GridViewColumn>
+							<GridViewColumn Width="100"
+											DisplayMemberBinding="{Binding Count}">
+								<GridViewColumn.Header>
+									<TextBlock Text="Số lượng"
+											   Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid, Mode=FindAncestor}}"
+											   Tag="{x:Static local:MainWindowTagID.OriginalList_CountHeader}"
+											   MouseDown="HeaderMouseDown" />
+								</GridViewColumn.Header>
+							</GridViewColumn>
+						</GridView>
+					</ListView.View>
+
+				</ListView>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1"
+						Margin="10"
+						Grid.Row="1">
+
+				<Rectangle Height="2"
+						   Fill="Black" />
+				<TextBlock Text="OPTIMIZED SOURCE"
+						   FontSize="15"
+						   Margin="0,5,0,0"
+						   FontWeight="Bold" />
+
+				<ListView  Margin="5,10,5,0"
+						   Height="300"
+						   x:Name="OptimizedListView"
+						   Visibility="{Binding OptimizedColorSource, Converter={StaticResource NullToVisibilityConverter}}"
+						   ItemsSource="{Binding OptimizedColorSource}">
+					<ListView.View>
+						<GridView>
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="#"
+											DisplayMemberBinding="{Binding Index}" />
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="Màu"
+											Width="50">
+								<GridViewColumn.CellTemplate>
+									<DataTemplate>
+										<Rectangle Fill="{Binding ColorValue}"
+												   Height="20"
+												   Width="20" />
+									</DataTemplate>
+								</GridViewColumn.CellTemplate>
+							</GridViewColumn>
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="Màu sau combine"
+											Width="50">
+								<GridViewColumn.CellTemplate>
+									<DataTemplate>
+										<Rectangle Fill="{Binding CombinedColorValue}"
+												   Height="20"
+												   Width="20" />
+									</DataTemplate>
+								</GridViewColumn.CellTemplate>
+							</GridViewColumn>
+
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="Màu mong muốn"
+											Width="50">
+								<GridViewColumn.CellTemplate>
+									<DataTemplate>
+										<Grid>
+											<TextBlock Text="&#xf057;"
+													   FontSize="15"
+													   FontFamily="{StaticResource FontAwsome}"
+													   RenderTransformOrigin="0.5,0.5"
+													   Foreground="Red" />
+											<Rectangle Fill="{Binding ExpectedColorValue}"
+													   Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}"
+													   Height="20"
+													   Width="20" />
+										</Grid>
+
+									</DataTemplate>
+								</GridViewColumn.CellTemplate>
+							</GridViewColumn>
+
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Width="100"
+											DisplayMemberBinding="{Binding RGBAValue}">
+								<GridViewColumn.Header>
+									<TextBlock Text="RGBA"
+											   Tag="{x:Static local:MainWindowTagID.OptimizeList_ARGBHeader}"
+											   MouseDown="HeaderMouseDown" />
+								</GridViewColumn.Header>
+							</GridViewColumn>
+
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Width="100"
+											DisplayMemberBinding="{Binding RGBValue}">
+								<GridViewColumn.Header>
+									<TextBlock Text="RGB"
+											   Tag="{x:Static local:MainWindowTagID.OptimizeList_RGBHeader}"
+											   MouseDown="HeaderMouseDown" />
+								</GridViewColumn.Header>
+							</GridViewColumn>
+
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Width="100"
+											DisplayMemberBinding="{Binding CombinedRGBValue}">
+								<GridViewColumn.Header>
+									<TextBlock Text="Combined RGB"
+											   Tag="{x:Static local:MainWindowTagID.OptimizeList_CombineRGBHeader}"
+											   MouseDown="HeaderMouseDown" />
+								</GridViewColumn.Header>
+							</GridViewColumn>
+
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Width="100"
+											DisplayMemberBinding="{Binding ExpectedRGBValue}">
+								<GridViewColumn.Header>
+									<TextBlock Text="Expected RGB"
+											   MouseDown="HeaderMouseDown" />
+								</GridViewColumn.Header>
+							</GridViewColumn>
+						</GridView>
+					</ListView.View>
+
+				</ListView>
+
+				<Rectangle Margin="0,10,0,0"
+						   Height="2"
+						   Fill="Black" />
+				<TextBlock Text="RESULT RGB SOURCE"
+						   FontSize="15"
+						   Margin="0,5,0,0"
+						   FontWeight="Bold" />
+
+				<ListView ItemsSource="{Binding ResultRGBSource}"
+						  Height="300"
+						  Margin="5,10,5,0">
+					<ListView.View>
+						<GridView>
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="#"
+											DisplayMemberBinding="{Binding Index}" />
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="Màu"
+											Width="50">
+								<GridViewColumn.CellTemplate>
+									<DataTemplate>
+										<Rectangle Fill="{Binding ColorValue}"
+												   Height="20"
+												   Width="20" />
+									</DataTemplate>
+								</GridViewColumn.CellTemplate>
+							</GridViewColumn>
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Header="RGBA"
+											Width="100"
+											DisplayMemberBinding="{Binding RGBAValue}" />
+							<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
+											Width="100"
+											DisplayMemberBinding="{Binding RGBValue}">
+								<GridViewColumn.Header>
+									<TextBlock Text="RGB"
+											   Width="{Binding RelativeSource={RelativeSource AncestorType=Grid, Mode=FindAncestor}, Path=ActualWidth}"
+											   Tag="{x:Static local:MainWindowTagID.OriginalList_RGBHeader}"
+											   MouseDown="HeaderMouseDown" />
+								</GridViewColumn.Header>
+							</GridViewColumn>
+							<GridViewColumn Width="100"
+											DisplayMemberBinding="{Binding Count}">
+								<GridViewColumn.Header>
+									<TextBlock Text="Số lượng"
+											   Width="{Binding RelativeSource={RelativeSource AncestorType=Grid, Mode=FindAncestor}, Path=ActualWidth}"
+											   Tag="{x:Static local:MainWindowTagID.OriginalList_CountHeader}"
+											   MouseDown="HeaderMouseDown" />
+								</GridViewColumn.Header>
+							</GridViewColumn>
+						</GridView>
+					</ListView.View>
+
+				</ListView>
+			</StackPanel>
+
+		</Grid>
+
+	</Grid>
+</base:BasePageViewer>
