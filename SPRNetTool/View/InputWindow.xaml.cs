@@ -226,7 +226,7 @@ namespace SPRNetTool.View
         {
             if (Owner != null)
             {
-                (Owner as INetView)?.DisableWindow(true);
+                (Owner as IWindowViewer)?.DisableWindow(true);
             }
             base.ShowDialog();
             return curRes;
@@ -275,7 +275,7 @@ namespace SPRNetTool.View
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            (Owner as INetView)?.DisableWindow(false);
+            (Owner as IWindowViewer)?.DisableWindow(false);
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)

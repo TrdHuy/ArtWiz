@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.ViewModel
 {
-    public class MainWindowViewModel : BaseViewModel
+    public class DebugPageViewModel : BaseViewModel
     {
         private BitmapSource? _currentDisplayingBmpSrc;
         private ObservableCollection<ColorItemViewModel> _rawOriginalSource = new ObservableCollection<ColorItemViewModel>();
@@ -69,7 +69,7 @@ namespace SPRNetTool.ViewModel
             }
         }
 
-        public MainWindowViewModel()
+        public DebugPageViewModel()
         {
             BindingOperations.EnableCollectionSynchronization(_rawOriginalSource, new object());
         }
