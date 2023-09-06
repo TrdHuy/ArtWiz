@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace SPRNetTool.Domain.Base
 {
+
     public abstract class BaseDomain : IObservableDomain, IDomainAdapter
     {
         private List<IDomainObserver> domainObservers = new List<IDomainObserver>();
