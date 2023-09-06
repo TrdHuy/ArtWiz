@@ -32,6 +32,49 @@ namespace SPRNetTool.Utils
             return argbSrc;
         }
 
+        public static async Task<Dictionary<Color, long>> CountColorsFromByteArrayAsync(byte[] rgbData, PixelFormat pixelFormat)
+        {
+            Dictionary<Color, long> argbSrc = new Dictionary<Color, long>();
+            await Task.Run(() =>
+            {
+                CountColorsFromByteArray(rgbData, out long argbCount, out long rgbCount, out argbSrc, pixelFormat);
+            });
+            return argbSrc;
+        }
+
+        public static void CountColorsFromByteArray(byte[] rgbData, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc, PixelFormat pixelFormat)
+        {
+            Dictionary<Color, long> aRGBColorSet = new Dictionary<Color, long>();
+            HashSet<Color> rGBColorSet = new HashSet<Color>();
+            var isIncludedAlphaChannel = pixelFormat.BitsPerPixel / 8 == 4;
+
+            for (int i = 0; i < rgbData.Length; i += pixelFormat.BitsPerPixel / 8)
+            {
+                byte blue = rgbData[i];
+                byte green = rgbData[i + 1];
+                byte red = rgbData[i + 2];
+                if (isIncludedAlphaChannel)
+                {
+                    byte alpha = rgbData[i + 3];
+                    Color colorARGB = Color.FromArgb(alpha, red, green, blue);
+                    if (!aRGBColorSet.ContainsKey(colorARGB))
+                    {
+                        aRGBColorSet[colorARGB] = 1;
+                    }
+                    else
+                    {
+                        aRGBColorSet[colorARGB]++;
+                    }
+                }
+
+                Color colorRGB = Color.FromRgb(red, green, blue);
+                rGBColorSet.Add(colorRGB);
+            }
+            argbCount = aRGBColorSet.Count;
+            rgbCount = rGBColorSet.Count;
+            argbSrc = aRGBColorSet;
+        }
+
         public static void CountColors(BitmapSource bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc)
         {
             Dictionary<Color, long> aRGBColorSet = new Dictionary<Color, long>();
@@ -404,6 +447,17 @@ namespace SPRNetTool.Utils
 
                 Console.WriteLine($"Đã ghi vào tệp '{outputPath}'");
             }
+        }
+
+        public static byte[] ToRawByteArray(this BitmapSource source)
+        {
+            int width = source.PixelWidth;
+            int height = source.PixelHeight;
+            int stride = (width * source.Format.BitsPerPixel + 7) / 8;
+            byte[] pixelData = new byte[stride * height];
+
+            source.CopyPixels(pixelData, stride, 0);
+            return pixelData;
         }
     }
 }

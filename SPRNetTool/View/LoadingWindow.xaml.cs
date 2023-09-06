@@ -29,10 +29,10 @@ namespace SPRNetTool.View
             InitializeComponent();
             TitleView.Text = tilte;
 
-            if (Owner != null || Owner is INetView)
+            if (Owner != null || Owner is IWindowViewer)
             {
                 Owner.LocationChanged += Owner_LocationChanged;
-                (Owner as INetView)?.DisableWindow(true);
+                (Owner as IWindowViewer)?.DisableWindow(true);
             }
         }
 
@@ -50,7 +50,7 @@ namespace SPRNetTool.View
         {
             Owner.LocationChanged -= Owner_LocationChanged;
             base.OnClosed(e);
-            (Owner as INetView)?.DisableWindow(false);
+            (Owner as IWindowViewer)?.DisableWindow(false);
         }
 
         public async void Show(Func<Task> block, Action? callback = null, int delay = 1000)

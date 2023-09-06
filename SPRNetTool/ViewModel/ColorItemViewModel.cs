@@ -1,8 +1,6 @@
 ﻿using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Media;
 
 namespace SPRNetTool.ViewModel
