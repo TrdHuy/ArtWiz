@@ -44,9 +44,9 @@ namespace SPRNetTool.Domain
             if (FrameData == null) return;
             for (int i = 0; i < FileHead.FrameCounts; i++)
             {
-                var decodedFrameData = InitDecodedFrameData(fs, i, out int frameWidth,
-                        out int frameHeight, COLORMODE.RGBA, out int frameOffX,
-                        out int frameOffY);
+                var decodedFrameData = InitDecodedFrameData(fs, i, out ushort frameWidth,
+                        out ushort frameHeight, COLORMODE.RGBA, out ushort frameOffX,
+                        out ushort frameOffY);
 
                 if (decodedFrameData == null) throw new Exception("Failed to init decoded frame data!");
 
@@ -63,11 +63,11 @@ namespace SPRNetTool.Domain
 
         private PaletteColour[]? InitDecodedFrameData(FileStream fs,
             int index,
-            out int frameWidth,
-            out int frameHeight,
+            out ushort frameWidth,
+            out ushort frameHeight,
             COLORMODE mod,
-            out int frameOffX,
-            out int frameOffY)
+            out ushort frameOffX,
+            out ushort frameOffY)
         {
             frameWidth = frameHeight = frameOffX = frameOffY = 0;
             if (index > FileHead.FrameCounts || FrameDataBegPos == -1 || FrameData == null)
@@ -175,6 +175,77 @@ namespace SPRNetTool.Domain
             return decData;
         }
 
+        public byte[]? EncryptedSprFile(List<byte[]> encryptedFrameDatas,
+           PaletteColour[] paletteData,
+           ushort globalWidth,
+           ushort globalHeight,
+           ushort globalOffX,
+           ushort globalOffY,
+           ushort direction,
+           ushort interval,
+           byte[] reserved)
+        {
+
+            void WritePaletteColorToByteList(PaletteColour color, List<byte> list)
+            {
+                list.Add(color.Red);
+                list.Add(color.Green);
+                list.Add(color.Blue);
+            }
+
+            void WriteFrameOffsetInfoList(List<byte[]> encryptedFrameDatas, List<byte> list, int index)
+            {
+                FrameOffsetInfo frameOffsetInfo = new FrameOffsetInfo();
+                for (int i = 0; i < index; i++)
+                {
+                    frameOffsetInfo.FrameOffset += (uint)encryptedFrameDatas[i].Length;
+                }
+                frameOffsetInfo.DataLenght = (uint)encryptedFrameDatas[index].Length;
+                frameOffsetInfo.CopyStructToList(list);
+            }
+
+            if (paletteData.Length > 256 && encryptedFrameDatas.Count > ushort.MaxValue)
+            {
+                throw new Exception("Failed to encrypt SPR file");
+            }
+            US_SprFileHead fileHead = new US_SprFileHead();
+            fileHead.SetVersionInfoStr(new char[] { 'S', 'P', 'R', '\0' });
+            fileHead.SetReserved(reserved);
+            fileHead.Interval = interval;
+            fileHead.FrameCounts = (ushort)encryptedFrameDatas.Count;
+            fileHead.GlobleHeight = globalHeight;
+            fileHead.GlobleWidth = globalWidth;
+            fileHead.OffX = globalOffX;
+            fileHead.OffY = globalOffY;
+            fileHead.DirectionCount = direction;
+            fileHead.ColourCounts = (ushort)paletteData.Length;
+
+            List<byte> encryptedFileData = new List<byte>();
+
+            // write file head
+            fileHead.CopyStructToList(encryptedFileData);
+
+            // write color palette
+            foreach (var color in paletteData)
+            {
+                WritePaletteColorToByteList(color, encryptedFileData);
+            }
+
+            // write frame offset info
+            for (int i = 0; i < encryptedFrameDatas.Count; i++)
+            {
+                WriteFrameOffsetInfoList(encryptedFrameDatas, encryptedFileData, i);
+            }
+
+            // write frame data
+            for (int i = 0; i < encryptedFrameDatas.Count; i++)
+            {
+                encryptedFileData.AddRange(encryptedFrameDatas[i]);
+            }
+
+            return encryptedFileData.ToArray();
+        }
+
         public static bool AreByteArraysEqual(byte[] array1, byte[] array2)
         {
             // Nếu mảng có chiều dài khác nhau, chúng không giống nhau
@@ -218,10 +289,10 @@ namespace SPRNetTool.Domain
             var encryptedFrameDataList = new List<byte>();
 
             var frameInfo = new FrameInfo();
-            frameInfo.OffX = (short)frameOffX;
-            frameInfo.OffY = (short)frameOffY;
-            frameInfo.Height = (short)frameHeigth;
-            frameInfo.Width = (short)frameWidth;
+            frameInfo.OffX = (ushort)frameOffX;
+            frameInfo.OffY = (ushort)frameOffY;
+            frameInfo.Height = (ushort)frameHeigth;
+            frameInfo.Width = (ushort)frameWidth;
             frameInfo.CopyStructToList(encryptedFrameDataList);
 
             for (int i = 0; i < pixelArray.Length;)
