@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace SPRNetTool.Data
 {
@@ -12,15 +7,31 @@ namespace SPRNetTool.Data
     public unsafe struct US_SprFileHead
     {
         fixed byte VersionInfo[4];
-        public short GlobleWidth;
-        public short GlobleHeight;
-        public short OffX;
-        public short OffY;
-        public short FrameCounts;
-        public short ColourCounts;
-        public short DirectionCount;
-        public short Interval;
+        public ushort GlobleWidth;
+        public ushort GlobleHeight;
+        public ushort OffX;
+        public ushort OffY;
+        public ushort FrameCounts;
+        public ushort ColourCounts;
+        public ushort DirectionCount;
+        public ushort Interval;
         fixed byte Reserved[12];
+
+        public void SetVersionInfoStr(char[] versionCharArray)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                VersionInfo[i] = (byte)versionCharArray[i];
+            }
+        }
+
+        public void SetReserved(byte[] reserved)
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                Reserved[i] = reserved[i];
+            }
+        }
 
         public string GetVersionInfoStr()
         {
@@ -57,25 +68,25 @@ namespace SPRNetTool.Data
     public struct SprFileHead
     {
         public byte[] VersionInfo;
-        public short GlobleWidth;
-        public short GlobleHeight;
-        public short OffX;
-        public short OffY;
-        public short FrameCounts;
-        public short ColourCounts;
-        public short DirectionCount;
-        public short Interval;
+        public ushort GlobleWidth;
+        public ushort GlobleHeight;
+        public ushort OffX;
+        public ushort OffY;
+        public ushort FrameCounts;
+        public ushort ColourCounts;
+        public ushort DirectionCount;
+        public ushort Interval;
         public byte[] Reserved;
 
         public SprFileHead(byte[] versionInfo,
-            short globleWidth,
-            short globleHeight,
-            short offX,
-            short offY,
-            short frameCounts,
-            short colourCounts,
-            short directionCount,
-            short interval,
+            ushort globleWidth,
+            ushort globleHeight,
+            ushort offX,
+            ushort offY,
+            ushort frameCounts,
+            ushort colourCounts,
+            ushort directionCount,
+            ushort interval,
             byte[] reserved)
         {
             VersionInfo = versionInfo;
@@ -120,25 +131,26 @@ namespace SPRNetTool.Data
 
     public struct FrameOffsetInfo
     {
-        public int FrameOffset;
-        public int DataLenght;
+        public uint FrameOffset;
+        public uint DataLenght;
     }
 
     public struct FrameInfo
     {
-        public short Width;
-        public short Height;
-        public short OffX;
-        public short OffY;
+        public ushort Width;
+        public ushort Height;
+        public ushort OffX;
+        public ushort OffY;
     }
 
     public struct FRAMERGBA
     {
-        public int frameWidth;
-        public int frameHeight;
-        public int frameOffX;
-        public int frameOffY;
+        public uint frameWidth;
+        public uint frameHeight;
+        public uint frameOffX;
+        public uint frameOffY;
 
+        public byte[] encyptedFrameData;
         public PaletteColour[] decodedFrameData;
         public PaletteColour[] globleFrameData;
     }
