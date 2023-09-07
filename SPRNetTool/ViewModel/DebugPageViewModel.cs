@@ -1,5 +1,6 @@
 ﻿using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
+using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
 using System;
 using System.Collections.Generic;
@@ -93,12 +94,13 @@ namespace SPRNetTool.ViewModel
         #region OriginalSource
         public async Task SetColorSource(Dictionary<Color, long>? colorsSource)
         {
+            _countableColorSource = colorsSource;
             _cachedOrderByCount = null;
             _cachedOrderByDescendingCount = null;
             _cachedOrderByRGB = null;
             _rawOriginalSource.Clear();
 
-            if(colorsSource != null)
+            if (colorsSource != null)
             {
                 await Task.Run(() =>
                 {
@@ -219,6 +221,27 @@ namespace SPRNetTool.ViewModel
         public void OpenImageFromFile(string filePath)
         {
             BitmapDisplayManager.OpenBitmapFromFile(filePath, true);
+        }
+
+        private Dictionary<Color, long>? _countableColorSource;
+        public void OptimizeImageColor(int colorSize
+            , int colorDifferenceDelta
+            , bool isUsingAlpha
+            , int colorDifferenceDeltaForCalculatingAlpha
+            , Color backgroundForBlendColor)
+        {
+            (_countableColorSource!, CurrentDisplayingBmpSrc!).ApplyIfNotNull((it1, it2) =>
+            {
+                BitmapDisplayManager.OptimzeImageColor(it1
+                    , it2
+                    , colorSize
+                    , colorDifferenceDelta
+                    , isUsingAlpha
+                    , colorDifferenceDeltaForCalculatingAlpha
+                    , backgroundForBlendColor
+                    );
+            });
+
         }
     }
 }
