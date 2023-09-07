@@ -10,9 +10,6 @@
 		Height="900"
 		Width="1000"
 		xmlns:vm="clr-namespace:SPRNetTool.ViewModel">
-	<Window.DataContext>
-		<vm:DebugPageViewModel />
-	</Window.DataContext>
 
 	<Grid>
 		<Grid.RowDefinitions>
