@@ -60,6 +60,14 @@ namespace SPRNetTool.Utils
     }
     public static class SharpExtension
     {
+        public static void ApplyIfNotNull<T1, T2>(this (T1, T2) self, Action<T1, T2> block)
+        {
+            if (self.Item1 != null && self.Item2 != null)
+            {
+                block(self.Item1, self.Item2);
+            }
+        }
+
         public static void Apply<T>(this T self, Action<T> block)
         {
             block(self);
