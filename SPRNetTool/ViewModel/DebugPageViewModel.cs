@@ -73,6 +73,12 @@ namespace SPRNetTool.ViewModel
         public DebugPageViewModel()
         {
             BindingOperations.EnableCollectionSynchronization(_rawOriginalSource, new object());
+            BitmapDisplayManager.RegisterObserver(this);
+        }
+
+        ~DebugPageViewModel()
+        {
+            BitmapDisplayManager.UnregisterObserver(this);
         }
 
         public void ResetViewModel()
@@ -218,9 +224,13 @@ namespace SPRNetTool.ViewModel
             }
         }
 
-        public void OpenImageFromFile(string filePath)
+        public async Task OpenImageFromFileAsync(string filePath)
         {
-            BitmapDisplayManager.OpenBitmapFromFile(filePath, true);
+            await Task.Run(() =>
+            {
+                BitmapDisplayManager.OpenBitmapFromFile(filePath, true);
+            });
+
         }
 
         private Dictionary<Color, long>? _countableColorSource;

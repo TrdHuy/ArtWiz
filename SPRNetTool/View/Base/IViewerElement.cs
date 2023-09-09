@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Windows.Threading;
 
 namespace SPRNetTool.View.Base
 {
     public interface IViewerElement
     {
+        public Dispatcher ViewElementDispatcher { get; }
         public object ViewModel { get; }
     }
 }
