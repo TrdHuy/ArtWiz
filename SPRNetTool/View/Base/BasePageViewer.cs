@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace SPRNetTool.View.Base
 {
@@ -12,6 +8,7 @@ namespace SPRNetTool.View.Base
         private IWindowViewer _ownerWindow;
 
         public IWindowViewer OwnerWindow => _ownerWindow;
+        public Dispatcher ViewElementDispatcher => Dispatcher;
 
         public abstract object ViewModel { get; }
 

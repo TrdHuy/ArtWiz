@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain.Base
 {
-    public interface IBitmapDisplayManager
+    public interface IBitmapDisplayManager: IObservableDomain
     {
         void OpenBitmapFromFile(string filePath, bool countPixelColor);
 
