@@ -112,13 +112,10 @@ namespace SPRNetTool.View.Pages
                 l.Show(block: async () =>
                 {
                     string imagePath = openFileDialog.FileName;
-                    bmpSource = BitmapUtil.LoadBitmapFromFile(imagePath);
-                    StaticImageView.Source = bmpSource;
-                    if (bmpSource == null) { return; }
-                    var src = await BitmapUtil.CountColorsAsync(bmpSource);
-                    await viewModel.SetColorSource(src);
+                    await viewModel.OpenImageFromFileAsync(imagePath);
+                    bmpSource = viewModel.CurrentDisplayingBmpSrc;
 
-                    Debug.WriteLine($"WxH= {bmpSource.PixelWidth * bmpSource.PixelHeight}");
+                    Debug.WriteLine($"WxH= {bmpSource?.PixelWidth * bmpSource?.PixelHeight}");
                 });
 
             }
@@ -295,7 +292,7 @@ namespace SPRNetTool.View.Pages
                     //======================================================
                     //Dithering
                     BitmapSource? oldBmpSource = null;
-                    this.Dispatcher.Invoke(new Action(() =>
+                    this.ViewElementDispatcher.Invoke(new Action(() =>
                     {
                         oldBmpSource = StaticImageView.Source as BitmapSource;
 
@@ -305,7 +302,7 @@ namespace SPRNetTool.View.Pages
                         //var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, selectedColorList, isUsingAlpha, selectedColorRecalculatedAlapha, backgroundForBlendColor);
                         var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, combinedColorList);
                         newBmpSrc?.Freeze();
-                        this.Dispatcher.Invoke(new Action(() =>
+                        this.ViewElementDispatcher.Invoke(new Action(() =>
                         {
                             StaticImageView2.Source = newBmpSrc;
                         }));
