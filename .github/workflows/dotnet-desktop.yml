@@ -47,26 +47,17 @@ jobs:
     name: Check Commit Message
     runs-on: ubuntu-latest
     steps:
-      - name: Check Commit Type
-        uses: gsactions/commit-message-checker@v2
-        with:
-          pattern: '\[[^]]+\] .+$'
-          flags: 'gm'
-          error: 'Your first line has to contain a commit type like "[BUGFIX]".'
-      - name: Check Line Length
-        uses: gsactions/commit-message-checker@v2
-        with:
-          pattern: '^[^#].{74}'
-          error: 'The maximum line length of 74 characters is exceeded.'
-          excludeDescription: 'true' # optional: this excludes the description body of a pull request
-          excludeTitle: 'true' # optional: this excludes the title of a pull request
-          checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
-          accessToken: ${{ secrets.GITHUB_TOKEN }} # github access token is only required if checkAllCommitMessages is true
-      - name: Check for Resolves / Fixes
-        uses: gsactions/commit-message-checker@v2
-        with:
-          pattern: '^.+(Resolves|Fixes): \#[0-9]+$'
-          error: 'You need at least one "Resolves|Fixes: #<issue number>" line.'
+     - name: Checkout code
+       uses: actions/checkout@v3
+
+     - name: Check Commit Message
+       run: |
+        while read -r line; do
+          if [[ ! $line =~ \[#[0-9]+\] ]]; then
+            echo "Commit message phải có định dạng '[#số_issue] nội dung message'. Ví dụ: '[#123] Fix a bug'."
+            exit 1
+          fi
+        done < <(git log --format=%s "$GITHUB_SHA"..HEAD)
   
   build:
 
