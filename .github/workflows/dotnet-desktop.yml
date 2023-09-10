@@ -59,6 +59,7 @@ jobs:
             echo "Commit Message: $line (Matched)"
           else
             echo "Commit Message: $line (Not Matched)"
+            exit 0 # Exit với mã thành công nếu tìm thấy
           fi
         done
 
