@@ -64,6 +64,8 @@ jobs:
               response=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number)
               echo https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number
               echo $response
+              data=$(echo $response | jq '.')
+              echo "$data"
               if [[ "$response" -ne "200" ]]; then
                 echo "Issue #$issue_number không tồn tại trên GitHub. https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number"
                 exit 1
