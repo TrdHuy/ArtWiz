@@ -51,7 +51,11 @@ jobs:
        uses: actions/checkout@v3
      - name: Show Commit Messages
        run: |
-          git log --format="%s" ${{ github.event.before }}..${{ github.sha }}
+          if [ -z "${{ github.event.before }}" ]; then
+            git log --format="%s" --reverse main
+          else
+            git log --format="%s" ${{ github.event.before }}..${{ github.sha }}
+          fi
      - name: Check Commit Message
        run: |
         echo "Start check huytd1"
