@@ -54,7 +54,7 @@ jobs:
         echo ${{ github.event.commits[0].message }}
         i=0
         for commit in ${{ github.event.commits }}; do
-          echo "Commit Message:  ${{ github.event.commits[$i].message }}"
+          echo "Commit Message:  ${{ github.event.commits[0].message }}"
           i=$((i+1))
           done
      - name: Check Commit Message
