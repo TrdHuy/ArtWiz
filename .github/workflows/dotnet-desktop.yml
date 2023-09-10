@@ -52,6 +52,7 @@ jobs:
 
      - name: Check Commit Message
        run: |
+        echo "Start check huytd1"
         while read -r line; do
           if [[ ! $line =~ \[#[0-9]+\] ]]; then
             echo "Commit message phải có định dạng '[#số_issue] nội dung message'. Ví dụ: '[#123] Fix a bug'."
