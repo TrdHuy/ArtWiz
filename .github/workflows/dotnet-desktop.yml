@@ -53,7 +53,8 @@ jobs:
        run: |
          echo ${{ github.event.commits[0].message }}
          for commit in ${{ github.event.commits }}; do
-          echo "Commit Message: $commit.message"
+          message="${{ commit.message }}"
+          echo "Commit Message: $message"
           done
      - name: Check Commit Message
        run: |
