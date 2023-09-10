@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace SPRNetTool.Domain.Base
 {
-    public abstract class BaseDomain : IObservableDomain, IDomainAdapter
+    public abstract class BaseDomain : IObservableDomain, IDomainAdapter, IDomainAccessors
     {
         private List<IDomainObserver> domainObservers = new List<IDomainObserver>();
+
         List<IDomainObserver> IObservableDomain.GetDomainObserver()
         {
             return domainObservers;

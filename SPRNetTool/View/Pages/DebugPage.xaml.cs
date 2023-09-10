@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using SPRNetTool.Data;
 using SPRNetTool.Domain;
+using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
 using SPRNetTool.ViewModel;
@@ -21,9 +22,6 @@ using static SPRNetTool.View.InputWindow;
 
 namespace SPRNetTool.View.Pages
 {
-    /// <summary>
-    /// Interaction logic for UserControl1.xaml
-    /// </summary>
     public partial class DebugPage : BasePageViewer
     {
         public override object ViewModel => DataContext;
@@ -108,15 +106,21 @@ namespace SPRNetTool.View.Pages
             if (openFileDialog.ShowDialog() == true)
             {
                 BitmapSource? bmpSource = null;
-                LoadingWindow l = new LoadingWindow(ownerWindow);
-                l.Show(block: async () =>
-                {
-                    string imagePath = openFileDialog.FileName;
-                    await viewModel.OpenImageFromFileAsync(imagePath);
-                    bmpSource = viewModel.CurrentDisplayingBmpSrc;
+                string imagePath = openFileDialog.FileName;
 
-                    Debug.WriteLine($"WxH= {bmpSource?.PixelWidth * bmpSource?.PixelHeight}");
-                });
+                string fileExtension = Path.GetExtension(imagePath).ToLower();
+                if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png")
+                {
+                    LoadingWindow l = new LoadingWindow(ownerWindow);
+                    l.Show(block: async () =>
+                    {
+                        await viewModel.OpenImageFromFileAsync(imagePath);
+                        bmpSource = viewModel.CurrentDisplayingBmpSrc;
+
+                        Debug.WriteLine($"WxH= {bmpSource?.PixelWidth * bmpSource?.PixelHeight}");
+                    });
+                }
+
 
             }
         }
