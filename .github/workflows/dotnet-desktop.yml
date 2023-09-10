@@ -62,7 +62,8 @@ jobs:
             if [[ -n "$issue_number" ]]; then
               # Kiểm tra sự tồn tại của issue bằng GitHub API 
               response=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number)
-              
+              echo https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number
+              echo $response
               if [[ "$response" -ne "200" ]]; then
                 echo "Issue #$issue_number không tồn tại trên GitHub. https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number"
                 exit 1
