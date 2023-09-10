@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain
 {
-    public class WorkManager : BaseDomain
+    public class WorkManager : BaseDomain, ISprWorkManager
     {
         public SprFileHead FileHead;
         public Palette PaletteData = new Palette();
@@ -23,7 +23,6 @@ namespace SPRNetTool.Domain
             FileHead = new SprFileHead();
             PaletteData = new Palette();
         }
-
 
         public void InitFromFileHead(US_SprFileHead us_fileHead)
         {
