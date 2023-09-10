@@ -60,10 +60,9 @@ jobs:
 
             issue_number=$(echo "$line" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
             if [[ -n "$issue_number" ]]; then
-              # Kiểm tra sự tồn tại của issue bằng GitHub API
+              # Kiểm tra sự tồn tại của issue bằng GitHub API 
               response=$(curl -s https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number)
               echo https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number
-              echo $response
               url=$(echo "$response" | jq -r '.html_url')
               if [[ $url =~ ^https://github.com/.*\/issues\/[0-9]+$ ]]; then
                 echo "Đây là URL của issues: $url"
