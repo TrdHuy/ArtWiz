@@ -54,12 +54,12 @@ jobs:
      - name: Show Commit Messages
        run: |
         echo ${{ github.event.commits[0].message }}
-        for commit in $(git log --pretty=oneline "${{ github.event.before }}...${{ github.event.after }}"); do
-          message="$(echo $commit | cut -d' ' -f2-)"  # Lấy phần commit message
-          if [[ $message =~ \[#[0-9]+\] ]]; then
-            echo "Commit Message: $message (Matched)"
+        for commit in $(git log --format="%h %s" "${{ github.event.before }}...${{ github.event.after }}"); do
+          commit_message="$(echo $commit | cut -d' ' -f2-)"
+          if [[ $commit_message =~ \[#[0-9]+\] ]]; then
+            echo "Commit Message: $commit_message (Matched)"
           else
-            echo "Commit Message: $message (Not Matched)"
+            echo "Commit Message: $commit_message (Not Matched)"
           fi
         done
 
