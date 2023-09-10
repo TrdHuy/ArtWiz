@@ -1,5 +1,4 @@
-﻿using SPRNetTool.Domain;
-using SPRNetTool.Domain.Base;
+﻿using SPRNetTool.Domain.Base;
 using System;
 using System.ComponentModel;
 using System.Reflection;
@@ -7,9 +6,18 @@ using System.Runtime.CompilerServices;
 
 namespace SPRNetTool.ViewModel
 {
-    public abstract class BaseViewModel : INotifyPropertyChanged, IDomainObserver
-    {   
-        protected static readonly IBitmapDisplayManager BitmapDisplayManager = new BitmapDisplayManager();
+    public abstract class BaseViewModel : INotifyPropertyChanged, IDomainObserver, IDomainAccessors
+    {
+        protected IBitmapDisplayManager BitmapDisplayManager
+        {
+            get
+            {
+                return IDomainAccessors.DomainContext.GetDomain<IBitmapDisplayManager>();
+            }
+        }
+
+        protected ISprWorkManager SprWorkManager
+        { get { return IDomainAccessors.DomainContext.GetDomain<ISprWorkManager>(); } }
 
         protected void Invalidate([CallerMemberName] string caller = "")
         {
@@ -46,5 +54,6 @@ namespace SPRNetTool.ViewModel
         }
 
         protected virtual void OnDomainChanged(IDomainChangedArgs args) { }
+
     }
 }
