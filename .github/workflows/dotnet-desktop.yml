@@ -54,7 +54,13 @@ jobs:
      - name: Show Commit Messages
        run: |
         echo ${{ github.event.commits[0].message }}
-        git log --pretty=oneline "${{ github.event.before }}...${{ github.event.after }}"
+        for commit in $(git log --pretty=%s "${{ github.event.before }}...${{ github.event.after }}"); do
+          if [[ $commit =~ \[#[0-9]+\] ]]; then
+            echo "Commit Message: $commit (Matched)"
+          else
+            echo "Commit Message: $commit (Not Matched)"
+          fi
+        done
 
      - name: Check Commit Message
        run: |
