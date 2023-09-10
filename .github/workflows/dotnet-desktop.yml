@@ -52,11 +52,8 @@ jobs:
      - name: Show Commit Messages
        run: |
         echo ${{ github.event.commits[0].message }}
-        i=0
-        for commit in ${{ github.event.commits }}; do
-          echo "Commit Message:  ${{ github.event.commits[0].message }}"
-          i=$((i+1))
-          done
+        git log --pretty=oneline ${{ github.event.before }} ${{ github.event.after }}
+
      - name: Check Commit Message
        run: |
         echo "Start check huytd1"
