@@ -52,7 +52,7 @@ jobs:
      - name: Show Commit Messages
        run: |
         echo ${{ github.event.commits[0].message }}
-        git log --pretty=oneline ${{ github.event.before }} ${{ github.event.after }}
+        git log --pretty=oneline "${{ github.event.before }}...${{ github.event.after }}"
 
      - name: Check Commit Message
        run: |
