@@ -120,8 +120,6 @@ namespace SPRNetTool.View.Pages
                         Debug.WriteLine($"WxH= {bmpSource?.PixelWidth * bmpSource?.PixelHeight}");
                     });
                 }
-
-
             }
         }
 
