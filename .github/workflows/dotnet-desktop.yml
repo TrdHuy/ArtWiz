@@ -49,7 +49,9 @@ jobs:
     steps:
      - name: Checkout code
        uses: actions/checkout@v3
-
+     - name: Show Commit Messages
+       run: |
+          git log --format="%s" ${{ github.event.before }}..${{ github.sha }}
      - name: Check Commit Message
        run: |
         echo "Start check huytd1"
