@@ -63,12 +63,18 @@ jobs:
               # Kiểm tra sự tồn tại của issue bằng GitHub API
               response=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number)
               echo https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number
-              echo $response
-              data=$(echo $response | jq '.')
-              echo "$data"
+              
               if [[ "$response" -ne "200" ]]; then
                 echo "Issue #$issue_number không tồn tại trên GitHub. https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number"
                 exit 1
+              fi
+
+              echo $response
+              url=$(echo "$response" | jq -r '.html_url')
+              if [[ $url =~ ^https://github.com/.*\/issues\/[0-9]+$ ]]; then
+                echo "Đây là URL của issues: $url"
+              else
+                echo "Đây không phải là URL của issues: $url"
               fi
             fi
           else
