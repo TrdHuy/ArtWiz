@@ -60,7 +60,7 @@ jobs:
 
             issue_number=$(echo "$commit_message" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
             if [[ -n "$issue_number" ]]; then
-              # Kiểm tra sự tồn tại của issue bằng GitHub API
+              # Kiểm tra sự tồn tại của issue bằng GitHub API 
               response=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number)
               
               if [[ "$response" -ne "200" ]]; then
