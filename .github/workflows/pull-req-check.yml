@@ -17,7 +17,7 @@ jobs:
       - name: Dump GitHub context
         env:
             GITHUB_CONTEXT: ${{ toJSON(github) }}
-            PR_INFO_API: ${{ toJSON(github.event.pull_request._links.self) }}
+            PR_INFO_API: ${{ github.event.pull_request._links.self.href }}
         run: |
           echo "$PR_INFO_API"
       # - name: Get pull reqeust message
