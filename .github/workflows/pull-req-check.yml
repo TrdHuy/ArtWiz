@@ -40,11 +40,6 @@ name: Pull request check
 
 on:      
   pull_request:
-    types:
-      - opened
-      - edited
-      - reopened
-      - synchronize
     branches:
       - '*'
 jobs:
