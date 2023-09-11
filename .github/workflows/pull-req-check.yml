@@ -20,7 +20,7 @@ jobs:
         run: echo "$GITHUB_CONTEXT"
       - name: Get pull reqeust message
         run: |
-          apiUrl=${{github.event.pull_request._link.self}}
+          apiUrl=${{ toJSON(github.event.pull_request) }}
           echo "$apiUrl"
       # - name: Checkout
       #   uses: actions/checkout@v3
