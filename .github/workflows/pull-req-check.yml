@@ -40,6 +40,11 @@ name: Pull request check
 
 on:      
   pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
     branches:
       - '*'
 jobs:
@@ -47,13 +52,19 @@ jobs:
     name: Check skip flags
     runs-on: ubuntu-latest
     steps:
-      - name: Get repo
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Print head git commit message
+          fetch-depth: 0
+          ref: ${{github.event.after}}
+      - name: Get Commit Message
         run: |
-          echo "$(git show -s --format=%s)" 
+          MSG=$(git log --format=%B -n 1 ${{github.event.after}})
+          echo "::set-env name=COMMIT_MESSAGE::${MSG}"
+      - name: Echo commit message
+        run: |
+          echo "Commit SHA: ${{github.event.after}}, commit message: ${{env.COMMIT_MESSAGE}} (or ${COMMIT_MESSAGE})"
+      
       - name: Check message
         run: |
           git log --format=%s | while read -r line; do
