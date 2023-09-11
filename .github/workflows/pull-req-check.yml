@@ -10,21 +10,18 @@ on:
     branches:
       - '*'
 jobs:
-  check_skip_flags:
-    name: Check skip flags
+  check_pr_message:
+    name: Check PR message
     runs-on: ubuntu-latest
     steps:
-      - name: Dump GitHub context
+      - name: Check message rule
         env:
-            GITHUB_CONTEXT: ${{ toJSON(github) }}
             PR_INFO_API: ${{ github.event.pull_request._links.self.href }}
         run: |
           echo "$PR_INFO_API"
           response=$(curl -s $PR_INFO_API)
-          jsonResponse=
           title=$(echo "$response" | jq -r '.title')
           echo "title=$title"
-          
           if [[ $title =~ \[#[0-9]+\] ]]; then
             echo "Commit Message: $title (Matched)"
             issue_number=$(echo "$title" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
