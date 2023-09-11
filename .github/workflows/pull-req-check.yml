@@ -24,7 +24,27 @@ jobs:
           jsonResponse=
           title=$(echo "$response" | jq -r '.title')
           echo "title=$title"
-          echo "response=$response"
+          
+          if [[ $title =~ \[#[0-9]+\] ]]; then
+            echo "Commit Message: $title (Matched)"
+            issue_number=$(echo "$title" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
+            if [[ -n "$issue_number" ]]; then
+              # Kiểm tra sự tồn tại của issue bằng GitHub API 
+              apiUrl=https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/issues/$issue_number
+              response=$(curl -s $apiUrl)
+              echo $apiUrl
+              url=$(echo "$response" | jq -r '.html_url')
+              if [[ $url =~ ^https://github.com/.*\/issues\/[0-9]+$ ]]; then
+                echo "Đây là URL của issues: $url"
+              else
+                echo "Đây không phải là URL của issues: $url"
+                exit 1
+              fi
+            fi
+          else
+            echo "Commit Message: $line (Not Matched)"
+            exit 1 # Exit với mã thành công nếu tìm thấy
+          fi
           
       # - name: Get pull reqeust message
       #   run: |
@@ -45,25 +65,4 @@ jobs:
       # - name: Check message
       #   run: |
           
-      #     git log --format=%s | while read -r line; do
-      #     if [[ $line =~ \[#[0-9]+\] ]]; then
-      #       echo "Commit Message: $line (Matched)"
-      #       issue_number=$(echo "$line" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
-      #       if [[ -n "$issue_number" ]]; then
-      #         # Kiểm tra sự tồn tại của issue bằng GitHub API 
-      #         apiUrl=https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/issues/$issue_number
-      #         response=$(curl -s $apiUrl)
-      #         echo $apiUrl
-      #         url=$(echo "$response" | jq -r '.html_url')
-      #         if [[ $url =~ ^https://github.com/.*\/issues\/[0-9]+$ ]]; then
-      #           echo "Đây là URL của issues: $url"
-      #         else
-      #           echo "Đây không phải là URL của issues: $url"
-      #           exit 1
-      #         fi
-      #       fi
-      #     else
-      #       echo "Commit Message: $line (Not Matched)"
-      #       exit 1 # Exit với mã thành công nếu tìm thấy
-      #     fi
-      #     done
+          
