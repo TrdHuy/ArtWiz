@@ -1,0 +1,65 @@
+name: Pull request check
+
+on:      
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+    branches:
+      - '*'
+jobs:
+  check_pr_message:
+    name: Check PR message
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check message rule
+        env:
+            PR_INFO_API: ${{ github.event.pull_request._links.self.href }}
+        run: |
+          echo "$PR_INFO_API"
+          response=$(curl -s $PR_INFO_API)
+          title=$(echo "$response" | jq -r '.title')
+          echo "title=$title"
+          if [[ $title =~ \[#[0-9]+\] ]]; then
+            echo "Commit Message: $title (Matched)"
+            issue_number=$(echo "$title" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
+            if [[ -n "$issue_number" ]]; then
+              # Kiểm tra sự tồn tại của issue bằng GitHub API 
+              apiUrl=https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/issues/$issue_number
+              response=$(curl -s $apiUrl)
+              echo $apiUrl
+              url=$(echo "$response" | jq -r '.html_url')
+              if [[ $url =~ ^https://github.com/.*\/issues\/[0-9]+$ ]]; then
+                echo "Đây là URL của issues: $url"
+              else
+                echo "Đây không phải là URL của issues: $url"
+                exit 1
+              fi
+            fi
+          else
+            echo "Commit Message: $line (Not Matched)"
+            exit 1 # Exit với mã thành công nếu tìm thấy
+          fi
+          
+      # - name: Get pull reqeust message
+      #   run: |
+      #     apiUrl=${{ toJSON(github.event.pull_request) }}
+      #     echo "$apiUrl"
+      # - name: Checkout
+      #   uses: actions/checkout@v3
+      #   with:
+      #     ref: ${{ github.sha }}
+
+      # - name: Get Commit Message
+      #   run: |
+      #     echo "github.event.pull_request.body=${{ github.event.pull_request.body }}"
+      #     echo "github.event.pull_request.head.sha=${{ github.event.pull_request.head.sha }}"
+      #     MSG=$(git log --format=%B -n 1 ${{github.event.pull_request.head.sha}})
+      #     echo "msg = ${MSG}"
+      
+      # - name: Check message
+      #   run: |
+          
+          
