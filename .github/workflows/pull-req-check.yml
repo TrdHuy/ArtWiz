@@ -53,6 +53,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Print head git commit message
         run: |
+          echo "$(git show -s --format=%s)" 
+      - name: Check message
+        run: |
           git log --format=%s | while read -r line; do
           if [[ $line =~ \[#[0-9]+\] ]]; then
             echo "Commit Message: $line (Matched)"
