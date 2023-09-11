@@ -21,8 +21,10 @@ jobs:
         run: |
           echo "$PR_INFO_API"
           response=$(curl -s $PR_INFO_API)
+          jsonResponse=
           title=$(echo "$response" | jq -r '.title')
           echo "title=$title"
+          echo "response=$response"
           
       # - name: Get pull reqeust message
       #   run: |
