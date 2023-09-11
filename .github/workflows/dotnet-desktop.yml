@@ -38,11 +38,7 @@
 
 name: .NET Core Desktop
 
-on:
-  pull_request:
-    branches:
-      - '*'
-      
+on:      
   push:
     branches:
       - '*'
