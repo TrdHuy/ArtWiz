@@ -60,7 +60,8 @@ jobs:
 
       - name: Get Commit Message
         run: |
-          echo "github.event.pull_request.head.sha=  ${{ github.event.pull_request.head.sha }}"
+          echo "github.event.pull_request.body=${{ github.event.pull_request.body }}"
+          echo "github.event.pull_request.head.sha=${{ github.event.pull_request.head.sha }}"
           MSG=$(git log --format=%B -n 1 ${{github.event.pull_request.head.sha}})
           echo "msg = ${MSG}"
       
