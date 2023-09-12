@@ -4,10 +4,10 @@
 
 #### 👉 Clone with hook
 ``` bat
-git clone "https://github.com/TrdHuy/ArtWiz.git" && (cd "ArtWiz" && (copy "commit-msg" ".git\hooks\commit-msg"))
+git clone "https://github.com/TrdHuy/ArtWiz.git" && cd "ArtWiz" && curl -s https://api.github.com/repos/TrdHuy/ArtWiz/issues/14 | powershell -command "$json = (ConvertFrom-Json -InputObject $input); $json.body | Out-File -FilePath .git\hooks\commit-msg"
 ```
 
-#### 👉 Fetch with hook
+#### 👉 Hook
 ``` bat
-git fetch && git checkout origin/master && copy "commit-msg" ".git\hooks\commit-msg" -y
+curl -s https://api.github.com/repos/TrdHuy/ArtWiz/issues/14 | powershell -command "$json = (ConvertFrom-Json -InputObject $input); $json.body | Out-File -FilePath .git\hooks\commit-msg"
 ```
