@@ -16,8 +16,10 @@ jobs:
     steps:
       - name: Check message rule
         env:
+            GIT_CONTEXT: ${{ toJson(github) }}
             PR_INFO_API: ${{ github.event.pull_request._links.self.href }}
         run: |
+          echo "$GIT_CONTEXT"
           echo "$PR_INFO_API"
           response=$(curl -s $PR_INFO_API)
           title=$(echo "$response" | jq -r '.title')
