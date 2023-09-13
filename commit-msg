@@ -1,17 +1,17 @@
+#!/bin/sh
 commit_message_file=$1
 commit_message=$(cat $commit_message_file)
 
+# Kiểm tra format
 if [[ ! $commit_message =~ \[#[0-9]+\] ]]; then
   echo "Commit message must follow this pattern '[#issue_number] message'. Eg: '[#123] Fix a bug'."
   exit 1
-fi
+fi 
 
+# Kiểm tra issue có tồn tại trên github qua api
 issue_number=$(echo "$commit_message" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
-
 if [[ -n "$issue_number" ]]; then
-  # Check issue exist by GitHub API
   response=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number)
-  
   if [[ "$response" -ne "200" ]]; then
     echo "Issue #$issue_number not exist on GitHub. https://api.github.com/repos/TrdHuy/ArtWiz/issues/$issue_number"
     exit 1
