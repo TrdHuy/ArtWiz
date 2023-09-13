@@ -1,19 +1,25 @@
-﻿using SPRNetTool.Domain.Base;
+﻿using SPRNetTool.Data;
+using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using static SPRNetTool.View.InputWindow;
 
 namespace SPRNetTool.Domain
 {
     public class BitmapDisplayManager : BaseDomain, IBitmapDisplayManager
     {
+        protected ISprWorkManager SprWorkManager
+        { get { return IDomainAccessors.DomainContext.GetDomain<ISprWorkManager>(); } }
+
         private struct CountablePxBmpSrc
         {
             public BitmapSource? BitmapSource;
@@ -46,13 +52,47 @@ namespace SPRNetTool.Domain
             }
             else if (fileExtension == ".spr")
             {
-
+                CurrentDisplayBitmap = this.OpenSprFile(filePath)?.Also((it) =>
+                {
+                    if (countPixelColor)
+                    {
+                        _currentDisplayingBitmap.ColorSource = this.CountColors(it);
+                    }
+                });
             }
 
             NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
                  _currentDisplayingBitmap.ColorSource));
         }
 
+        private BitmapSource? OpenSprFile(string filePath)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    if (SprWorkManager.InitWorkManager(fs))
+                    {
+                        return SprWorkManager.GetFrameData(0)?.Let((it) =>
+                        {
+                            var byteData = this.ConvertPaletteColourArrayToByteArray(it.globleFrameData);
+                            return this.GetBitmapFromRGBArray(byteData
+                                , SprWorkManager.FileHead.GlobleWidth
+                                , SprWorkManager.FileHead.GlobleHeight, PixelFormats.Bgra32)
+                            .Also((it) => it.Freeze());
+                        });
+                    }
+
+                    return null;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi: " + ex.Message);
+                return null;
+            }
+        }
 
         async Task<BitmapSource?> IBitmapDisplayManager.OptimzeImageColor(Dictionary<Color, long> countableColorSource
             , BitmapSource oldBmpSource
