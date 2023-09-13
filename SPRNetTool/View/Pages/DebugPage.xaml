@@ -106,8 +106,11 @@
 						 FontSize="15" />
 					<LineBreak />
 					<Run Text="Pixel width: " />
+					<Run Text="{Binding PixelWidth}" />
 					<LineBreak />
 					<Run Text="Pixel height: " />
+					<Run Text="{Binding PixelHeight}" />
+
 				</TextBlock>
 				<TextBlock Margin="0,5,0,0"
 						   FontWeight="Bold">
