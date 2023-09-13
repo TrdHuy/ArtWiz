@@ -14,14 +14,20 @@ namespace SPRNetTool.Domain.Base
 
             DomainContext()
             {
-                domainsList = new Dictionary<Type, object?[]>();
-                domainsList.Add(typeof(IBitmapDisplayManager), BuildValue(null, () => new BitmapDisplayManager()));
-                domainsList.Add(typeof(ISprWorkManager), BuildValue(null, () => new WorkManager()));
+                domainsList = new Dictionary<Type, object?[]>
+                {
+                    {
+                        typeof(IBitmapDisplayManager), BuildValue(null, () => new BitmapDisplayManager())
+                    },
+                    {
+                        typeof(ISprWorkManager), BuildValue(null, () => new WorkManager())
+                    }
+                };
             }
 
             ~DomainContext()
             {
-                domainsList.Clear();
+                domainsList?.Clear();
             }
 
             private object?[] BuildValue(params object?[] values)

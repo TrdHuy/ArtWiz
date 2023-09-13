@@ -25,7 +25,7 @@ namespace SPRNetTool.View.Pages
     public partial class DebugPage : BasePageViewer
     {
         public override object ViewModel => DataContext;
-        WorkManager workManager = new WorkManager();
+        ISprWorkManager workManager = new WorkManager();
         DebugPageViewModel viewModel;
 
         private Window ownerWindow;
@@ -46,34 +46,10 @@ namespace SPRNetTool.View.Pages
                 US_SprFileHead header;
                 using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    var temp = fs.BinToStruct<US_SprFileHead>(0);
-
-                    if (temp != null && (temp?.GetVersionInfoStr().StartsWith("SPR") ?? false))
-                    {
-                        header = (US_SprFileHead)temp;
-                        workManager.Init();
-                        workManager.InitFromFileHead(header);
-                    }
-                    else
-                    {
-                        return;
-                    }
-                    workManager.PaletteData = new Palette(workManager.FileHead.ColourCounts);
-
-                    fs.Position = Marshal.SizeOf(typeof(US_SprFileHead));
-                    for (int i = 0; i < workManager.FileHead.ColourCounts; i++)
-                    {
-                        workManager.PaletteData.Data[i].Red = (byte)fs.ReadByte();
-                        workManager.PaletteData.Data[i].Green = (byte)fs.ReadByte();
-                        workManager.PaletteData.Data[i].Blue = (byte)fs.ReadByte();
-                    }
-                    workManager.FrameDataBegPos = fs.Position;
-
-                    workManager.InitFrameData(fs);
-
+                    workManager.InitWorkManager(fs);
                     //if (decdata != null)
                     //    Extension.Print2DArrayToFile(decdata, frameHeight, frameWidth, "test.txt");
-                    var data = workManager.FrameData?[0];
+                    var data = workManager.GetFrameData(0);
                     if (data != null)
                     {
                         //Extension.Print2DArrayToFile(data?.decodedFrameData, data?.frameHeight ?? 0, data?.frameWidth ?? 0, "dec.txt");
@@ -82,11 +58,9 @@ namespace SPRNetTool.View.Pages
                         var bmpSrc = BitmapUtil.GetBitmapFromRGBArray(byteData, workManager.FileHead.GlobleWidth, workManager.FileHead.GlobleHeight, PixelFormats.Bgra32);
                         StaticImageView.Source = bmpSrc;
                         BitmapUtil.CountColors(bmpSrc, out long argbCount, out long rgbCount, out Dictionary<Color, long> src);
-
                         //var ditheringBmp = BitmapUtil.ApplyDithering(bmpSrc, 100);
                         //CountColors(ditheringBmp, out long argbCount2, out long rgbCount2);
                         //StaticImageView2.Source = ditheringBmp;
-
                     }
 
 
@@ -102,14 +76,14 @@ namespace SPRNetTool.View.Pages
         private void OpenImageClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Tệp ảnh (*.png;*.jpg;*.jpeg;*.gif)|*.png;*.jpg;*.jpeg;*.gif|All files (*.*)|*.*";
+            openFileDialog.Filter = "Tệp ảnh (*.png;*.jpg;*.jpeg;*.gif;*.spr)|*.png;*.jpg;*.jpeg;*.gif;*.spr|All files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == true)
             {
                 BitmapSource? bmpSource = null;
                 string imagePath = openFileDialog.FileName;
 
                 string fileExtension = Path.GetExtension(imagePath).ToLower();
-                if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png")
+                if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".spr")
                 {
                     LoadingWindow l = new LoadingWindow(ownerWindow);
                     l.Show(block: async () =>

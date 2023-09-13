@@ -11,10 +11,17 @@ namespace SPRNetTool.Domain
 {
     public class WorkManager : BaseDomain, ISprWorkManager
     {
-        public SprFileHead FileHead;
-        public Palette PaletteData = new Palette();
-        public long FrameDataBegPos = -1;
-        public FRAMERGBA[]? FrameData;
+        private SprFileHead FileHead;
+        private Palette PaletteData = new Palette();
+        private long FrameDataBegPos = -1;
+        private FRAMERGBA[]? FrameData;
+
+        SprFileHead ISprWorkManager.FileHead => FileHead;
+
+        public WorkManager()
+        {
+            Init();
+        }
 
         public void Init()
         {
@@ -24,7 +31,7 @@ namespace SPRNetTool.Domain
             PaletteData = new Palette();
         }
 
-        public void InitFromFileHead(US_SprFileHead us_fileHead)
+        void ISprWorkManager.InitFromFileHead(US_SprFileHead us_fileHead)
         {
             FileHead = new SprFileHead(us_fileHead.GetVersionInfo(),
                 us_fileHead.GlobleWidth,
@@ -36,9 +43,24 @@ namespace SPRNetTool.Domain
                 us_fileHead.Interval,
                 us_fileHead.GetReserved());
             FrameData = new FRAMERGBA[us_fileHead.FrameCounts];
+            PaletteData = new Palette(us_fileHead.ColourCounts);
+            FrameDataBegPos = Marshal.SizeOf(typeof(US_SprFileHead)) + us_fileHead.ColourCounts * 3;
+
         }
 
-        public void InitFrameData(FileStream fs)
+
+        void ISprWorkManager.InitPaletteDataFromFileStream(FileStream fs, US_SprFileHead fileHead)
+        {
+            fs.Position = Marshal.SizeOf(typeof(US_SprFileHead));
+            for (int i = 0; i < fileHead.ColourCounts; i++)
+            {
+                PaletteData.Data[i].Red = (byte)fs.ReadByte();
+                PaletteData.Data[i].Green = (byte)fs.ReadByte();
+                PaletteData.Data[i].Blue = (byte)fs.ReadByte();
+            }
+        }
+
+        void ISprWorkManager.InitFrameData(FileStream fs)
         {
             if (FrameData == null) return;
             for (int i = 0; i < FileHead.FrameCounts; i++)
@@ -58,6 +80,15 @@ namespace SPRNetTool.Domain
                 if (globalData == null) throw new Exception("Failed to init global frame data!");
                 FrameData[i].globleFrameData = globalData;
             }
+        }
+
+        FRAMERGBA? ISprWorkManager.GetFrameData(int index)
+        {
+            if(index < FileHead.FrameCounts)
+            {
+                return FrameData?[index];
+            }
+            return null;
         }
 
         private PaletteColour[]? InitDecodedFrameData(FileStream fs,
@@ -380,6 +411,7 @@ namespace SPRNetTool.Domain
             }
             return globalData;
         }
+
     }
 
     public enum COLORMODE

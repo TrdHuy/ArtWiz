@@ -9,12 +9,7 @@ namespace SPRNetTool.ViewModel
     public abstract class BaseViewModel : INotifyPropertyChanged, IDomainObserver, IDomainAccessors
     {
         protected IBitmapDisplayManager BitmapDisplayManager
-        {
-            get
-            {
-                return IDomainAccessors.DomainContext.GetDomain<IBitmapDisplayManager>();
-            }
-        }
+        { get { return IDomainAccessors.DomainContext.GetDomain<IBitmapDisplayManager>(); } }
 
         protected ISprWorkManager SprWorkManager
         { get { return IDomainAccessors.DomainContext.GetDomain<ISprWorkManager>(); } }
