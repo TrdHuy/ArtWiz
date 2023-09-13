@@ -26,6 +26,36 @@ namespace SPRNetTool.ViewModel
         private ObservableCollection<OptimizedColorItemViewModel>? _optimizedSource = null;
         private ObservableCollection<ColorItemViewModel>? _resultRGBSource = null;
 
+        private int _pixelWidth = 0;
+        private int _pixelHeight = 0;
+
+        [Bindable(true)]
+        public int PixelWidth
+        {
+            get
+            {
+                return _pixelWidth;
+            }
+            set
+            {
+                _pixelWidth = value;
+                Invalidate();
+            }
+        }
+        [Bindable(true)]
+        public int PixelHeight
+        {
+            get
+            {
+                return _pixelHeight;
+            }
+            set
+            {
+                _pixelHeight = value;
+                Invalidate();
+            }
+        }
+
         [Bindable(true)]
         public ObservableCollection<ColorItemViewModel> OriginalColorSource
         {
@@ -219,6 +249,8 @@ namespace SPRNetTool.ViewModel
                 case BitmapDisplayMangerChangedArg castArgs:
                     CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
                     await SetColorSource(castArgs.CurrentColorSource);
+                    PixelWidth = CurrentDisplayingBmpSrc.PixelWidth;
+                    PixelHeight = CurrentDisplayingBmpSrc.PixelHeight;
                     break;
 
             }
