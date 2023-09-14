@@ -6,14 +6,6 @@ using System.Windows.Threading;
 
 namespace SPRNetTool.View
 {
-    public enum MainWindowTagID
-    {
-        OptimizeList_RGBHeader,
-        OptimizeList_ARGBHeader,
-        OptimizeList_CombineRGBHeader,
-        OriginalList_RGBHeader,
-        OriginalList_CountHeader,
-    }
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
