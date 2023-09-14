@@ -1,6 +1,7 @@
 ﻿using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
+using SPRNetTool.View.Pages;
 using SPRNetTool.ViewModel.Base;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace SPRNetTool.ViewModel
 {
@@ -247,10 +249,22 @@ namespace SPRNetTool.ViewModel
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
-                    CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
-                    await SetColorSource(castArgs.CurrentColorSource);
-                    PixelWidth = CurrentDisplayingBmpSrc.PixelWidth;
-                    PixelHeight = CurrentDisplayingBmpSrc.PixelHeight;
+                    if (castArgs.IsPlayingAnimation != true)
+                    {
+                        CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
+                        await SetColorSource(castArgs.CurrentColorSource);
+                        PixelWidth = CurrentDisplayingBmpSrc?.PixelWidth ?? 0;
+                        PixelHeight = CurrentDisplayingBmpSrc?.PixelHeight ?? 0;
+                    }
+                    else if (castArgs.IsPlayingAnimation == true)
+                    {
+                        DebugPage.GlobalStaticImageView!.Dispatcher.Invoke(() =>
+                        {
+                            CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
+
+                        }, DispatcherPriority.DataBind);
+                    }
+
                     break;
 
             }

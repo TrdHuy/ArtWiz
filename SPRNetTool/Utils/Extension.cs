@@ -60,6 +60,14 @@ namespace SPRNetTool.Utils
     }
     public static class SharpExtension
     {
+        public static T? IfNullThenLet<T>(this T? self, Func<T?> block)
+        {
+            if (self == null)
+            {
+                return block();
+            }
+            return self;
+        }
         public static void ApplyIfNotNull<T1, T2>(this (T1, T2) self, Action<T1, T2> block)
         {
             if (self.Item1 != null && self.Item2 != null)

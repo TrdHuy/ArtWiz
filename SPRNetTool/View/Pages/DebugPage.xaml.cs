@@ -12,7 +12,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +23,8 @@ namespace SPRNetTool.View.Pages
 {
     public partial class DebugPage : BasePageViewer
     {
+        public static Image? GlobalStaticImageView;
+
         public override object ViewModel => DataContext;
         ISprWorkManager workManager = new WorkManager();
         DebugPageViewModel viewModel;
@@ -34,6 +35,7 @@ namespace SPRNetTool.View.Pages
             InitializeComponent();
             viewModel = (DebugPageViewModel)DataContext;
             this.ownerWindow = (Window)ownerWindow;
+            GlobalStaticImageView = StaticImageView;
         }
 
 
