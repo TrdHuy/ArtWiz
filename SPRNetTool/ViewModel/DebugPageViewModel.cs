@@ -152,6 +152,7 @@ namespace SPRNetTool.ViewModel
             }
         }
 
+
         [Bindable(true)]
         public int PixelWidth
         {
