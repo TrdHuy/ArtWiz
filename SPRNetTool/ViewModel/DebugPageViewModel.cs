@@ -153,6 +153,20 @@ namespace SPRNetTool.ViewModel
         }
 
         [Bindable(true)]
+        public ushort Interval
+        {
+            get
+            {
+                return _interval;
+            }
+            set
+            {
+                _interval = value;
+                Invalidate();
+            }
+        }
+
+        [Bindable(true)]
         public int PixelWidth
         {
             get
