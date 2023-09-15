@@ -62,7 +62,7 @@ namespace SPRNetTool.Domain
             }
 
             NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
-                 _currentDisplayingBitmap.ColorSource));
+                 _currentDisplayingBitmap.ColorSource, SprWorkManager.FileHead));
         }
 
         private BitmapSource? OpenSprFile(string filePath)
@@ -183,13 +183,14 @@ namespace SPRNetTool.Domain
     {
         public BitmapSource? CurrentDisplayingSource { get; private set; }
         public Dictionary<Color, long>? CurrentColorSource { get; private set; }
-
+        public SprFileHead? CurrentSprFileHead { get; private set; }
         public BitmapDisplayMangerChangedArg(BitmapSource? currentDisplayingSource = null,
-            Dictionary<Color, long>? colorSource = null)
+            Dictionary<Color, long>? colorSource = null, SprFileHead? sprFileHead = null)
         {
 
             CurrentDisplayingSource = currentDisplayingSource;
             CurrentColorSource = colorSource;
+            CurrentSprFileHead = sprFileHead;
         }
     }
 }
