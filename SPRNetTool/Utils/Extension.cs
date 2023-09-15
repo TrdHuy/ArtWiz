@@ -206,6 +206,14 @@ namespace SPRNetTool.Utils
             return self;
         }
 
+        public static void IfIs<T>(this object self, Action<T> block)
+        {
+            if (self is T e)
+            {
+                block(e);
+            }
+        }
+
         public static T ThrowIfNull<T>(this T? self, Exception e)
         {
             return self ?? throw e;

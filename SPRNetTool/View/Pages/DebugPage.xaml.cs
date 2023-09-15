@@ -15,12 +15,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.View.InputWindow;
 
 namespace SPRNetTool.View.Pages
 {
+    public enum DebugPageTagID
+    {
+        OptimizeList_RGBHeader,
+        OptimizeList_ARGBHeader,
+        OptimizeList_CombineRGBHeader,
+        OriginalList_RGBHeader,
+        OriginalList_CountHeader,
+
+        SPRInfo_PlayButton,
+    }
+
     public partial class DebugPage : BasePageViewer
     {
         public static Image? GlobalStaticImageView;
@@ -314,11 +326,11 @@ namespace SPRNetTool.View.Pages
         private void HeaderMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             var tag = (sender as TextBlock)?.Tag;
-            if (tag == null || !(tag is MainWindowTagID)) return;
-            tag = (MainWindowTagID)tag;
+            if (tag == null || !(tag is DebugPageTagID)) return;
+            tag = (DebugPageTagID)tag;
             switch (tag)
             {
-                case MainWindowTagID.OptimizeList_CombineRGBHeader:
+                case DebugPageTagID.OptimizeList_CombineRGBHeader:
                     if (optimizeCombinedRgbClick == 0)
                     {
                         viewModel.OptimizedOrderByCombinedRGB();
@@ -330,7 +342,7 @@ namespace SPRNetTool.View.Pages
                         optimizeCombinedRgbClick = 0;
                     }
                     break;
-                case MainWindowTagID.OptimizeList_RGBHeader:
+                case DebugPageTagID.OptimizeList_RGBHeader:
                     if (optimizeRgbClick == 0)
                     {
                         viewModel.OptimizedOrderByRGB();
@@ -342,7 +354,7 @@ namespace SPRNetTool.View.Pages
                         optimizeRgbClick = 0;
                     }
                     break;
-                case MainWindowTagID.OptimizeList_ARGBHeader:
+                case DebugPageTagID.OptimizeList_ARGBHeader:
                     if (optimizeArgbClick == 0)
                     {
                         viewModel.OptimizedOrderByARGB();
@@ -354,7 +366,7 @@ namespace SPRNetTool.View.Pages
                         optimizeArgbClick = 0;
                     }
                     break;
-                case MainWindowTagID.OriginalList_CountHeader:
+                case DebugPageTagID.OriginalList_CountHeader:
                     if (originalCountClick == 0)
                     {
                         viewModel.OrderByCount();
@@ -371,7 +383,7 @@ namespace SPRNetTool.View.Pages
                         originalCountClick = 0;
                     }
                     break;
-                case MainWindowTagID.OriginalList_RGBHeader:
+                case DebugPageTagID.OriginalList_RGBHeader:
                     if (originalRgbClick == 0)
                     {
                         viewModel.OrderByRGB();
@@ -444,6 +456,54 @@ namespace SPRNetTool.View.Pages
                 }
             });
             return newCountedSrc;
+        }
+
+        private void Run_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            (sender as Run)?.Tag.IfIs<DebugPageTagID>((tag) =>
+            {
+                switch (tag)
+                {
+                    case DebugPageTagID.SPRInfo_PlayButton:
+                        {
+                            break;
+                        }
+                }
+            });
+        }
+
+        private void Run_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var run = sender as Run;
+            if (run == null) return;
+            run.Tag.IfIs<DebugPageTagID>((tag) =>
+            {
+                switch (tag)
+                {
+                    case DebugPageTagID.SPRInfo_PlayButton:
+                        {
+                            run.Foreground = new SolidColorBrush(Colors.Green);
+                            break;
+                        }
+                }
+            });
+        }
+
+        private void Run_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var run = sender as Run;
+            if (run == null) return;
+            run.Tag.IfIs<DebugPageTagID>((tag) =>
+            {
+                switch (tag)
+                {
+                    case DebugPageTagID.SPRInfo_PlayButton:
+                        {
+                            run.Foreground = new SolidColorBrush(Colors.Black);
+                            break;
+                        }
+                }
+            });
         }
     }
 }
