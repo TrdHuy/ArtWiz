@@ -118,18 +118,25 @@
 						 FontSize="15" />
 					<LineBreak />
 					<Run Text="Global width: " />
+					<Run Text="{Binding GlobleWidth}"/>
 					<LineBreak />
 					<Run Text="Global height: " />
+					<Run Text="{Binding GlobleHeight}"/>
 					<LineBreak />
 					<Run Text="Global offset X: " />
+					<Run Text="{Binding OffX}"/>
 					<LineBreak />
 					<Run Text="Global offset Y: " />
+					<Run Text="{Binding OffY}"/>
 					<LineBreak />
 					<Run Text="Frames count: " />
+					<Run Text="{Binding FrameCounts}"/>
 					<LineBreak />
 					<Run Text="Colors count: " />
+					<Run Text="{Binding ColourCounts}"/>
 					<LineBreak />
 					<Run Text="Directions count: " />
+					<Run Text="{Binding DirectionCount}"/>
 					<LineBreak />
 					<Run Text="Interval: " />
 					<LineBreak />

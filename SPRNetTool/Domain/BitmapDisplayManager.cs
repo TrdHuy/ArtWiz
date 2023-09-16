@@ -1,4 +1,5 @@
-﻿using SPRNetTool.Domain.Base;
+﻿using SPRNetTool.Data;
+using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Pages;
@@ -77,10 +78,11 @@ namespace SPRNetTool.Domain
                 });
 
                 StartSprAnimation();
+                return;
             }
 
             NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
-                 _currentDisplayingBitmap.ColorSource));
+                 _currentDisplayingBitmap.ColorSource, SprWorkManager.FileHead));
         }
 
         async Task<BitmapSource?> IBitmapDisplayManager.OptimzeImageColor(Dictionary<Color, long> countableColorSource
@@ -245,14 +247,16 @@ namespace SPRNetTool.Domain
         public BitmapSource? CurrentDisplayingSource { get; private set; }
         public Dictionary<Color, long>? CurrentColorSource { get; private set; }
         public bool? IsPlayingAnimation { get; private set; }
+        public SprFileHead? CurrentSprFileHead { get; private set; }
 
         public BitmapDisplayMangerChangedArg(BitmapSource? currentDisplayingSource = null,
             Dictionary<Color, long>? colorSource = null,
+            SprFileHead? sprFileHead = null,
             bool? isPlayingAnimation = null)
         {
-
             CurrentDisplayingSource = currentDisplayingSource;
             CurrentColorSource = colorSource;
+            CurrentSprFileHead = sprFileHead;
             IsPlayingAnimation = isPlayingAnimation;
         }
     }
