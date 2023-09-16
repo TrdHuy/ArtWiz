@@ -139,6 +139,7 @@
 					<Run Text="{Binding DirectionCount}"/>
 					<LineBreak />
 					<Run Text="Interval: " />
+					<Run Text="{Binding Interval}"/>
 					<LineBreak />
 					<Run Text="&#xf04b;"
 						 MouseLeave="Run_MouseLeave"

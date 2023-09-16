@@ -83,6 +83,36 @@ namespace SPRNetTool.Domain
 
             NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
                  _currentDisplayingBitmap.ColorSource, SprWorkManager.FileHead));
+
+        }
+
+        private BitmapSource? OpenSprFile(string filePath)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    if (SprWorkManager.InitWorkManager(fs))
+                    {
+                        return SprWorkManager.GetFrameData(0)?.Let((it) =>
+                        {
+                            var byteData = this.ConvertPaletteColourArrayToByteArray(it.globleFrameData);
+                            return this.GetBitmapFromRGBArray(byteData
+                                , SprWorkManager.FileHead.GlobleWidth
+                                , SprWorkManager.FileHead.GlobleHeight, PixelFormats.Bgra32)
+                            .Also((it) => it.Freeze());
+                        });
+                    }
+
+                    return null;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi: " + ex.Message);
+                return null;
+            }
         }
 
         async Task<BitmapSource?> IBitmapDisplayManager.OptimzeImageColor(Dictionary<Color, long> countableColorSource
@@ -253,6 +283,7 @@ namespace SPRNetTool.Domain
             Dictionary<Color, long>? colorSource = null,
             SprFileHead? sprFileHead = null,
             bool? isPlayingAnimation = null)
+
         {
             CurrentDisplayingSource = currentDisplayingSource;
             CurrentColorSource = colorSource;

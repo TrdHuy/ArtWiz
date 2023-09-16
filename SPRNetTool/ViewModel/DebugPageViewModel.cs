@@ -40,8 +40,6 @@ namespace SPRNetTool.ViewModel
         private ushort _directionCount = 0;
         private ushort _interval = 0;
 
-
-
         [Bindable(true)]
         public ushort GlobleWidth
         {
@@ -396,7 +394,6 @@ namespace SPRNetTool.ViewModel
 
                         }, DispatcherPriority.DataBind);
                     }
-
 
                     break;
             }
