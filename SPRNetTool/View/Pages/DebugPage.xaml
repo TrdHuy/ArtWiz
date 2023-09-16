@@ -3,7 +3,7 @@
 					 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 					 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 					 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-					 xmlns:local="clr-namespace:SPRNetTool.View"
+					 xmlns:local="clr-namespace:SPRNetTool.View.Pages"
 					 xmlns:base="clr-namespace:SPRNetTool.View.Base"
 					 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
 					 mc:Ignorable="d"
@@ -139,7 +139,13 @@
 					<Run Text="{Binding DirectionCount}"/>
 					<LineBreak />
 					<Run Text="Interval: " />
-					<Run Text="{Binding Interval}"/>
+					<LineBreak />
+					<Run Text="&#xf04b;"
+						 MouseLeave="Run_MouseLeave"
+						 MouseEnter="Run_MouseEnter"
+						 MouseDown="Run_MouseDown"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_PlayButton}"
+						 FontFamily="{StaticResource FontAwsome}"/>
 				</TextBlock>
 				<Rectangle Margin="0,10,0,0"
 						   Height="2"
@@ -177,7 +183,7 @@
 								<GridViewColumn.Header>
 									<TextBlock Text="RGB"
 											   Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid, Mode=FindAncestor}}"
-											   Tag="{x:Static local:MainWindowTagID.OriginalList_RGBHeader}"
+											   Tag="{x:Static local:DebugPageTagID.OriginalList_RGBHeader}"
 											   MouseDown="HeaderMouseDown" />
 								</GridViewColumn.Header>
 							</GridViewColumn>
@@ -186,7 +192,7 @@
 								<GridViewColumn.Header>
 									<TextBlock Text="Số lượng"
 											   Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid, Mode=FindAncestor}}"
-											   Tag="{x:Static local:MainWindowTagID.OriginalList_CountHeader}"
+											   Tag="{x:Static local:DebugPageTagID.OriginalList_CountHeader}"
 											   MouseDown="HeaderMouseDown" />
 								</GridViewColumn.Header>
 							</GridViewColumn>
@@ -266,7 +272,7 @@
 											DisplayMemberBinding="{Binding RGBAValue}">
 								<GridViewColumn.Header>
 									<TextBlock Text="RGBA"
-											   Tag="{x:Static local:MainWindowTagID.OptimizeList_ARGBHeader}"
+											   Tag="{x:Static local:DebugPageTagID.OptimizeList_ARGBHeader}"
 											   MouseDown="HeaderMouseDown" />
 								</GridViewColumn.Header>
 							</GridViewColumn>
@@ -276,7 +282,7 @@
 											DisplayMemberBinding="{Binding RGBValue}">
 								<GridViewColumn.Header>
 									<TextBlock Text="RGB"
-											   Tag="{x:Static local:MainWindowTagID.OptimizeList_RGBHeader}"
+											   Tag="{x:Static local:DebugPageTagID.OptimizeList_RGBHeader}"
 											   MouseDown="HeaderMouseDown" />
 								</GridViewColumn.Header>
 							</GridViewColumn>
@@ -286,7 +292,7 @@
 											DisplayMemberBinding="{Binding CombinedRGBValue}">
 								<GridViewColumn.Header>
 									<TextBlock Text="Combined RGB"
-											   Tag="{x:Static local:MainWindowTagID.OptimizeList_CombineRGBHeader}"
+											   Tag="{x:Static local:DebugPageTagID.OptimizeList_CombineRGBHeader}"
 											   MouseDown="HeaderMouseDown" />
 								</GridViewColumn.Header>
 							</GridViewColumn>
@@ -341,7 +347,7 @@
 								<GridViewColumn.Header>
 									<TextBlock Text="RGB"
 											   Width="{Binding RelativeSource={RelativeSource AncestorType=Grid, Mode=FindAncestor}, Path=ActualWidth}"
-											   Tag="{x:Static local:MainWindowTagID.OriginalList_RGBHeader}"
+											   Tag="{x:Static local:DebugPageTagID.OriginalList_RGBHeader}"
 											   MouseDown="HeaderMouseDown" />
 								</GridViewColumn.Header>
 							</GridViewColumn>
@@ -350,7 +356,7 @@
 								<GridViewColumn.Header>
 									<TextBlock Text="Số lượng"
 											   Width="{Binding RelativeSource={RelativeSource AncestorType=Grid, Mode=FindAncestor}, Path=ActualWidth}"
-											   Tag="{x:Static local:MainWindowTagID.OriginalList_CountHeader}"
+											   Tag="{x:Static local:DebugPageTagID.OriginalList_CountHeader}"
 											   MouseDown="HeaderMouseDown" />
 								</GridViewColumn.Header>
 							</GridViewColumn>

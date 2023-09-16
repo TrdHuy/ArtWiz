@@ -1,18 +1,17 @@
-﻿using SPRNetTool.Data;
-using SPRNetTool.Domain;
+﻿using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
+using SPRNetTool.View.Pages;
 using SPRNetTool.ViewModel.Base;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace SPRNetTool.ViewModel
 {
@@ -37,8 +36,6 @@ namespace SPRNetTool.ViewModel
         private ushort _colourCounts = 0;
         private ushort _directionCount = 0;
         private ushort _interval = 0;
-
-       
 
         [Bindable(true)]
         public ushort GlobleWidth
@@ -371,18 +368,31 @@ namespace SPRNetTool.ViewModel
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
-                    CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
-                    await SetColorSource(castArgs.CurrentColorSource);
-                    PixelWidth = CurrentDisplayingBmpSrc?.PixelWidth ?? 0;
-                    PixelHeight = CurrentDisplayingBmpSrc?.PixelHeight ?? 0;
-                    GlobleWidth = castArgs.CurrentSprFileHead?.GlobleWidth ?? 0;
-                    GlobleHeight = castArgs.CurrentSprFileHead?.GlobleHeight ?? 0;
-                    OffX = castArgs.CurrentSprFileHead?.OffX ?? 0;
-                    OffY = castArgs.CurrentSprFileHead?.OffY ?? 0;
-                    FrameCounts = castArgs.CurrentSprFileHead?.FrameCounts ?? 0;
-                    ColourCounts = castArgs.CurrentSprFileHead?.ColourCounts ?? 0;
-                    DirectionCount = castArgs.CurrentSprFileHead?.DirectionCount ?? 0;
-                    Interval = castArgs.CurrentSprFileHead?.Interval ?? 0;
+                    if (castArgs.IsPlayingAnimation != true)
+                    {
+                        CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
+                        await SetColorSource(castArgs.CurrentColorSource);
+                        PixelWidth = CurrentDisplayingBmpSrc?.PixelWidth ?? 0;
+                        PixelHeight = CurrentDisplayingBmpSrc?.PixelHeight ?? 0;
+                        GlobleWidth = castArgs.CurrentSprFileHead?.GlobleWidth ?? 0;
+                        GlobleHeight = castArgs.CurrentSprFileHead?.GlobleHeight ?? 0;
+                        OffX = castArgs.CurrentSprFileHead?.OffX ?? 0;
+                        OffY = castArgs.CurrentSprFileHead?.OffY ?? 0;
+                        FrameCounts = castArgs.CurrentSprFileHead?.FrameCounts ?? 0;
+                        ColourCounts = castArgs.CurrentSprFileHead?.ColourCounts ?? 0;
+                        DirectionCount = castArgs.CurrentSprFileHead?.DirectionCount ?? 0;
+                        Interval = castArgs.CurrentSprFileHead?.Interval ?? 0;
+                    }
+                    else if (castArgs.IsPlayingAnimation == true)
+                    {
+                        DebugPage.GlobalStaticImageView!.Dispatcher.Invoke(() =>
+                        {
+                            CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
+
+                        }, DispatcherPriority.DataBind);
+                    }
+
+
                     break;
             }
         }

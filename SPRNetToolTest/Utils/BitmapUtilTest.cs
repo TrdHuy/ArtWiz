@@ -1,5 +1,6 @@
 using SPRNetTool.Utils;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace SPRNetToolTest.Utils
 {
@@ -8,6 +9,16 @@ namespace SPRNetToolTest.Utils
         [SetUp]
         public void Setup()
         {
+        }
+
+        [Test]
+        public void test()
+        {
+            BitmapSource?[] bmpSource = new BitmapSource?[10];
+            string imagePath = "Resources\\test.png".FullPath();
+            bmpSource[0] = bmpSource[0].IfNullThenLet(() => BitmapUtil.LoadBitmapFromFile(imagePath));
+            Assert.NotNull(bmpSource[0]);
+            Assert.That(bmpSource[0].PixelWidth * bmpSource[0].PixelHeight, Is.EqualTo(90000));
         }
 
         [Test]
