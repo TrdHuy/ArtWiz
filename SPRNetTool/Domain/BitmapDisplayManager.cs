@@ -40,6 +40,7 @@ namespace SPRNetTool.Domain
         void IBitmapDisplayManager.OpenBitmapFromFile(string filePath, bool countPixelColor)
         {
             string fileExtension = Path.GetExtension(filePath).ToLower();
+            bool isSPR = false;
             if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png")
             {
                 CurrentDisplayBitmap = this.LoadBitmapFromFile(filePath)?.Also((it) =>
@@ -58,11 +59,12 @@ namespace SPRNetTool.Domain
                     {
                         _currentDisplayingBitmap.ColorSource = this.CountColors(it);
                     }
+                    isSPR = true;
                 });
             }
 
             NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
-                 _currentDisplayingBitmap.ColorSource, SprWorkManager.FileHead));
+                 _currentDisplayingBitmap.ColorSource, SprWorkManager.FileHead, isSPR));
         }
 
         private BitmapSource? OpenSprFile(string filePath)
@@ -184,13 +186,15 @@ namespace SPRNetTool.Domain
         public BitmapSource? CurrentDisplayingSource { get; private set; }
         public Dictionary<Color, long>? CurrentColorSource { get; private set; }
         public SprFileHead? CurrentSprFileHead { get; private set; }
+        public bool IsSpr = false;
         public BitmapDisplayMangerChangedArg(BitmapSource? currentDisplayingSource = null,
-            Dictionary<Color, long>? colorSource = null, SprFileHead? sprFileHead = null)
+            Dictionary<Color, long>? colorSource = null, SprFileHead? sprFileHead = null, bool isSpr = false)
         {
 
             CurrentDisplayingSource = currentDisplayingSource;
             CurrentColorSource = colorSource;
             CurrentSprFileHead = sprFileHead;
+            IsSpr = isSpr;
         }
     }
 }

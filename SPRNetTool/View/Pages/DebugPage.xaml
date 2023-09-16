@@ -101,7 +101,9 @@
 				<Rectangle Height="2"
 						   Fill="Black" />
 				<TextBlock Margin="0,5,0,0"
-						   FontWeight="Bold">
+						   FontWeight="Bold"
+                           
+                           >
 					<Run Text="IMAGE INFO"
 						 FontSize="15" />
 					<LineBreak />
@@ -113,7 +115,8 @@
 
 				</TextBlock>
 				<TextBlock Margin="0,5,0,0"
-						   FontWeight="Bold">
+						   FontWeight="Bold"
+                           Visibility="{Binding SPRFileHead, Converter={StaticResource NullToVisibilityConverter}}">
 					<Run Text="SPR INFO"
 						 FontSize="15" />
 					<LineBreak />

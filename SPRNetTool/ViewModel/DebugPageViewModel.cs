@@ -37,8 +37,21 @@ namespace SPRNetTool.ViewModel
         private ushort _colourCounts = 0;
         private ushort _directionCount = 0;
         private ushort _interval = 0;
+        private SprFileHead? _sprFileHead = null;
 
-       
+        [Bindable(true)]
+        public SprFileHead? SPRFileHead
+        {
+            get
+            {
+                return _sprFileHead;
+            }
+            set
+            {
+                _sprFileHead = value;
+                Invalidate();
+            }
+        }
 
         [Bindable(true)]
         public ushort GlobleWidth
@@ -383,6 +396,7 @@ namespace SPRNetTool.ViewModel
                     ColourCounts = castArgs.CurrentSprFileHead?.ColourCounts ?? 0;
                     DirectionCount = castArgs.CurrentSprFileHead?.DirectionCount ?? 0;
                     Interval = castArgs.CurrentSprFileHead?.Interval ?? 0;
+                    SPRFileHead = castArgs.IsSpr ? castArgs.CurrentSprFileHead : null;
                     break;
             }
         }
