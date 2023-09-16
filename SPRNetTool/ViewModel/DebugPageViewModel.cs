@@ -152,6 +152,7 @@ namespace SPRNetTool.ViewModel
             }
         }
 
+
         [Bindable(true)]
         public int PixelWidth
         {
@@ -372,8 +373,8 @@ namespace SPRNetTool.ViewModel
                 case BitmapDisplayMangerChangedArg castArgs:
                     CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
                     await SetColorSource(castArgs.CurrentColorSource);
-                    PixelWidth = CurrentDisplayingBmpSrc.PixelWidth;
-                    PixelHeight = CurrentDisplayingBmpSrc.PixelHeight;
+                    PixelWidth = CurrentDisplayingBmpSrc?.PixelWidth ?? 0;
+                    PixelHeight = CurrentDisplayingBmpSrc?.PixelHeight ?? 0;
                     GlobleWidth = castArgs.CurrentSprFileHead?.GlobleWidth ?? 0;
                     GlobleHeight = castArgs.CurrentSprFileHead?.GlobleHeight ?? 0;
                     OffX = castArgs.CurrentSprFileHead?.OffX ?? 0;
