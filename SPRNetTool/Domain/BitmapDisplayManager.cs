@@ -55,12 +55,12 @@ namespace SPRNetTool.Domain
         void IBitmapDisplayManager.OpenBitmapFromFile(string filePath, bool countPixelColor)
         {
             string fileExtension = Path.GetExtension(filePath).ToLower();
-            bool isSPR = false;
             if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png")
             {
                 CurrentDisplayBitmap = this.LoadBitmapFromFile(filePath)?.Also((it) =>
                 {
                     _currentDisplayingBitmap.isSprImage = false;
+                    _currentDisplayingBitmap.isPlaying = false;
                     if (countPixelColor)
                     {
                         _currentDisplayingBitmap.ColorSource = this.CountColors(it);
@@ -76,7 +76,6 @@ namespace SPRNetTool.Domain
                     {
                         _currentDisplayingBitmap.ColorSource = this.CountColors(it);
                     }
-                    isSPR = true;
                 });
 
                 StartSprAnimation();
@@ -84,7 +83,7 @@ namespace SPRNetTool.Domain
             }
 
             NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
-                 _currentDisplayingBitmap.ColorSource, SprWorkManager.FileHead, isSPR));
+                 _currentDisplayingBitmap.ColorSource, null, _currentDisplayingBitmap.isSprImage));
         }
 
         async Task<BitmapSource?> IBitmapDisplayManager.OptimzeImageColor(Dictionary<Color, long> countableColorSource
@@ -227,7 +226,7 @@ namespace SPRNetTool.Domain
                     //}, DispatcherPriority.Render);
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
                         currentDisplayingSource: _currentDisplayingBitmap.BitmapSource,
-                        isPlayingAnimation: true));
+                        isPlayingAnimation: true, sprFileHead : SprWorkManager.FileHead));
 
                     if (frameIndex == SprWorkManager.FileHead.FrameCounts)
                     {

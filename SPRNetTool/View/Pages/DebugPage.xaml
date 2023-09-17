@@ -101,9 +101,7 @@
 				<Rectangle Height="2"
 						   Fill="Black" />
 				<TextBlock Margin="0,5,0,0"
-						   FontWeight="Bold"
-                           
-                           >
+						   FontWeight="Bold">
 					<Run Text="IMAGE INFO"
 						 FontSize="15" />
 					<LineBreak />

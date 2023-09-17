@@ -16,7 +16,7 @@ namespace SPRNetTool.Domain
         private long FrameDataBegPos = -1;
         private FRAMERGBA[]? FrameData;
 
-        SprFileHead ISprWorkManager.FileHead => FileHead;
+        SprFileHead ISprWorkManager.FileHead => FileHead;   
 
         public WorkManager()
         {

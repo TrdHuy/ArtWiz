@@ -384,31 +384,30 @@ namespace SPRNetTool.ViewModel
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
+                    PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
+                    PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
                     if (castArgs.IsPlayingAnimation != true)
                     {
                         CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
                         await SetColorSource(castArgs.CurrentColorSource);
-                        PixelWidth = CurrentDisplayingBmpSrc?.PixelWidth ?? 0;
-                        PixelHeight = CurrentDisplayingBmpSrc?.PixelHeight ?? 0;
-                        GlobleWidth = castArgs.CurrentSprFileHead?.GlobleWidth ?? 0;
-                        GlobleHeight = castArgs.CurrentSprFileHead?.GlobleHeight ?? 0;
-                        OffX = castArgs.CurrentSprFileHead?.OffX ?? 0;
-                        OffY = castArgs.CurrentSprFileHead?.OffY ?? 0;
-                        FrameCounts = castArgs.CurrentSprFileHead?.FrameCounts ?? 0;
-                        ColourCounts = castArgs.CurrentSprFileHead?.ColourCounts ?? 0;
-                        DirectionCount = castArgs.CurrentSprFileHead?.DirectionCount ?? 0;
-                        Interval = castArgs.CurrentSprFileHead?.Interval ?? 0;
+                        SPRFileHead = null;
                     }
                     else if (castArgs.IsPlayingAnimation == true)
                     {
                         DebugPage.GlobalStaticImageView!.Dispatcher.Invoke(() =>
-                        {
+                        {                            
                             CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
-
+                            SPRFileHead = castArgs.CurrentSprFileHead;
+                            GlobleWidth = castArgs.CurrentSprFileHead?.GlobleWidth ?? 0;
+                            GlobleHeight = castArgs.CurrentSprFileHead?.GlobleHeight ?? 0;
+                            OffX = castArgs.CurrentSprFileHead?.OffX ?? 0;
+                            OffY = castArgs.CurrentSprFileHead?.OffY ?? 0;
+                            FrameCounts = castArgs.CurrentSprFileHead?.FrameCounts ?? 0;
+                            ColourCounts = castArgs.CurrentSprFileHead?.ColourCounts ?? 0;
+                            DirectionCount = castArgs.CurrentSprFileHead?.DirectionCount ?? 0;
+                            Interval = castArgs.CurrentSprFileHead?.Interval ?? 0;
                         }, DispatcherPriority.DataBind);
                     }
-
-
                     break;
             }
         }
