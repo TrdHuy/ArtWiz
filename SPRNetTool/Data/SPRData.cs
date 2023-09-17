@@ -67,16 +67,16 @@ namespace SPRNetTool.Data
 
     public struct SprFileHead
     {
-        public byte[] VersionInfo;
-        public ushort GlobleWidth;
-        public ushort GlobleHeight;
-        public ushort OffX;
-        public ushort OffY;
-        public ushort FrameCounts;
-        public ushort ColourCounts;
-        public ushort DirectionCount;
-        public ushort Interval;
-        public byte[] Reserved;
+        public byte[] VersionInfo {  get; set; }
+        public ushort GlobleWidth { get; set; }
+        public ushort GlobleHeight { get; set; }
+        public ushort OffX { get; set; }
+        public ushort OffY { get; set; }
+        public ushort FrameCounts { get; set; }
+        public ushort ColourCounts { get; set; }
+        public ushort DirectionCount { get; set; }
+        public ushort Interval { get; set; }
+        public byte[] Reserved { get; set; }
 
         public SprFileHead(byte[] versionInfo,
             ushort globleWidth,
