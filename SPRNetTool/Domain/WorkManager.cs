@@ -83,7 +83,7 @@ namespace SPRNetTool.Domain
 
         FRAMERGBA? ISprWorkManager.GetFrameData(int index)
         {
-            if(index < FileHead.FrameCounts)
+            if (index < FileHead.FrameCounts)
             {
                 return FrameData?[index];
             }
