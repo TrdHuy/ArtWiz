@@ -29,25 +29,10 @@ namespace SPRNetTool.ViewModel
 
         private int _pixelWidth = 0;
         private int _pixelHeight = 0;
-        private SprFileHead _sprFileHead;
-        private bool _isSPR = false;
+        private SprFileHead? _sprFileHead = null;
 
         [Bindable(true)]
-        public bool IsSPR
-        {
-            get
-            {
-                return _isSPR;
-            }
-            set
-            {
-                _isSPR = value;
-                Invalidate();
-            }
-        }
-
-        [Bindable(true)]
-        public SprFileHead SPRFileHead
+        public SprFileHead? SPRFileHead
         {
             get
             {
@@ -280,20 +265,17 @@ namespace SPRNetTool.ViewModel
                 case BitmapDisplayMangerChangedArg castArgs:
                     PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
                     PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
+                    SPRFileHead = castArgs.CurrentSprFileHead;
                     if (castArgs.IsPlayingAnimation != true)
                     {
                         CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
                         await SetColorSource(castArgs.CurrentColorSource);
-                        IsSPR = false;
                     }
                     else if (castArgs.IsPlayingAnimation == true)
                     {
-
                         DebugPage.GlobalStaticImageView!.Dispatcher.Invoke(() =>
                         {
-                            IsSPR = true;
                             CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
-                            SPRFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
                         }, DispatcherPriority.DataBind);
                     }
                     break;

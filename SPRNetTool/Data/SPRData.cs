@@ -67,7 +67,7 @@ namespace SPRNetTool.Data
 
     public struct SprFileHead
     {
-        public byte[] VersionInfo {  get; set; }
+        public byte[] VersionInfo { get; set; }
         public ushort GlobleWidth { get; set; }
         public ushort GlobleHeight { get; set; }
         public ushort OffX { get; set; }
