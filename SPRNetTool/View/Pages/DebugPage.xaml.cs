@@ -6,6 +6,7 @@ using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
 using SPRNetTool.ViewModel;
 using SPRNetTool.ViewModel.Base;
+using SPRNetTool.ViewModel.CommandVM;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -35,19 +36,23 @@ namespace SPRNetTool.View.Pages
 
     public partial class DebugPage : BasePageViewer
     {
-        public static Image? GlobalStaticImageView;
+        private Window ownerWindow;
 
         public override object ViewModel => DataContext;
-        ISprWorkManager workManager = new WorkManager();
-        DebugPageViewModel viewModel;
 
-        private Window ownerWindow;
+        //TODO: remove this because it belong to domain layer
+        private ISprWorkManager workManager = new WorkManager();
+        private DebugPageViewModel viewModel;
+        private IDebugPageCommand? commandVM;
+
+
         public DebugPage(IWindowViewer ownerWindow) : base(ownerWindow)
         {
             InitializeComponent();
             viewModel = (DebugPageViewModel)DataContext;
+            viewModel.IfIs<IArtWizViewModel>((it) => it.OnCreate(this));
             this.ownerWindow = (Window)ownerWindow;
-            GlobalStaticImageView = StaticImageView;
+            commandVM = DataContext.IfIsThenAlso<IDebugPageCommand>((it) => it);
         }
 
 
@@ -466,6 +471,7 @@ namespace SPRNetTool.View.Pages
                 {
                     case DebugPageTagID.SPRInfo_PlayButton:
                         {
+                            commandVM?.OnPlayPauseAnimationSprClicked();
                             break;
                         }
                 }

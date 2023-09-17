@@ -214,6 +214,16 @@ namespace SPRNetTool.Utils
             }
         }
 
+        public static T? IfIsThenAlso<T>(this object self, Func<T, T> block)
+        {
+            if (self is T e)
+            {
+                return block(e);
+            }
+            return default(T);
+        }
+
+
         public static T ThrowIfNull<T>(this T? self, Exception e)
         {
             return self ?? throw e;

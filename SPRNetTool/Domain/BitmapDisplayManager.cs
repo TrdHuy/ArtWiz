@@ -41,7 +41,7 @@ namespace SPRNetTool.Domain
             }
         }
 
-        async void StartSprAnimation()
+        async void IBitmapDisplayManager.StartSprAnimation()
         {
             if (!_currentDisplayingBitmap.isPlaying && _currentDisplayingBitmap.isSprImage
                 && SprWorkManager.FileHead.FrameCounts > 1)
@@ -49,6 +49,15 @@ namespace SPRNetTool.Domain
                 _currentDisplayingBitmap.isPlaying = true;
                 _currentDisplayingBitmap.AnimationSourceCaching = new BitmapSource?[SprWorkManager.FileHead.FrameCounts];
                 await PlayAnimation();
+            }
+        }
+
+        void IBitmapDisplayManager.StopSprAnimation()
+        {
+            if (_currentDisplayingBitmap.isPlaying && _currentDisplayingBitmap.isSprImage
+                && SprWorkManager.FileHead.FrameCounts > 1)
+            {
+                _currentDisplayingBitmap.isPlaying = false;
             }
         }
 
@@ -77,7 +86,6 @@ namespace SPRNetTool.Domain
                     }
                 });
 
-                StartSprAnimation();
                 return;
             }
 

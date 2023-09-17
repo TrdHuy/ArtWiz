@@ -1,4 +1,5 @@
 ﻿using SPRNetTool.Domain.Base;
+using SPRNetTool.ViewModel.Base;
 using System;
 using System.ComponentModel;
 using System.Reflection;
@@ -6,8 +7,9 @@ using System.Runtime.CompilerServices;
 
 namespace SPRNetTool.ViewModel
 {
-    public abstract class BaseViewModel : INotifyPropertyChanged, IDomainObserver, IDomainAccessors
+    public abstract class BaseViewModel : INotifyPropertyChanged, IDomainObserver, IDomainAccessors, IArtWizViewModel
     {
+        protected IArtWizViewModelOwner? ViewModelOwner { get; private set; }
         protected IBitmapDisplayManager BitmapDisplayManager
         { get { return IDomainAccessors.DomainContext.GetDomain<IBitmapDisplayManager>(); } }
 
@@ -50,5 +52,9 @@ namespace SPRNetTool.ViewModel
 
         protected virtual void OnDomainChanged(IDomainChangedArgs args) { }
 
+        void IArtWizViewModel.OnCreate(IArtWizViewModelOwner owner)
+        {
+            ViewModelOwner = owner;
+        }
     }
 }

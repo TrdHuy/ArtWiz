@@ -132,8 +132,7 @@
 					<Run Text="Frames count: " />
 					<Run Text="{Binding FrameCounts}" />
 					<Run Text="&#x9;&#x9;" />
-					<Run Text="&#xf04b;"
-						 MouseLeave="Run_MouseLeave"
+					<Run MouseLeave="Run_MouseLeave"
 						 MouseEnter="Run_MouseEnter"
 						 MouseDown="Run_MouseDown"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_PlayButton}"
@@ -141,34 +140,49 @@
 						<Run.Style>
 								<Style TargetType="Run">
 									<Style.Triggers>
-										<EventTrigger RoutedEvent="MouseEnter">
-											<EventTrigger.Actions>
-												<BeginStoryboard>
-													<Storyboard>
-														<ColorAnimation To="Green"
-																		Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
-																		Duration="0:0:0.05" />
-													</Storyboard>
-												</BeginStoryboard>
-											</EventTrigger.Actions>
-										</EventTrigger>		
-										<EventTrigger RoutedEvent="MouseLeave">
-											<EventTrigger.Actions>
-												<BeginStoryboard>
-													<Storyboard>
-														<ColorAnimation To="Black"
-																		Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
-																		Duration="0:0:0.05" />
-													</Storyboard>
-												</BeginStoryboard>
-											</EventTrigger.Actions>
-										</EventTrigger>	
+										<MultiDataTrigger>
+											<MultiDataTrigger.Conditions>
+												<Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}"
+														   Value="True" />
+												<Condition Binding="{Binding IsPlayingAnimation}"
+														   Value="False" />
+											</MultiDataTrigger.Conditions>
+											<Setter Property="Foreground"
+													Value="Green" />
+										</MultiDataTrigger>
+										
+										<MultiDataTrigger>
+											<MultiDataTrigger.Conditions>
+												<Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}"
+														   Value="True" />
+												<Condition Binding="{Binding IsPlayingAnimation}"
+														   Value="True" />
+											</MultiDataTrigger.Conditions>
+											<Setter Property="Foreground"
+													Value="Red" />
+										</MultiDataTrigger>
+											
+										<DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}"
+													 Value="False">
+											<Setter Property="Foreground"
+													Value="Black" />
+										</DataTrigger>			
+										<DataTrigger Binding="{Binding IsPlayingAnimation}"
+													 Value="True">
+											<Setter Property="Text"
+													Value="&#xf04c;" />
+										</DataTrigger>
+										<DataTrigger Binding="{Binding IsPlayingAnimation}"
+													 Value="False">
+											<Setter Property="Text"
+													Value="&#xf04b;" />
+										</DataTrigger>
 									</Style.Triggers>
 								</Style>
 						</Run.Style>
 					</Run>
 					<Run Text="Frame: " />
-					<Run Text="{Binding CurrentFrame}" />
+					<!--<Run Text="{Binding CurrentFrameIndex}" />-->
 					<LineBreak />
 					<Run Text="Colors count: " />
 					<Run Text="{Binding ColourCounts}" />

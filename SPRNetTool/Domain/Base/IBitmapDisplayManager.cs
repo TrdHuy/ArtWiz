@@ -19,5 +19,10 @@ namespace SPRNetTool.Domain.Base
             , bool isUsingAlpha
             , int colorDifferenceDeltaForCalculatingAlpha
             , Color backgroundForBlendColor);
+
+        void StartSprAnimation();
+
+        void StopSprAnimation();
+
     }
 }

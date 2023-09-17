@@ -3,6 +3,7 @@ using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Pages;
 using SPRNetTool.ViewModel.Base;
+using SPRNetTool.ViewModel.CommandVM;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -15,7 +16,7 @@ using System.Windows.Threading;
 
 namespace SPRNetTool.ViewModel
 {
-    public class DebugPageViewModel : BaseViewModel
+    public class DebugPageViewModel : BaseViewModel, IDebugPageCommand
     {
         private BitmapSource? _currentDisplayingBmpSrc;
         private ObservableCollection<ColorItemViewModel> _rawOriginalSource = new ObservableCollection<ColorItemViewModel>();
@@ -26,6 +27,7 @@ namespace SPRNetTool.ViewModel
         private ObservableCollection<OptimizedColorItemViewModel>? _optimizedSource = null;
         private ObservableCollection<ColorItemViewModel>? _resultRGBSource = null;
 
+        private bool _isPlayingAnimation = false;
         private int _pixelWidth = 0;
         private int _pixelHeight = 0;
         private ushort _globleWidth = 0;
@@ -173,6 +175,20 @@ namespace SPRNetTool.ViewModel
             set
             {
                 _pixelHeight = value;
+                Invalidate();
+            }
+        }
+
+        [Bindable(true)]
+        public bool IsPlayingAnimation
+        {
+            get
+            {
+                return _isPlayingAnimation;
+            }
+            set
+            {
+                _isPlayingAnimation = value;
                 Invalidate();
             }
         }
@@ -372,6 +388,7 @@ namespace SPRNetTool.ViewModel
                     {
                         CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
                         await SetColorSource(castArgs.CurrentColorSource);
+                        IsPlayingAnimation = false;
                         PixelWidth = CurrentDisplayingBmpSrc?.PixelWidth ?? 0;
                         PixelHeight = CurrentDisplayingBmpSrc?.PixelHeight ?? 0;
                         GlobleWidth = castArgs.CurrentSprFileHead?.GlobleWidth ?? 0;
@@ -385,7 +402,8 @@ namespace SPRNetTool.ViewModel
                     }
                     else if (castArgs.IsPlayingAnimation == true)
                     {
-                        DebugPage.GlobalStaticImageView!.Dispatcher.Invoke(() =>
+                        IsPlayingAnimation = true;
+                        ViewModelOwner?.ViewDispatcher.Invoke(() =>
                         {
                             CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
 
@@ -425,6 +443,19 @@ namespace SPRNetTool.ViewModel
                     );
             });
 
+        }
+
+        void IDebugPageCommand.OnPlayPauseAnimationSprClicked()
+        {
+            if (!IsPlayingAnimation)
+            {
+                BitmapDisplayManager.StartSprAnimation();
+            }
+            else
+            {
+                BitmapDisplayManager.StopSprAnimation();
+            }
+            IsPlayingAnimation = !IsPlayingAnimation;
         }
     }
 }
