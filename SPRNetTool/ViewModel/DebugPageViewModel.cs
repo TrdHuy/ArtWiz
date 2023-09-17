@@ -1,4 +1,5 @@
-﻿using SPRNetTool.Domain;
+﻿using SPRNetTool.Data;
+using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Pages;
@@ -30,127 +31,21 @@ namespace SPRNetTool.ViewModel
         private bool _isPlayingAnimation = false;
         private int _pixelWidth = 0;
         private int _pixelHeight = 0;
-        private ushort _globleWidth = 0;
-        private ushort _globleHeight = 0;
-        private ushort _offX = 0;
-        private ushort _offY = 0;
-        private ushort _frameCounts = 0;
-        private ushort _colourCounts = 0;
-        private ushort _directionCount = 0;
-        private ushort _interval = 0;
+        private SprFileHead? _sprFileHead = null;
 
         [Bindable(true)]
-        public ushort GlobleWidth
+        public SprFileHead? SPRFileHead
         {
             get
             {
-                return _globleWidth;
+                return _sprFileHead;
             }
             set
             {
-                _globleWidth = value;
+                _sprFileHead = value;
                 Invalidate();
             }
         }
-
-        [Bindable(true)]
-        public ushort GlobleHeight
-        {
-            get
-            {
-                return _globleHeight;
-            }
-            set
-            {
-                _globleHeight = value;
-                Invalidate();
-            }
-        }
-
-        [Bindable(true)]
-        public ushort OffX
-        {
-            get
-            {
-                return _offX;
-            }
-            set
-            {
-                _offX = value;
-                Invalidate();
-            }
-        }
-
-        [Bindable(true)]
-        public ushort OffY
-        {
-            get
-            {
-                return _offY;
-            }
-            set
-            {
-                _offY = value;
-                Invalidate();
-            }
-        }
-
-        [Bindable(true)]
-        public ushort FrameCounts
-        {
-            get
-            {
-                return _frameCounts;
-            }
-            set
-            {
-                _frameCounts = value;
-                Invalidate();
-            }
-        }
-
-        [Bindable(true)]
-        public ushort ColourCounts
-        {
-            get
-            {
-                return _colourCounts;
-            }
-            set
-            {
-                _colourCounts = value;
-                Invalidate();
-            }
-        }
-
-        [Bindable(true)]
-        public ushort DirectionCount
-        {
-            get
-            {
-                return _directionCount;
-            }
-            set
-            {
-                _directionCount = value;
-                Invalidate();
-            }
-        }
-
-        [Bindable(true)]
-        public ushort Interval
-        {
-            get
-            {
-                return _interval;
-            }
-            set
-            {
-                _interval = value;
-                Invalidate();
-            }
-        }
-
 
         [Bindable(true)]
         public int PixelWidth
@@ -384,21 +279,13 @@ namespace SPRNetTool.ViewModel
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
+                    PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
+                    PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
+                    SPRFileHead = castArgs.CurrentSprFileHead;
                     if (castArgs.IsPlayingAnimation != true)
                     {
                         CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
                         await SetColorSource(castArgs.CurrentColorSource);
-                        IsPlayingAnimation = false;
-                        PixelWidth = CurrentDisplayingBmpSrc?.PixelWidth ?? 0;
-                        PixelHeight = CurrentDisplayingBmpSrc?.PixelHeight ?? 0;
-                        GlobleWidth = castArgs.CurrentSprFileHead?.GlobleWidth ?? 0;
-                        GlobleHeight = castArgs.CurrentSprFileHead?.GlobleHeight ?? 0;
-                        OffX = castArgs.CurrentSprFileHead?.OffX ?? 0;
-                        OffY = castArgs.CurrentSprFileHead?.OffY ?? 0;
-                        FrameCounts = castArgs.CurrentSprFileHead?.FrameCounts ?? 0;
-                        ColourCounts = castArgs.CurrentSprFileHead?.ColourCounts ?? 0;
-                        DirectionCount = castArgs.CurrentSprFileHead?.DirectionCount ?? 0;
-                        Interval = castArgs.CurrentSprFileHead?.Interval ?? 0;
                     }
                     else if (castArgs.IsPlayingAnimation == true)
                     {
@@ -406,11 +293,8 @@ namespace SPRNetTool.ViewModel
                         ViewModelOwner?.ViewDispatcher.Invoke(() =>
                         {
                             CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
-
                         }, DispatcherPriority.DataBind);
                     }
-
-
                     break;
             }
         }

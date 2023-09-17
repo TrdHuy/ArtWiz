@@ -113,24 +113,25 @@
 
 				</TextBlock>
 				<TextBlock Margin="0,5,0,0"
-						   FontWeight="Bold">
+						   FontWeight="Bold"
+                           Visibility="{Binding SPRFileHead, Converter={StaticResource NullToVisibilityConverter}}">
 					<Run Text="SPR INFO"
 						 FontSize="15" />
 					<LineBreak />
 					<Run Text="Global width: " />
-					<Run Text="{Binding GlobleWidth}" />
+					<Run Text="{Binding SPRFileHead.GlobleWidth}" />
 					<LineBreak />
 					<Run Text="Global height: " />
-					<Run Text="{Binding GlobleHeight}" />
+					<Run Text="{Binding SPRFileHead.GlobleHeight}" />
 					<LineBreak />
 					<Run Text="Global offset X: " />
-					<Run Text="{Binding OffX}" />
+					<Run Text="{Binding SPRFileHead.OffX}" />
 					<LineBreak />
 					<Run Text="Global offset Y: " />
-					<Run Text="{Binding OffY}" />
+					<Run Text="{Binding SPRFileHead.OffY}" />
 					<LineBreak />
 					<Run Text="Frames count: " />
-					<Run Text="{Binding FrameCounts}" />
+					<Run Text="{Binding SPRFileHead.FrameCounts}" />
 					<Run Text="&#x9;&#x9;" />
 					<Run MouseLeave="Run_MouseLeave"
 						 MouseEnter="Run_MouseEnter"
@@ -185,10 +186,10 @@
 					<!--<Run Text="{Binding CurrentFrameIndex}" />-->
 					<LineBreak />
 					<Run Text="Colors count: " />
-					<Run Text="{Binding ColourCounts}" />
+					<Run Text="{Binding SPRFileHead.ColourCounts}" />
 					<LineBreak />
 					<Run Text="Directions count: " />
-					<Run Text="{Binding DirectionCount}" />
+					<Run Text="{Binding SPRFileHead.DirectionCount}" />
 					<LineBreak />
 					<Run Text="Interval: " />
 					<LineBreak />
