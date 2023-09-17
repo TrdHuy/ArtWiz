@@ -499,6 +499,7 @@ namespace SPRNetTool.View.Pages
                 {
                     case DebugPageTagID.SPRInfo_PlayButton:
                         {
+
                             //run.Foreground = new SolidColorBrush(Colors.Black);
                             break;
                         }
