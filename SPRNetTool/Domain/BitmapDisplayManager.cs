@@ -86,7 +86,8 @@ namespace SPRNetTool.Domain
                         _currentDisplayingBitmap.ColorSource = this.CountColors(it);
                     }
                 });
-
+                NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
+                 _currentDisplayingBitmap.ColorSource, SprWorkManager.FileHead, _currentDisplayingBitmap.isSprImage));
                 return;
             }
 
