@@ -48,7 +48,6 @@ namespace SPRNetTool.Domain
 
         }
 
-
         void ISprWorkManager.InitPaletteDataFromFileStream(FileStream fs, US_SprFileHead fileHead)
         {
             fs.Position = Marshal.SizeOf(typeof(US_SprFileHead));

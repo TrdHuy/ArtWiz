@@ -2,16 +2,16 @@
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
+using SPRNetTool.View.Pages;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace SPRNetTool.Domain
 {
@@ -22,8 +22,12 @@ namespace SPRNetTool.Domain
 
         private struct CountablePxBmpSrc
         {
+            public bool isPlaying;
+            public bool isSprImage;
             public BitmapSource? BitmapSource;
             public Dictionary<Color, long>? ColorSource;
+            public BitmapSource?[] AnimationSourceCaching;
+
         }
 
         private CountablePxBmpSrc _currentDisplayingBitmap;
@@ -37,6 +41,17 @@ namespace SPRNetTool.Domain
             }
         }
 
+        async void StartSprAnimation()
+        {
+            if (!_currentDisplayingBitmap.isPlaying && _currentDisplayingBitmap.isSprImage
+                && SprWorkManager.FileHead.FrameCounts > 1)
+            {
+                _currentDisplayingBitmap.isPlaying = true;
+                _currentDisplayingBitmap.AnimationSourceCaching = new BitmapSource?[SprWorkManager.FileHead.FrameCounts];
+                await PlayAnimation();
+            }
+        }
+
         void IBitmapDisplayManager.OpenBitmapFromFile(string filePath, bool countPixelColor)
         {
             string fileExtension = Path.GetExtension(filePath).ToLower();
@@ -45,6 +60,7 @@ namespace SPRNetTool.Domain
             {
                 CurrentDisplayBitmap = this.LoadBitmapFromFile(filePath)?.Also((it) =>
                 {
+                    _currentDisplayingBitmap.isSprImage = false;
                     if (countPixelColor)
                     {
                         _currentDisplayingBitmap.ColorSource = this.CountColors(it);
@@ -55,45 +71,20 @@ namespace SPRNetTool.Domain
             {
                 CurrentDisplayBitmap = this.OpenSprFile(filePath)?.Also((it) =>
                 {
+                    _currentDisplayingBitmap.isSprImage = true;
                     if (countPixelColor)
                     {
                         _currentDisplayingBitmap.ColorSource = this.CountColors(it);
                     }
                     isSPR = true;
                 });
+
+                StartSprAnimation();
+                return;
             }
 
             NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
                  _currentDisplayingBitmap.ColorSource, SprWorkManager.FileHead, isSPR));
-        }
-
-        private BitmapSource? OpenSprFile(string filePath)
-        {
-            try
-            {
-                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                {
-                    if (SprWorkManager.InitWorkManager(fs))
-                    {
-                        return SprWorkManager.GetFrameData(0)?.Let((it) =>
-                        {
-                            var byteData = this.ConvertPaletteColourArrayToByteArray(it.globleFrameData);
-                            return this.GetBitmapFromRGBArray(byteData
-                                , SprWorkManager.FileHead.GlobleWidth
-                                , SprWorkManager.FileHead.GlobleHeight, PixelFormats.Bgra32)
-                            .Also((it) => it.Freeze());
-                        });
-                    }
-
-                    return null;
-
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi: " + ex.Message);
-                return null;
-            }
         }
 
         async Task<BitmapSource?> IBitmapDisplayManager.OptimzeImageColor(Dictionary<Color, long> countableColorSource
@@ -179,22 +170,96 @@ namespace SPRNetTool.Domain
                 return null;
             });
         }
+
+        private BitmapSource? OpenSprFile(string filePath)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    if (SprWorkManager.InitWorkManager(fs))
+                    {
+                        return SprWorkManager.GetFrameData(0)?.Let((it) =>
+                        {
+                            var byteData = this.ConvertPaletteColourArrayToByteArray(it.globleFrameData);
+                            return this.GetBitmapFromRGBArray(byteData
+                                , SprWorkManager.FileHead.GlobleWidth
+                                , SprWorkManager.FileHead.GlobleHeight, PixelFormats.Bgra32)
+                            .Also((it) => it.Freeze());
+                        });
+                    }
+
+                    return null;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi: " + ex.Message);
+                return null;
+            }
+        }
+
+        private async Task PlayAnimation()
+        {
+            await Task.Run(async () =>
+            {
+                Stopwatch stopwatch = new Stopwatch();
+
+                int frameIndex = 0;
+                while (_currentDisplayingBitmap.isPlaying)
+                {
+                    stopwatch.Restart();
+                    _currentDisplayingBitmap.AnimationSourceCaching[frameIndex] =
+                    _currentDisplayingBitmap.AnimationSourceCaching[frameIndex].IfNullThenLet(() =>
+                        SprWorkManager.GetFrameData(frameIndex)?
+                            .Let((it) => this.GetBitmapFromRGBArray(
+                                this.ConvertPaletteColourArrayToByteArray(it.globleFrameData)
+                                , SprWorkManager.FileHead.GlobleWidth
+                                , SprWorkManager.FileHead.GlobleHeight, PixelFormats.Bgra32))
+                            .Also((it) => it.Freeze()));
+                    CurrentDisplayBitmap = _currentDisplayingBitmap.AnimationSourceCaching[frameIndex++];
+
+                    //DebugPage.GlobalStaticImageView!.Dispatcher.Invoke(() =>
+                    //{
+                    //    DebugPage.GlobalStaticImageView!.Source = CurrentDisplayBitmap;
+
+                    //}, DispatcherPriority.Render);
+                    NotifyChanged(new BitmapDisplayMangerChangedArg(
+                        currentDisplayingSource: _currentDisplayingBitmap.BitmapSource,
+                        isPlayingAnimation: true));
+
+                    if (frameIndex == SprWorkManager.FileHead.FrameCounts)
+                    {
+                        frameIndex = 0;
+                    }
+
+                    int delayTime = SprWorkManager.FileHead.Interval - (int)stopwatch.ElapsedMilliseconds;
+                    if (delayTime > 0)
+                    {
+                        await Task.Delay(delayTime);
+                    }
+                }
+            });
+        }
     }
 
     public class BitmapDisplayMangerChangedArg : IDomainChangedArgs
     {
         public BitmapSource? CurrentDisplayingSource { get; private set; }
         public Dictionary<Color, long>? CurrentColorSource { get; private set; }
+        public bool? IsPlayingAnimation { get; private set; }
         public SprFileHead? CurrentSprFileHead { get; private set; }
-        public bool IsSpr = false;
-        public BitmapDisplayMangerChangedArg(BitmapSource? currentDisplayingSource = null,
-            Dictionary<Color, long>? colorSource = null, SprFileHead? sprFileHead = null, bool isSpr = false)
-        {
 
+        public BitmapDisplayMangerChangedArg(BitmapSource? currentDisplayingSource = null,
+            Dictionary<Color, long>? colorSource = null,
+            SprFileHead? sprFileHead = null,
+            bool? isPlayingAnimation = null)
+        {
             CurrentDisplayingSource = currentDisplayingSource;
             CurrentColorSource = colorSource;
             CurrentSprFileHead = sprFileHead;
-            IsSpr = isSpr;
+            IsPlayingAnimation = isPlayingAnimation;
         }
     }
 }
