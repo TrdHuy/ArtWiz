@@ -482,7 +482,7 @@ namespace SPRNetTool.View.Pages
                 {
                     case DebugPageTagID.SPRInfo_PlayButton:
                         {
-                            run.Foreground = new SolidColorBrush(Colors.Green);
+                            //run.Foreground = new SolidColorBrush(Colors.Green);
                             break;
                         }
                 }
@@ -499,7 +499,7 @@ namespace SPRNetTool.View.Pages
                 {
                     case DebugPageTagID.SPRInfo_PlayButton:
                         {
-                            run.Foreground = new SolidColorBrush(Colors.Black);
+                            //run.Foreground = new SolidColorBrush(Colors.Black);
                             break;
                         }
                 }

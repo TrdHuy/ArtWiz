@@ -121,34 +121,67 @@
 						 FontSize="15" />
 					<LineBreak />
 					<Run Text="Global width: " />
-					<Run Text="{Binding GlobleWidth}"/>
+					<Run Text="{Binding GlobleWidth}" />
 					<LineBreak />
 					<Run Text="Global height: " />
-					<Run Text="{Binding GlobleHeight}"/>
+					<Run Text="{Binding GlobleHeight}" />
 					<LineBreak />
 					<Run Text="Global offset X: " />
-					<Run Text="{Binding OffX}"/>
+					<Run Text="{Binding OffX}" />
 					<LineBreak />
 					<Run Text="Global offset Y: " />
-					<Run Text="{Binding OffY}"/>
+					<Run Text="{Binding OffY}" />
 					<LineBreak />
 					<Run Text="Frames count: " />
-					<Run Text="{Binding FrameCounts}"/>
-					<LineBreak />
-					<Run Text="Colors count: " />
-					<Run Text="{Binding ColourCounts}"/>
-					<LineBreak />
-					<Run Text="Directions count: " />
-					<Run Text="{Binding DirectionCount}"/>
-					<LineBreak />
-					<Run Text="Interval: " />
-					<LineBreak />
+					<Run Text="{Binding FrameCounts}" />
+					<Run Text="&#x9;&#x9;" />
 					<Run Text="&#xf04b;"
 						 MouseLeave="Run_MouseLeave"
 						 MouseEnter="Run_MouseEnter"
 						 MouseDown="Run_MouseDown"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_PlayButton}"
-						 FontFamily="{StaticResource FontAwsome}"/>
+						 FontFamily="{StaticResource FontAwsome}">
+						<Run.Style>
+								<Style TargetType="Run">
+									<Style.Triggers>
+										<EventTrigger RoutedEvent="MouseEnter">
+											<EventTrigger.Actions>
+												<BeginStoryboard>
+													<Storyboard>
+														<ColorAnimation To="Green"
+																		Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
+																		Duration="0:0:0.05" />
+													</Storyboard>
+												</BeginStoryboard>
+											</EventTrigger.Actions>
+										</EventTrigger>		
+										<EventTrigger RoutedEvent="MouseLeave">
+											<EventTrigger.Actions>
+												<BeginStoryboard>
+													<Storyboard>
+														<ColorAnimation To="Black"
+																		Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
+																		Duration="0:0:0.05" />
+													</Storyboard>
+												</BeginStoryboard>
+											</EventTrigger.Actions>
+										</EventTrigger>	
+									</Style.Triggers>
+								</Style>
+						</Run.Style>
+					</Run>
+					<Run Text="Frame: " />
+					<Run Text="{Binding CurrentFrame}" />
+					<LineBreak />
+					<Run Text="Colors count: " />
+					<Run Text="{Binding ColourCounts}" />
+					<LineBreak />
+					<Run Text="Directions count: " />
+					<Run Text="{Binding DirectionCount}" />
+					<LineBreak />
+					<Run Text="Interval: " />
+					<LineBreak />
+
 				</TextBlock>
 				<Rectangle Margin="0,10,0,0"
 						   Height="2"
