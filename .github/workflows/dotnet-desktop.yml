@@ -78,6 +78,10 @@ jobs:
         done
   
   build:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+        
     runs-on: windows-latest  # For a list of available runner types, refer to
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/feature_')
@@ -104,11 +108,15 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Build with dotnet
-      run: dotnet build --configuration Release
-
+      run: dotnet build --configuration $env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+    
     - name: Run tests with coverage
-      run: dotnet test --configuration Release --collect:"XPlat Code Coverage"
-
+      run: dotnet test --configuration $env:Configuration --collect:"XPlat Code Coverage"
+      env:
+        Configuration: ${{ matrix.configuration }}
+        
     - name: ReportGenerator
       uses: danielpalme/ReportGenerator-GitHub-Action@4.8.7
       with:
@@ -120,5 +128,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: CoverageReports # Artifact name        
-        path: CoverageReports # Directory containing files to upload
+        name: CoverageReports-$env:Configuration # Artifact name        
+        path: CoverageReports-$env:Configuration # Directory containing files to upload
