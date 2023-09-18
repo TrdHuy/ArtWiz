@@ -90,7 +90,8 @@ jobs:
       Test_Project_Path: SPRNetToolTest\SPRNetToolTest.csproj              # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
       Wap_Project_Directory: SPRNetTool    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
       Wap_Project_Path: SPRNetTool\SPRNetTool.csproj                # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
-
+      Configuration: ${{ matrix.configuration }}
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -109,13 +110,9 @@ jobs:
 
     - name: Build with dotnet
       run: dotnet build --configuration $env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
     
     - name: Run tests with coverage
       run: dotnet test --configuration $env:Configuration --collect:"XPlat Code Coverage"
-      env:
-        Configuration: ${{ matrix.configuration }}
         
     - name: ReportGenerator
       uses: danielpalme/ReportGenerator-GitHub-Action@4.8.7
