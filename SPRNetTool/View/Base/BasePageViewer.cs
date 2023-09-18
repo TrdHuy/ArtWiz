@@ -1,5 +1,7 @@
 ﻿using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
+using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -16,6 +18,23 @@ namespace SPRNetTool.View.Base
         public BasePageViewer(IWindowViewer ownerWindow)
         {
             _ownerWindow = ownerWindow;
+            ownerWindow.AddOnWindowClosedEvent(OnWindowClosed);
+        }
+
+        private void OnWindowClosed(Window w)
+        {
+            DataContext.IfIs<IArtWizViewModel>((it) => it.OnDestroy());
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+            DataContext.IfIs<IArtWizViewModel>((it) => it.OnCreate(this));
+        }
+
+        ~BasePageViewer()
+        {
+            _ownerWindow.RemoveOnWindowClosedEvent(OnWindowClosed);
         }
     }
 }

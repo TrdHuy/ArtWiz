@@ -2,7 +2,6 @@
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
-using SPRNetTool.View.Pages;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace SPRNetTool.Domain
 {
@@ -235,7 +233,7 @@ namespace SPRNetTool.Domain
                     //}, DispatcherPriority.Render);
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
                         currentDisplayingSource: _currentDisplayingBitmap.BitmapSource,
-                        isPlayingAnimation: true, sprFileHead : SprWorkManager.FileHead));
+                        isPlayingAnimation: true, sprFileHead: SprWorkManager.FileHead));
 
                     if (frameIndex == SprWorkManager.FileHead.FrameCounts)
                     {

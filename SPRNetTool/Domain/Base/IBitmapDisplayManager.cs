@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain.Base
 {
-    public interface IBitmapDisplayManager: IObservableDomain
+    public interface IBitmapDisplayManager : IObservableDomain
     {
         void OpenBitmapFromFile(string filePath, bool countPixelColor);
 

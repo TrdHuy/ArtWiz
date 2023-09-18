@@ -9,20 +9,24 @@ namespace SPRNetTool.ViewModel
 {
     public abstract class BaseViewModel : INotifyPropertyChanged, IDomainObserver, IDomainAccessors, IArtWizViewModel
     {
-        protected IArtWizViewModelOwner? ViewModelOwner { get; private set; }
+        #region Modules
         protected IBitmapDisplayManager BitmapDisplayManager
         { get { return IDomainAccessors.DomainContext.GetDomain<IBitmapDisplayManager>(); } }
 
         protected ISprWorkManager SprWorkManager
         { get { return IDomainAccessors.DomainContext.GetDomain<ISprWorkManager>(); } }
 
+        #endregion
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected IArtWizViewModelOwner? ViewModelOwner { get; private set; }
+        protected bool IsViewModelDestroyed { get; private set; } = false;
+
         protected void Invalidate([CallerMemberName] string caller = "")
         {
             OnPropertyChanged(caller);
         }
-
-
-        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -45,16 +49,22 @@ namespace SPRNetTool.ViewModel
             }
         }
 
+        protected virtual void OnDomainChanged(IDomainChangedArgs args) { }
+
+
         void IDomainObserver.OnDomainChanged(IDomainChangedArgs args)
         {
             OnDomainChanged(args);
         }
 
-        protected virtual void OnDomainChanged(IDomainChangedArgs args) { }
-
         void IArtWizViewModel.OnCreate(IArtWizViewModelOwner owner)
         {
             ViewModelOwner = owner;
+        }
+
+        void IArtWizViewModel.OnDestroy()
+        {
+            IsViewModelDestroyed = true;
         }
     }
 }
