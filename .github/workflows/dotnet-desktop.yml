@@ -115,6 +115,7 @@ jobs:
       run: dotnet test --configuration $env:Configuration --collect:"XPlat Code Coverage"
         
     - name: ReportGenerator
+      if: startsWith(github.ref, 'refs/heads/dev')
       uses: danielpalme/ReportGenerator-GitHub-Action@4.8.7
       with:
         reports: '*Test/TestResults/*/coverage.cobertura.xml'
@@ -123,6 +124,7 @@ jobs:
         verbosity: 'Verbose'
 
     - name: Upload artifact
+      if: startsWith(github.ref, 'refs/heads/dev')
       uses: actions/upload-artifact@v1.0.0
       with:
         name: CoverageReports-${{ env.Configuration }} # Artifact name        
