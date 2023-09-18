@@ -50,11 +50,9 @@ namespace SPRNetTool.View.Pages
         {
             InitializeComponent();
             viewModel = (DebugPageViewModel)DataContext;
-            viewModel.IfIs<IArtWizViewModel>((it) => it.OnCreate(this));
             this.ownerWindow = (Window)ownerWindow;
             commandVM = DataContext.IfIsThenAlso<IDebugPageCommand>((it) => it);
         }
-
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {

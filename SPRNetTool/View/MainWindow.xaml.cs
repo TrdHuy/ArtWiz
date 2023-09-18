@@ -2,7 +2,6 @@
 using SPRNetTool.View.Base;
 using SPRNetTool.View.Pages;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace SPRNetTool.View
 {
@@ -10,21 +9,17 @@ namespace SPRNetTool.View
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, IWindowViewer
+    public partial class MainWindow : BaseArtWizWindow
     {
-        public object ViewModel => DataContext;
-
-        public Dispatcher ViewElementDispatcher => Dispatcher;
-
         private DebugPage? debugPage = null;
-        
+
         public MainWindow()
         {
             InitializeComponent();
         }
 
 
-        public void DisableWindow(bool isDisabled)
+        public override void DisableWindow(bool isDisabled)
         {
             if (isDisabled)
             {
@@ -39,8 +34,9 @@ namespace SPRNetTool.View
 
         private void MenuItemDebugPageClick(object sender, RoutedEventArgs e)
         {
-            PageContentPresenter.Content = debugPage ?? new DebugPage(this).Also((it) => debugPage = it);
+            PageContentPresenter.Content = debugPage ?? new DebugPage((IWindowViewer)this).Also((it) => debugPage = it);
         }
+
     }
 
 

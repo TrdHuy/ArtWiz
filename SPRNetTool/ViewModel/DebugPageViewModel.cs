@@ -2,7 +2,6 @@
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
-using SPRNetTool.View.Pages;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
 using System.Collections.Generic;
@@ -293,6 +292,8 @@ namespace SPRNetTool.ViewModel
 
         protected async override void OnDomainChanged(IDomainChangedArgs args)
         {
+            if (IsViewModelDestroyed) return;
+
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
