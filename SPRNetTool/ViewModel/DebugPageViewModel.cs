@@ -32,6 +32,23 @@ namespace SPRNetTool.ViewModel
         private int _pixelWidth = 0;
         private int _pixelHeight = 0;
         private SprFileHead? _sprFileHead = null;
+        private int _currentFrame = 0;
+
+        [Bindable(true)]
+        public int CurrentFrame
+        {
+            get 
+            { 
+                return _currentFrame; 
+            }
+            set
+            {
+                _currentFrame = value;
+                Invalidate();
+            }
+        }
+
+    
 
         [Bindable(true)]
         public SprFileHead? SPRFileHead
@@ -289,10 +306,12 @@ namespace SPRNetTool.ViewModel
                     }
                     else if (castArgs.IsPlayingAnimation == true)
                     {
+                        
                         IsPlayingAnimation = true;
                         ViewModelOwner?.ViewDispatcher.Invoke(() =>
                         {
                             CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
+                            CurrentFrame = castArgs.FrameIndex;
                         }, DispatcherPriority.DataBind);
                     }
                     break;
