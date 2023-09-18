@@ -125,5 +125,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: CoverageReports-$env:Configuration # Artifact name        
-        path: CoverageReports-$env:Configuration # Directory containing files to upload
+        name: CoverageReports-${{ env.Configuration }} # Artifact name        
+        path: CoverageReports-${{ env.Configuration }} # Directory containing files to upload
