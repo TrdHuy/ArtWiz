@@ -25,7 +25,7 @@ namespace SPRNetTool.Domain
             public BitmapSource? BitmapSource;
             public Dictionary<Color, long>? ColorSource;
             public BitmapSource?[] AnimationSourceCaching;
-
+            public int? currentFrame;
         }
 
         private CountablePxBmpSrc _currentDisplayingBitmap;
@@ -68,6 +68,7 @@ namespace SPRNetTool.Domain
                 {
                     _currentDisplayingBitmap.isSprImage = false;
                     _currentDisplayingBitmap.isPlaying = false;
+                    _currentDisplayingBitmap.currentFrame = null;
                     if (countPixelColor)
                     {
                         _currentDisplayingBitmap.ColorSource = this.CountColors(it);
@@ -212,7 +213,8 @@ namespace SPRNetTool.Domain
             {
                 Stopwatch stopwatch = new Stopwatch();
 
-                int frameIndex = 0;
+                int frameIndex = _currentDisplayingBitmap.currentFrame ?? 0;
+                _currentDisplayingBitmap.currentFrame = frameIndex;
                 while (_currentDisplayingBitmap.isPlaying)
                 {
                     stopwatch.Restart();
@@ -225,7 +227,7 @@ namespace SPRNetTool.Domain
                                 , SprWorkManager.FileHead.GlobleHeight, PixelFormats.Bgra32))
                             .Also((it) => it.Freeze()));
                     CurrentDisplayBitmap = _currentDisplayingBitmap.AnimationSourceCaching[frameIndex++];
-
+                    _currentDisplayingBitmap.currentFrame++;
                     //DebugPage.GlobalStaticImageView!.Dispatcher.Invoke(() =>
                     //{
                     //    DebugPage.GlobalStaticImageView!.Source = CurrentDisplayBitmap;
@@ -233,11 +235,12 @@ namespace SPRNetTool.Domain
                     //}, DispatcherPriority.Render);
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
                         currentDisplayingSource: _currentDisplayingBitmap.BitmapSource,
-                        isPlayingAnimation: true, sprFileHead: SprWorkManager.FileHead));
+                        isPlayingAnimation: true, sprFileHead : SprWorkManager.FileHead, indexFrame: frameIndex));
 
                     if (frameIndex == SprWorkManager.FileHead.FrameCounts)
                     {
                         frameIndex = 0;
+                        _currentDisplayingBitmap.currentFrame = 0;
                     }
 
                     int delayTime = SprWorkManager.FileHead.Interval - (int)stopwatch.ElapsedMilliseconds;
@@ -257,15 +260,19 @@ namespace SPRNetTool.Domain
         public bool? IsPlayingAnimation { get; private set; }
         public SprFileHead? CurrentSprFileHead { get; private set; }
 
+        public int FrameIndex { get; private set; }
+
         public BitmapDisplayMangerChangedArg(BitmapSource? currentDisplayingSource = null,
             Dictionary<Color, long>? colorSource = null,
             SprFileHead? sprFileHead = null,
-            bool? isPlayingAnimation = null)
+            bool? isPlayingAnimation = null,
+            int indexFrame = 0)
         {
             CurrentDisplayingSource = currentDisplayingSource;
             CurrentColorSource = colorSource;
             CurrentSprFileHead = sprFileHead;
             IsPlayingAnimation = isPlayingAnimation;
+            FrameIndex = indexFrame;
         }
     }
 }
