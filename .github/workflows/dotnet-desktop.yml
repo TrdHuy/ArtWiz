@@ -84,7 +84,7 @@ jobs:
         
     runs-on: windows-latest  # For a list of available runner types, refer to
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/feature_')
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/dev') || startsWith(github.ref, 'refs/heads/feature_')
     env:
       Solution_Name: SPRNetTool.sln                      # Replace with your solution name, i.e. MyWpfApp.sln.
       Test_Project_Path: SPRNetToolTest\SPRNetToolTest.csproj              # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
@@ -113,6 +113,7 @@ jobs:
         
     - name: ReportGenerator
       uses: danielpalme/ReportGenerator-GitHub-Action@4.8.7
+      if: startsWith(github.ref, 'refs/heads/unittest_') || startsWith(github.ref, 'refs/heads/dev')
       with:
         reports: '*Test/TestResults/*/coverage.cobertura.xml'
         targetdir: 'CoverageReports'
@@ -121,6 +122,7 @@ jobs:
 
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
+      if: startsWith(github.ref, 'refs/heads/unittest_') || startsWith(github.ref, 'refs/heads/dev')
       with:
         name: CoverageReports-${{ env.Configuration }} # Artifact name        
         path: CoverageReports # Directory containing files to upload
