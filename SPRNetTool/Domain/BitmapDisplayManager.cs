@@ -56,6 +56,10 @@ namespace SPRNetTool.Domain
                 && SprWorkManager.FileHead.FrameCounts > 1)
             {
                 _currentDisplayingBitmap.isPlaying = false;
+                NotifyChanged(new BitmapDisplayMangerChangedArg(
+                        currentDisplayingSource: _currentDisplayingBitmap.BitmapSource,
+                        colorSource: _currentDisplayingBitmap.ColorSource,
+                        isPlayingAnimation: false, sprFileHead: SprWorkManager.FileHead, indexFrame: _currentDisplayingBitmap.currentFrame ?? 0));
             }
         }
 
@@ -235,6 +239,7 @@ namespace SPRNetTool.Domain
                     //}, DispatcherPriority.Render);
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
                         currentDisplayingSource: _currentDisplayingBitmap.BitmapSource,
+                        colorSource : _currentDisplayingBitmap.ColorSource,
                         isPlayingAnimation: true, sprFileHead : SprWorkManager.FileHead, indexFrame: frameIndex));
 
                     if (frameIndex == SprWorkManager.FileHead.FrameCounts)
