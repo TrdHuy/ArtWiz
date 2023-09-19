@@ -183,7 +183,7 @@
 						</Run.Style>
 					</Run>
 					<Run Text="Frame: " />
-					<!--<Run Text="{Binding CurrentFrameIndex}" />-->
+					<Run Text="{Binding CurrentFrameIndex}" />
 					<LineBreak />
 					<Run Text="Colors count: " />
 					<Run Text="{Binding SPRFileHead.ColourCounts}" />
