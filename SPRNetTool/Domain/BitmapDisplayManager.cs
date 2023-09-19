@@ -259,7 +259,8 @@ namespace SPRNetTool.Domain
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                         currentDisplayingSource: _currentDisplayingBitmap.DisplayingBitmapSource,
                         isPlayingAnimation: false, 
-                        sprFileHead: SprWorkManager.FileHead));
+                        sprFileHead: SprWorkManager.FileHead,
+                        colorSource: _currentDisplayingBitmap.ColorSource));
             });
         }
     }
