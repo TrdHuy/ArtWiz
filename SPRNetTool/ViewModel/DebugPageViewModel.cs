@@ -312,6 +312,7 @@ namespace SPRNetTool.ViewModel
                         {
                             CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
                             CurrentFrameIndex = castArgs.FrameIndex;
+                            await SetColorSource(castArgs.CurrentColorSource);
                         }, DispatcherPriority.DataBind);
                     }
                     break;
