@@ -24,7 +24,7 @@ namespace SPRNetTool.Domain
         {
             public bool isPlaying;
             public bool isSprImage;
-            public BitmapSource? BitmapSource;
+            public BitmapSource? DisplayingBitmapSource;
             public Dictionary<Color, long>? ColorSource;
             public BitmapSource?[] AnimationSourceCaching;
 
@@ -34,10 +34,10 @@ namespace SPRNetTool.Domain
 
         private BitmapSource? CurrentDisplayBitmap
         {
-            get { return _currentDisplayingBitmap.BitmapSource; }
+            get { return _currentDisplayingBitmap.DisplayingBitmapSource; }
             set
             {
-                _currentDisplayingBitmap.BitmapSource = value;
+                _currentDisplayingBitmap.DisplayingBitmapSource = value;
             }
         }
 
@@ -86,13 +86,19 @@ namespace SPRNetTool.Domain
                         _currentDisplayingBitmap.ColorSource = this.CountColors(it);
                     }
                 });
-                NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
-                 _currentDisplayingBitmap.ColorSource, SprWorkManager.FileHead, _currentDisplayingBitmap.isSprImage));
+                NotifyChanged(new BitmapDisplayMangerChangedArg(
+                    currentDisplayingSource: _currentDisplayingBitmap.DisplayingBitmapSource,
+                    colorSource: _currentDisplayingBitmap.ColorSource,
+                    sprFileHead: SprWorkManager.FileHead, 
+                    isPlayingAnimation: false));
                 return;
             }
 
-            NotifyChanged(new BitmapDisplayMangerChangedArg(_currentDisplayingBitmap.BitmapSource,
-                 _currentDisplayingBitmap.ColorSource, null, _currentDisplayingBitmap.isSprImage));
+            NotifyChanged(new BitmapDisplayMangerChangedArg(
+                currentDisplayingSource: _currentDisplayingBitmap.DisplayingBitmapSource,
+                colorSource: _currentDisplayingBitmap.ColorSource,
+                sprFileHead: null,
+                isPlayingAnimation: false));
         }
 
         async Task<BitmapSource?> IBitmapDisplayManager.OptimzeImageColor(Dictionary<Color, long> countableColorSource
@@ -234,8 +240,8 @@ namespace SPRNetTool.Domain
 
                     //}, DispatcherPriority.Render);
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
-                        currentDisplayingSource: _currentDisplayingBitmap.BitmapSource,
-                        isPlayingAnimation: true, sprFileHead : SprWorkManager.FileHead));
+                        currentDisplayingSource: _currentDisplayingBitmap.DisplayingBitmapSource,
+                        isPlayingAnimation: true, sprFileHead: SprWorkManager.FileHead));
 
                     if (frameIndex == SprWorkManager.FileHead.FrameCounts)
                     {
@@ -248,6 +254,11 @@ namespace SPRNetTool.Domain
                         await Task.Delay(delayTime);
                     }
                 }
+
+                NotifyChanged(new BitmapDisplayMangerChangedArg(
+                        currentDisplayingSource: _currentDisplayingBitmap.DisplayingBitmapSource,
+                        isPlayingAnimation: false, 
+                        sprFileHead: SprWorkManager.FileHead));
             });
         }
     }

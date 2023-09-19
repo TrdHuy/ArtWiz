@@ -284,6 +284,7 @@ namespace SPRNetTool.ViewModel
                     SPRFileHead = castArgs.CurrentSprFileHead;
                     if (castArgs.IsPlayingAnimation != true)
                     {
+                        IsPlayingAnimation = false;
                         CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
                         await SetColorSource(castArgs.CurrentColorSource);
                     }
@@ -339,7 +340,6 @@ namespace SPRNetTool.ViewModel
             {
                 BitmapDisplayManager.StopSprAnimation();
             }
-            IsPlayingAnimation = !IsPlayingAnimation;
         }
     }
 }
