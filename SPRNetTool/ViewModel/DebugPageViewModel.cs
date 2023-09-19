@@ -306,13 +306,14 @@ namespace SPRNetTool.ViewModel
                         await SetColorSource(castArgs.CurrentColorSource);
                     }
                     else if (castArgs.IsPlayingAnimation == true)
-                    {
-                        
+                    {                       
                         IsPlayingAnimation = true;
-                        ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                        
+                        ViewModelOwner?.ViewDispatcher.Invoke(async () =>
                         {
                             CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
                             CurrentFrameIndex = castArgs.FrameIndex;
+                            await SetColorSource(castArgs.CurrentColorSource);
                         }, DispatcherPriority.DataBind);
                     }
                     break;

@@ -235,6 +235,7 @@ namespace SPRNetTool.Domain
                     //}, DispatcherPriority.Render);
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
                         currentDisplayingSource: _currentDisplayingBitmap.BitmapSource,
+                        colorSource : _currentDisplayingBitmap.ColorSource,
                         isPlayingAnimation: true, sprFileHead : SprWorkManager.FileHead, indexFrame: frameIndex));
 
                     if (frameIndex == SprWorkManager.FileHead.FrameCounts)
