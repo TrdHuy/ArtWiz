@@ -23,7 +23,7 @@ jobs:
         echo =======================
         echo "${{ github.event.commits[0].message }}"
         startCommit=${{ github.event.before }}
-        if [[ ${{ github.event.before }} == *"00000000000000000000"* ]]; then
+        if [[ ${{ github.event.before }} == *00000000000000000000* ]]; then
            startCommit=${{ github.event.after }}
         else
           startCommit=${{ github.event.before }}
