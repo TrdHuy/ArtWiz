@@ -22,7 +22,7 @@ jobs:
         echo $GIT_CONTEXT
         echo =======================
         echo "${{ github.event.commits[0].message }}"
-        for commit in "${{ github.event.commits[@] }}"; do
+        for commit in "${{ github.event.commits[*] }}"; do
           $line="${commit.message}"
           echo line=$line
           if [[ $line =~ \[#[0-9]+\] ]]; then
