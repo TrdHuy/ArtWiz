@@ -25,10 +25,7 @@ jobs:
         listCommit=${{ github.event.commits }}
         commitCount=${#listCommit[@]}
         echo "commitCount=$commitCount"
-        for ((i = 0; i < $commitCount; i++)); do
-          echo HIHIHIHI
-          echo "${distro[$i]}"
-          line=${listCommit[$i]}
+        git log --format=%s -n $commitCount | while read -r line; do
           echo line=$line
           if [[ $line =~ \[#[0-9]+\] ]]; then
             echo "Commit Message: $line (Matched)"
