@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     env:
      VERSION_UP_ISSUE_ID: 52
-     # GIT_CONTEXT: ${{ toJson(github) }}
+     GIT_CONTEXT: ${{ toJson(github) }}
      
     steps:
     ################### CORE REGION #######################
@@ -24,6 +24,10 @@ jobs:
         echo "${{ github.event.commits[0].message }}"
         listCommit=${{ github.event.commits }}
         commitCount=${#listCommit[@]}
+        echo "commitCount=$commitCount"
+
+        commit_array=$(echo "$GIT_CONTEXT" | jq -c '.event.commits')
+        commitCount=${#commit_array[@]}
         echo "commitCount=$commitCount"
         git log --format=%s -n $commitCount | while read -r line; do
           echo line=$line
