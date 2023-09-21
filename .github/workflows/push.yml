@@ -22,16 +22,14 @@ jobs:
         # echo $GIT_CONTEXT
         echo =======================
         echo "${{ github.event.commits[0].message }}"
-        listCommit=${{ github.event.commits }}
-        commitCount=${#listCommit[@]}
-        echo "commitCount=$commitCount"
-
-        commit_array=$(echo "$GIT_CONTEXT" | jq -r '.event.commits[].message')
-        commitCount=${#commit_array[@]}
-        echo "commitCount=$commitCount"
-        for (( i=0; i<$commitCount; i++ )); do
-          line=${commit_array[$i]}
-          echo line=$line
+        startCommit=${{ github.event.before }}
+        if [[ ${{ github.event.before }} == *"00000000000000000000"* ]]; then
+           startCommit=${{ github.event.after }}
+        else
+          startCommit=${{ github.event.before }}
+        fi
+        
+        git log --format=%s "${{ github.event.before }}...${{ github.event.after }}" | while read -r line; do
           if [[ $line =~ \[#[0-9]+\] ]]; then
             echo "Commit Message: $line (Matched)"
             issue_number=$(echo "$line" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
