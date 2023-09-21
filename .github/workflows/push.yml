@@ -22,7 +22,7 @@ jobs:
         echo $GIT_CONTEXT
         echo =======================
         echo "${{ github.event.commits[0].message }}"
-        for element in "${{ github.event.commits[@] }}"
+        for element in "${{ github.event.commits }}"
         do
           $line=$element.message
           echo line=$line
