@@ -26,11 +26,11 @@ jobs:
         commitCount=${#listCommit[@]}
         echo "commitCount=$commitCount"
 
-        commit_array=$(echo "$GIT_CONTEXT" | jq -c '.event.commits')
+        commit_array=$(echo "$GIT_CONTEXT" | jq -r '.event.commits[].message')
         commitCount=${#commit_array[@]}
         echo "commitCount=$commitCount"
         for (( i=0; i<$commitCount; i++ )); do
-          line=$(echo "${commit_array[$i]}" | jq -c '.message')
+          line=${commit_array[$i]}
           echo line=$line
           if [[ $line =~ \[#[0-9]+\] ]]; then
             echo "Commit Message: $line (Matched)"
