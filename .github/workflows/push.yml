@@ -19,11 +19,13 @@ jobs:
     - name: Check commit messages
       shell: bash
       run: |
-        echo $GIT_CONTEXT
+        # echo $GIT_CONTEXT
         echo =======================
         echo "${{ github.event.commits[0].message }}"
-        for commit in "${{ github.event.commits[*] }}"; do
-          $line="${{ commit.message }}"
+        commitCount="${{ #github.event.commits[*] }}"
+        echo commitCount=$commitCount
+        for ((i = 0; i < $commitCount; i++)); do
+          $line="${{ github.event.commits[$i].message }}"
           echo line=$line
           if [[ $line =~ \[#[0-9]+\] ]]; then
             echo "Commit Message: $line (Matched)"
