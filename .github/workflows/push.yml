@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     env:
      VERSION_UP_ISSUE_ID: 52
-     GIT_CONTEXT: ${{ toJson(github) }}
+     # GIT_CONTEXT: ${{ toJson(github) }}
      
     steps:
     ################### CORE REGION #######################
@@ -26,6 +26,8 @@ jobs:
         commitCount=${#listCommit[@]}
         echo "commitCount=$commitCount"
         for ((i = 0; i < $commitCount; i++)); do
+          echo HIHIHIHI
+          echo "${distro[$i]}"
           $line=${listCommit[$i]}
           echo line=$line
           if [[ $line =~ \[#[0-9]+\] ]]; then
