@@ -19,12 +19,9 @@ jobs:
     - uses: actions/github-script@v6
       with:
         script: |
-          const commitMessages = github.context.payload.commits.map(commit => commit.message);
-          const regex = /^\[#\d+\] .+/;
-          const invalidMessages = commitMessages.filter(message => !regex.test(message));
-          if (invalidMessages.length > 0) {
-            const errorMessage = `Commit messages do not match the format "[#id] message":\n${invalidMessages.join('\n')}`;
-            throw new Error(errorMessage);
+          const commits = ${{ toJSON(github.event.commits) }}
+          for (const commit of commits) {
+            console.log(commit.message);
           }
 
     - name: Check commit messages
