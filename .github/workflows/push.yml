@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     env:
      VERSION_UP_ISSUE_ID: 52
-     GIT_CONTEXT: ${{ toJson(github) }}
+     # GIT_CONTEXT: ${{ toJson(github) }}
      
     steps:
     ################### CORE REGION #######################
@@ -19,16 +19,11 @@ jobs:
     - name: Check Commit Message by github script
       uses: actions/github-script@v5
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const commitMessages = github.context.commits.map(commit => commit.message);
-          const regex = /^\[#\d+\] .+/;
-
-          const invalidMessages = commitMessages.filter(message => !regex.test(message));
-
-          if (invalidMessages.length > 0) {
-            const errorMessage = `Commit messages do not match the format "[#id] message":\n${invalidMessages.join('\n')}`;
-            throw new Error(errorMessage);
+          const commits = ${{ toJSON(github.event.commits) }}
+          for (const commit of commits) {
+            console.log(commit);
+            console.log("hyutd");
           }
 
     - name: Check commit messages
