@@ -32,7 +32,9 @@
 				<MenuItem IsCheckable="True"
 						  Header="Hiển thị danh sách màu" />
 				<Separator />
-				<MenuItem Header="Save" />
+				<MenuItem Header="Save" 
+                          Click="SaveCurrentBitmapToImageFile"
+                          />
 				<MenuItem Header="Save As" />
 				<Separator />
 				<MenuItem Header="Exit" />

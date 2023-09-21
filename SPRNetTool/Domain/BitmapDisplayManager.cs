@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -262,6 +263,46 @@ namespace SPRNetTool.Domain
                         sprFileHead: SprWorkManager.FileHead,
                         colorSource: _currentDisplayingBitmap.ColorSource));
             });
+        }
+        private string getSaveFilePath()
+        {
+            string? filePath = null;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Tệp ảnh (*.png;*.jpg;*.jpeg;*.gif;*.spr)|*.png;*.jpg;*.jpeg;*.gif;*.spr|All files (*.*)|*.*";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                filePath = saveFileDialog.FileName;
+            }
+
+            return filePath;
+        }
+
+        public void SaveBitmapSourceToFile(BitmapSource bitmapSource)
+        {
+            if (bitmapSource == null)
+            {
+                return;
+            }
+            BitmapEncoder? encoder = null;
+            string filePath = getSaveFilePath();
+            int lastIndexDot = filePath.LastIndexOf('.');
+            switch (filePath.Substring(lastIndexDot))
+            {
+                case ".jpg":
+                    encoder = new JpegBitmapEncoder();
+                    break;
+                case ".png":
+                    encoder = new PngBitmapEncoder();
+                    break;
+                default:
+                    encoder = new JpegBitmapEncoder();
+                    break;
+            }
+            using (FileStream stream = new FileStream(filePath, FileMode.Create))
+            {
+                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                encoder.Save(stream);
+            }
         }
     }
 
