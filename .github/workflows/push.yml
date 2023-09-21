@@ -30,7 +30,7 @@ jobs:
         commitCount=${#commit_array[@]}
         echo "commitCount=$commitCount"
         for (( i=0; i<$commitCount; i++ )); do
-          line=${commit_array[$i]}
+          line=$(echo "${commit_array[$i]}" | jq -c '.message')
           echo line=$line
           if [[ $line =~ \[#[0-9]+\] ]]; then
             echo "Commit Message: $line (Matched)"
