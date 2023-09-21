@@ -28,7 +28,7 @@ jobs:
         for ((i = 0; i < $commitCount; i++)); do
           echo HIHIHIHI
           echo "${distro[$i]}"
-          $line=${listCommit[$i]}
+          line=${listCommit[$i]}
           echo line=$line
           if [[ $line =~ \[#[0-9]+\] ]]; then
             echo "Commit Message: $line (Matched)"
