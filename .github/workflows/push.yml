@@ -26,7 +26,7 @@ jobs:
         commitCount=${#listCommit[@]}
         echo "commitCount=$commitCount"
         for ((i = 0; i < $commitCount; i++)); do
-          $line="${{ github.event.commits[$i].message }}"
+          $line=${listCommit[$i]}
           echo line=$line
           if [[ $line =~ \[#[0-9]+\] ]]; then
             echo "Commit Message: $line (Matched)"
