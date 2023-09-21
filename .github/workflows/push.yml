@@ -16,12 +16,19 @@ jobs:
       uses: actions/checkout@v3
       with: 
         fetch-depth: 0
-    - uses: actions/github-script@v6
+    - name: Check Commit Message by github script
+      uses: actions/github-script@v5
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const commits = ${{ toJSON(github.event.commits) }}
-          for (const commit of commits) {
-            console.log(commit.message);
+          const commitMessages = github.context.payload.commits.map(commit => commit.message);
+          const regex = /^\[#\d+\] .+/;
+
+          const invalidMessages = commitMessages.filter(message => !regex.test(message));
+
+          if (invalidMessages.length > 0) {
+            const errorMessage = `Commit messages do not match the format "[#id] message":\n${invalidMessages.join('\n')}`;
+            throw new Error(errorMessage);
           }
 
     - name: Check commit messages
