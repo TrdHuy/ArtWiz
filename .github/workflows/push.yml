@@ -23,15 +23,7 @@ jobs:
           # console.log(github.rest.issues)
           # console.log(context)
           const commits = ${{ toJSON(github.event.commits) }}
-          const regex = /^\[#\d+\] .+/
-          lastMessage = ""
-          errorMessage = ""
-          for (const commit of commits) {
-            lastMessage = commit.message
-            if (!regex.test(message)) {
-              throw new Error(`Commit message check failed!`)
-            }
-          }
+          lastMessage = commits.map(function (commit) { return commit.message;}); 
           console.log(`lastMesage=$lastMessage`)
 
     - name: Check commit messages
