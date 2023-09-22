@@ -22,17 +22,17 @@ jobs:
         script: |
           # console.log(github.rest.issues)
           # console.log(context)
-          const commits = ${{ toJSON(github.event.commits) }};
-          const regex = /^\[#\d+\] .+/;
-          lastMessage = "";
-          errorMessage = "";
+          const commits = ${{ toJSON(github.event.commits) }}
+          const regex = /^\[#\d+\] .+/
+          lastMessage = ""
+          errorMessage = ""
           for (const commit of commits) {
-            lastMessage = commit.message;
+            lastMessage = commit.message
             if (!regex.test(message)) {
-              throw new Error(`Commit message check failed!`);
+              throw new Error(`Commit message check failed!`)
             }
           }
-          console.log(`lastMesage=$lastMessage`);
+          console.log(`lastMesage=$lastMessage`)
 
     - name: Check commit messages
       shell: bash
