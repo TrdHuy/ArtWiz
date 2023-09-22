@@ -20,13 +20,19 @@ jobs:
       uses: actions/github-script@v5
       with:
         script: |
-          console.log(github.rest.issues)
-          console.log(context)
-          const commits = ${{ toJSON(github.event.commits) }}
+          # console.log(github.rest.issues)
+          # console.log(context)
+          const commits = ${{ toJSON(github.event.commits) }};
+          const regex = /^\[#\d+\] .+/;
+          lastMessage = "";
+          errorMessage = "";
           for (const commit of commits) {
-            console.log(commit);
-            console.log("hyutd");
+            lastMessage = commit.message;
+            if (!regex.test(message)) {
+              throw new Error(`Commit message check failed!`);
+            }
           }
+          console.log(`lastMesage=$lastMessage`);
 
     - name: Check commit messages
       shell: bash
