@@ -18,7 +18,9 @@ jobs:
         fetch-depth: 0
     - name: Check Commit Message by github script
       uses: actions/github-script@v5
+      id: get-last-issue-id
       with:
+        result-encoding: string
         script: |
           const versionUpIssueId = process.env.VERSION_UP_ISSUE_ID;
           const commits = ${{ toJSON(github.event.commits) }}
@@ -57,8 +59,11 @@ jobs:
               console.log(error);
             }
           }
-          console.log(issueIds);
-
+          return issueIds[issueIds.length - 1];
+          
+    - name: Get result
+      run: echo "${{steps.get-last-issue-id.outputs.result}}"
+      
     - name: Check commit messages
       shell: bash
       run: |
