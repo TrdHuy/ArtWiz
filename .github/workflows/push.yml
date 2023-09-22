@@ -37,7 +37,7 @@ jobs:
 
           for (const issueId of issueIds) {
             try {
-              const issue = github.rest.issues.get({
+              const issue = await github.rest.issues.get({
                 issue_number: issueId,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
