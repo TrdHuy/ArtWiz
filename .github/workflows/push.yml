@@ -21,17 +21,17 @@ jobs:
       with:
         script: |
           const commits2 = ${{ toJSON(github.event.commits) }}
-          interface Commit {
-              message: string;
-          }
-          const commits: Commit[] = [
+          const commits = [
               { message: "Commit 1 message" },
               { message: "Commit 2 message" },
               { message: "Commit 3 message" }
           ];
-          const commitMessages: string[] = commits.map(commit => commit.message);
+          
+          const commitMessages = commits.map(function (commit) {
+              return commit.message;
+          });
+          
           console.log(commitMessages);
-          console.log(`lastMesage=$lastMessage`)
 
     - name: Check commit messages
       shell: bash
