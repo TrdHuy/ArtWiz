@@ -37,11 +37,12 @@ jobs:
 
           for (const issueId of issueIds) {
             try {
-              const data = await github.rest.issues.get({
+              const rawData = await github.rest.issues.get({
                 issue_number: issueId,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-              }).data;
+              });
+              const data = rawData.data;
               console.log(`data=${data}`);
               console.log(`Tiêu đề: ${data.title}`);
             } catch (error) {
