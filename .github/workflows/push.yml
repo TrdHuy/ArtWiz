@@ -42,11 +42,8 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               }).data;
-              const issueJson = toJSON(data);
-              console.log(`issueJson=${issueJson}`);
-              const issueUrl = issueJson.html;
-              console.log(issueUrl);
-              console.log(`Issue #${issueId} tồn tại.`);
+              console.log(`data=${data}`);
+              console.log(`Tiêu đề: ${data.title}`);
             } catch (error) {
               console.log(`Issue #${issueId} không tồn tại.`);
               console.log(error);
