@@ -24,7 +24,12 @@ jobs:
           const commitMessages = commits.map(function (commit) {
               return commit.message;
           });
-          
+          const regex = /^\[#\d+\] .+/;
+          commitMessages.forEach(function (message, index) {
+              if (!regex.test(message)) {
+                  throw new Error(`Commit message "${message}" is invaild `);
+              }
+          });
           console.log(commitMessages);
 
     - name: Check commit messages
