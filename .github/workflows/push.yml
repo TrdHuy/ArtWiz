@@ -24,13 +24,31 @@ jobs:
           const commitMessages = commits.map(function (commit) {
               return commit.message;
           });
-          const regex = /^\[#\d+\] .+/;
-          commitMessages.forEach(function (message, index) {
-              if (!regex.test(message)) {
-                  throw new Error(`Commit message "${message}" is invaild `);
+          const regex = /^\[#(\d+)\] .+/;
+
+          const issueIds = commitMessages.map(function (message) {
+              const match = message.match(regex);
+              if (match && match[1]) {
+                return match[1]; // Lấy số id từ kết quả match
+              } else {
+                throw new Error(`Commit message "${message}" is invaild `);
               }
           });
-          console.log(commitMessages);
+
+          for (const issueId of issueIds) {
+            try {
+              const issue = await github.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueId,
+              });
+              console.log(issue);
+              console.log(`Issue #${issueId} tồn tại.`);
+            } catch (error) {
+              console.log(`Issue #${issueId} không tồn tại.`);
+            }
+          }
+          console.log(issueIds);
 
     - name: Check commit messages
       shell: bash
