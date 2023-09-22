@@ -23,7 +23,7 @@ jobs:
           # console.log(github.rest.issues)
           # console.log(context)
           const commits = ${{ toJSON(github.event.commits) }}
-          lastMessage = commits.map(function (commit) { return commit.message;}); 
+          
           console.log(`lastMesage=$lastMessage`)
 
     - name: Check commit messages
