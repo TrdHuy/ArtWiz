@@ -46,6 +46,7 @@ jobs:
               console.log(`Issue #${issueId} tồn tại.`);
             } catch (error) {
               console.log(`Issue #${issueId} không tồn tại.`);
+              console.log(error);
             }
           }
           console.log(issueIds);
