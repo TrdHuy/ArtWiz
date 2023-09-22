@@ -20,21 +20,16 @@ jobs:
       uses: actions/github-script@v5
       with:
         script: |
-          # console.log(github.rest.issues)
-          # console.log(context)
-          const commits = ${{ toJSON(github.event.commits) }}
+          const commits2 = ${{ toJSON(github.event.commits) }}
           interface Commit {
               message: string;
           }
-          
           const commits: Commit[] = [
               { message: "Commit 1 message" },
               { message: "Commit 2 message" },
               { message: "Commit 3 message" }
           ];
-          
           const commitMessages: string[] = commits.map(commit => commit.message);
-          
           console.log(commitMessages);
           console.log(`lastMesage=$lastMessage`)
 
