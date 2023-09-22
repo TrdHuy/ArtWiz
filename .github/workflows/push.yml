@@ -20,6 +20,7 @@ jobs:
       uses: actions/github-script@v5
       with:
         script: |
+          console.log(github.rest.issues)
           console.log(context)
           const commits = ${{ toJSON(github.event.commits) }}
           for (const commit of commits) {
