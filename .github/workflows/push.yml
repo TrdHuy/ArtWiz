@@ -20,13 +20,7 @@ jobs:
       uses: actions/github-script@v5
       with:
         script: |
-          const commits2 = ${{ toJSON(github.event.commits) }}
-          const commits = [
-              { message: "Commit 1 message" },
-              { message: "Commit 2 message" },
-              { message: "Commit 3 message" }
-          ];
-          
+          const commits = ${{ toJSON(github.event.commits) }}
           const commitMessages = commits.map(function (commit) {
               return commit.message;
           });
