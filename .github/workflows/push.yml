@@ -37,12 +37,12 @@ jobs:
 
           for (const issueId of issueIds) {
             try {
-              const issue = await github.rest.issues.get({
+              const issueUrl = await github.rest.issues.get({
                 issue_number: issueId,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-              })
-              console.log(issue);
+              }).data.html_url;
+              console.log(issueUrl);
               console.log(`Issue #${issueId} tồn tại.`);
             } catch (error) {
               console.log(`Issue #${issueId} không tồn tại.`);
