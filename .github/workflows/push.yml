@@ -62,6 +62,7 @@ jobs:
           return issueIds[issueIds.length - 1];
           
     - name: Export issue to env
+      shell: bash
       run: |
         echo "ISSUE_NUMBER=${{steps.get-last-issue-id.outputs.result}}" >> $GITHUB_ENV
       
