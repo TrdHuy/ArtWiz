@@ -36,9 +36,9 @@ namespace SPRNetTool.ViewModel
         [Bindable(true)]
         public int CurrentFrameIndex
         {
-            get 
-            { 
-                return _currentFrame; 
+            get
+            {
+                return _currentFrame;
             }
             set
             {
@@ -47,7 +47,7 @@ namespace SPRNetTool.ViewModel
             }
         }
 
-    
+
 
         [Bindable(true)]
         public SprFileHead? SPRFileHead
@@ -308,7 +308,7 @@ namespace SPRNetTool.ViewModel
                     }
                     else if (castArgs.IsPlayingAnimation == true)
                     {
-                        
+
                         IsPlayingAnimation = true;
                         ViewModelOwner?.ViewDispatcher.Invoke(() =>
                         {
@@ -360,6 +360,11 @@ namespace SPRNetTool.ViewModel
             {
                 BitmapDisplayManager.StopSprAnimation();
             }
+        }
+
+        void IDebugPageCommand.OnSaveCurrentWorkManagerToFileSprClicked(string filePath)
+        {
+            SprWorkManager.SaveCurrentWorkToSpr(filePath);
         }
     }
 }
