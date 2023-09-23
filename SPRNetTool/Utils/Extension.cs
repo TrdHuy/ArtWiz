@@ -9,6 +9,17 @@ namespace SPRNetTool.Utils
     public static class Extension
     {
 
+        public static byte[] ToByteArray<T>(this T value) where T : struct
+        {
+            int structSize = Marshal.SizeOf(typeof(T));
+            byte[] result = new byte[structSize];
+            IntPtr structPtr = Marshal.AllocHGlobal(structSize);
+            Marshal.StructureToPtr(value, structPtr, false);
+            Marshal.Copy(structPtr, result, 0, structSize);
+            Marshal.FreeHGlobal(structPtr);
+            return result;
+        }
+
         public static void CopyStructToArray<T>(this T value, byte[] arr, int offset) where T : struct
         {
             int structSize = Marshal.SizeOf(typeof(T));

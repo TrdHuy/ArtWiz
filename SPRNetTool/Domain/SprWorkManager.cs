@@ -4,26 +4,22 @@ using SPRNetTool.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain
 {
-    public class WorkManager : BaseDomain, ISprWorkManager
+    public class SprWorkManager : BaseDomain, ISprWorkManager
     {
         private SprFileHead FileHead;
         private Palette PaletteData = new Palette();
         private long FrameDataBegPos = -1;
         private FRAMERGBA[]? FrameData;
-
         SprFileHead ISprWorkManager.FileHead => FileHead;
+        bool ISprWorkManager.IsCacheEmpty => FrameDataBegPos == -1;
 
-        public WorkManager()
-        {
-            Init();
-        }
-
-        public void Init()
+        void ISprWorkManager.InitCache()
         {
             FrameData = null;
             FrameDataBegPos = -1;
@@ -34,24 +30,24 @@ namespace SPRNetTool.Domain
         void ISprWorkManager.InitFromFileHead(US_SprFileHead us_fileHead)
         {
             FileHead = new SprFileHead(us_fileHead.GetVersionInfo(),
-                us_fileHead.GlobleWidth,
-                us_fileHead.GlobleHeight,
+                us_fileHead.GlobalWidth,
+                us_fileHead.GlobalHeight,
                 us_fileHead.OffX,
                 us_fileHead.OffY, us_fileHead.FrameCounts,
-                us_fileHead.ColourCounts,
+                us_fileHead.ColorCounts,
                 us_fileHead.DirectionCount,
                 us_fileHead.Interval,
                 us_fileHead.GetReserved());
             FrameData = new FRAMERGBA[us_fileHead.FrameCounts];
-            PaletteData = new Palette(us_fileHead.ColourCounts);
-            FrameDataBegPos = Marshal.SizeOf(typeof(US_SprFileHead)) + us_fileHead.ColourCounts * 3;
+            PaletteData = new Palette(us_fileHead.ColorCounts);
+            FrameDataBegPos = Marshal.SizeOf(typeof(US_SprFileHead)) + us_fileHead.ColorCounts * 3;
 
         }
 
         void ISprWorkManager.InitPaletteDataFromFileStream(FileStream fs, US_SprFileHead fileHead)
         {
             fs.Position = Marshal.SizeOf(typeof(US_SprFileHead));
-            for (int i = 0; i < fileHead.ColourCounts; i++)
+            for (int i = 0; i < fileHead.ColorCounts; i++)
             {
                 PaletteData.Data[i].Red = (byte)fs.ReadByte();
                 PaletteData.Data[i].Green = (byte)fs.ReadByte();
@@ -77,7 +73,7 @@ namespace SPRNetTool.Domain
                 FrameData[i].decodedFrameData = decodedFrameData;
                 var globalData = InitGlobalizedFrameData(i);
                 if (globalData == null) throw new Exception("Failed to init global frame data!");
-                FrameData[i].globleFrameData = globalData;
+                FrameData[i].globalFrameData = globalData;
             }
         }
 
@@ -90,7 +86,7 @@ namespace SPRNetTool.Domain
             return null;
         }
 
-        private PaletteColour[]? InitDecodedFrameData(FileStream fs,
+        private PaletteColor[]? InitDecodedFrameData(FileStream fs,
             int index,
             out ushort frameWidth,
             out ushort frameHeight,
@@ -114,18 +110,17 @@ namespace SPRNetTool.Domain
                 default: { return null; }
 
             }
-            PaletteColour transcol = new PaletteColour(0X00, 0X00, 0X00, 0X00);
+            PaletteColor transcol = new PaletteColor(0X00, 0X00, 0X00, 0X00);
 
             var frameOffsetInfo = fs.BinToStruct<FrameOffsetInfo>(FrameDataBegPos + Marshal.SizeOf(typeof(FrameOffsetInfo)) * index);
 
             var frameBeginPos = FrameDataBegPos + (frameOffsetInfo?.FrameOffset ?? 0) + Marshal.SizeOf(typeof(FrameOffsetInfo)) * FileHead.FrameCounts;
-            var datalength = frameOffsetInfo?.DataLenght ?? 0;
+            var datalength = frameOffsetInfo?.DataLength ?? 0;
 
             if (datalength == 0)
             {
                 return null;
             }
-
 
             var frameInfo = fs.BinToStruct<FrameInfo>(frameBeginPos);
             long decdatalength = (frameInfo?.Width * frameInfo?.Height) ?? 0;
@@ -141,7 +136,7 @@ namespace SPRNetTool.Domain
             var encryptedData = new byte[datalength];
             frameInfo?.CopyStructToArray(encryptedData, 0);
 
-            PaletteColour[] decData = new PaletteColour[decdatalength];
+            PaletteColor[] decData = new PaletteColor[decdatalength];
             var frameDataPos = frameBeginPos + Marshal.SizeOf(typeof(FrameInfo));
             fs.Position = frameDataPos;
             long curdecposition = 0;
@@ -204,8 +199,8 @@ namespace SPRNetTool.Domain
             return decData;
         }
 
-        public byte[]? EncryptedSprFile(List<byte[]> encryptedFrameDatas,
-           PaletteColour[] paletteData,
+        public byte[]? EncryptedSprFile(List<byte[]> encryptedFrameData,
+           PaletteColor[] paletteData,
            ushort globalWidth,
            ushort globalHeight,
            ushort globalOffX,
@@ -215,7 +210,7 @@ namespace SPRNetTool.Domain
            byte[] reserved)
         {
 
-            void WritePaletteColorToByteList(PaletteColour color, List<byte> list)
+            void WritePaletteColorToByteList(PaletteColor color, List<byte> list)
             {
                 list.Add(color.Red);
                 list.Add(color.Green);
@@ -229,11 +224,11 @@ namespace SPRNetTool.Domain
                 {
                     frameOffsetInfo.FrameOffset += (uint)encryptedFrameDatas[i].Length;
                 }
-                frameOffsetInfo.DataLenght = (uint)encryptedFrameDatas[index].Length;
+                frameOffsetInfo.DataLength = (uint)encryptedFrameDatas[index].Length;
                 frameOffsetInfo.CopyStructToList(list);
             }
 
-            if (paletteData.Length > 256 && encryptedFrameDatas.Count > ushort.MaxValue)
+            if (paletteData.Length > 256 && encryptedFrameData.Count > ushort.MaxValue)
             {
                 throw new Exception("Failed to encrypt SPR file");
             }
@@ -241,13 +236,13 @@ namespace SPRNetTool.Domain
             fileHead.SetVersionInfoStr(new char[] { 'S', 'P', 'R', '\0' });
             fileHead.SetReserved(reserved);
             fileHead.Interval = interval;
-            fileHead.FrameCounts = (ushort)encryptedFrameDatas.Count;
-            fileHead.GlobleHeight = globalHeight;
-            fileHead.GlobleWidth = globalWidth;
+            fileHead.FrameCounts = (ushort)encryptedFrameData.Count;
+            fileHead.GlobalHeight = globalHeight;
+            fileHead.GlobalWidth = globalWidth;
             fileHead.OffX = globalOffX;
             fileHead.OffY = globalOffY;
             fileHead.DirectionCount = direction;
-            fileHead.ColourCounts = (ushort)paletteData.Length;
+            fileHead.ColorCounts = (ushort)paletteData.Length;
 
             List<byte> encryptedFileData = new List<byte>();
 
@@ -261,21 +256,21 @@ namespace SPRNetTool.Domain
             }
 
             // write frame offset info
-            for (int i = 0; i < encryptedFrameDatas.Count; i++)
+            for (int i = 0; i < encryptedFrameData.Count; i++)
             {
-                WriteFrameOffsetInfoList(encryptedFrameDatas, encryptedFileData, i);
+                WriteFrameOffsetInfoList(encryptedFrameData, encryptedFileData, i);
             }
 
             // write frame data
-            for (int i = 0; i < encryptedFrameDatas.Count; i++)
+            for (int i = 0; i < encryptedFrameData.Count; i++)
             {
-                encryptedFileData.AddRange(encryptedFrameDatas[i]);
+                encryptedFileData.AddRange(encryptedFrameData[i]);
             }
 
             return encryptedFileData.ToArray();
         }
 
-        public static bool AreByteArraysEqual(byte[] array1, byte[] array2)
+        private static bool AreByteArraysEqual(byte[] array1, byte[] array2)
         {
             // Nếu mảng có chiều dài khác nhau, chúng không giống nhau
             if (array1.Length != array2.Length)
@@ -296,7 +291,7 @@ namespace SPRNetTool.Domain
             return true;
         }
 
-        private byte FindPaletteIndex(PaletteColour targetColor, PaletteColour[] paletteData)
+        private byte FindPaletteIndex(PaletteColor targetColor, PaletteColor[] paletteData)
         {
             for (byte i = 0; i < paletteData.Length; i++)
             {
@@ -311,17 +306,17 @@ namespace SPRNetTool.Domain
             return 0;
         }
 
-        public byte[]? EncryptFrameData(PaletteColour[] pixelArray, PaletteColour[] paletteData
-                   , int frameWidth, int frameHeigth, int frameOffX, int frameOffY)
+        public byte[]? EncryptFrameData(PaletteColor[] pixelArray, PaletteColor[] paletteData
+                   , ushort frameWidth, ushort frameHeigth, ushort frameOffX, ushort frameOffY)
         {
 
             var encryptedFrameDataList = new List<byte>();
 
             var frameInfo = new FrameInfo();
-            frameInfo.OffX = (ushort)frameOffX;
-            frameInfo.OffY = (ushort)frameOffY;
-            frameInfo.Height = (ushort)frameHeigth;
-            frameInfo.Width = (ushort)frameWidth;
+            frameInfo.OffX = frameOffX;
+            frameInfo.OffY = frameOffY;
+            frameInfo.Height = frameHeigth;
+            frameInfo.Width = frameWidth;
             frameInfo.CopyStructToList(encryptedFrameDataList);
 
             for (int i = 0; i < pixelArray.Length;)
@@ -366,7 +361,7 @@ namespace SPRNetTool.Domain
             return encryptedFrameDataList.ToArray();
         }
 
-        private PaletteColour[]? InitGlobalizedFrameData(int index)
+        private PaletteColor[]? InitGlobalizedFrameData(int index)
         {
             BitmapSource v;
             var decodedFrameData = FrameData?[index].decodedFrameData;
@@ -375,8 +370,8 @@ namespace SPRNetTool.Domain
                 return null;
             }
 
-            long globalDataLen = FileHead.GlobleHeight * FileHead.GlobleWidth;
-            PaletteColour[] globalData = new PaletteColour[globalDataLen];
+            long globalDataLen = FileHead.GlobalHeight * FileHead.GlobalWidth;
+            PaletteColor[] globalData = new PaletteColor[globalDataLen];
             long frameOffX = FrameData?[index].frameOffX ?? 0;
             long frameOffY = FrameData?[index].frameOffY ?? 0;
             long frameHeight = FrameData?[index].frameHeight ?? 0;
@@ -390,27 +385,66 @@ namespace SPRNetTool.Domain
                 globalData[datidx].Alpha = 0xFF;
             }
 
-            for (int hi = 0; hi < FileHead.GlobleHeight; hi++)
+            for (int hi = 0; hi < FileHead.GlobalHeight; hi++)
             {
-                for (int wi = 0; wi < FileHead.GlobleWidth; wi++)
+                for (int wi = 0; wi < FileHead.GlobalWidth; wi++)
                 {
                     long offwidth = wi + frameOffX;
                     long offheight = hi + frameOffY;
 
                     if (hi < frameHeight && wi < frameWidth &&
-                        offwidth >= 0 && offwidth < FileHead.GlobleWidth &&
-                        offheight >= 0 && offheight < FileHead.GlobleHeight)
+                        offwidth >= 0 && offwidth < FileHead.GlobalWidth &&
+                        offheight >= 0 && offheight < FileHead.GlobalHeight)
                     {
-                        globalData[offheight * FileHead.GlobleWidth + offwidth].Red = decodedFrameData[hi * frameWidth + wi].Red;
-                        globalData[offheight * FileHead.GlobleWidth + offwidth].Green = decodedFrameData[hi * frameWidth + wi].Green;
-                        globalData[offheight * FileHead.GlobleWidth + offwidth].Blue = decodedFrameData[hi * frameWidth + wi].Blue;
-                        globalData[offheight * FileHead.GlobleWidth + offwidth].Alpha = decodedFrameData[hi * frameWidth + wi].Alpha;
+                        globalData[offheight * FileHead.GlobalWidth + offwidth].Red = decodedFrameData[hi * frameWidth + wi].Red;
+                        globalData[offheight * FileHead.GlobalWidth + offwidth].Green = decodedFrameData[hi * frameWidth + wi].Green;
+                        globalData[offheight * FileHead.GlobalWidth + offwidth].Blue = decodedFrameData[hi * frameWidth + wi].Blue;
+                        globalData[offheight * FileHead.GlobalWidth + offwidth].Alpha = decodedFrameData[hi * frameWidth + wi].Alpha;
                     }
                 }
             }
             return globalData;
         }
 
+        byte[]? ISprWorkManager.GetByteArrayFromHeader()
+        {
+            return FileHead.ToUnsafe().ToByteArray();
+        }
+
+        byte[]? ISprWorkManager.GetByteArrayFromAllFramesOffsetInfo(byte[][] encryptedFramesData)
+        {
+            var frameOffsetInfoStructSize = Marshal.SizeOf(typeof(FrameOffsetInfo));
+            var result = new byte[encryptedFramesData.Length * frameOffsetInfoStructSize];
+            for (int frameIndex = 0; frameIndex < encryptedFramesData.Length; frameIndex++)
+            {
+                FrameOffsetInfo frameOffsetInfo = new FrameOffsetInfo();
+                for (int i = 0; i < frameIndex; i++)
+                {
+                    frameOffsetInfo.FrameOffset += (uint)encryptedFramesData[i].Length;
+                }
+                frameOffsetInfo.DataLength = (uint)encryptedFramesData[frameIndex].Length;
+                frameOffsetInfo.CopyStructToArray(result, frameIndex * frameOffsetInfoStructSize);
+            }
+            return result;
+        }
+
+        byte[]? ISprWorkManager.GetByteArrayFromPaletteData()
+        {
+            return PaletteData.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
+        }
+
+        byte[]? ISprWorkManager.GetByteArrayFromEncyptedFrameData(int i)
+        {
+            return FrameData?[i].Let((it) =>
+            {
+                return EncryptFrameData(it.decodedFrameData
+                    , PaletteData.Data
+                    , it.frameWidth
+                    , it.frameHeight
+                    , it.frameOffX
+                    , it.frameOffY);
+            });
+        }
     }
 
     public enum COLORMODE

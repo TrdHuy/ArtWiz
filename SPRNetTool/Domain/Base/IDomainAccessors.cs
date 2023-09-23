@@ -20,7 +20,7 @@ namespace SPRNetTool.Domain.Base
                         typeof(IBitmapDisplayManager), BuildValue(null, () => new BitmapDisplayManager())
                     },
                     {
-                        typeof(ISprWorkManager), BuildValue(null, () => new WorkManager())
+                        typeof(ISprWorkManager), BuildValue(null, () => new SprWorkManager())
                     }
                 };
             }
