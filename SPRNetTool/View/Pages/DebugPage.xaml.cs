@@ -41,7 +41,7 @@ namespace SPRNetTool.View.Pages
         public override object ViewModel => DataContext;
 
         //TODO: remove this because it belong to domain layer
-        private ISprWorkManager workManager = new WorkManager();
+        private ISprWorkManager workManager = new SprWorkManager();
         private DebugPageViewModel viewModel;
         private IDebugPageCommand? commandVM;
 
@@ -70,9 +70,9 @@ namespace SPRNetTool.View.Pages
                     if (data != null)
                     {
                         //Extension.Print2DArrayToFile(data?.decodedFrameData, data?.frameHeight ?? 0, data?.frameWidth ?? 0, "dec.txt");
-                        BitmapUtil.Print2DArrayToFile(data?.globleFrameData, workManager.FileHead.GlobleHeight, workManager.FileHead.GlobleWidth, "glb.txt");
-                        var byteData = BitmapUtil.ConvertPaletteColourArrayToByteArray(data?.globleFrameData);
-                        var bmpSrc = BitmapUtil.GetBitmapFromRGBArray(byteData, workManager.FileHead.GlobleWidth, workManager.FileHead.GlobleHeight, PixelFormats.Bgra32);
+                        BitmapUtil.Print2DArrayToFile(data?.globalFrameData, workManager.FileHead.GlobalHeight, workManager.FileHead.GlobalWidth, "glb.txt");
+                        var byteData = BitmapUtil.ConvertPaletteColourArrayToByteArray(data?.globalFrameData);
+                        var bmpSrc = BitmapUtil.GetBitmapFromRGBArray(byteData, workManager.FileHead.GlobalWidth, workManager.FileHead.GlobalHeight, PixelFormats.Bgra32);
                         StaticImageView.Source = bmpSrc;
                         BitmapUtil.CountColors(bmpSrc, out long argbCount, out long rgbCount, out Dictionary<Color, long> src);
                         //var ditheringBmp = BitmapUtil.ApplyDithering(bmpSrc, 100);

@@ -30,8 +30,9 @@ namespace SPRNetTool.ViewModel
         private bool _isPlayingAnimation = false;
         private int _pixelWidth = 0;
         private int _pixelHeight = 0;
-        private SprFileHead? _sprFileHead = null;
+        private SprFileHead _sprFileHead;
         private int _currentFrame = 0;
+        private bool _isSpr = false;
 
         [Bindable(true)]
         public int CurrentFrameIndex
@@ -47,10 +48,23 @@ namespace SPRNetTool.ViewModel
             }
         }
 
+        [Bindable(true)]
+        public bool IsSpr
+        {
+            get
+            {
+                return _isSpr;
+            }
+            set
+            {
+                _isSpr = value;
+                Invalidate();
+            }
+        }
 
 
         [Bindable(true)]
-        public SprFileHead? SPRFileHead
+        public SprFileHead SPRFileHead
         {
             get
             {
@@ -299,7 +313,9 @@ namespace SPRNetTool.ViewModel
                 case BitmapDisplayMangerChangedArg castArgs:
                     PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
                     PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
-                    SPRFileHead = castArgs.CurrentSprFileHead;
+                    SPRFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
+                    IsSpr = castArgs.CurrentSprFileHead != null;
+
                     if (castArgs.IsPlayingAnimation != true)
                     {
                         IsPlayingAnimation = false;
