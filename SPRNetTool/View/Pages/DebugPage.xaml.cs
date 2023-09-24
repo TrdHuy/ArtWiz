@@ -63,7 +63,7 @@ namespace SPRNetTool.View.Pages
                 US_SprFileHead header;
                 using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    workManager.InitWorkManager(fs);
+                    workManager.InitWorkManagerFromSprFile(fs);
                     //if (decdata != null)
                     //    Extension.Print2DArrayToFile(decdata, frameHeight, frameWidth, "test.txt");
                     var data = workManager.GetFrameData(0);
