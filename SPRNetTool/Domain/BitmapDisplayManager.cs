@@ -88,7 +88,7 @@ namespace SPRNetTool.Domain
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                     currentDisplayingSource: _currentDisplayingBitmap.DisplayingBitmapSource,
                     colorSource: _currentDisplayingBitmap.ColorSource,
-                    sprFileHead: SprWorkManager.FileHead, 
+                    sprFileHead: SprWorkManager.FileHead,
                     isPlayingAnimation: false));
                 return;
             }
@@ -190,14 +190,14 @@ namespace SPRNetTool.Domain
             {
                 using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    if (SprWorkManager.InitWorkManager(fs))
+                    if (SprWorkManager.InitWorkManagerFromSprFile(fs))
                     {
                         return SprWorkManager.GetFrameData(0)?.Let((it) =>
                         {
-                            var byteData = this.ConvertPaletteColourArrayToByteArray(it.globleFrameData);
+                            var byteData = this.ConvertPaletteColourArrayToByteArray(it.globalFrameData);
                             return this.GetBitmapFromRGBArray(byteData
-                                , SprWorkManager.FileHead.GlobleWidth
-                                , SprWorkManager.FileHead.GlobleHeight, PixelFormats.Bgra32)
+                                , SprWorkManager.FileHead.GlobalWidth
+                                , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32)
                             .Also((it) => it.Freeze());
                         });
                     }
@@ -228,9 +228,9 @@ namespace SPRNetTool.Domain
                     _currentDisplayingBitmap.AnimationSourceCaching[frameIndex].IfNullThenLet(() =>
                         SprWorkManager.GetFrameData(frameIndex)?
                             .Let((it) => this.GetBitmapFromRGBArray(
-                                this.ConvertPaletteColourArrayToByteArray(it.globleFrameData)
-                                , SprWorkManager.FileHead.GlobleWidth
-                                , SprWorkManager.FileHead.GlobleHeight, PixelFormats.Bgra32))
+                                this.ConvertPaletteColourArrayToByteArray(it.globalFrameData)
+                                , SprWorkManager.FileHead.GlobalWidth
+                                , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
                             .Also((it) => it.Freeze()));
                     CurrentDisplayBitmap = _currentDisplayingBitmap.AnimationSourceCaching[frameIndex++];
                     _currentDisplayingBitmap.currentFrame++;
@@ -241,7 +241,7 @@ namespace SPRNetTool.Domain
                     //}, DispatcherPriority.Render);
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
                         currentDisplayingSource: _currentDisplayingBitmap.DisplayingBitmapSource,
-                        isPlayingAnimation: true, sprFileHead : SprWorkManager.FileHead, indexFrame: frameIndex));
+                        isPlayingAnimation: true, sprFileHead: SprWorkManager.FileHead, indexFrame: frameIndex));
 
                     if (frameIndex == SprWorkManager.FileHead.FrameCounts)
                     {
@@ -258,7 +258,7 @@ namespace SPRNetTool.Domain
 
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                         currentDisplayingSource: _currentDisplayingBitmap.DisplayingBitmapSource,
-                        isPlayingAnimation: false, 
+                        isPlayingAnimation: false,
                         sprFileHead: SprWorkManager.FileHead,
                         colorSource: _currentDisplayingBitmap.ColorSource));
             });
