@@ -146,15 +146,15 @@ namespace SPRNetTool.View.Pages
 
 
 
-            var srcInput = builder.Add(colorCountKey
+            var srcInput = builder.AddTextInputOption(colorCountKey
                 , colorCountKey
                 , colorCountDef
                 , (cur, input) => input.Any(char.IsNumber) && Convert.ToInt32(cur + input) <= 256)
-                .Add(deltaKey
+                .AddTextInputOption(deltaKey
                 , deltaDes
                 , deltaDef
                 , (cur, input) => input.Any(char.IsNumber))
-                .Add(isUsingAlphaKey
+                .AddCheckBoxOption(isUsingAlphaKey
                 , isUsingAlphaKey
                 , isUsingAlphaDef
                 , () => true
@@ -163,11 +163,11 @@ namespace SPRNetTool.View.Pages
                     src[3].IsDisabled = !isChecked;
                     src[4].IsDisabled = !isChecked;
                 })
-                .Add(deltaForCompareRecalculateKey
+                .AddTextInputOption(deltaForCompareRecalculateKey
                 , deltaForCompareRecalculateDes
                 , deltaForCompareRecalculateDef
                 , (cur, input) => input.Any(char.IsNumber) && Convert.ToInt32(cur + input) <= 500)
-                .Add(backgroundForBlendColorKey
+                .AddComboBoxOption(backgroundForBlendColorKey
                 , backgroundForBlendColorDes
                 , new List<string> { "WHITE (255,255,255)", "BLACK (0,0,0)" }
                 , 0

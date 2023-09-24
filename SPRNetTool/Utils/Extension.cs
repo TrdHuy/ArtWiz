@@ -234,6 +234,15 @@ namespace SPRNetTool.Utils
             return default(T);
         }
 
+        public static R? IfIsThenLet<T, R>(this object self, Func<T, R> block)
+        {
+            if (self is T e)
+            {
+                return block(e);
+            }
+            return default(R);
+        }
+
 
         public static T ThrowIfNull<T>(this T? self, Exception e)
         {
