@@ -21,7 +21,22 @@ namespace SPRNetTool.View.Utils
 
     public enum InvisibleType
     {
-        COLLAPSED, HIDDEN
+        /// <summary>
+        /// If false, view will be collapsed
+        /// </summary>
+        COLLAPSED,
+        /// <summary>
+        /// If false, view will be hidden
+        /// </summary>
+        HIDDEN,
+        /// <summary>
+        /// If true, view will be collapsed
+        /// </summary>
+        REVERSE_COLLAPSED,
+        /// <summary>
+        /// If true, view will be hidden
+        /// </summary>
+        REVERSE_HIDDEN
     }
 
     public class BoolToVisibilityConverter : IValueConverter
@@ -32,9 +47,18 @@ namespace SPRNetTool.View.Utils
             var invisibleType = InvisibleType.HIDDEN;
             parameter?.IfIsThenAlso<InvisibleType>(it => invisibleType = it);
 
-            return System.Convert.ToBoolean(value) == false ?
-                (invisibleType == InvisibleType.HIDDEN ? Visibility.Hidden : Visibility.Collapsed)
-                : Visibility.Visible;
+            switch (invisibleType)
+            {
+                case InvisibleType.HIDDEN:
+                    return System.Convert.ToBoolean(value) == false ? Visibility.Hidden : Visibility.Visible;
+                case InvisibleType.COLLAPSED:
+                    return System.Convert.ToBoolean(value) == false ? Visibility.Collapsed : Visibility.Visible;
+                case InvisibleType.REVERSE_HIDDEN:
+                    return System.Convert.ToBoolean(value) == true ? Visibility.Hidden : Visibility.Visible;
+                case InvisibleType.REVERSE_COLLAPSED:
+                    return System.Convert.ToBoolean(value) == true ? Visibility.Collapsed : Visibility.Visible;
+            }
+            return Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
