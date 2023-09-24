@@ -19,7 +19,7 @@ namespace SPRNetTool.Domain.Base
         /// </summary>
         /// <param name="fs"></param>
         /// <returns></returns>
-        bool InitWorkManager(FileStream fs)
+        bool InitWorkManagerFromSprFile(FileStream fs)
         {
             return fs.BinToStruct<US_SprFileHead>(0)?.Let((it) =>
             {

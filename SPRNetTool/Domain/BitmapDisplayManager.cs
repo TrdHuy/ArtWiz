@@ -190,7 +190,7 @@ namespace SPRNetTool.Domain
             {
                 using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    if (SprWorkManager.InitWorkManager(fs))
+                    if (SprWorkManager.InitWorkManagerFromSprFile(fs))
                     {
                         return SprWorkManager.GetFrameData(0)?.Let((it) =>
                         {
