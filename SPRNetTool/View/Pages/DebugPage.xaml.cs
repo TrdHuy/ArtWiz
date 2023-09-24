@@ -509,5 +509,14 @@ namespace SPRNetTool.View.Pages
                 }
             });
         }
+
+        private void SaveCurrentSourceClick(object sender, RoutedEventArgs e)
+        {
+            SavingWindow sv = new SavingWindow(ownerWindow);
+            sv.Show();
+
+           
+        }
+
     }
 }

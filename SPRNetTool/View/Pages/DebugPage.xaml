@@ -68,6 +68,11 @@
 					Content="TestCMD"
 					Background="Green"
 					Click="TestBtnClick" />
+            <Button Width="100"
+					Height="30"
+					BorderThickness="0"
+                    Click="SaveCurrentSourceClick"
+					Content="Save" />
 		</StackPanel>
 
 
