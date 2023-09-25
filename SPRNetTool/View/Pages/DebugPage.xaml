@@ -68,10 +68,10 @@
 					Content="TestCMD"
 					Background="Green"
 					Click="TestBtnClick" />
-            <Button Width="100"
+			<Button Width="100"
 					Height="30"
 					BorderThickness="0"
-                    Click="SaveCurrentSourceClick"
+					Click="SaveCurrentSourceClick"
 					Content="Save" />
 		</StackPanel>
 
@@ -120,7 +120,7 @@
 				</TextBlock>
 				<TextBlock Margin="0,5,0,0"
 						   FontWeight="Bold"
-						   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">
+						   Visibility="Visible">
 					<Run Text="SPR INFO"
 						 FontSize="15" />
 					<LineBreak />
@@ -190,6 +190,70 @@
 					</Run>
 					<Run Text="Frame: " />
 					<Run Text="{Binding CurrentFrameIndex}" />
+					<LineBreak />
+					<LineBreak />
+					<Run Text="Frame offset X: " />
+					<Run Text=" - "
+						 FontFamily="{StaticResource FontAwsome}">
+						<Run.Style>
+							<Style TargetType="Run">
+								<Style.Triggers>
+									<EventTrigger RoutedEvent="MouseLeftButtonDown">
+										<EventTrigger.Actions>
+											<BeginStoryboard>
+												<Storyboard>
+													 <ColorAnimation
+															Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
+															To="Red"
+															Duration="0:0:0.1" />
+												</Storyboard>
+											</BeginStoryboard>
+										</EventTrigger.Actions>
+									</EventTrigger>		
+									<EventTrigger RoutedEvent="MouseLeftButtonUp">
+										<EventTrigger.Actions>
+											<BeginStoryboard>
+												<Storyboard>
+													 <ColorAnimation
+															Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
+																	 To="Black"
+																	 Duration="0:0:0.1" />
+												</Storyboard>
+											</BeginStoryboard>
+										</EventTrigger.Actions>
+									</EventTrigger>	
+									
+									<Trigger Property="IsMouseOver"
+											 Value="False">
+										<Setter Property="FontSize"
+												Value="15" />
+										<Setter Property="Foreground"
+												Value="Black" />
+									</Trigger>
+									<Trigger Property="IsMouseOver"
+											 Value="True">
+										<Setter Property="FontSize"
+												Value="20" />
+										<Setter Property="Foreground"
+												Value="White" />
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</Run.Style>
+					</Run>
+					<Run Text="0" />
+					<Run Text=" + "
+						 FontFamily="{StaticResource FontAwsome}" />
+					<LineBreak />
+					<Run Text="Frame offset Y: " />
+					<Run Text=" &#xf146; "
+						 FontSize="16"
+						 Margin="3"
+						 FontFamily="{StaticResource FontAwsome}" />
+					<Run Text="0" />
+					<Run Text=" &#xf0fe; "
+						 FontSize="16"
+						 FontFamily="{StaticResource FontAwsome}" />
 					<LineBreak />
 					<Run Text="Colors count: " />
 					<Run Text="{Binding SPRFileHead.ColorCounts}" />
