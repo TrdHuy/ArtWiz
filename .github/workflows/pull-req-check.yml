@@ -1,0 +1,115 @@
+name: Pull request check
+
+on:      
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+    branches:
+      - '*'
+jobs:
+  check_pr_message:
+    name: Check PR message
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check message rule
+        env:
+            GIT_CONTEXT: ${{ toJson(github) }}
+            PR_INFO_API: ${{ github.event.pull_request._links.self.href }}
+        run: |
+          echo "$GIT_CONTEXT"
+          echo "$PR_INFO_API"
+          response=$(curl -s $PR_INFO_API)
+          title=$(echo "$response" | jq -r '.title')
+          echo "title=$title"
+          if [[ $title =~ \[#[0-9]+\] ]]; then
+            echo "Commit Message: $title (Matched)"
+            issue_number=$(echo "$title" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
+            if [[ -n "$issue_number" ]]; then
+              # Kiểm tra sự tồn tại của issue bằng GitHub API 
+              apiUrl=https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/issues/$issue_number
+              response=$(curl -s $apiUrl)
+              echo $apiUrl
+              url=$(echo "$response" | jq -r '.html_url')
+              if [[ $url =~ ^https://github.com/.*\/issues\/[0-9]+$ ]]; then
+                echo "Đây là URL của issues: $url"
+              else
+                echo "Đây không phải là URL của issues: $url"
+                exit 1
+              fi
+            fi
+          else
+            echo "Commit Message: $line (Not Matched)"
+            exit 1 # Exit với mã thành công nếu tìm thấy
+          fi
+
+  
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    if: github.event.pull_request.base.ref == 'master' || github.event.pull_request.base.ref == 'dev'
+    env:
+      Solution_Name: SPRNetTool.sln                      # Replace with your solution name, i.e. MyWpfApp.sln.
+      Test_Project_Path: SPRNetToolTest\SPRNetToolTest.csproj              # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
+      Wap_Project_Directory: SPRNetTool    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
+      Wap_Project_Path: SPRNetTool\SPRNetTool.csproj                # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    # Execute all unit tests in the solution
+    - name: Execute unit tests
+      run: dotnet test
+
+    # Restore the application to populate the obj folder with RuntimeIdentifiers
+    - name: Restore the application
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Decode the base 64 encoded pfx and save the Signing_Certificate
+    - name: Decode the pfx
+      run: |
+        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
+        $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath GitHubActionsWorkflow.pfx
+        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+
+    # Create the app package by building and packaging the Windows Application Packaging project
+    - name: Create the app package
+      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      env:
+        Appx_Bundle: Always
+        Appx_Bundle_Platforms: x86|x64
+        Appx_Package_Build_Mode: StoreUpload
+        Configuration: ${{ matrix.configuration }}
+
+    # Remove the pfx
+    - name: Remove the pfx
+      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
+
+    # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: MSIX Package
+        path: ${{ env.Wap_Project_Directory }}\AppPackages
