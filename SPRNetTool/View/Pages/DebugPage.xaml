@@ -192,8 +192,10 @@
 					<Run Text="{Binding CurrentFrameIndex}" />
 					<LineBreak />
 					<LineBreak />
-					<Run Text="Frame offset X: " />
-					<Run Text=" - "
+					<Run Text="Frame offset X: " 
+						 FontWeight="ExtraBold"/>
+					<Run Text=" &#xf146; "
+						 FontSize="16"
 						 FontFamily="{StaticResource FontAwsome}">
 						<Run.Style>
 							<Style TargetType="Run">
@@ -242,13 +244,14 @@
 						</Run.Style>
 					</Run>
 					<Run Text="0" />
-					<Run Text=" + "
+					<Run Text=" &#xf0fe; "
+						 FontSize="16"
 						 FontFamily="{StaticResource FontAwsome}" />
 					<LineBreak />
-					<Run Text="Frame offset Y: " />
+					<Run Text="Frame offset Y: "
+						 FontWeight="ExtraBold" />
 					<Run Text=" &#xf146; "
 						 FontSize="16"
-						 Margin="3"
 						 FontFamily="{StaticResource FontAwsome}" />
 					<Run Text="0" />
 					<Run Text=" &#xf0fe; "
