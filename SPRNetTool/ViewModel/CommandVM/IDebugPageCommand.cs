@@ -6,5 +6,9 @@
 
         void OnSaveCurrentWorkManagerToFileSprClicked(string filePath);
 
+        void OnIncreaseFrameOffsetXButtonClicked();
+
+        void OnIncreaseCurrentlyDisplayedSprFrameIndex();
+        void OnDecreaseCurrentlyDisplayedSprFrameIndex();
     }
 }
