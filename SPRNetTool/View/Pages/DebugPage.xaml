@@ -165,8 +165,8 @@
 				</TextBlock>
 
 				<TextBlock Margin="0,5,0,0"
-						   FontWeight="Bold">
-						   <!--Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">-->
+						   FontWeight="Bold"
+						   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">
 					
 					<Run Text="SPR INFO"
 						 FontSize="15" />
