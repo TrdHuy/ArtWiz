@@ -233,6 +233,27 @@ namespace SPRNetTool.Domain.Utils
             return bitmap;
         }
 
+        public static bool AreByteArraysEqual(this IDomainAdapter adapter, byte[] array1, byte[] array2)
+        {
+            // Nếu mảng có chiều dài khác nhau, chúng không giống nhau
+            if (array1.Length != array2.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < array1.Length; i++)
+            {
+                // So sánh từng phần tử của hai mảng
+                if (array1[i] != array2[i])
+                {
+                    return false;
+                }
+            }
+
+            // Nếu không có phần tử nào khác nhau, chúng giống nhau
+            return true;
+        }
+
         private static Color FindClosestPaletteColor(this IDomainAdapter adapter, Color sourceColor, List<Color> palette)
         {
             // Tìm màu gần nhất trong bảng màu giới hạn

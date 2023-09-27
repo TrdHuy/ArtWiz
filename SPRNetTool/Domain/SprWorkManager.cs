@@ -1,5 +1,6 @@
 ﻿using SPRNetTool.Data;
 using SPRNetTool.Domain.Base;
+using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace SPRNetTool.Domain
         private SprFileHead FileHead;
         private Palette PaletteData = new Palette();
         private long FrameDataBegPos = -1;
-        private FRAMERGBA[]? FrameData;
+        private FrameRGBA[]? FrameData;
         SprFileHead ISprWorkManager.FileHead => FileHead;
         bool ISprWorkManager.IsCacheEmpty => FrameDataBegPos == -1;
 
@@ -38,7 +39,7 @@ namespace SPRNetTool.Domain
                 us_fileHead.DirectionCount,
                 us_fileHead.Interval,
                 us_fileHead.GetReserved());
-            FrameData = new FRAMERGBA[us_fileHead.FrameCounts];
+            FrameData = new FrameRGBA[us_fileHead.FrameCounts];
             PaletteData = new Palette(us_fileHead.ColorCounts);
             FrameDataBegPos = Marshal.SizeOf(typeof(US_SprFileHead)) + us_fileHead.ColorCounts * 3;
 
@@ -55,10 +56,26 @@ namespace SPRNetTool.Domain
             }
         }
 
+        void ISprWorkManager.SetFrameOffset(short offsetY, short offsetX, uint frameIndex)
+        {
+            if (frameIndex >= 0 && frameIndex < FileHead.FrameCounts && FrameData != null)
+            {
+                if (offsetY != FrameData[frameIndex].frameOffY
+                    || offsetX != FrameData[frameIndex].frameOffX)
+                {
+                    FrameData[frameIndex].frameOffY = offsetY;
+                    FrameData[frameIndex].frameOffX = offsetX;
+                    var globalData = InitGlobalizedFrameData(frameIndex);
+                    if (globalData == null) throw new Exception("Failed to set new frame offset");
+                    FrameData[frameIndex].globalFrameData = globalData;
+                }
+            }
+        }
+
         void ISprWorkManager.InitFrameData(FileStream fs)
         {
             if (FrameData == null) return;
-            for (int i = 0; i < FileHead.FrameCounts; i++)
+            for (uint i = 0; i < FileHead.FrameCounts; i++)
             {
                 var decodedFrameData = InitDecodedFrameData(fs, i, out ushort frameWidth,
                         out ushort frameHeight, COLORMODE.RGBA, out ushort frameOffX,
@@ -68,8 +85,8 @@ namespace SPRNetTool.Domain
 
                 FrameData[i].frameHeight = frameHeight;
                 FrameData[i].frameWidth = frameWidth;
-                FrameData[i].frameOffY = frameOffY;
-                FrameData[i].frameOffX = frameOffX;
+                FrameData[i].frameOffY = (short)frameOffY;
+                FrameData[i].frameOffX = (short)frameOffX;
                 FrameData[i].decodedFrameData = decodedFrameData;
                 var globalData = InitGlobalizedFrameData(i);
                 if (globalData == null) throw new Exception("Failed to init global frame data!");
@@ -77,7 +94,7 @@ namespace SPRNetTool.Domain
             }
         }
 
-        FRAMERGBA? ISprWorkManager.GetFrameData(int index)
+        FrameRGBA? ISprWorkManager.GetFrameData(uint index)
         {
             if (index < FileHead.FrameCounts)
             {
@@ -87,7 +104,7 @@ namespace SPRNetTool.Domain
         }
 
         private PaletteColor[]? InitDecodedFrameData(FileStream fs,
-            int index,
+            uint index,
             out ushort frameWidth,
             out ushort frameHeight,
             COLORMODE mod,
@@ -191,7 +208,7 @@ namespace SPRNetTool.Domain
             //TODO: remove me
 #if DEBUG
             var encryptData2 = EncryptFrameData(decData, PaletteData.Data, frameWidth, frameHeight, frameOffX, frameOffY) ?? throw new Exception("Failed to decrypt SPR");
-            if (!AreByteArraysEqual(encryptData2, encryptedData))
+            if (!this.AreByteArraysEqual(encryptData2, encryptedData))
             {
                 throw new Exception("Failed to decrypted");
             }
@@ -270,27 +287,6 @@ namespace SPRNetTool.Domain
             return encryptedFileData.ToArray();
         }
 
-        private static bool AreByteArraysEqual(byte[] array1, byte[] array2)
-        {
-            // Nếu mảng có chiều dài khác nhau, chúng không giống nhau
-            if (array1.Length != array2.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < array1.Length; i++)
-            {
-                // So sánh từng phần tử của hai mảng
-                if (array1[i] != array2[i])
-                {
-                    return false;
-                }
-            }
-
-            // Nếu không có phần tử nào khác nhau, chúng giống nhau
-            return true;
-        }
-
         private byte FindPaletteIndex(PaletteColor targetColor, PaletteColor[] paletteData)
         {
             for (byte i = 0; i < paletteData.Length; i++)
@@ -307,7 +303,7 @@ namespace SPRNetTool.Domain
         }
 
         public byte[]? EncryptFrameData(PaletteColor[] pixelArray, PaletteColor[] paletteData
-                   , ushort frameWidth, ushort frameHeigth, ushort frameOffX, ushort frameOffY)
+                   , ushort frameWidth, ushort frameHeight, ushort frameOffX, ushort frameOffY)
         {
 
             var encryptedFrameDataList = new List<byte>();
@@ -315,7 +311,7 @@ namespace SPRNetTool.Domain
             var frameInfo = new FrameInfo();
             frameInfo.OffX = frameOffX;
             frameInfo.OffY = frameOffY;
-            frameInfo.Height = frameHeigth;
+            frameInfo.Height = frameHeight;
             frameInfo.Width = frameWidth;
             frameInfo.CopyStructToList(encryptedFrameDataList);
 
@@ -361,7 +357,7 @@ namespace SPRNetTool.Domain
             return encryptedFrameDataList.ToArray();
         }
 
-        private PaletteColor[]? InitGlobalizedFrameData(int index)
+        private PaletteColor[]? InitGlobalizedFrameData(uint index)
         {
             BitmapSource v;
             var decodedFrameData = FrameData?[index].decodedFrameData;
@@ -377,6 +373,7 @@ namespace SPRNetTool.Domain
             long frameHeight = FrameData?[index].frameHeight ?? 0;
             long frameWidth = FrameData?[index].frameWidth ?? 0;
 
+            // TODO: Dynamic global background color
             for (long datidx = 0; datidx < (long)globalDataLen; datidx++)
             {
                 globalData[datidx].Red = 0xFF;
@@ -385,22 +382,14 @@ namespace SPRNetTool.Domain
                 globalData[datidx].Alpha = 0xFF;
             }
 
-            for (int hi = 0; hi < FileHead.GlobalHeight; hi++)
+            for (long hi = frameOffY < 0 ? 0 : frameOffY; hi < FileHead.GlobalHeight && hi < frameOffY + frameHeight; hi++)
             {
-                for (int wi = 0; wi < FileHead.GlobalWidth; wi++)
+                for (long wi = frameOffX < 0 ? 0 : frameOffX; wi < FileHead.GlobalWidth && wi < frameOffX + frameWidth; wi++)
                 {
-                    long offwidth = wi + frameOffX;
-                    long offheight = hi + frameOffY;
-
-                    if (hi < frameHeight && wi < frameWidth &&
-                        offwidth >= 0 && offwidth < FileHead.GlobalWidth &&
-                        offheight >= 0 && offheight < FileHead.GlobalHeight)
-                    {
-                        globalData[offheight * FileHead.GlobalWidth + offwidth].Red = decodedFrameData[hi * frameWidth + wi].Red;
-                        globalData[offheight * FileHead.GlobalWidth + offwidth].Green = decodedFrameData[hi * frameWidth + wi].Green;
-                        globalData[offheight * FileHead.GlobalWidth + offwidth].Blue = decodedFrameData[hi * frameWidth + wi].Blue;
-                        globalData[offheight * FileHead.GlobalWidth + offwidth].Alpha = decodedFrameData[hi * frameWidth + wi].Alpha;
-                    }
+                    globalData[hi * FileHead.GlobalWidth + wi].Red = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Red;
+                    globalData[hi * FileHead.GlobalWidth + wi].Green = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Green;
+                    globalData[hi * FileHead.GlobalWidth + wi].Blue = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Blue;
+                    globalData[hi * FileHead.GlobalWidth + wi].Alpha = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Alpha;
                 }
             }
             return globalData;
@@ -441,8 +430,8 @@ namespace SPRNetTool.Domain
                     , PaletteData.Data
                     , it.frameWidth
                     , it.frameHeight
-                    , it.frameOffX
-                    , it.frameOffY);
+                    , (ushort)it.frameOffX
+                    , (ushort)it.frameOffY);
             });
         }
     }

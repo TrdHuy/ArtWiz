@@ -18,24 +18,25 @@ namespace SPRNetTool.ViewModel
 {
     public class DebugPageViewModel : BaseViewModel, IDebugPageCommand
     {
-        private BitmapSource? _currentDisplayingBmpSrc;
+        private BitmapSource? _currentDisplayedBitmapSource;
         private ObservableCollection<ColorItemViewModel> _rawOriginalSource = new ObservableCollection<ColorItemViewModel>();
         private ObservableCollection<OptimizedColorItemViewModel>? _rawOptimizedSource = null;
         private ObservableCollection<ColorItemViewModel>? _rawResultRGBSource = null;
 
-        private ObservableCollection<ColorItemViewModel> _orignalColorSource = new ObservableCollection<ColorItemViewModel>();
-        private ObservableCollection<OptimizedColorItemViewModel>? _optimizedSource = null;
-        private ObservableCollection<ColorItemViewModel>? _resultRGBSource = null;
+        private ObservableCollection<ColorItemViewModel> _orignalDisplayedColorSource = new ObservableCollection<ColorItemViewModel>();
+        private ObservableCollection<OptimizedColorItemViewModel>? _optimizedDisplayedSource = null;
+        private ObservableCollection<ColorItemViewModel>? _displayedRgbCompositeResultSource = null;
 
         private bool _isPlayingAnimation = false;
         private int _pixelWidth = 0;
         private int _pixelHeight = 0;
         private SprFileHead _sprFileHead;
-        private int _currentFrame = 0;
+        private FrameRGBA _sprFrameData;
+        private uint _currentFrame = 0;
         private bool _isSpr = false;
 
         [Bindable(true)]
-        public int CurrentFrameIndex
+        public uint CurrentFrameIndex
         {
             get
             {
@@ -64,15 +65,29 @@ namespace SPRNetTool.ViewModel
 
 
         [Bindable(true)]
-        public SprFileHead SPRFileHead
+        public SprFileHead SprFileHead
         {
             get
             {
                 return _sprFileHead;
             }
-            set
+            private set
             {
                 _sprFileHead = value;
+                Invalidate();
+            }
+        }
+
+        [Bindable(true)]
+        public FrameRGBA SprFrameData
+        {
+            get
+            {
+                return _sprFrameData;
+            }
+            private set
+            {
+                _sprFrameData = value;
                 Invalidate();
             }
         }
@@ -121,10 +136,10 @@ namespace SPRNetTool.ViewModel
         [Bindable(true)]
         public ObservableCollection<ColorItemViewModel> OriginalColorSource
         {
-            get { return _orignalColorSource; }
+            get { return _orignalDisplayedColorSource; }
             private set
             {
-                _orignalColorSource = value;
+                _orignalDisplayedColorSource = value;
                 Invalidate();
             }
         }
@@ -132,10 +147,10 @@ namespace SPRNetTool.ViewModel
         [Bindable(true)]
         public ObservableCollection<ColorItemViewModel>? ResultRGBSource
         {
-            get { return _resultRGBSource; }
+            get { return _displayedRgbCompositeResultSource; }
             private set
             {
-                _resultRGBSource = value;
+                _displayedRgbCompositeResultSource = value;
                 Invalidate();
             }
         }
@@ -143,24 +158,26 @@ namespace SPRNetTool.ViewModel
         [Bindable(true)]
         public ObservableCollection<OptimizedColorItemViewModel>? OptimizedColorSource
         {
-            get { return _optimizedSource; }
+            get { return _optimizedDisplayedSource; }
             private set
             {
-                _optimizedSource = value;
+                _optimizedDisplayedSource = value;
                 Invalidate();
             }
         }
 
         [Bindable(true)]
-        public BitmapSource? CurrentDisplayingBmpSrc
+        public BitmapSource? CurrentlyDisplayedBitmapSource
         {
-            get { return _currentDisplayingBmpSrc; }
+
+            get { return _currentDisplayedBitmapSource; }
             private set
             {
-                _currentDisplayingBmpSrc = value;
+                _currentDisplayedBitmapSource = value;
                 Invalidate();
             }
         }
+
 
         public DebugPageViewModel()
         {
@@ -176,16 +193,16 @@ namespace SPRNetTool.ViewModel
         public void ResetViewModel()
         {
             _rawOriginalSource.Clear();
-            _orignalColorSource.Clear();
+            _orignalDisplayedColorSource.Clear();
             _rawResultRGBSource = null;
-            _resultRGBSource = null;
+            _displayedRgbCompositeResultSource = null;
             _rawOptimizedSource = null;
             _cachedOptimizedOrderByCombinedRGB = null;
             _cachedOptimizedOrderByRGB = null;
             _cachedOrderByCount = null;
             _cachedOrderByDescendingCount = null;
             _cachedOrderByRGB = null;
-            _currentDisplayingBmpSrc = null;
+            _currentDisplayedBitmapSource = null;
             InvalidateAll();
         }
 
@@ -313,13 +330,20 @@ namespace SPRNetTool.ViewModel
                 case BitmapDisplayMangerChangedArg castArgs:
                     PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
                     PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
-                    SPRFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
+
                     IsSpr = castArgs.CurrentSprFileHead != null;
 
                     if (castArgs.IsPlayingAnimation != true)
                     {
+                        if (IsSpr)
+                        {
+                            SprFrameData = castArgs.SprFrameData ?? new FrameRGBA();
+                            SprFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
+                            CurrentFrameIndex = castArgs.SprFrameIndex;
+                        }
                         IsPlayingAnimation = false;
-                        CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
+                        CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
+
                         await SetColorSource(castArgs.CurrentColorSource);
                     }
                     else if (castArgs.IsPlayingAnimation == true)
@@ -328,9 +352,10 @@ namespace SPRNetTool.ViewModel
                         IsPlayingAnimation = true;
                         ViewModelOwner?.ViewDispatcher.Invoke(() =>
                         {
-                            CurrentDisplayingBmpSrc = castArgs.CurrentDisplayingSource;
-                            CurrentFrameIndex = castArgs.FrameIndex;
-                        }, DispatcherPriority.DataBind);
+                            CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
+                            CurrentFrameIndex = castArgs.SprFrameIndex;
+                        }, DispatcherPriority.Render);
+
                     }
                     break;
             }
@@ -352,7 +377,7 @@ namespace SPRNetTool.ViewModel
             , int colorDifferenceDeltaForCalculatingAlpha
             , Color backgroundForBlendColor)
         {
-            (_countableColorSource!, CurrentDisplayingBmpSrc!).ApplyIfNotNull((it1, it2) =>
+            (_countableColorSource!, CurrentlyDisplayedBitmapSource!).ApplyIfNotNull((it1, it2) =>
             {
                 BitmapDisplayManager.OptimzeImageColor(it1
                     , it2
@@ -368,6 +393,8 @@ namespace SPRNetTool.ViewModel
 
         void IDebugPageCommand.OnPlayPauseAnimationSprClicked()
         {
+            if (!IsSpr) return;
+
             if (!IsPlayingAnimation)
             {
                 BitmapDisplayManager.StartSprAnimation();
@@ -380,7 +407,61 @@ namespace SPRNetTool.ViewModel
 
         void IDebugPageCommand.OnSaveCurrentWorkManagerToFileSprClicked(string filePath)
         {
+            if (!IsSpr) return;
             SprWorkManager.SaveCurrentWorkToSpr(filePath);
+        }
+
+        void IDebugPageCommand.OnIncreaseFrameOffsetXButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset((short)(SprFrameData.frameOffX + (delta == 0 ? 1 : delta)), SprFrameData.frameOffY);
+        }
+
+        void IDebugPageCommand.OnDecreaseFrameOffsetXButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset((short)(SprFrameData.frameOffX - (delta == 0 ? 1 : delta)), SprFrameData.frameOffY);
+        }
+        void IDebugPageCommand.OnIncreaseFrameOffsetYButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(SprFrameData.frameOffX, (short)(SprFrameData.frameOffY + (delta == 0 ? 1 : delta)));
+        }
+
+        void IDebugPageCommand.OnDecreaseFrameOffsetYButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(SprFrameData.frameOffX, (short)(SprFrameData.frameOffY - (delta == 0 ? 1 : delta)));
+        }
+
+        void IDebugPageCommand.OnIncreaseCurrentlyDisplayedSprFrameIndex()
+        {
+            if (!IsSpr) return;
+
+            if (CurrentFrameIndex < SprFileHead.FrameCounts - 1)
+            {
+                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(CurrentFrameIndex + 1);
+            }
+            else
+            {
+                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(0);
+            }
+        }
+
+        void IDebugPageCommand.OnDecreaseCurrentlyDisplayedSprFrameIndex()
+        {
+            if (CurrentFrameIndex >= 1)
+            {
+                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(CurrentFrameIndex - 1);
+            }
+            else
+            {
+                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex((uint)SprFileHead.FrameCounts - 1);
+            }
         }
     }
 }

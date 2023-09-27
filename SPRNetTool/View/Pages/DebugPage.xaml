@@ -24,6 +24,51 @@
 			<Setter Property="HorizontalContentAlignment"
 					Value="Left" />
 		</Style>
+
+		<Style x:Key="ClickableRunStyle"
+			   TargetType="Run">
+			<EventSetter Event="MouseLeftButtonUp"
+						 Handler="OnRunLeftMouseUp" />
+			<Style.Triggers>
+				<EventTrigger RoutedEvent="MouseLeftButtonDown">
+					<EventTrigger.Actions>
+						<BeginStoryboard>
+							<Storyboard>
+								<ColorAnimation Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
+												To="#FFB4E9E5"
+												Duration="0:0:0" />
+							</Storyboard>
+						</BeginStoryboard>
+					</EventTrigger.Actions>
+				</EventTrigger>
+				<EventTrigger RoutedEvent="MouseLeftButtonUp">
+					<EventTrigger.Actions>
+						<BeginStoryboard>
+							<Storyboard>
+								<ColorAnimation Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
+												To="White"
+												Duration="0:0:0" />
+							</Storyboard>
+						</BeginStoryboard>
+					</EventTrigger.Actions>
+				</EventTrigger>
+
+				<Trigger Property="IsMouseOver"
+						 Value="False">
+					<Setter Property="FontSize"
+							Value="15" />
+					<Setter Property="Foreground"
+							Value="Black" />
+				</Trigger>
+				<Trigger Property="IsMouseOver"
+						 Value="True">
+					<Setter Property="FontSize"
+							Value="20" />
+					<Setter Property="Foreground"
+							Value="White" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 	</UserControl.Resources>
 	<Grid Background="#FFA1A1A1">
 		<Grid.ColumnDefinitions>
@@ -68,10 +113,10 @@
 					Content="TestCMD"
 					Background="Green"
 					Click="TestBtnClick" />
-            <Button Width="100"
+			<Button Width="100"
 					Height="30"
 					BorderThickness="0"
-                    Click="SaveCurrentSourceClick"
+					Click="SaveCurrentSourceClick"
 					Content="Save" />
 		</StackPanel>
 
@@ -92,7 +137,7 @@
 			<Grid Grid.Column="0"
 				  Background="Black">
 				<Image x:Name="StaticImageView"
-					   Source="{Binding CurrentDisplayingBmpSrc}" />
+					   Source="{Binding CurrentlyDisplayedBitmapSource}" />
 			</Grid>
 
 			<Grid Grid.Column="1"
@@ -118,30 +163,37 @@
 					<Run Text="{Binding PixelHeight}" />
 
 				</TextBlock>
+
 				<TextBlock Margin="0,5,0,0"
 						   FontWeight="Bold"
 						   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">
+					
 					<Run Text="SPR INFO"
 						 FontSize="15" />
 					<LineBreak />
 					<Run Text="Global width: " />
-					<Run Text="{Binding SPRFileHead.GlobalWidth}" />
+					<Run Text="{Binding SprFileHead.GlobalWidth}" />
 					<LineBreak />
 					<Run Text="Global height: " />
-					<Run Text="{Binding SPRFileHead.GlobalHeight}" />
+					<Run Text="{Binding SprFileHead.GlobalHeight}" />
 					<LineBreak />
 					<Run Text="Global offset X: " />
-					<Run Text="{Binding SPRFileHead.OffX}" />
+					<Run Text="{Binding SprFileHead.OffX}" />
 					<LineBreak />
 					<Run Text="Global offset Y: " />
-					<Run Text="{Binding SPRFileHead.OffY}" />
+					<Run Text="{Binding SprFileHead.OffY}" />
+					<LineBreak />
+					<Run Text="Colors count: " />
+					<Run Text="{Binding SprFileHead.ColorCounts}" />
+					<LineBreak />
+					<Run Text="Directions count: " />
+					<Run Text="{Binding SprFileHead.DirectionCount}" />
+					
 					<LineBreak />
 					<Run Text="Frames count: " />
-					<Run Text="{Binding SPRFileHead.FrameCounts}" />
+					<Run Text="{Binding SprFileHead.FrameCounts}" />
 					<Run Text="&#x9;&#x9;" />
-					<Run MouseLeave="Run_MouseLeave"
-						 MouseEnter="Run_MouseEnter"
-						 MouseDown="Run_MouseDown"
+					<Run MouseLeftButtonUp="OnRunLeftMouseUp"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_PlayButton}"
 						 FontFamily="{StaticResource FontAwsome}">
 						<Run.Style>
@@ -157,7 +209,7 @@
 											<Setter Property="Foreground"
 													Value="Green" />
 										</MultiDataTrigger>
-										
+								
 										<MultiDataTrigger>
 											<MultiDataTrigger.Conditions>
 												<Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}"
@@ -168,7 +220,7 @@
 											<Setter Property="Foreground"
 													Value="Red" />
 										</MultiDataTrigger>
-											
+									
 										<DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}"
 													 Value="False">
 											<Setter Property="Foreground"
@@ -189,15 +241,105 @@
 						</Run.Style>
 					</Run>
 					<Run Text="Frame: " />
+					<Run Text=" &#xf146; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameIndexMinusButton}"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}" />
 					<Run Text="{Binding CurrentFrameIndex}" />
+					<Run Text=" &#xf0fe; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameIndexPlusButton}"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}" />
 					<LineBreak />
-					<Run Text="Colors count: " />
-					<Run Text="{Binding SPRFileHead.ColorCounts}" />
 					<LineBreak />
-					<Run Text="Directions count: " />
-					<Run Text="{Binding SPRFileHead.DirectionCount}" />
+					
+					<!--Frame size editor area-->
+					<Run Text="Frame width: "
+						 FontWeight="ExtraBold" />
+					<Run Text=" &#xf146; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}">
+					</Run>
+					<Run Text="{Binding SprFrameData.frameWidth}" />
+					<Run Text=" &#xf0fe; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}" />
 					<LineBreak />
-					<Run Text="Interval: " />
+					<Run Text="Frame height: "
+						 FontWeight="ExtraBold" />
+					<Run Text=" &#xf146; "
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 FontSize="16"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}">
+					</Run>
+					<Run Text="{Binding SprFrameData.frameHeight}" />
+					<Run Text=" &#xf0fe; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}" />
+					<LineBreak />
+					
+					<!--Frame offset editor area-->
+					<Run Text="Frame offset X: "
+						 FontWeight="ExtraBold" />
+					<Run Text=" &#xf146; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffsetXMinusButton}"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}">
+					</Run>
+					<Run Text="{Binding SprFrameData.frameOffX}" />
+					<Run Text=" &#xf0fe; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffsetXPlusButton}"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}" />
+					<LineBreak />
+					<Run Text="Frame offset Y: "
+						 FontWeight="ExtraBold" />
+					<Run Text=" &#xf146; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffsetYMinusButton}"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}" />
+					<Run Text="{Binding SprFrameData.frameOffY}" />
+					<Run Text=" &#xf0fe; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffsetYPlusButton}"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}" />
+					<LineBreak />
+
+					<!--Interval editor area-->
+					<Run Text="Interval: "
+						 FontWeight="ExtraBold" />
+					<Run Text=" &#xf146; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_IntervalMinusButton}"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}" />
+					<Run Text="{Binding SprFileHead.Interval}" />
+					<Run Text=" &#xf0fe; "
+						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_IntervalPlusButton}"
+						 FontFamily="{StaticResource FontAwsome}"
+						 Style="{StaticResource ClickableRunStyle}" />
 					<LineBreak />
 
 				</TextBlock>

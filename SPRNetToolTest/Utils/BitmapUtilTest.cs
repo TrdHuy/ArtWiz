@@ -11,14 +11,19 @@ namespace SPRNetToolTest.Utils
         {
         }
 
+        struct MS
+        {
+            public int x;
+            public int y;
+        }
+
         [Test]
         public void test()
         {
-            BitmapSource?[] bmpSource = new BitmapSource?[10];
-            string imagePath = "Resources\\test.png".FullPath();
-            bmpSource[0] = bmpSource[0].IfNullThenLet(() => BitmapUtil.LoadBitmapFromFile(imagePath));
-            Assert.NotNull(bmpSource[0]);
-            Assert.That(bmpSource[0].PixelWidth * bmpSource[0].PixelHeight, Is.EqualTo(90000));
+            MS s;
+            MS? s2;
+            MS? s3 = null;
+            var x = 1;
         }
 
         [Test]
