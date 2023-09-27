@@ -4,6 +4,7 @@ using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
+using SPRNetTool.View.Utils;
 using SPRNetTool.ViewModel;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
@@ -17,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.View.InputWindow;
@@ -469,7 +471,7 @@ namespace SPRNetTool.View.Pages
             return newCountedSrc;
         }
 
-        private void OnRunLeftMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnRunLeftMouseUp(object sender, MouseButtonEventArgs e)
         {
             (sender as Run)?.Tag.IfIs<DebugPageTagID>((tag) =>
             {
@@ -478,10 +480,6 @@ namespace SPRNetTool.View.Pages
                     case DebugPageTagID.SPRInfo_PlayButton:
                         {
                             commandVM?.OnPlayPauseAnimationSprClicked();
-                            break;
-                        }
-                    case DebugPageTagID.SPRInfo_FrameOffsetXMinusButton:
-                        {
                             break;
                         }
                     case DebugPageTagID.SPRInfo_FrameIndexMinusButton:
@@ -494,6 +492,11 @@ namespace SPRNetTool.View.Pages
                             commandVM?.OnIncreaseCurrentlyDisplayedSprFrameIndex();
                             break;
                         }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetXButtonClicked();
+                            break;
+                        }
                     case DebugPageTagID.SPRInfo_FrameOffsetXPlusButton:
                         {
                             commandVM?.OnIncreaseFrameOffsetXButtonClicked();
@@ -501,10 +504,12 @@ namespace SPRNetTool.View.Pages
                         }
                     case DebugPageTagID.SPRInfo_FrameOffsetYMinusButton:
                         {
+                            commandVM?.OnDecreaseFrameOffsetYButtonClicked();
                             break;
                         }
                     case DebugPageTagID.SPRInfo_FrameOffsetYPlusButton:
                         {
+                            commandVM?.OnIncreaseFrameOffsetYButtonClicked();
                             break;
                         }
                 }
@@ -518,5 +523,45 @@ namespace SPRNetTool.View.Pages
             sv.Show();
         }
 
+        private void OnRunMouseHold(object sender, MouseHoldEventArgs args)
+        {
+            (sender as Run)?.Tag.IfIs<DebugPageTagID>((tag) =>
+            {
+                switch (tag)
+                {
+
+                    case DebugPageTagID.SPRInfo_FrameIndexMinusButton:
+                        {
+                            commandVM?.OnDecreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameIndexPlusButton:
+                        {
+                            commandVM?.OnIncreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                }
+            });
+        }
     }
 }

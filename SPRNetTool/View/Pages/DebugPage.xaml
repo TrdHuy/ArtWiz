@@ -163,9 +163,11 @@
 					<Run Text="{Binding PixelHeight}" />
 
 				</TextBlock>
+
 				<TextBlock Margin="0,5,0,0"
 						   FontWeight="Bold">
 						   <!--Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">-->
+					
 					<Run Text="SPR INFO"
 						 FontSize="15" />
 					<LineBreak />
@@ -241,12 +243,14 @@
 					<Run Text="Frame: " />
 					<Run Text=" &#xf146; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameIndexMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
 					<Run Text="{Binding CurrentFrameIndex}" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameIndexPlusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
@@ -258,18 +262,21 @@
 						 FontWeight="ExtraBold" />
 					<Run Text=" &#xf146; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}">
 					</Run>
 					<Run Text="{Binding SprFrameData.frameWidth}" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
 					<LineBreak />
 					<Run Text="Frame height: "
 						 FontWeight="ExtraBold" />
 					<Run Text=" &#xf146; "
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 FontSize="16"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}">
@@ -277,6 +284,7 @@
 					<Run Text="{Binding SprFrameData.frameHeight}" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
 					<LineBreak />
@@ -286,6 +294,7 @@
 						 FontWeight="ExtraBold" />
 					<Run Text=" &#xf146; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffsetXMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}">
@@ -293,6 +302,7 @@
 					<Run Text="{Binding SprFrameData.frameOffX}" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffsetXPlusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
@@ -301,12 +311,14 @@
 						 FontWeight="ExtraBold" />
 					<Run Text=" &#xf146; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffsetYMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
 					<Run Text="{Binding SprFrameData.frameOffY}" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffsetYPlusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
@@ -317,12 +329,14 @@
 						 FontWeight="ExtraBold" />
 					<Run Text=" &#xf146; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_IntervalMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
 					<Run Text="{Binding SprFileHead.Interval}" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
+						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_IntervalPlusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -63,7 +62,7 @@ namespace SPRNetTool.Domain
             });
         }
 
-        void IBitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(ushort frameOffX, ushort frameOffY)
+        void IBitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(short frameOffX, short frameOffY)
         {
             if (DisplayedBitmapSourceCache.AnimationSourceCaching == null ||
                 DisplayedBitmapSourceCache.AnimationSourceCaching.Length != SprWorkManager.FileHead.FrameCounts)

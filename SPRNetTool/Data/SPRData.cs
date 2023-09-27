@@ -175,8 +175,8 @@ namespace SPRNetTool.Data
     {
         public ushort frameWidth { get; set; }
         public ushort frameHeight { get; set; }
-        public ushort frameOffX { get; set; }
-        public ushort frameOffY { get; set; }
+        public short frameOffX { get; set; }
+        public short frameOffY { get; set; }
 
         public byte[] encryptedFrameData;
         public PaletteColor[] decodedFrameData;

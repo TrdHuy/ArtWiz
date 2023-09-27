@@ -56,11 +56,11 @@ namespace SPRNetTool.Domain
             }
         }
 
-        void ISprWorkManager.SetFrameOffset(ushort offsetY, ushort offsetX, uint frameIndex)
+        void ISprWorkManager.SetFrameOffset(short offsetY, short offsetX, uint frameIndex)
         {
             if (frameIndex >= 0 && frameIndex < FileHead.FrameCounts && FrameData != null)
             {
-                if(offsetY != FrameData[frameIndex].frameOffY 
+                if (offsetY != FrameData[frameIndex].frameOffY
                     || offsetX != FrameData[frameIndex].frameOffX)
                 {
                     FrameData[frameIndex].frameOffY = offsetY;
@@ -85,8 +85,8 @@ namespace SPRNetTool.Domain
 
                 FrameData[i].frameHeight = frameHeight;
                 FrameData[i].frameWidth = frameWidth;
-                FrameData[i].frameOffY = frameOffY;
-                FrameData[i].frameOffX = frameOffX;
+                FrameData[i].frameOffY = (short)frameOffY;
+                FrameData[i].frameOffX = (short)frameOffX;
                 FrameData[i].decodedFrameData = decodedFrameData;
                 var globalData = InitGlobalizedFrameData(i);
                 if (globalData == null) throw new Exception("Failed to init global frame data!");
@@ -382,9 +382,9 @@ namespace SPRNetTool.Domain
                 globalData[datidx].Alpha = 0xFF;
             }
 
-            for (long hi = frameOffY; hi < FileHead.GlobalHeight && hi < frameOffY + frameHeight; hi++)
+            for (long hi = frameOffY < 0 ? 0 : frameOffY; hi < FileHead.GlobalHeight && hi < frameOffY + frameHeight; hi++)
             {
-                for (long wi = frameOffX; wi < FileHead.GlobalWidth && wi < frameOffX + frameWidth; wi++)
+                for (long wi = frameOffX < 0 ? 0 : frameOffX; wi < FileHead.GlobalWidth && wi < frameOffX + frameWidth; wi++)
                 {
                     globalData[hi * FileHead.GlobalWidth + wi].Red = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Red;
                     globalData[hi * FileHead.GlobalWidth + wi].Green = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Green;
@@ -430,8 +430,8 @@ namespace SPRNetTool.Domain
                     , PaletteData.Data
                     , it.frameWidth
                     , it.frameHeight
-                    , it.frameOffX
-                    , it.frameOffY);
+                    , (ushort)it.frameOffX
+                    , (ushort)it.frameOffY);
             });
         }
     }

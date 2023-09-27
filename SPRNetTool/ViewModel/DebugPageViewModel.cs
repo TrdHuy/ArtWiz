@@ -411,11 +411,31 @@ namespace SPRNetTool.ViewModel
             SprWorkManager.SaveCurrentWorkToSpr(filePath);
         }
 
-        void IDebugPageCommand.OnIncreaseFrameOffsetXButtonClicked()
+        void IDebugPageCommand.OnIncreaseFrameOffsetXButtonClicked(uint delta)
         {
             if (!IsSpr) return;
 
-            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset((ushort)(SprFrameData.frameOffX + 1), SprFrameData.frameOffY);
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset((short)(SprFrameData.frameOffX + (delta == 0 ? 1 : delta)), SprFrameData.frameOffY);
+        }
+
+        void IDebugPageCommand.OnDecreaseFrameOffsetXButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset((short)(SprFrameData.frameOffX - (delta == 0 ? 1 : delta)), SprFrameData.frameOffY);
+        }
+        void IDebugPageCommand.OnIncreaseFrameOffsetYButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(SprFrameData.frameOffX, (short)(SprFrameData.frameOffY + (delta == 0 ? 1 : delta)));
+        }
+
+        void IDebugPageCommand.OnDecreaseFrameOffsetYButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(SprFrameData.frameOffX, (short)(SprFrameData.frameOffY - (delta == 0 ? 1 : delta)));
         }
 
         void IDebugPageCommand.OnIncreaseCurrentlyDisplayedSprFrameIndex()

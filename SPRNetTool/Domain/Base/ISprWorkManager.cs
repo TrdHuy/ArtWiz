@@ -10,7 +10,7 @@ namespace SPRNetTool.Domain.Base
     {
         #region public API
 
-        void SetFrameOffset(ushort offsetY, ushort offsetX, uint frameIndex);
+        void SetFrameOffset(short offsetY, short offsetX, uint frameIndex);
 
         /// <summary>
         /// file head của spr đang được load trong work manager hiện tại

@@ -17,7 +17,7 @@ namespace SPRNetTool.Domain.Base
             , int colorDifferenceDeltaForCalculatingAlpha
             , Color backgroundForBlendColor);
 
-        void SetCurrentlyDisplayedFrameOffset(ushort frameOffX, ushort frameOffY);
+        void SetCurrentlyDisplayedFrameOffset(short frameOffX, short frameOffY);
 
         void StartSprAnimation();
 
