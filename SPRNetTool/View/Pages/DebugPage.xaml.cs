@@ -292,7 +292,7 @@ namespace SPRNetTool.View.Pages
 
                     viewModel.SetOptimizedColorSource(selectedList);
 
-                    //======================================================
+                    //=====================================================
                     //Dithering
                     BitmapSource? oldBmpSource = null;
                     this.ViewElementDispatcher.Invoke(new Action(() =>
