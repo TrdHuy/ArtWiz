@@ -53,7 +53,7 @@ namespace SPRNetTool.View.Utils
                     int delayBeforeEnteringHoldingMode = 1000;
                     await Task.Delay(delayBeforeEnteringHoldingMode, HoldingCts.Token);
                 }
-                catch (TaskCanceledException ex)
+                catch (TaskCanceledException)
                 {
                     logger.E($"Counting down task canceled!");
                     return;
