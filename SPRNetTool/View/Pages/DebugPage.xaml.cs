@@ -4,6 +4,7 @@ using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
+using SPRNetTool.View.Utils;
 using SPRNetTool.ViewModel;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
@@ -17,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.View.InputWindow;
@@ -32,6 +34,14 @@ namespace SPRNetTool.View.Pages
         OriginalList_CountHeader,
 
         SPRInfo_PlayButton,
+        SPRInfo_FrameIndexPlusButton,
+        SPRInfo_FrameIndexMinusButton,
+        SPRInfo_FrameOffsetXPlusButton,
+        SPRInfo_FrameOffsetXMinusButton,
+        SPRInfo_FrameOffsetYPlusButton,
+        SPRInfo_FrameOffsetYMinusButton,
+        SPRInfo_IntervalMinusButton,
+        SPRInfo_IntervalPlusButton,
     }
 
     public partial class DebugPage : BasePageViewer
@@ -106,7 +116,7 @@ namespace SPRNetTool.View.Pages
                     l.Show(block: async () =>
                     {
                         await viewModel.OpenImageFromFileAsync(imagePath);
-                        bmpSource = viewModel.CurrentDisplayingBmpSrc;
+                        bmpSource = viewModel.CurrentlyDisplayedBitmapSource;
 
                         Debug.WriteLine($"WxH= {bmpSource?.PixelWidth * bmpSource?.PixelHeight}");
                     });
@@ -282,7 +292,7 @@ namespace SPRNetTool.View.Pages
 
                     viewModel.SetOptimizedColorSource(selectedList);
 
-                    //======================================================
+                    //=====================================================
                     //Dithering
                     BitmapSource? oldBmpSource = null;
                     this.ViewElementDispatcher.Invoke(new Action(() =>
@@ -461,7 +471,7 @@ namespace SPRNetTool.View.Pages
             return newCountedSrc;
         }
 
-        private void Run_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnRunLeftMouseUp(object sender, MouseButtonEventArgs e)
         {
             (sender as Run)?.Tag.IfIs<DebugPageTagID>((tag) =>
             {
@@ -472,38 +482,63 @@ namespace SPRNetTool.View.Pages
                             commandVM?.OnPlayPauseAnimationSprClicked();
                             break;
                         }
-                }
-            });
-        }
-
-        private void Run_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            var run = sender as Run;
-            if (run == null) return;
-            run.Tag.IfIs<DebugPageTagID>((tag) =>
-            {
-                switch (tag)
-                {
-                    case DebugPageTagID.SPRInfo_PlayButton:
+                    case DebugPageTagID.SPRInfo_FrameIndexMinusButton:
                         {
-                            //run.Foreground = new SolidColorBrush(Colors.Green);
+                            commandVM?.OnDecreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameIndexPlusButton:
+                        {
+                            commandVM?.OnIncreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetXButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetXButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetYButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetYButtonClicked();
                             break;
                         }
                 }
             });
         }
 
-        private void Run_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+
+        
+
+        private void OnRunMouseHold(object sender, MouseHoldEventArgs args)
         {
-            var run = sender as Run;
-            if (run == null) return;
-            run.Tag.IfIs<DebugPageTagID>((tag) =>
+            (sender as Run)?.Tag.IfIs<DebugPageTagID>((tag) =>
             {
                 switch (tag)
                 {
-                    case DebugPageTagID.SPRInfo_PlayButton:
+
+                    case DebugPageTagID.SPRInfo_FrameIndexMinusButton:
                         {
-                            //run.Foreground = new SolidColorBrush(Colors.Black);
+                            commandVM?.OnDecreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameIndexPlusButton:
+                        {
+                            commandVM?.OnIncreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
                             break;
                         }
                 }
@@ -549,7 +584,23 @@ namespace SPRNetTool.View.Pages
             
 
 
+                    case DebugPageTagID.SPRInfo_FrameOffsetXPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                }
+            });
         }
-
     }
 }

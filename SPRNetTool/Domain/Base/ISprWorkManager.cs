@@ -9,6 +9,9 @@ namespace SPRNetTool.Domain.Base
     public interface ISprWorkManager : IObservableDomain
     {
         #region public API
+
+        void SetFrameOffset(short offsetY, short offsetX, uint frameIndex);
+
         /// <summary>
         /// file head của spr đang được load trong work manager hiện tại
         /// </summary>
@@ -41,7 +44,7 @@ namespace SPRNetTool.Domain.Base
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        FRAMERGBA? GetFrameData(int index);
+        FrameRGBA? GetFrameData(uint index);
 
         /// <summary>
         /// Lưu các giá trị hiện tại của work ra file SPR

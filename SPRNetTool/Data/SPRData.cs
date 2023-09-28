@@ -171,12 +171,12 @@ namespace SPRNetTool.Data
         public ushort OffY;
     }
 
-    public struct FRAMERGBA
+    public struct FrameRGBA
     {
-        public ushort frameWidth;
-        public ushort frameHeight;
-        public ushort frameOffX;
-        public ushort frameOffY;
+        public ushort frameWidth { get; set; }
+        public ushort frameHeight { get; set; }
+        public short frameOffX { get; set; }
+        public short frameOffY { get; set; }
 
         public byte[] encryptedFrameData;
         public PaletteColor[] decodedFrameData;
