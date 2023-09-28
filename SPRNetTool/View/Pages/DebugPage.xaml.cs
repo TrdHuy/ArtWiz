@@ -541,7 +541,22 @@ namespace SPRNetTool.View.Pages
                             commandVM?.OnDecreaseFrameOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
                             break;
                         }
-                }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                }        
             });
         }
 
@@ -581,26 +596,8 @@ namespace SPRNetTool.View.Pages
             });
             Res res = sv.Show();
             if (res == Res.CANCEL) return;
-            
-
-
-                    case DebugPageTagID.SPRInfo_FrameOffsetXPlusButton:
-                        {
-                            commandVM?.OnIncreaseFrameOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
-                            break;
-                        }
-                    case DebugPageTagID.SPRInfo_FrameOffsetYMinusButton:
-                        {
-                            commandVM?.OnDecreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
-                            break;
-                        }
-                    case DebugPageTagID.SPRInfo_FrameOffsetYPlusButton:
-                        {
-                            commandVM?.OnIncreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
-                            break;
-                        }
-                }
-            });
+          
         }
     }
 }
+
