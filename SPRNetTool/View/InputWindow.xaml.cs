@@ -37,7 +37,7 @@ namespace SPRNetTool.View
 
         public enum ContentType
         {
-            TEXT, CHECKBOX, COMBO
+            TEXT, CHECKBOX, COMBO, RADIOBUTTON
         }
         public enum Res
         {
@@ -103,6 +103,18 @@ namespace SPRNetTool.View
                     Callback = callback;
                 }
             }
+            public class RadioInputOption : InputOption
+            {
+                
+                public string Content { get; private set; }
+
+                public string GroupName { get; private set; }
+                public RadioInputOption(string title, string description, string content, string groupName) : base(title, description) { 
+                    
+                    Content = content;
+                    GroupName = groupName;
+                }
+            }
 
             private List<InputOption> options = new List<InputOption>();
 
@@ -124,7 +136,12 @@ namespace SPRNetTool.View
                 options.Add(new ComboInputOption(title, description, comboOptions, defaultSelection, condition, callback));
                 return this;
             }
+            public InputBuilder AddRadioOption(string title, string description, string content, string groupName)
+            {
+                options.Add(new RadioInputOption(title, description, content, groupName));
+                return this;
 
+            }
 
             public List<InputOption> Build() { return options; }
         }
@@ -139,6 +156,7 @@ namespace SPRNetTool.View
             private string _title = "";
             private string _description = "";
             private bool _checkContent = false;
+            private string _groupName = "";
             private ContentType _contentType = ContentType.TEXT;
             public string Title
             {
@@ -212,6 +230,15 @@ namespace SPRNetTool.View
                 set
                 {
                     _contentType = value;
+                    Invalidate();
+                }
+            }
+            public string GroupName
+            {
+                get { return _groupName;  }
+                set
+                {
+                    _groupName = value;
                     Invalidate();
                 }
             }

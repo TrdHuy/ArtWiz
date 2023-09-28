@@ -15,46 +15,61 @@
         Title="SavingWindow" Height="450" Width="800">
     <Window.Resources>
         <cvt:BoolToVisibilityConverter x:Key="bcvt" />
-        
+        <ControlTemplate TargetType="Control"
+                         x:Key="RadioInput">
+            <RadioButton GroupName="{Binding GroupName}"
+                         Content="{Binding Content}"
+                         Margin="5 -10 0 0"
+                         Checked="Radio_Checked">
+                
+            </RadioButton>
+
+        </ControlTemplate>
     </Window.Resources>
     <Border BorderThickness="2"
 		BorderBrush="Gray">
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
-            <StackPanel Margin="0,0,20,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center">
-                <TextBlock Margin="5 30 0 0">
-                        Lưu với định dạng jpg, png 
-                        <RadioButton GroupName="RadioBtn"
-                                     Content="jpg"
-                                     Margin="5 -5"
-                                     x:Name="JPGBtn">                            
-                        </RadioButton>
-                        <RadioButton GroupName="RadioBtn"
-                                     Content="png"
-                                     Margin="5 -5"
-                                     x:Name="PNGBtn">
-                            
-                        </RadioButton>
-                </TextBlock>
-                <TextBlock Margin="5 30 ">
-                        Lưu với định dạng spr
-                        <RadioButton GroupName="RadioBtn"
-                                     Margin="5 -5"
-                                     Content="spr"
-                                     x:Name="SPRBtn">                            
-                        </RadioButton>
-                </TextBlock>
-            </StackPanel>
-            
+            <ListView x:Name="TitleListView">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <Grid>
+                                        <TextBlock Text="{Binding Title}"
+											   ToolTip="{Binding Description}"
+											   Margin="5"
+											   TextWrapping="Wrap"
+											   MaxWidth="200"
+											   MinHeight="20">
+                                            <Control>
+                                                <Control.Style>
+                                                    <Style TargetType="Control">
+                                                         <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ContentType}"
+                                                                         Value="RADIOBUTTON">
+                                                                <Setter  Property="Template"
+                                                                        Value="{StaticResource RadioInput}">
+                                                                </Setter>
+                                                            </DataTrigger>
+                                                         </Style.Triggers>
+                                                    </Style>
+                                                </Control.Style>
+                                            </Control>
+                                        </TextBlock>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+           
+
 
             <StackPanel Orientation="Horizontal"
 			            Grid.Row="1"
@@ -66,7 +81,8 @@
 			            Foreground="White"
 			            Background="Green"
 			            Padding="10,0"
-			            BorderThickness="0"/>
+			            BorderThickness="0"
+                        Click="AgreeClick"/>
                 <Button Content="Cancel"
 			            Height="25"
 			            Foreground="White"
