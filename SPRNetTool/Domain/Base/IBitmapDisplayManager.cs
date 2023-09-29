@@ -24,5 +24,7 @@ namespace SPRNetTool.Domain.Base
         void StopSprAnimation();
 
         void SetCurrentlyDisplayedSprFrameIndex(uint index);
+
+        void SetSprInterval(ushort interval);
     }
 }

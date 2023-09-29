@@ -16,5 +16,8 @@ namespace SPRNetTool.ViewModel.CommandVM
 
         void OnIncreaseCurrentlyDisplayedSprFrameIndex();
         void OnDecreaseCurrentlyDisplayedSprFrameIndex();
+
+        void OnDecreaseIntervalButtonClicked();
+        void OnIncreaseIntervalButtonClicked();
     }
 }

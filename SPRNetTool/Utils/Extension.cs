@@ -8,6 +8,60 @@ namespace SPRNetTool.Utils
 
     public static class Extension
     {
+        public static bool HasOneFlagOf<T>(this T e1, params T[] e2) where T : Enum
+        {
+            foreach (var e in e2)
+            {
+                if (Enum.IsDefined(e1.GetType(), e))
+                {
+                    ulong e1Num = Convert.ToUInt64(e1);
+                    ulong e2Num = Convert.ToUInt64(e);
+                    if ((e1Num & e2Num) == e2Num)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+        public static bool HasAllFlagsOf<T>(this T e1, params T[] e2) where T : Enum
+        {
+            foreach(var e in e2)
+            {
+                if (Enum.IsDefined(e1.GetType(), e))
+                {
+                    ulong e1Num = Convert.ToUInt64(e1);
+                    ulong e2Num = Convert.ToUInt64(e);
+                    if((e1Num & e2Num) != e2Num)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool HasFlag<T>(this T e1, T e2) where T : Enum
+        {
+            if (e1.GetType() == e2.GetType())
+            {
+                if (Enum.IsDefined(e1.GetType(), e2))
+                {
+                    ulong e1Num = Convert.ToUInt64(e1);
+                    ulong e2Num = Convert.ToUInt64(e2);
+                    return (e1Num & e2Num) == e2Num;
+                }
+                return false;
+            }
+            return false;
+        }
 
         public static byte[] ToByteArray<T>(this T value) where T : struct
         {
