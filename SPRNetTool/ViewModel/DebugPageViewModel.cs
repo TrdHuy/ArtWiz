@@ -348,14 +348,12 @@ namespace SPRNetTool.ViewModel
                     }
                     else if (castArgs.IsPlayingAnimation == true)
                     {
-
-                        IsPlayingAnimation = true;
                         ViewModelOwner?.ViewDispatcher.Invoke(() =>
                         {
+                            IsPlayingAnimation = true;
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
                             CurrentFrameIndex = castArgs.SprFrameIndex;
-                        }, DispatcherPriority.Render);
-
+                        }, DispatcherPriority.Input);
                     }
                     break;
             }
