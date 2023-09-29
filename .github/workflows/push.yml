@@ -27,19 +27,28 @@ jobs:
           const commitMessages = commits.map(function (commit) {
               return commit.message;
           });
-          const regex = /^\[#(\d+)\] .+/;
+          const normalCommitRegex = /^\[#(\d+)\] .+/;
+          const mergeCommitByGHRegex = /^Merge branch '(\S+)' into (\S+)$/;
 
           const issueIds = commitMessages.map(function (message) {
-              const match = message.match(regex);
+              const match = message.match(normalCommitRegex);
               if (match && match[1]) {
                 return match[1]; // Lấy số id từ kết quả match
               } else {
-                throw new Error(`Commit message "${message}" is invaild `);
+                const mergeMatch = message.match(mergeCommitByGHRegex);
+                if (mergeMatch) {
+                  return "";
+                }else{
+                   throw new Error(`Commit message "${message}" is invaild `);
+                }
               }
           });
 
           for (const issueId of issueIds) {
             try {
+              if (issueId == ""){
+                 continue;
+              }
               const rawData = await github.rest.issues.get({
                 issue_number: issueId,
                 owner: context.repo.owner,
