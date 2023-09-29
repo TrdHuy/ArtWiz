@@ -37,7 +37,7 @@ namespace SPRNetTool.View
 
         public enum ContentType
         {
-            TEXT, CHECKBOX, COMBO
+            TEXT, CHECKBOX, COMBO, RADIO
         }
         public enum Res
         {
@@ -103,6 +103,20 @@ namespace SPRNetTool.View
                     Callback = callback;
                 }
             }
+            public class RadioInputOption : InputOption
+            {
+
+                public List<string> Content { get; private set; }
+
+                public string GroupName { get; private set; }
+                public RadioInputOption(string title, string description, List<string> content, string groupName) : base(title, description)
+                {
+
+                    Content = content;
+                    GroupName = groupName;
+                }
+            }
+
 
             private List<InputOption> options = new List<InputOption>();
 
@@ -125,7 +139,11 @@ namespace SPRNetTool.View
                 return this;
             }
 
-
+            public InputBuilder AddRadioOptions(string title, string description, List<string> content, string groupName)
+            {
+                options.Add(new RadioInputOption(title, description, content, groupName));
+                return this;
+            }
             public List<InputOption> Build() { return options; }
         }
 
@@ -140,6 +158,8 @@ namespace SPRNetTool.View
             private string _description = "";
             private bool _checkContent = false;
             private ContentType _contentType = ContentType.TEXT;
+            private string _groupName = "";
+            private ObservableCollection<string>? _radioOptions = new ObservableCollection<string>();
             public string Title
             {
                 get { return _title; }
@@ -215,7 +235,24 @@ namespace SPRNetTool.View
                     Invalidate();
                 }
             }
-
+            public string GroupName
+            {
+                get { return _groupName; }
+                set
+                {
+                    _groupName = value;
+                    Invalidate();
+                }
+            }
+            public ObservableCollection<string>? RadioOptions
+            {
+                get { return _radioOptions; }
+                set
+                {
+                    _radioOptions = value;
+                    Invalidate();
+                }
+            }
             public Func<string, string, bool>? TextCondition { get; set; }
             public Func<bool>? CheckCondition { get; set; }
             public Action<ObservableCollection<ItemViewModel>, bool>? CheckChangedCallback { get; set; }
@@ -226,7 +263,7 @@ namespace SPRNetTool.View
         private Action<Dictionary<string, object>>? AgreeButtonClicked;
         private Action? CancelButtonClicked;
         private Res curRes = Res.CANCEL;
-
+        private string? CheckedContent = null;
         public InputWindow(
             List<InputBuilder.InputOption> src
             , Window? owner = null
@@ -256,6 +293,8 @@ namespace SPRNetTool.View
                                 return ContentType.COMBO;
                             case InputBuilder.CheckBoxInputOption:
                                 return ContentType.CHECKBOX;
+                            case InputBuilder.RadioInputOption:
+                                return ContentType.RADIO;
                         }
                         return ContentType.TEXT;
                     }),
@@ -265,6 +304,7 @@ namespace SPRNetTool.View
                         {
                             case InputBuilder.TextInputOption:
                                 return (it as InputBuilder.TextInputOption)?.InputDefault ?? "";
+
                         }
                         return "";
                     }),
@@ -278,6 +318,7 @@ namespace SPRNetTool.View
                         {
                             case InputBuilder.ComboInputOption:
                                 return (it as InputBuilder.CheckBoxInputOption)?.InputDefault ?? false;
+
                         }
                         return false;
                     }),
@@ -308,11 +349,23 @@ namespace SPRNetTool.View
                         }
                         return null;
                     }),
+                    GroupName = item.Let((it) =>
+                    {
+                        switch (it)
+                        {
+                            case InputBuilder.RadioInputOption:
+                                return (it as InputBuilder.RadioInputOption)?.GroupName ?? "";
+                        }
+                        return "";
+                    }),
+                    RadioOptions = item.IfIsThenLet<InputBuilder.RadioInputOption, ObservableCollection<string>>(it2 =>
+                             new ObservableCollection<string>(it2.Content))
                 };
                 InputSource.Add(newItemVM);
             }
             TitleListView.ItemsSource = InputSource;
             InputListView.ItemsSource = InputSource;
+            
             foreach (var item in InputSource)
             {
                 item.CheckChangedCallback?.Invoke(InputSource, Convert.ToBoolean(item.CheckContent));
@@ -353,6 +406,11 @@ namespace SPRNetTool.View
                 {
                     newSource.Add(item.Title, item.ComboSelection);
                 }
+                else if (item.ContentType == ContentType.RADIO && item.CheckContent)
+                {
+                    newSource.Add(item.Title, item.Content);
+                }
+
             }
             AgreeButtonClicked?.Invoke(newSource);
             curRes = Res.AGREE;
@@ -384,6 +442,15 @@ namespace SPRNetTool.View
             {
                 context.CheckChangedCallback?.Invoke(InputSource, isChecked ?? false);
             }
+        }
+        public void Radio_Checked(object sender, RoutedEventArgs e)
+        {
+            var context = (sender as RadioButton)?.Content;
+            if (context != null)
+            {
+                CheckedContent = Convert.ToString(context);
+            }
+
         }
     }
 }
