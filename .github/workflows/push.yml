@@ -23,7 +23,7 @@ jobs:
         result-encoding: string
         script: |
           const versionUpIssueId = process.env.VERSION_UP_ISSUE_ID;
-          const refName = ${{ github.ref_name }};
+          const refName = ${{ toJSON(github.ref_name) }};
           console.log(refName);
           const commits = ${{ toJSON(github.event.commits) }};
           const commitMessages = commits.map(function (commit) {
