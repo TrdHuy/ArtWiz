@@ -371,9 +371,10 @@ namespace SPRNetTool.ViewModel
                     }
                     else
                     {
+                        IsSpr = castArgs.CurrentSprFileHead != null;
+
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
-                            IsSpr = castArgs.CurrentSprFileHead != null;
                             SprFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
                         }
 
