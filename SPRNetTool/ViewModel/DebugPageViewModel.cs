@@ -349,12 +349,20 @@ namespace SPRNetTool.ViewModel
                     {
                         if (castArgs.IsPlayingAnimation == true)
                         {
+                            var dispatcherPriority = DispatcherPriority.Background;
+                            if (SprFileHead.Interval > 20)
+                            {
+                                dispatcherPriority = DispatcherPriority.Render;
+                            }
+
+                            if (IsViewModelDestroyed) return;
+
                             ViewModelOwner?.ViewDispatcher.Invoke(() =>
                             {
                                 IsPlayingAnimation = true;
                                 CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
                                 CurrentFrameIndex = castArgs.SprFrameIndex;
-                            }, DispatcherPriority.Input);
+                            }, dispatcherPriority);
                         }
                         else if (castArgs.IsPlayingAnimation == false)
                         {
@@ -371,10 +379,9 @@ namespace SPRNetTool.ViewModel
                     }
                     else
                     {
-                        IsSpr = castArgs.CurrentSprFileHead != null;
-
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
+                            IsSpr = castArgs.CurrentSprFileHead != null;
                             SprFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
                         }
 
@@ -513,7 +520,7 @@ namespace SPRNetTool.ViewModel
 
             if (SprFileHead.Interval > 0)
             {
-                SprWorkManager.SetSprInterval((ushort)(SprFileHead.Interval - 1));
+                BitmapDisplayManager.SetSprInterval((ushort)(SprFileHead.Interval - 1));
             }
         }
 
@@ -523,7 +530,7 @@ namespace SPRNetTool.ViewModel
 
             if (SprFileHead.Interval < 1000)
             {
-                SprWorkManager.SetSprInterval((ushort)(SprFileHead.Interval + 1));
+                BitmapDisplayManager.SetSprInterval((ushort)(SprFileHead.Interval + 1));
             }
         }
     }

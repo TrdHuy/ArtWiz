@@ -77,7 +77,7 @@ namespace SPRNetTool.Domain
 
         void ISprWorkManager.SetSprInterval(ushort interval)
         {
-            if(!IsCacheEmpty) return;
+            if(IsCacheEmpty) return;
             FileHead.Interval = interval;
         }
 

@@ -1,12 +1,14 @@
 ﻿using SPRNetTool.Data;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
+using SPRNetTool.LogUtil;
 using SPRNetTool.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -16,6 +18,7 @@ namespace SPRNetTool.Domain
 {
     public class BitmapDisplayManager : BaseDomain, IBitmapDisplayManager
     {
+        private static Logger logger = new Logger("BitmapDisplayManager");
         protected ISprWorkManager SprWorkManager
         { get { return IDomainAccessors.DomainContext.GetDomain<ISprWorkManager>(); } }
 
@@ -28,6 +31,7 @@ namespace SPRNetTool.Domain
             public Dictionary<Color, long>? DisplayedColorSource { get; set; }
             public BitmapSource?[]? AnimationSourceCaching { get; set; }
             public uint? CurrentFrameIndex { get; set; }
+            public CancellationTokenSource? AnimationTokenSource { get; set; }
         }
 
         private BitmapSourceCache DisplayedBitmapSourceCache { get; } = new BitmapSourceCache();
@@ -94,7 +98,7 @@ namespace SPRNetTool.Domain
                 DisplayedBitmapSourceCache.DisplayedBitmapSource = it[index];
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                     changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
-                        | CURRENT_COLOR_SOURCE_CHANGED 
+                        | CURRENT_COLOR_SOURCE_CHANGED
                         | SPR_FRAME_DATA_CHANGED,
                     currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                     colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
@@ -125,6 +129,7 @@ namespace SPRNetTool.Domain
                 && SprWorkManager.FileHead.FrameCounts > 1)
             {
                 DisplayedBitmapSourceCache.IsPlaying = false;
+                DisplayedBitmapSourceCache.AnimationTokenSource?.Cancel();
             }
         }
 
@@ -294,6 +299,7 @@ namespace SPRNetTool.Domain
 
         private async Task PlayAnimation()
         {
+            DisplayedBitmapSourceCache.AnimationTokenSource = new CancellationTokenSource();
             await Task.Run(async () =>
             {
                 Stopwatch stopwatch = new Stopwatch();
@@ -314,7 +320,7 @@ namespace SPRNetTool.Domain
                             .Also((it) => it.Freeze()));
                     DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex];
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
-                        changedEvent: IS_PLAYING_ANIMATION_CHANGED 
+                        changedEvent: IS_PLAYING_ANIMATION_CHANGED
                             | CURRENT_DISPLAYING_SOURCE_CHANGED
                             | SPR_FRAME_INDEX_CHANGED
                             | SPR_FRAME_DATA_CHANGED,
@@ -334,10 +340,20 @@ namespace SPRNetTool.Domain
                     int delayTime = SprWorkManager.FileHead.Interval - (int)stopwatch.ElapsedMilliseconds;
                     if (delayTime > 0)
                     {
-                        await Task.Delay(delayTime);
+                        try
+                        {
+                            await Task.Delay(delayTime, DisplayedBitmapSourceCache.AnimationTokenSource.Token);
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            DisplayedBitmapSourceCache.IsPlaying = false;
+                            break;
+                        }
                     }
                 }
 
+                DisplayedBitmapSourceCache.AnimationTokenSource = null;
+                
                 if (frameIndex > 0)
                 {
                     DisplayedBitmapSourceCache.CurrentFrameIndex--;
@@ -345,7 +361,7 @@ namespace SPRNetTool.Domain
                 }
 
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
-                        changedEvent: IS_PLAYING_ANIMATION_CHANGED 
+                        changedEvent: IS_PLAYING_ANIMATION_CHANGED
                             | CURRENT_DISPLAYING_SOURCE_CHANGED
                             | CURRENT_COLOR_SOURCE_CHANGED
                             | SPR_FRAME_INDEX_CHANGED
@@ -356,6 +372,13 @@ namespace SPRNetTool.Domain
                         sprFrameIndex: frameIndex,
                         sprFrameData: SprWorkManager.GetFrameData(frameIndex)));
             });
+        }
+
+        protected override void NotifyChanged(IDomainChangedArgs args)
+        {
+            base.NotifyChanged(args);
+            var changedEvent = ((BitmapDisplayMangerChangedArg)args).Event;
+            logger.D($"ChangedEvent: {changedEvent}~{Convert.ToString((int)changedEvent, 2)}");
         }
 
     }
