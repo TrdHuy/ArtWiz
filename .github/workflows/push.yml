@@ -24,7 +24,7 @@ jobs:
         script: |
           const versionUpIssueId = process.env.VERSION_UP_ISSUE_ID;
           const refName = ${{ toJSON(github.ref_name) }};
-          console.log(refName);
+          console.log(`refName: ${refName}`);
           const commits = ${{ toJSON(github.event.commits) }};
           const commitMessages = commits.map(function (commit) {
               return commit.message;
@@ -38,7 +38,8 @@ jobs:
                 return match[1]; // Lấy số id từ kết quả match
               } else {
                 const mergeMatch = message.match(mergeCommitByGHRegex);
-                if (mergeMatch) {
+                if (mergeMatch && mergeMatch[2] == refName) {
+                  console.log("This is auto merge commit by GitHub")
                   return "";
                 }else{
                    throw new Error(`Commit message "${message}" is invaild `);
