@@ -42,25 +42,25 @@
 					  SelectedIndex="{Binding ComboSelection}"
 					  Height="20" />
 		</ControlTemplate>
-		<ControlTemplate TargetType="Control"
-						 x:Key="RadioInput">
-			<ItemsControl  ItemsSource="{Binding RadioOptions}">
-				<ItemsControl.ItemsPanel>
-					<ItemsPanelTemplate>
-						<WrapPanel Orientation="Horizontal" />
-					</ItemsPanelTemplate>
-				</ItemsControl.ItemsPanel>
-				<ItemsControl.ItemTemplate>
-					<DataTemplate>
-						<RadioButton Content="{Binding .}"
-									 Margin="5"
-									 Checked="Radio_Checked"
-									 GroupName="{Binding }" />
-					</DataTemplate>
-				</ItemsControl.ItemTemplate>
-			</ItemsControl>
-		</ControlTemplate>
-	</Window.Resources>
+        <ControlTemplate TargetType="Control"
+                         x:Key="RadioInput">
+            <ItemsControl ItemsSource="{Binding RadioOptions}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate >
+                        <RadioButton Content="{Binding}"
+                                     Margin="5"
+                                     Checked="Radio_Checked"
+									 GroupName="{Binding Path=DataContext.Title, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ControlTemplate>
+    </Window.Resources>
 	<Border BorderThickness="2"
 			BorderBrush="Gray">
 		<Grid>
@@ -86,16 +86,16 @@
 									<Setter.Value>
 										<ControlTemplate TargetType="ListViewItem">
 											<Grid>
-												<TextBlock Text="{Binding Title}"
+                                                <TextBlock Text="{Binding Title}"
 														   ToolTip="{Binding Description}"
 														   Margin="5"
 														   TextWrapping="Wrap"
 														   MaxWidth="150"
 														   MinHeight="20" />
-												<Rectangle Fill="#667F7F7F"
+                                                <Rectangle Fill="#667F7F7F"
 														   ToolTip="{Binding Description}"
 														   Visibility="{Binding IsDisabled, Converter={StaticResource bcvt}}" />
-											</Grid>
+                                            </Grid>
 										</ControlTemplate>
 									</Setter.Value>
 								</Setter>
@@ -149,18 +149,18 @@
 																	<Setter Property="Template"
 																			Value="{StaticResource ComboBoxInputItem}" />
 																</DataTrigger>
-																<DataTrigger Binding="{Binding ContentType}"
+                                                                <DataTrigger Binding="{Binding ContentType}"
 																			 Value="RADIO">
-																	<Setter Property="Template"
+                                                                    <Setter Property="Template"
 																			Value="{StaticResource RadioInput}" />
-																</DataTrigger>
-															</Style.Triggers>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
 														</Style>
 													</Control.Style>
 												</Control>
 
 												<Rectangle Fill="#667F7F7F"
-														   Visibility="{Binding IsDisabled, Converter={StaticResource bcvt}}" />
+														   Visibility="{Binding IsDisabled, Converter={StaticResource bcvt}}"/>
 											</Grid>
 
 										</ControlTemplate>
