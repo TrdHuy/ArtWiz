@@ -1,5 +1,6 @@
 ﻿using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
+using SPRNetTool.View.Utils;
 using SPRNetTool.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -105,22 +106,15 @@ namespace SPRNetTool.View
             }
             public class RadioInputOption : InputOption
             {
+                public List<string> Options { get; private set; }
 
-
-                public List<string> Content { get; private set; }
-
-                public string GroupName { get; private set; }
-                public RadioInputOption(string title, string description, List<string> content, string groupName) : base(title, description)
+                public RadioInputOption(string title, string description, List<string> options) : base(title, description)
                 {
-
-                    Content = content;
-                    GroupName = groupName;
+                    Options = options;
                 }
             }
 
-
             private List<InputOption> options = new List<InputOption>();
-
 
             public InputBuilder AddTextInputOption(string title, string description, string inputDefault, Func<string, string, bool> condition)
             {
@@ -140,11 +134,9 @@ namespace SPRNetTool.View
                 return this;
             }
 
-
-            public InputBuilder AddRadioOptions(string title, string description, List<string> content, string groupName)
-
+            public InputBuilder AddRadioOptions(string title, string description, List<string> content)
             {
-                options.Add(new RadioInputOption(title, description, content, groupName));
+                options.Add(new RadioInputOption(title, description, content));
                 return this;
             }
             public List<InputOption> Build() { return options; }
@@ -269,7 +261,7 @@ namespace SPRNetTool.View
         private Action<Dictionary<string, object>>? AgreeButtonClicked;
         private Action? CancelButtonClicked;
         private Res curRes = Res.CANCEL;
-        private string? CheckedContent = null;
+
         public InputWindow(
             List<InputBuilder.InputOption> src
             , Window? owner = null
@@ -355,18 +347,8 @@ namespace SPRNetTool.View
                         return null;
                     }),
 
-                    GroupName = item.Let((it) =>
-                    {
-                        switch (it)
-                        {
-                            case InputBuilder.RadioInputOption:
-                                return (it as InputBuilder.RadioInputOption)?.GroupName ?? "";
-                        }
-                        return "";
-
-                    }),
                     RadioOptions = item.IfIsThenLet<InputBuilder.RadioInputOption, ObservableCollection<string>>(it2 =>
-                             new ObservableCollection<string>(it2.Content))
+                             new ObservableCollection<string>(it2.Options))
 
                 };
                 InputSource.Add(newItemVM);
@@ -414,7 +396,7 @@ namespace SPRNetTool.View
                 {
                     newSource.Add(item.Title, item.ComboSelection);
                 }
-                else if (item.ContentType == ContentType.RADIO && item.CheckContent)
+                else if (item.ContentType == ContentType.RADIO)
                 {
                     newSource.Add(item.Title, item.Content);
                 }
@@ -451,14 +433,15 @@ namespace SPRNetTool.View
                 context.CheckChangedCallback?.Invoke(InputSource, isChecked ?? false);
             }
         }
+
         public void Radio_Checked(object sender, RoutedEventArgs e)
         {
-            var context = (sender as RadioButton)?.Content;
+            var context = (sender as RadioButton)?.FindAncestor<ItemsControl>()?.DataContext as ItemViewModel;
+            var content = (sender as RadioButton)?.Content;
             if (context != null)
             {
-                CheckedContent = Convert.ToString(context);
+                context.Content = content?.ToString() ?? "";
             }
-
         }
     }
 }

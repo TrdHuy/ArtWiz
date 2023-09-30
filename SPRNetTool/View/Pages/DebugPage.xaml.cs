@@ -533,8 +533,7 @@ namespace SPRNetTool.View.Pages
             var SavingTitle = "Lưu với định dạng";
             var SavingDes = "Save";
             List<string> SavingOptions = new List<string>() { "jpg", "png", "spr" };
-            var GroupName = "SavingGroup";
-            var inputSrc = builder.AddRadioOptions(SavingTitle, SavingDes, SavingOptions, GroupName).Build();
+            var inputSrc = builder.AddRadioOptions(SavingTitle, SavingDes, SavingOptions).Build();
             var checkedContent = "";
             InputWindow inputWindow = new InputWindow(inputSrc, ownerWindow, (res) =>
             {
