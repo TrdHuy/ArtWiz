@@ -52,7 +52,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate >
-                        <RadioButton Content="{Binding}"
+                        <RadioButton Content="{Binding .}"
                                      Margin="5"
                                      Checked="Radio_Checked" 
                                      GroupName="{Binding }"/>
