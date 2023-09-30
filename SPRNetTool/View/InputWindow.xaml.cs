@@ -153,7 +153,6 @@ namespace SPRNetTool.View
             private string _description = "";
             private bool _checkContent = false;
             private ContentType _contentType = ContentType.TEXT;
-            private string _groupName = "";
             private ObservableCollection<string>? _radioOptions = new ObservableCollection<string>();
 
             public string Title
@@ -228,15 +227,6 @@ namespace SPRNetTool.View
                 set
                 {
                     _contentType = value;
-                    Invalidate();
-                }
-            }
-            public string GroupName
-            {
-                get { return _groupName; }
-                set
-                {
-                    _groupName = value;
                     Invalidate();
                 }
             }
