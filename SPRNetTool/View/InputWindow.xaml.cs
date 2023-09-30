@@ -106,6 +106,7 @@ namespace SPRNetTool.View
             public class RadioInputOption : InputOption
             {
 
+
                 public List<string> Content { get; private set; }
 
                 public string GroupName { get; private set; }
@@ -139,7 +140,9 @@ namespace SPRNetTool.View
                 return this;
             }
 
+
             public InputBuilder AddRadioOptions(string title, string description, List<string> content, string groupName)
+
             {
                 options.Add(new RadioInputOption(title, description, content, groupName));
                 return this;
@@ -160,6 +163,7 @@ namespace SPRNetTool.View
             private ContentType _contentType = ContentType.TEXT;
             private string _groupName = "";
             private ObservableCollection<string>? _radioOptions = new ObservableCollection<string>();
+
             public string Title
             {
                 get { return _title; }
@@ -244,6 +248,7 @@ namespace SPRNetTool.View
                     Invalidate();
                 }
             }
+
             public ObservableCollection<string>? RadioOptions
             {
                 get { return _radioOptions; }
@@ -253,6 +258,7 @@ namespace SPRNetTool.View
                     Invalidate();
                 }
             }
+
             public Func<string, string, bool>? TextCondition { get; set; }
             public Func<bool>? CheckCondition { get; set; }
             public Action<ObservableCollection<ItemViewModel>, bool>? CheckChangedCallback { get; set; }
@@ -295,6 +301,7 @@ namespace SPRNetTool.View
                                 return ContentType.CHECKBOX;
                             case InputBuilder.RadioInputOption:
                                 return ContentType.RADIO;
+
                         }
                         return ContentType.TEXT;
                     }),
@@ -304,7 +311,6 @@ namespace SPRNetTool.View
                         {
                             case InputBuilder.TextInputOption:
                                 return (it as InputBuilder.TextInputOption)?.InputDefault ?? "";
-
                         }
                         return "";
                     }),
@@ -318,7 +324,6 @@ namespace SPRNetTool.View
                         {
                             case InputBuilder.ComboInputOption:
                                 return (it as InputBuilder.CheckBoxInputOption)?.InputDefault ?? false;
-
                         }
                         return false;
                     }),
@@ -349,7 +354,8 @@ namespace SPRNetTool.View
                         }
                         return null;
                     }),
-                    GroupName = item.Let((it) =>
+
+                    GroupName = item.Let((it) => 
                     {
                         switch (it)
                         {
@@ -357,9 +363,11 @@ namespace SPRNetTool.View
                                 return (it as InputBuilder.RadioInputOption)?.GroupName ?? "";
                         }
                         return "";
+
                     }),
                     RadioOptions = item.IfIsThenLet<InputBuilder.RadioInputOption, ObservableCollection<string>>(it2 =>
                              new ObservableCollection<string>(it2.Content))
+
                 };
                 InputSource.Add(newItemVM);
             }
