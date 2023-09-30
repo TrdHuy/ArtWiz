@@ -538,9 +538,9 @@ namespace SPRNetTool.View.Pages
             var checkedContent = "";
             InputWindow inputWindow = new InputWindow(inputSrc, ownerWindow, (res) =>
             {
-                if (res != null) 
+                if (res != null)
                 {
-                    foreach (var item in res) 
+                    foreach (var item in res)
                     {
                         if (item.Key != null) checkedContent = Convert.ToString(item.Value);
                         break;
@@ -548,7 +548,7 @@ namespace SPRNetTool.View.Pages
                 }
             });
             Res res = inputWindow.Show();
-            if (res == Res.CANCEL) return;           
+            if (res == Res.CANCEL) return;
         }
 
         private void OnRunMouseHold(object sender, MouseHoldEventArgs args)

@@ -355,7 +355,7 @@ namespace SPRNetTool.View
                         return null;
                     }),
 
-                    GroupName = item.Let((it) => 
+                    GroupName = item.Let((it) =>
                     {
                         switch (it)
                         {
@@ -373,7 +373,7 @@ namespace SPRNetTool.View
             }
             TitleListView.ItemsSource = InputSource;
             InputListView.ItemsSource = InputSource;
-            
+
             foreach (var item in InputSource)
             {
                 item.CheckChangedCallback?.Invoke(InputSource, Convert.ToBoolean(item.CheckContent));
