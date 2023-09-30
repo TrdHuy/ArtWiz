@@ -1,6 +1,5 @@
 using SPRNetTool.Utils;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace SPRNetToolTest.Utils
 {

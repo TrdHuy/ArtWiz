@@ -1,5 +1,6 @@
 ﻿using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
+using SPRNetTool.View.Utils;
 using SPRNetTool.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -37,7 +38,7 @@ namespace SPRNetTool.View
 
         public enum ContentType
         {
-            TEXT, CHECKBOX, COMBO
+            TEXT, CHECKBOX, COMBO, RADIO
         }
         public enum Res
         {
@@ -103,9 +104,17 @@ namespace SPRNetTool.View
                     Callback = callback;
                 }
             }
+            public class RadioInputOption : InputOption
+            {
+                public List<string> Options { get; private set; }
+
+                public RadioInputOption(string title, string description, List<string> options) : base(title, description)
+                {
+                    Options = options;
+                }
+            }
 
             private List<InputOption> options = new List<InputOption>();
-
 
             public InputBuilder AddTextInputOption(string title, string description, string inputDefault, Func<string, string, bool> condition)
             {
@@ -125,7 +134,11 @@ namespace SPRNetTool.View
                 return this;
             }
 
-
+            public InputBuilder AddRadioOptions(string title, string description, List<string> content)
+            {
+                options.Add(new RadioInputOption(title, description, content));
+                return this;
+            }
             public List<InputOption> Build() { return options; }
         }
 
@@ -140,6 +153,8 @@ namespace SPRNetTool.View
             private string _description = "";
             private bool _checkContent = false;
             private ContentType _contentType = ContentType.TEXT;
+            private ObservableCollection<string>? _radioOptions = new ObservableCollection<string>();
+
             public string Title
             {
                 get { return _title; }
@@ -216,6 +231,16 @@ namespace SPRNetTool.View
                 }
             }
 
+            public ObservableCollection<string>? RadioOptions
+            {
+                get { return _radioOptions; }
+                set
+                {
+                    _radioOptions = value;
+                    Invalidate();
+                }
+            }
+
             public Func<string, string, bool>? TextCondition { get; set; }
             public Func<bool>? CheckCondition { get; set; }
             public Action<ObservableCollection<ItemViewModel>, bool>? CheckChangedCallback { get; set; }
@@ -256,6 +281,9 @@ namespace SPRNetTool.View
                                 return ContentType.COMBO;
                             case InputBuilder.CheckBoxInputOption:
                                 return ContentType.CHECKBOX;
+                            case InputBuilder.RadioInputOption:
+                                return ContentType.RADIO;
+
                         }
                         return ContentType.TEXT;
                     }),
@@ -308,11 +336,16 @@ namespace SPRNetTool.View
                         }
                         return null;
                     }),
+
+                    RadioOptions = item.IfIsThenLet<InputBuilder.RadioInputOption, ObservableCollection<string>>(it2 =>
+                             new ObservableCollection<string>(it2.Options))
+
                 };
                 InputSource.Add(newItemVM);
             }
             TitleListView.ItemsSource = InputSource;
             InputListView.ItemsSource = InputSource;
+
             foreach (var item in InputSource)
             {
                 item.CheckChangedCallback?.Invoke(InputSource, Convert.ToBoolean(item.CheckContent));
@@ -353,6 +386,11 @@ namespace SPRNetTool.View
                 {
                     newSource.Add(item.Title, item.ComboSelection);
                 }
+                else if (item.ContentType == ContentType.RADIO)
+                {
+                    newSource.Add(item.Title, item.Content);
+                }
+
             }
             AgreeButtonClicked?.Invoke(newSource);
             curRes = Res.AGREE;
@@ -383,6 +421,16 @@ namespace SPRNetTool.View
             if (context != null && isChecked != null)
             {
                 context.CheckChangedCallback?.Invoke(InputSource, isChecked ?? false);
+            }
+        }
+
+        public void Radio_Checked(object sender, RoutedEventArgs e)
+        {
+            var context = (sender as RadioButton)?.FindAncestor<ItemsControl>()?.DataContext as ItemViewModel;
+            var content = (sender as RadioButton)?.Content;
+            if (context != null)
+            {
+                context.Content = content?.ToString() ?? "";
             }
         }
     }

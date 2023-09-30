@@ -529,8 +529,25 @@ namespace SPRNetTool.View.Pages
 
         private void SaveCurrentSourceClick(object sender, RoutedEventArgs e)
         {
-            SavingWindow sv = new SavingWindow(ownerWindow);
-            sv.Show();
+            var builder = new InputBuilder();
+            var SavingTitle = "Lưu với định dạng";
+            var SavingDes = "Save";
+            List<string> SavingOptions = new List<string>() { "jpg", "png", "spr" };
+            var inputSrc = builder.AddRadioOptions(SavingTitle, SavingDes, SavingOptions).Build();
+            var checkedContent = "";
+            InputWindow inputWindow = new InputWindow(inputSrc, ownerWindow, (res) =>
+            {
+                if (res != null)
+                {
+                    foreach (var item in res)
+                    {
+                        if (item.Key != null) checkedContent = Convert.ToString(item.Value);
+                        break;
+                    }
+                }
+            });
+            Res res = inputWindow.Show();
+            if (res == Res.CANCEL) return;
         }
 
         private void OnRunMouseHold(object sender, MouseHoldEventArgs args)

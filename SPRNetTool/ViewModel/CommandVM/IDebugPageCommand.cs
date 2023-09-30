@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-namespace SPRNetTool.ViewModel.CommandVM
+﻿namespace SPRNetTool.ViewModel.CommandVM
 {
     public interface IDebugPageCommand
     {
