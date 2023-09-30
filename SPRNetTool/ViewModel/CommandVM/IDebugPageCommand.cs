@@ -14,5 +14,8 @@
 
         void OnIncreaseCurrentlyDisplayedSprFrameIndex();
         void OnDecreaseCurrentlyDisplayedSprFrameIndex();
+
+        void OnDecreaseIntervalButtonClicked();
+        void OnIncreaseIntervalButtonClicked();
     }
 }
