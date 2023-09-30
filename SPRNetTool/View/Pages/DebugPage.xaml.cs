@@ -512,6 +512,16 @@ namespace SPRNetTool.View.Pages
                             commandVM?.OnIncreaseFrameOffsetYButtonClicked();
                             break;
                         }
+                    case DebugPageTagID.SPRInfo_IntervalPlusButton:
+                        {
+                            commandVM?.OnIncreaseIntervalButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_IntervalMinusButton:
+                        {
+                            commandVM?.OnDecreaseIntervalButtonClicked();
+                            break;
+                        }
                 }
             });
         }
@@ -576,6 +586,16 @@ namespace SPRNetTool.View.Pages
                     case DebugPageTagID.SPRInfo_FrameOffsetYPlusButton:
                         {
                             commandVM?.OnIncreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_IntervalPlusButton:
+                        {
+                            commandVM?.OnIncreaseIntervalButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_IntervalMinusButton:
+                        {
+                            commandVM?.OnDecreaseIntervalButtonClicked();
                             break;
                         }
                 }

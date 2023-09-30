@@ -56,7 +56,7 @@ goto :eof
     ) else (
         call :logerror "    dotnet-reportgenerator-globaltool is not installed"
         call :logvb "installing dotnet-reportgenerator-globaltool..."
-        dotnet tool install -g dotnet-coverage -v n
+        dotnet tool install -g dotnet-reportgenerator-globaltool -v n
     )
 
     call :isInstalled dotnet-coverage

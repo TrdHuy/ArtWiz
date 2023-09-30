@@ -8,9 +8,11 @@ namespace SPRNetTool.Domain.Base
 {
     public interface ISprWorkManager : IObservableDomain
     {
-        #region public API
 
+        #region public API
         void SetFrameOffset(short offsetY, short offsetX, uint frameIndex);
+
+        void SetSprInterval(ushort interval);
 
         /// <summary>
         /// file head của spr đang được load trong work manager hiện tại

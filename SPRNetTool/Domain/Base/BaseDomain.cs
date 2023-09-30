@@ -11,7 +11,7 @@ namespace SPRNetTool.Domain.Base
             return domainObservers;
         }
 
-        protected void NotifyChanged(IDomainChangedArgs args)
+        protected virtual void NotifyChanged(IDomainChangedArgs args)
         {
             foreach (var domainObserver in domainObservers)
             {
