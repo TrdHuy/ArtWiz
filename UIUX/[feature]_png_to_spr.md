@@ -1,4 +1,7 @@
-
-![image](https://github.com/TrdHuy/ArtWiz/assets/32306489/2bec9f42-89db-46d3-991a-cb5af9858ee2)
-
-![image](https://github.com/TrdHuy/ArtWiz/assets/32306489/359220f5-5239-4968-b41b-24a37fb4068c)
+![Slide1](https://github.com/TrdHuy/ArtWiz/assets/32306489/9c19e627-9c04-4461-ac26-28da8fc7152e)
+![Slide2](https://github.com/TrdHuy/ArtWiz/assets/32306489/18119922-1a05-4ccb-be8b-9ae64bba2731)
+![Slide3](https://github.com/TrdHuy/ArtWiz/assets/32306489/d3d66c9d-43fc-4385-830d-197da5a882cc)
+![Slide4](https://github.com/TrdHuy/ArtWiz/assets/32306489/a8adcf89-e025-4bbb-bdb1-2fd94d6100b9)
+![Slide5](https://github.com/TrdHuy/ArtWiz/assets/32306489/b7cfd209-d839-4eaa-bfd4-c7838b607afc)
+![Slide6](https://github.com/TrdHuy/ArtWiz/assets/32306489/c8408128-6a2f-4e29-b3d4-f338d5be9dbf)
+![Slide7](https://github.com/TrdHuy/ArtWiz/assets/32306489/619d570c-2b71-47e9-9c73-c0c3395e360c)
