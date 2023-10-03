@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# To enable this hook, rename this file to "pre-commit".
+
+changed=$(git diff --staged --name-only)
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+ppt2img_dir="/c/SCS/VSProj/SPRNetTool/trdhuy/ppt2img/ppt2img/bin/Release/ppt2img"
+if [[ $current_branch == "document_v"* ]]; then
+	ppt_file=""
+	for file in $changed; do
+		if [[ "$file" == *.ppt || "$file" == *.pptx ]]; then
+			if [[ "$ppt_file" == "" ]]; then
+				ppt_file="\"$PWD/$file\""
+			else
+				ppt_file="$ppt_file \"$PWD/$file\""
+			fi
+			echo ppt_file = $ppt_file
+		fi
+	done
+
+	if [ -z "$ppt_file" ]; then
+		echo "ppt_file is empty"
+	else
+		if test -e "$ppt2img_dir"; then
+			echo "ppt2img is installed!"
+		else
+			echo "please install ppt2img to commit this branch!"
+			exit 1
+		fi
+		
+		$ppt2img_dir $ppt_file -rU "https://github.sec.samsung.net/huy-td1/test_repo"
+		
+		if [ $? -ne 0 ]; then
+			echo "failed to run" >> .git/log.txt
+			exit 1
+		fi
+
+		for file in $changed; do
+			if [[ "$file" == *.ppt || "$file" == *.pptx ]]; then
+				result=$(echo "$file" | sed 's/\(\.ppt\|\.pptx\)$/.md/')
+				git add "$result"
+			fi
+		done
+	fi
+fi
