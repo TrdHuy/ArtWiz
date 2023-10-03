@@ -9,7 +9,7 @@
 
 changed=$(git diff --staged --name-only)
 current_branch=$(git rev-parse --abbrev-ref HEAD)
-ppt2img_dir="/c/SCS/VSProj/SPRNetTool/trdhuy/ppt2img/ppt2img/bin/Release/ppt2img"
+ppt2img_dir="ppt2img"
 if [[ $current_branch == "document_v"* ]]; then
 	ppt_file=""
 	for file in $changed; do
@@ -29,7 +29,7 @@ if [[ $current_branch == "document_v"* ]]; then
 		if test -e "$ppt2img_dir"; then
 			echo "ppt2img is installed!"
 		else
-			echo "please install ppt2img to commit this branch!"
+			echo "Please install ppt2img to commit this branch! For more detail installation, visit: https://github.com/TrdHuy/UtilHelper#download-latest-ppt2img"
 			exit 1
 		fi
 		
