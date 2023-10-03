@@ -33,7 +33,7 @@ if [[ $current_branch == "document_v"* ]]; then
 			exit 1
 		fi
 		
-		$ppt2img_dir $ppt_file -rU "https://github.sec.samsung.net/huy-td1/test_repo"
+		$ppt2img_dir $ppt_file -rU "https://github.com/TrdHuy/TempRefRepo"
 		
 		if [ $? -ne 0 ]; then
 			echo "failed to run" >> .git/log.txt
