@@ -340,6 +340,10 @@
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_IntervalPlusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
+					<Run Text="&#x9;" />
+					<Run Text="(27in=36fps)" 
+						 FontWeight="Medium"/>
+					
 					<LineBreak />
 
 				</TextBlock>

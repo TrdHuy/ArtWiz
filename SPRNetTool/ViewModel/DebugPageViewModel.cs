@@ -13,6 +13,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel
 {
@@ -32,7 +33,7 @@ namespace SPRNetTool.ViewModel
         private int _pixelHeight = 0;
         private SprFileHead _sprFileHead;
         private FrameRGBA _sprFrameData;
-        private uint _currentFrame = 0;
+        private uint _currentFrameIndex = 0;
         private bool _isSpr = false;
 
         [Bindable(true)]
@@ -40,12 +41,15 @@ namespace SPRNetTool.ViewModel
         {
             get
             {
-                return _currentFrame;
+                return _currentFrameIndex;
             }
             set
             {
-                _currentFrame = value;
-                Invalidate();
+                if (_currentFrameIndex != value)
+                {
+                    _currentFrameIndex = value;
+                    Invalidate();
+                }
             }
         }
 
@@ -58,8 +62,11 @@ namespace SPRNetTool.ViewModel
             }
             set
             {
-                _isSpr = value;
-                Invalidate();
+                if (_isSpr != value)
+                {
+                    _isSpr = value;
+                    Invalidate();
+                }
             }
         }
 
@@ -101,8 +108,11 @@ namespace SPRNetTool.ViewModel
             }
             set
             {
-                _pixelWidth = value;
-                Invalidate();
+                if (_pixelWidth != value)
+                {
+                    _pixelWidth = value;
+                    Invalidate();
+                }
             }
         }
         [Bindable(true)]
@@ -114,8 +124,11 @@ namespace SPRNetTool.ViewModel
             }
             set
             {
-                _pixelHeight = value;
-                Invalidate();
+                if (_pixelHeight != value)
+                {
+                    _pixelHeight = value;
+                    Invalidate();
+                }
             }
         }
 
@@ -128,8 +141,12 @@ namespace SPRNetTool.ViewModel
             }
             set
             {
-                _isPlayingAnimation = value;
-                Invalidate();
+                if (_isPlayingAnimation != value)
+                {
+                    _isPlayingAnimation = value;
+                    Invalidate();
+                }
+
             }
         }
 
@@ -328,34 +345,67 @@ namespace SPRNetTool.ViewModel
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
-                    PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
-                    PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
-
-                    IsSpr = castArgs.CurrentSprFileHead != null;
-
-                    if (castArgs.IsPlayingAnimation != true)
+                    if (castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED))
                     {
-                        if (IsSpr)
+                        if (castArgs.IsPlayingAnimation == true)
                         {
-                            SprFrameData = castArgs.SprFrameData ?? new FrameRGBA();
-                            SprFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
-                            CurrentFrameIndex = castArgs.SprFrameIndex;
+                            var dispatcherPriority = DispatcherPriority.Background;
+                            if (SprFileHead.Interval > 20)
+                            {
+                                dispatcherPriority = DispatcherPriority.Render;
+                            }
+
+                            if (IsViewModelDestroyed) return;
+
+                            ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                            {
+                                IsPlayingAnimation = true;
+                                CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
+                                CurrentFrameIndex = castArgs.SprFrameIndex;
+                            }, dispatcherPriority);
                         }
-                        IsPlayingAnimation = false;
-                        CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
+                        else if (castArgs.IsPlayingAnimation == false)
+                        {
+                            SprFrameData = castArgs.SprFrameData ?? SprFrameData;
+                            CurrentFrameIndex = castArgs.SprFrameIndex;
+                            IsPlayingAnimation = false;
+                            CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
 
-                        await SetColorSource(castArgs.CurrentColorSource);
+                            if (castArgs.CurrentColorSource != null)
+                            {
+                                await SetColorSource(castArgs.CurrentColorSource);
+                            }
+                        }
                     }
-                    else if (castArgs.IsPlayingAnimation == true)
+                    else
                     {
+                        if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
+                        {
+                            IsSpr = castArgs.CurrentSprFileHead != null;
+                            SprFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
+                        }
 
-                        IsPlayingAnimation = true;
-                        ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                        if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED))
                         {
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
-                            CurrentFrameIndex = castArgs.SprFrameIndex;
-                        }, DispatcherPriority.Render);
+                            PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
+                            PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
+                        }
 
+                        if (castArgs.Event.HasFlag(SPR_FRAME_INDEX_CHANGED))
+                        {
+                            CurrentFrameIndex = castArgs.SprFrameIndex;
+                        }
+
+                        if (castArgs.Event.HasFlag(CURRENT_COLOR_SOURCE_CHANGED))
+                        {
+                            await SetColorSource(castArgs.CurrentColorSource);
+                        }
+
+                        if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))
+                        {
+                            SprFrameData = castArgs.SprFrameData ?? new FrameRGBA();
+                        }
                     }
                     break;
             }
@@ -461,6 +511,26 @@ namespace SPRNetTool.ViewModel
             else
             {
                 BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex((uint)SprFileHead.FrameCounts - 1);
+            }
+        }
+
+        void IDebugPageCommand.OnDecreaseIntervalButtonClicked()
+        {
+            if (!IsSpr) return;
+
+            if (SprFileHead.Interval > 0)
+            {
+                BitmapDisplayManager.SetSprInterval((ushort)(SprFileHead.Interval - 1));
+            }
+        }
+
+        void IDebugPageCommand.OnIncreaseIntervalButtonClicked()
+        {
+            if (!IsSpr) return;
+
+            if (SprFileHead.Interval < 1000)
+            {
+                BitmapDisplayManager.SetSprInterval((ushort)(SprFileHead.Interval + 1));
             }
         }
     }

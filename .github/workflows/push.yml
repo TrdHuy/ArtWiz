@@ -23,23 +23,35 @@ jobs:
         result-encoding: string
         script: |
           const versionUpIssueId = process.env.VERSION_UP_ISSUE_ID;
-          const commits = ${{ toJSON(github.event.commits) }}
+          const refName = ${{ toJSON(github.ref_name) }};
+          console.log(`refName: ${refName}`);
+          const commits = ${{ toJSON(github.event.commits) }};
           const commitMessages = commits.map(function (commit) {
               return commit.message;
           });
-          const regex = /^\[#(\d+)\] .+/;
+          const normalCommitRegex = /^\[#(\d+)\] .+/;
+          const mergeCommitByGHRegex = /^Merge branch '(\S+)' into (\S+)$/;
 
           const issueIds = commitMessages.map(function (message) {
-              const match = message.match(regex);
+              const match = message.match(normalCommitRegex);
               if (match && match[1]) {
                 return match[1]; // Lấy số id từ kết quả match
               } else {
-                throw new Error(`Commit message "${message}" is invaild `);
+                const mergeMatch = message.match(mergeCommitByGHRegex);
+                if (mergeMatch && mergeMatch[2] == refName) {
+                  console.log("This is auto merge commit by GitHub")
+                  return "";
+                }else{
+                   throw new Error(`Commit message "${message}" is invaild `);
+                }
               }
           });
 
           for (const issueId of issueIds) {
             try {
+              if (issueId == ""){
+                 continue;
+              }
               const rawData = await github.rest.issues.get({
                 issue_number: issueId,
                 owner: context.repo.owner,

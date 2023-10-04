@@ -1,6 +1,5 @@
 using SPRNetTool.Utils;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace SPRNetToolTest.Utils
 {
@@ -17,13 +16,37 @@ namespace SPRNetToolTest.Utils
             public int y;
         }
 
+        public enum Variable
+        {
+            NUM1 = 0b00000001,
+            NUM2 = 0b00000010,
+            NUM3 = 0b00000100,
+            NUM4 = 0b00001000,
+        }
+
         [Test]
         public void test()
         {
-            MS s;
-            MS? s2;
-            MS? s3 = null;
-            var x = 1;
+            var n1 = Convert.ToInt64(Variable.NUM1);
+            Variable num = Variable.NUM1 | Variable.NUM2 | Variable.NUM3;
+            if (num.HasAllFlagsOf(Variable.NUM1, Variable.NUM2))
+            {
+                var x = 1;
+            }
+
+            if (num.HasFlag(Variable.NUM2 | Variable.NUM4))
+            {
+                var x = 1;
+            }
+
+            if (num.HasFlag(Variable.NUM3))
+            {
+                var x = 1;
+            }
+            if (num.HasFlag(Variable.NUM4))
+            {
+                var x = 1;
+            }
         }
 
         [Test]
