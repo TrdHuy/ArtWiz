@@ -65,7 +65,7 @@ namespace SPRNetTool.Domain
                         .Also((it) => it.Freeze()));
                 DisplayedBitmapSourceCache.DisplayedBitmapSource = it[index];
                 DisplayedBitmapSourceCache.CurrentFrameIndex = index;
-                DisplayedBitmapSourceCache.DisplayedColorSource = this.CountColors(it[index]);
+                DisplayedBitmapSourceCache.DisplayedColorSource = it[index]?.Let(it2 => this.CountColors(it2));
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                    changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
                     | CURRENT_COLOR_SOURCE_CHANGED
@@ -320,7 +320,7 @@ namespace SPRNetTool.Domain
                                 , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
                             .Also((it) => it.Freeze()));
                     DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex];
-                    DisplayedBitmapSourceCache.DisplayedColorSource = this.CountColors(DisplayedBitmapSourceCache.DisplayedBitmapSource);
+                    DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.DisplayedBitmapSource?.Let(it => this.CountColors(it));
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
                         changedEvent: IS_PLAYING_ANIMATION_CHANGED
                             | CURRENT_DISPLAYING_SOURCE_CHANGED
