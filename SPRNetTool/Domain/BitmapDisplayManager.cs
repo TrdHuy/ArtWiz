@@ -32,6 +32,8 @@ namespace SPRNetTool.Domain
             public BitmapSource?[]? AnimationSourceCaching { get; set; }
             public uint? CurrentFrameIndex { get; set; }
             public CancellationTokenSource? AnimationTokenSource { get; set; }
+
+            public Dictionary<Color, long>?[]? ColorSourceCaching { get; set; }
         }
 
         private BitmapSourceCache DisplayedBitmapSourceCache { get; } = new BitmapSourceCache();
@@ -118,6 +120,7 @@ namespace SPRNetTool.Domain
                     DisplayedBitmapSourceCache.AnimationSourceCaching.Length != SprWorkManager.FileHead.FrameCounts)
                 {
                     DisplayedBitmapSourceCache.AnimationSourceCaching = new BitmapSource?[SprWorkManager.FileHead.FrameCounts];
+                    DisplayedBitmapSourceCache.ColorSourceCaching = new Dictionary<Color, long>?[SprWorkManager.FileHead.FrameCounts];
                 }
 
                 await PlayAnimation();
@@ -168,6 +171,7 @@ namespace SPRNetTool.Domain
                     if (countPixelColor)
                     {
                         DisplayedBitmapSourceCache.DisplayedColorSource = this.CountColors(it);
+
                     }
                 });
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
@@ -320,7 +324,7 @@ namespace SPRNetTool.Domain
                                 , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
                             .Also((it) => it.Freeze()));
                     DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex];
-                    DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.DisplayedBitmapSource?.Let(it => this.CountColors(it));
+
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
                         changedEvent: IS_PLAYING_ANIMATION_CHANGED
                             | CURRENT_DISPLAYING_SOURCE_CHANGED
@@ -330,7 +334,7 @@ namespace SPRNetTool.Domain
                         isPlayingAnimation: true,
                         sprFrameIndex: frameIndex,
                         sprFrameData: SprWorkManager.GetFrameData(frameIndex)));
-
+                        
                     DisplayedBitmapSourceCache.CurrentFrameIndex++;
                     frameIndex++;
                     if (frameIndex == SprWorkManager.FileHead.FrameCounts)
@@ -353,9 +357,10 @@ namespace SPRNetTool.Domain
                         }
                     }
                 }
-
+                DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex] = DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex].IfNullThenLet(() =>
+                DisplayedBitmapSourceCache.DisplayedBitmapSource?.Let(it => this.CountColors(it)));
+                DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex];
                 DisplayedBitmapSourceCache.AnimationTokenSource = null;
-                
                 if (frameIndex > 0)
                 {
                     DisplayedBitmapSourceCache.CurrentFrameIndex--;
