@@ -154,6 +154,7 @@ namespace SPRNetTool.Domain
 
         #endregion
 
+        #region standalone api
         private byte FindPaletteIndex(PaletteColor targetColor, PaletteColor[] paletteData)
         {
             for (int i = 0; i < paletteData.Length; i++)
@@ -224,9 +225,80 @@ namespace SPRNetTool.Domain
             return encryptedFrameDataList.ToArray();
         }
 
+        private byte[]? EncryptedSprFile(List<byte[]> encryptedFrameData,
+          PaletteColor[] paletteData,
+          ushort globalWidth,
+          ushort globalHeight,
+          ushort globalOffX,
+          ushort globalOffY,
+          ushort direction,
+          ushort interval,
+          byte[] reserved)
+        {
+
+            void WritePaletteColorToByteList(PaletteColor color, List<byte> list)
+            {
+                list.Add(color.Red);
+                list.Add(color.Green);
+                list.Add(color.Blue);
+            }
+
+            void WriteFrameOffsetInfoList(List<byte[]> encryptedFrameDatas, List<byte> list, int index)
+            {
+                FrameOffsetInfo frameOffsetInfo = new FrameOffsetInfo();
+                for (int i = 0; i < index; i++)
+                {
+                    frameOffsetInfo.FrameOffset += (uint)encryptedFrameDatas[i].Length;
+                }
+                frameOffsetInfo.DataLength = (uint)encryptedFrameDatas[index].Length;
+                frameOffsetInfo.CopyStructToList(list);
+            }
+
+            if (paletteData.Length > 256 && encryptedFrameData.Count > ushort.MaxValue)
+            {
+                throw new Exception("Failed to encrypt SPR file");
+            }
+            US_SprFileHead fileHead = new US_SprFileHead();
+            fileHead.SetVersionInfoStr(new char[] { 'S', 'P', 'R', '\0' });
+            fileHead.SetReserved(reserved);
+            fileHead.Interval = interval;
+            fileHead.FrameCounts = (ushort)encryptedFrameData.Count;
+            fileHead.GlobalHeight = globalHeight;
+            fileHead.GlobalWidth = globalWidth;
+            fileHead.OffX = globalOffX;
+            fileHead.OffY = globalOffY;
+            fileHead.DirectionCount = direction;
+            fileHead.ColorCounts = (ushort)paletteData.Length;
+
+            List<byte> encryptedFileData = new List<byte>();
+
+            // write file head
+            fileHead.CopyStructToList(encryptedFileData);
+
+            // write color palette
+            foreach (var color in paletteData)
+            {
+                WritePaletteColorToByteList(color, encryptedFileData);
+            }
+
+            // write frame offset info
+            for (int i = 0; i < encryptedFrameData.Count; i++)
+            {
+                WriteFrameOffsetInfoList(encryptedFrameData, encryptedFileData, i);
+            }
+
+            // write frame data
+            for (int i = 0; i < encryptedFrameData.Count; i++)
+            {
+                encryptedFileData.AddRange(encryptedFrameData[i]);
+            }
+
+            return encryptedFileData.ToArray();
+        }
+        #endregion
+
         private PaletteColor[]? InitGlobalizedFrameData(uint index)
         {
-            BitmapSource v;
             var decodedFrameData = FrameData?[index].decodedFrameData;
             if (decodedFrameData == null)
             {
@@ -374,78 +446,6 @@ namespace SPRNetTool.Domain
 #endif
             return decData;
         }
-
-        private byte[]? EncryptedSprFile(List<byte[]> encryptedFrameData,
-           PaletteColor[] paletteData,
-           ushort globalWidth,
-           ushort globalHeight,
-           ushort globalOffX,
-           ushort globalOffY,
-           ushort direction,
-           ushort interval,
-           byte[] reserved)
-        {
-
-            void WritePaletteColorToByteList(PaletteColor color, List<byte> list)
-            {
-                list.Add(color.Red);
-                list.Add(color.Green);
-                list.Add(color.Blue);
-            }
-
-            void WriteFrameOffsetInfoList(List<byte[]> encryptedFrameDatas, List<byte> list, int index)
-            {
-                FrameOffsetInfo frameOffsetInfo = new FrameOffsetInfo();
-                for (int i = 0; i < index; i++)
-                {
-                    frameOffsetInfo.FrameOffset += (uint)encryptedFrameDatas[i].Length;
-                }
-                frameOffsetInfo.DataLength = (uint)encryptedFrameDatas[index].Length;
-                frameOffsetInfo.CopyStructToList(list);
-            }
-
-            if (paletteData.Length > 256 && encryptedFrameData.Count > ushort.MaxValue)
-            {
-                throw new Exception("Failed to encrypt SPR file");
-            }
-            US_SprFileHead fileHead = new US_SprFileHead();
-            fileHead.SetVersionInfoStr(new char[] { 'S', 'P', 'R', '\0' });
-            fileHead.SetReserved(reserved);
-            fileHead.Interval = interval;
-            fileHead.FrameCounts = (ushort)encryptedFrameData.Count;
-            fileHead.GlobalHeight = globalHeight;
-            fileHead.GlobalWidth = globalWidth;
-            fileHead.OffX = globalOffX;
-            fileHead.OffY = globalOffY;
-            fileHead.DirectionCount = direction;
-            fileHead.ColorCounts = (ushort)paletteData.Length;
-
-            List<byte> encryptedFileData = new List<byte>();
-
-            // write file head
-            fileHead.CopyStructToList(encryptedFileData);
-
-            // write color palette
-            foreach (var color in paletteData)
-            {
-                WritePaletteColorToByteList(color, encryptedFileData);
-            }
-
-            // write frame offset info
-            for (int i = 0; i < encryptedFrameData.Count; i++)
-            {
-                WriteFrameOffsetInfoList(encryptedFrameData, encryptedFileData, i);
-            }
-
-            // write frame data
-            for (int i = 0; i < encryptedFrameData.Count; i++)
-            {
-                encryptedFileData.AddRange(encryptedFrameData[i]);
-            }
-
-            return encryptedFileData.ToArray();
-        }
-
     }
 
     public enum COLORMODE
