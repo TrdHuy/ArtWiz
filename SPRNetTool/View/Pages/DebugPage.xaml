@@ -69,6 +69,46 @@
 				</Trigger>
 			</Style.Triggers>
 		</Style>
+
+		<Style x:Key="ClickableTextBlockStyle"
+			   TargetType="TextBlock">
+			<EventSetter Event="MouseLeftButtonUp"
+						 Handler="OnRunLeftMouseUp" />
+			<Style.Triggers>
+				<EventTrigger RoutedEvent="MouseLeftButtonDown">
+					<EventTrigger.Actions>
+						<BeginStoryboard>
+							<Storyboard>
+								<ColorAnimation Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
+												To="#FFB4E9E5"
+												Duration="0:0:0" />
+							</Storyboard>
+						</BeginStoryboard>
+					</EventTrigger.Actions>
+				</EventTrigger>
+				<EventTrigger RoutedEvent="MouseLeftButtonUp">
+					<EventTrigger.Actions>
+						<BeginStoryboard>
+							<Storyboard>
+								<ColorAnimation Storyboard.TargetProperty="(Run.Foreground).(SolidColorBrush.Color)"
+												To="Black"
+												Duration="0:0:0" />
+							</Storyboard>
+						</BeginStoryboard>
+					</EventTrigger.Actions>
+				</EventTrigger>
+				<Trigger Property="IsMouseOver"
+						 Value="True">
+					<Setter Property="FontWeight"
+							Value="Bold" />
+				</Trigger>
+				<Trigger Property="IsMouseOver"
+						 Value="False">
+					<Setter Property="FontWeight"
+							Value="Normal" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 	</UserControl.Resources>
 	<Grid Background="#FFA1A1A1">
 		<Grid.ColumnDefinitions>
@@ -161,7 +201,40 @@
 					<LineBreak />
 					<Run Text="Pixel height: " />
 					<Run Text="{Binding PixelHeight}" />
-
+					
+					<LineBreak />
+					<LineBreak />
+					<Run Text="&#x9;" />
+					<Viewbox Height="15">
+						<TextBlock Style="{StaticResource ClickableTextBlockStyle}">
+							<Viewbox Height="14"
+									 Margin="3,0,0,0">
+								<TextBlock Text="&#xf56e;"
+										   FontFamily="{StaticResource FontAwsome}" />
+							</Viewbox>
+							
+							<Run Text="Export to single frame of Spr file"
+								 FontSize="12" />
+						</TextBlock>
+					</Viewbox>
+					
+					<LineBreak />
+					
+					<Run Text="&#x9;" />
+					<Viewbox Height="15"
+							 Stretch="Uniform">
+						<TextBlock Style="{StaticResource ClickableTextBlockStyle}">
+							<Viewbox Height="14"
+									 Margin="0,0,5,0">
+								<TextBlock Text="&#xf56f;"
+										   FontFamily="{StaticResource FontAwsome}" />
+							</Viewbox>
+							
+							<Run Text="Import to next frame of Spr work space"
+								 FontSize="12" />
+						</TextBlock>
+					</Viewbox>
+					
 				</TextBlock>
 
 				<TextBlock Margin="0,5,0,0"
@@ -341,8 +414,8 @@
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
 					<Run Text="&#x9;" />
-					<Run Text="(27in=36fps)" 
-						 FontWeight="Medium"/>
+					<Run Text="(27in=36fps)"
+						 FontWeight="Medium" />
 					
 					<LineBreak />
 
