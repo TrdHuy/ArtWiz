@@ -66,9 +66,11 @@ namespace SPRNetTool.Domain
                             , SprWorkManager.FileHead.GlobalWidth
                             , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
                         .Also((it) => it.Freeze()));
+                DisplayedBitmapSourceCache.ColorSourceCaching[index] = DisplayedBitmapSourceCache.ColorSourceCaching[index].IfNullThenLet(() =>
+                it[index]?.Let(it2 => this.CountColors(it2)));
                 DisplayedBitmapSourceCache.DisplayedBitmapSource = it[index];
                 DisplayedBitmapSourceCache.CurrentFrameIndex = index;
-                DisplayedBitmapSourceCache.DisplayedColorSource = it[index]?.Let(it2 => this.CountColors(it2));
+                DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.ColorSourceCaching[index];
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                    changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
                     | CURRENT_COLOR_SOURCE_CHANGED
