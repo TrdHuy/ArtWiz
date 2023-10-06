@@ -7,6 +7,7 @@ using SPRNetTool.ViewModel.CommandVM;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -421,22 +422,48 @@ namespace SPRNetTool.ViewModel
         }
 
         private Dictionary<Color, long>? _countableColorSource;
+
         public void OptimizeImageColor(int colorSize
             , int colorDifferenceDelta
             , bool isUsingAlpha
             , int colorDifferenceDeltaForCalculatingAlpha
             , Color backgroundForBlendColor)
         {
-            (_countableColorSource!, CurrentlyDisplayedBitmapSource!).ApplyIfNotNull((it1, it2) =>
+            (_countableColorSource!, CurrentlyDisplayedBitmapSource!).ApplyIfNotNull((colorSource, bitmapSource) =>
             {
-                BitmapDisplayManager.OptimzeImageColor(it1
-                    , it2
+                BitmapDisplayManager.OptimzeImageColor(colorSource
+                    , bitmapSource
                     , colorSize
                     , colorDifferenceDelta
                     , isUsingAlpha
                     , colorDifferenceDeltaForCalculatingAlpha
                     , backgroundForBlendColor
-                    );
+                    , out List<Color> selectedColors
+                    , out List<Color> selectedAlphaColors);
+                var selectedList = new ObservableCollection<OptimizedColorItemViewModel>();
+
+                Debug.Assert(selectedColors.Count == selectedAlphaColors.Count + colorSize);
+                int i = 0;
+                foreach (var color in selectedColors)
+                {
+                    if (i < colorSize)
+                    {
+                        selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel()
+                        {
+                            ItemColor = color
+                        });
+                    }
+                    else
+                    {
+                        selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel()
+                        {
+                            ItemColor = selectedAlphaColors[i-colorSize],
+                        });;
+                    }
+
+                    i++;
+                }
+
             });
 
         }

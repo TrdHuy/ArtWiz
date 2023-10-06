@@ -1,4 +1,5 @@
 using SPRNetTool.Utils;
+using System;
 using System.Windows.Media;
 
 namespace SPRNetToolTest.Utils
@@ -22,6 +23,15 @@ namespace SPRNetToolTest.Utils
             NUM2 = 0b00000010,
             NUM3 = 0b00000100,
             NUM4 = 0b00001000,
+        }
+
+        
+        [Test]
+        public void test2()
+        {
+            List<int> s = new List<int> { 1, 3, 3, 3, 4, 5, 6 };
+            s.ReduceSameItem().ToList;
+
         }
 
         [Test]

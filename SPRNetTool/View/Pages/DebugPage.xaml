@@ -178,6 +178,27 @@
 				  Background="Black">
 				<Image x:Name="StaticImageView"
 					   Source="{Binding CurrentlyDisplayedBitmapSource}" />
+				<!--<ItemsControl>
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<WrapPanel Orientation="Horizontal" />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ListViewItem MaxWidth="170">
+						<Image Source="../../Resources/bg.jpg" />
+					</ListViewItem>
+					<ListViewItem MaxWidth="170">
+						<Image Source="../../Resources/bg.jpg" />
+					</ListViewItem>
+					<ListViewItem MaxWidth="170">
+						<Image Source="../../Resources/bg.jpg" />
+					</ListViewItem>
+					<ListViewItem MaxWidth="170">
+						<Image Source="../../Resources/bg.jpg" />
+					</ListViewItem>
+					
+				</ItemsControl>-->
+
 			</Grid>
 
 			<Grid Grid.Column="1"
@@ -201,40 +222,42 @@
 					<LineBreak />
 					<Run Text="Pixel height: " />
 					<Run Text="{Binding PixelHeight}" />
+					<LineBreak />
 					
-					<LineBreak />
-					<LineBreak />
-					<Run Text="&#x9;" />
-					<Viewbox Height="15">
-						<TextBlock Style="{StaticResource ClickableTextBlockStyle}">
-							<Viewbox Height="14"
-									 Margin="3,0,0,0">
-								<TextBlock Text="&#xf56e;"
-										   FontFamily="{StaticResource FontAwsome}" />
+					<Viewbox Stretch="None"
+							 Visibility="{Binding CurrentlyDisplayedBitmapSource, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">
+						<TextBlock>
+							<LineBreak />
+							<Run Text="&#x9;" />
+							<Viewbox Height="20"
+									 Stretch="None">
+								<TextBlock Style="{StaticResource ClickableTextBlockStyle}">
+									<Viewbox Height="14"
+											 Margin="3,0,0,0">
+										<TextBlock Text="&#xf56e;"
+												   FontFamily="{StaticResource FontAwsome}" />
+									</Viewbox>
+									<Run Text="Export to single frame of Spr file"
+										 FontSize="12" />
+								</TextBlock>
 							</Viewbox>
-							
-							<Run Text="Export to single frame of Spr file"
-								 FontSize="12" />
+
+							<LineBreak />
+							<Run Text="&#x9;" />
+							<Viewbox Height="20"
+									 Stretch="None">
+								<TextBlock Style="{StaticResource ClickableTextBlockStyle}">
+									<Viewbox Height="14"
+											 Margin="0,0,5,0">
+										<TextBlock Text="&#xf56f;"
+												   FontFamily="{StaticResource FontAwsome}" />
+									</Viewbox>
+									<Run Text="Import to next frame of Spr work space"
+										 FontSize="12" />
+								</TextBlock>
+							</Viewbox>
 						</TextBlock>
 					</Viewbox>
-					
-					<LineBreak />
-					
-					<Run Text="&#x9;" />
-					<Viewbox Height="15"
-							 Stretch="Uniform">
-						<TextBlock Style="{StaticResource ClickableTextBlockStyle}">
-							<Viewbox Height="14"
-									 Margin="0,0,5,0">
-								<TextBlock Text="&#xf56f;"
-										   FontFamily="{StaticResource FontAwsome}" />
-							</Viewbox>
-							
-							<Run Text="Import to next frame of Spr work space"
-								 FontSize="12" />
-						</TextBlock>
-					</Viewbox>
-					
 				</TextBlock>
 
 				<TextBlock Margin="0,5,0,0"

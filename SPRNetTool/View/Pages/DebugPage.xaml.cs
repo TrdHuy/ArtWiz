@@ -103,7 +103,7 @@ namespace SPRNetTool.View.Pages
         private void OpenImageClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Tệp ảnh (*.png;*.jpg;*.jpeg;*.gif;*.spr)|*.png;*.jpg;*.jpeg;*.gif;*.spr|All files (*.*)|*.*";
+            openFileDialog.Filter = "Tệp ảnh |*.png;*.jpg;*.jpeg;*.gif;*.spr";
             if (openFileDialog.ShowDialog() == true)
             {
                 BitmapSource? bmpSource = null;
@@ -217,6 +217,221 @@ namespace SPRNetTool.View.Pages
 
                 await Task.Run(async () =>
                 {
+                    var orderedList = viewModel.OrderByDescendingCount(isSetToDisplaySource: false).ToList();
+                    var selectedList = new ObservableCollection<OptimizedColorItemViewModel>();
+                    var selectedColorList = new List<Color>();
+
+
+                    // TODO: Dynamic this
+                    var selectedColorRecalculatedAlapha = new List<Color>();
+                    var expectedRGBList = new List<Color>();
+                    var deltaDistanceForNewARGBColor = 10;
+                    var deltaForAlphaAvarageDeviation = 3;
+
+                    // Calculate palette
+                    while (selectedList.Count < colorSize && orderedList.Count > 0 && delta >= 0)
+                    {
+                        for (int i = 0; i < orderedList.Count; i++)
+                        {
+                            var item = orderedList[i];
+                            var expectedColor = item.ItemColor;
+                            var shouldAdd = true;
+                            foreach (var item2 in selectedList)
+                            {
+                                var distance = expectedColor.CalculateEuclideanDistance(item2.ItemColor);
+                                if (distance < delta)
+                                {
+                                    if (isUsingAlpha && distance < deltaForCompareRecalculate)
+                                    {
+                                        var alpha = item2.ItemColor.FindAlphaColors(backgroundForBlendColor, expectedColor, out byte averageAbsoluteDeviation);
+                                        var newRGBColor = Color.FromArgb(alpha, item2.ItemColor.R, item2.ItemColor.G, item2.ItemColor.B).BlendColors(backgroundForBlendColor);
+                                        var distanceNewRGBColor = newRGBColor.CalculateEuclideanDistance(expectedColor);
+                                        if (averageAbsoluteDeviation <= deltaForAlphaAvarageDeviation && distanceNewRGBColor <= deltaDistanceForNewARGBColor)
+                                        {
+                                            expectedRGBList.Add(expectedColor);
+                                            selectedColorRecalculatedAlapha.Add(Color.FromArgb(alpha, item2.ItemColor.R, item2.ItemColor.G, item2.ItemColor.B));
+                                            orderedList.RemoveAt(i);
+                                            i--;
+                                        }
+                                    }
+                                    shouldAdd = false;
+                                    break;
+                                }
+                            }
+                            if (shouldAdd)
+                            {
+                                selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel()
+                                {
+                                    ItemColor = expectedColor
+                                });
+                                selectedColorList.Add(expectedColor);
+                                orderedList.RemoveAt(i);
+                                i--;
+                            }
+
+                            if (selectedList.Count >= colorSize) break;
+                        }
+                        delta -= 2;
+                    }
+
+                    //Combine RGB and ARGB color to selected list
+                    var optimizedRGBCount = selectedList.Count;
+                    int iii = 0;
+                    foreach (var item in selectedColorRecalculatedAlapha)
+                    {
+                        selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel(backgroundForBlendColor)
+                        {
+                            ItemColor = item,
+                            ExpectedColor = expectedRGBList[iii++]
+                        });
+                    }
+
+                    //reduce same combined color
+                    selectedList = selectedList.GroupBy(c => c.CombinedColor).Select(g => g.First()).ToIndexableObservableCollection();
+                    var combinedColorList = selectedList.Select(c => c.CombinedColor).ToList();
+
+                    viewModel.SetOptimizedColorSource(selectedList);
+
+                    //=====================================================
+                    //Dithering
+                    BitmapSource? oldBmpSource = null;
+                    this.ViewElementDispatcher.Invoke(new Action(() =>
+                    {
+                        oldBmpSource = StaticImageView.Source as BitmapSource;
+
+                    }));
+                    if (optimizedRGBCount > 0 && optimizedRGBCount <= colorSize && oldBmpSource != null)
+                    {
+                        //var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, selectedColorList, isUsingAlpha, selectedColorRecalculatedAlapha, backgroundForBlendColor);
+                        var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, combinedColorList);
+                        newBmpSrc?.Freeze();
+                        this.ViewElementDispatcher.Invoke(new Action(() =>
+                        {
+                            StaticImageView2.Source = newBmpSrc;
+                        }));
+
+                        if (newBmpSrc != null)
+                        {
+                            var src = await BitmapUtil.CountColorsAsync(newBmpSrc);
+                            var newCountedSrc = new ObservableCollection<ColorItemViewModel>();
+                            await Task.Run(() =>
+                            {
+                                foreach (var color in src)
+                                {
+                                    var newColor = color.Key;
+                                    newCountedSrc.Add<ColorItemViewModel>(new ColorItemViewModel { ItemColor = newColor, Count = color.Value });
+                                }
+                            });
+
+                            viewModel.SetResultRGBColorSource(newCountedSrc);
+                        }
+                    }
+                });
+            });
+
+        }
+
+        private void OptimizeImageColorClick2(object sender, RoutedEventArgs e)
+        {
+            InputBuilder builder = new InputBuilder();
+            var colorCountKey = "Số màu (max = 256)";
+            var colorCountDef = "256";
+            var deltaKey = "Độ chênh lệch tối đa giữa 2 màu";
+            var deltaDes =
+                "Độ chênh lệch tối đa giữa 2 màu là tham số thể xác định màu chưa được chọn tiếp theo có nên add vào list các màu\n" +
+                "được chọn không.\n\n" +
+                "Ví dụ:\n" +
+                "Màu đã chọn RGB (10,10,10)\n" +
+                "Màu chưa chọn tiếp theo (11,11,11)\n" +
+                "Độ chênh lệch = 1,7 < delta = 10 => Màu này sẽ không được chọn vì giống màu đã chọn (10,10,10)";
+            var deltaDef = "100";
+            var isUsingAlphaKey = "Sử dụng alpha để tính được nhiều màu cho palette";
+            var isUsingAlphaDef = false;
+            var deltaForCompareRecalculateKey = "Độ chênh lệch màu ARGB";
+            var deltaForCompareRecalculateDes =
+                "Độ chênh lệch màu ARGB là tham số để xác định màu tiếp theo có cần cân nhắc để tính giá trị cho kênh alpha hay không.\n" +
+                "Nếu giữa màu đã chọn và màu chưa được chọn tiếp theo có độ chênh lệch nhỏ hơn 'Độ chênh lệch màu ARGB'\n" +
+                "thì màu chưa được chọn tiếp theo sẽ được cân nhắc để tính giá trị Alpha từ màu đã chọn.\n\n" +
+                "Ví dụ:\n" +
+                "Màu đã chọn RGB (10,10,10)\n" +
+                "Màu chưa chọn tiếp theo (11,11,11)\n" +
+                "Độ chênh lệch = 1,7 < delta = 10 => Màu này sẽ được cân nhắc tính giá trị alpha dựa theo Màu đã chọn (10,10,10)";
+            var deltaForCompareRecalculateDef = "10";
+            var backgroundForBlendColorKey = "Màu nền cho blend";
+            var backgroundForBlendColorDes = "Màu nền được dùng cho việc blend màu foreground với kênh alpha.\n" +
+                "https://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color";
+
+
+
+            var srcInput = builder.AddTextInputOption(colorCountKey
+                , colorCountKey
+                , colorCountDef
+                , (cur, input) => input.Any(char.IsNumber) && Convert.ToInt32(cur + input) <= 256)
+                .AddTextInputOption(deltaKey
+                , deltaDes
+                , deltaDef
+                , (cur, input) => input.Any(char.IsNumber))
+                .AddCheckBoxOption(isUsingAlphaKey
+                , isUsingAlphaKey
+                , isUsingAlphaDef
+                , () => true
+                , (src, isChecked) =>
+                {
+                    src[3].IsDisabled = !isChecked;
+                    src[4].IsDisabled = !isChecked;
+                })
+                .AddTextInputOption(deltaForCompareRecalculateKey
+                , deltaForCompareRecalculateDes
+                , deltaForCompareRecalculateDef
+                , (cur, input) => input.Any(char.IsNumber) && Convert.ToInt32(cur + input) <= 500)
+                .AddComboBoxOption(backgroundForBlendColorKey
+                , backgroundForBlendColorDes
+                , new List<string> { "WHITE (255,255,255)", "BLACK (0,0,0)" }
+                , 0
+                , () => true
+                , (cur, input) => { })
+                .Build();
+
+            int colorSize = 256;
+            int delta = 100;
+            var isUsingAlpha = false;
+            var deltaForCompareRecalculate = 10;
+            var backgroundForBlendColor = Colors.White;
+
+            InputWindow inputWindow = new InputWindow(srcInput, ownerWindow, (res) =>
+            {
+                colorSize = Convert.ToInt32(res[colorCountKey]);
+                delta = Convert.ToInt32(res[deltaKey]);
+                isUsingAlpha = Convert.ToBoolean(res[isUsingAlphaKey]);
+                deltaForCompareRecalculate = Convert.ToInt32(res[deltaForCompareRecalculateKey]);
+                switch (Convert.ToInt32(res[backgroundForBlendColorKey]))
+                {
+                    case 0:
+                        backgroundForBlendColor = Colors.White;
+                        break;
+                    case 1:
+                        backgroundForBlendColor = Colors.Black;
+                        break;
+                }
+            });
+            var res = inputWindow.Show();
+            if (res == Res.CANCEL) return;
+
+            LoadingWindow l = new LoadingWindow(ownerWindow, "Optimizing!");
+            l.Show(block: async () =>
+            {
+                if (viewModel.OriginalColorSource.Count == 0) return;
+
+
+                await Task.Run(async () =>
+                {
+
+                    viewModel.OptimizeImageColor(colorSize: colorSize,
+                        colorDifferenceDelta: delta,
+                        isUsingAlpha: isUsingAlpha,
+                        colorDifferenceDeltaForCalculatingAlpha: deltaForCompareRecalculate,
+                        backgroundForBlendColor: backgroundForBlendColor);
+
                     var orderedList = viewModel.OrderByDescendingCount(isSetToDisplaySource: false).ToList();
                     var selectedList = new ObservableCollection<OptimizedColorItemViewModel>();
                     var selectedColorList = new List<Color>();
