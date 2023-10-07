@@ -17,7 +17,13 @@ namespace SPRNetTool.Domain.Utils
 {
     public static class BitmapUtil
     {
-        public static Dictionary<Color, long> CountColors(this IDomainAdapter adapter, BitmapSource bitmap)
+        public static List<(Color, long)> CountColorsTolist(this IDomainAdapter adapter, BitmapSource bitmap)
+        {
+            adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc);
+            return argbSrc.Select(kp => (kp.Key, kp.Value)).ToList();
+        }
+
+        public static Dictionary<Color, long> CountColorsToDictionary(this IDomainAdapter adapter, BitmapSource bitmap)
         {
             adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc);
             return argbSrc;
@@ -78,6 +84,49 @@ namespace SPRNetTool.Domain.Utils
             argbCount = aRGBColorSet.Count;
             rgbCount = rGBColorSet.Count;
             argbSrc = aRGBColorSet;
+        }
+
+        public static byte[] ConvertBitmapSourceToByteArray(this IDomainAdapter adapter, BitmapSource bmp)
+        {
+            int width = bmp.PixelWidth;
+            int height = bmp.PixelHeight;
+            int stride = (width * bmp.Format.BitsPerPixel + 7) / 8;
+            byte[] pixelData = new byte[stride * height];
+            bmp.CopyPixels(pixelData, stride, 0);
+            return pixelData;
+        }
+
+        public static PaletteColor[] ConvertBitmapSourceToPaletteColorArray(this IDomainAdapter adapter, BitmapSource bitmapSource)
+        {
+            int width = bitmapSource.PixelWidth;
+            int height = bitmapSource.PixelHeight;
+            int stride = (width * bitmapSource.Format.BitsPerPixel + 7) / 8;
+            byte[] pixelData = new byte[height * stride];
+
+            bitmapSource.CopyPixels(pixelData, stride, 0);
+            PaletteColor[] paletteColors = new PaletteColor[width * height];
+            for (int i = 0; i < width * height; i++)
+            {
+                if (bitmapSource.Format == PixelFormats.Bgr32)
+                {
+                    int offset = i * 4;
+                    paletteColors[i] = new PaletteColor(blue: pixelData[offset],
+                        green: pixelData[offset + 1],
+                        red: pixelData[offset + 2],
+                        alpha: pixelData[offset + 3]);
+                }
+                else if (bitmapSource.Format == PixelFormats.Rgb24)
+                {
+                    int offset = i * 3;
+                    paletteColors[i] = new PaletteColor(blue: pixelData[offset + 2],
+                        green: pixelData[offset + 1],
+                        red: pixelData[offset],
+                        alpha: 255);
+                }
+
+            }
+
+            return paletteColors;
         }
 
         public static byte[] ConvertPaletteColourArrayToByteArray(this IDomainAdapter adapter, PaletteColor[] colors)

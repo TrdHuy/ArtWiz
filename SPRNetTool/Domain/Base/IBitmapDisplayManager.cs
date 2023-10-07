@@ -26,12 +26,25 @@ namespace SPRNetTool.Domain.Base
 
         Dictionary<Color, long> CountBitmapColors(BitmapSource bitmap)
         {
-            return this.CountColors(bitmap);
+            return this.CountColorsToDictionary(bitmap);
         }
 
-
+        /// <summary>
+        /// Tối ưu số lượng màu của 1 bitmap source
+        /// </summary>
+        /// <param name="countableColorSource">danh sách các màu được đếm trong bitmap source</param>
+        /// <param name="bmpSource">bitmap source cần được tối ưu</param>
+        /// <param name="colorSize">số lượng màu muốn tối ưu</param>
+        /// <param name="colorDifferenceDelta">Độ chênh lệch tối đa giữa 2 màu</param>
+        /// <param name="isUsingAlpha">Có sử dụng kênh alpha để tính thêm màu hay không</param>
+        /// <param name="colorDifferenceDeltaForCalculatingAlpha">Khi sử dụng kênh alpha để tính thêm màu, cần độ lệch này để xác định màu đó có được chọn hay không</param>
+        /// <param name="backgroundForBlendColor">Khi sử dụng kênh alpha để tính thêm màu, cần 1 màu nền để trộn với màu chính, tạo ra 1 màu kết hợp</param>
+        /// <param name="selectedColors">Danh sách các màu được chọn</param>
+        /// <param name="selectedAlphaColors">Danh sách các màu với kênh alpha được chọn</param>
+        /// <param name="expectedRGBColors">Danh sách các màu mong muốn khi sử dụng kênh alpha để tính thêm màu</param>
+        /// <returns></returns>
         BitmapSource? OptimzeImageColor(List<(Color, long)> countableColorSource
-            , BitmapSource oldBmpSource
+            , BitmapSource bmpSource
             , int colorSize
             , int colorDifferenceDelta
             , bool isUsingAlpha
@@ -111,9 +124,9 @@ namespace SPRNetTool.Domain.Base
 
             //======================================================
             //Dithering
-            if (optimizedRGBCount > 0 && optimizedRGBCount <= colorSize && oldBmpSource != null)
+            if (optimizedRGBCount > 0 && optimizedRGBCount <= colorSize && bmpSource != null)
             {
-                var newBmpSrc = this.FloydSteinbergDithering(oldBmpSource, combinedColorList);
+                var newBmpSrc = this.FloydSteinbergDithering(bmpSource, combinedColorList);
                 newBmpSrc?.Freeze();
                 return newBmpSrc;
             }
