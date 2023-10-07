@@ -1,5 +1,4 @@
 using SPRNetTool.Utils;
-using System;
 using System.Windows.Media;
 
 namespace SPRNetToolTest.Utils
@@ -24,7 +23,6 @@ namespace SPRNetToolTest.Utils
             NUM3 = 0b00000100,
             NUM4 = 0b00001000,
         }
-
 
         [Test]
         public void test()
