@@ -7,6 +7,7 @@ using SPRNetTool.ViewModel.CommandVM;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -20,6 +21,7 @@ namespace SPRNetTool.ViewModel
     public class DebugPageViewModel : BaseViewModel, IDebugPageCommand
     {
         private BitmapSource? _currentDisplayedBitmapSource;
+        private BitmapSource? _currentDisplayedOptimizedBitmapSource;
         private ObservableCollection<ColorItemViewModel> _rawOriginalSource = new ObservableCollection<ColorItemViewModel>();
         private ObservableCollection<OptimizedColorItemViewModel>? _rawOptimizedSource = null;
         private ObservableCollection<ColorItemViewModel>? _rawResultRGBSource = null;
@@ -194,6 +196,19 @@ namespace SPRNetTool.ViewModel
                 Invalidate();
             }
         }
+
+        [Bindable(true)]
+        public BitmapSource? CurrentlyDisplayedOptimizedBitmapSource
+        {
+
+            get { return _currentDisplayedOptimizedBitmapSource; }
+            private set
+            {
+                _currentDisplayedOptimizedBitmapSource = value;
+                Invalidate();
+            }
+        }
+
 
 
         public DebugPageViewModel()
@@ -420,25 +435,65 @@ namespace SPRNetTool.ViewModel
 
         }
 
-        private Dictionary<Color, long>? _countableColorSource;
+        public Dictionary<Color, long>? _countableColorSource;
+
         public void OptimizeImageColor(int colorSize
             , int colorDifferenceDelta
             , bool isUsingAlpha
             , int colorDifferenceDeltaForCalculatingAlpha
             , Color backgroundForBlendColor)
         {
-            (_countableColorSource!, CurrentlyDisplayedBitmapSource!).ApplyIfNotNull((it1, it2) =>
+            (_countableColorSource!, CurrentlyDisplayedBitmapSource!).ApplyIfNotNull((colorSource, bitmapSource) =>
             {
-                BitmapDisplayManager.OptimzeImageColor(it1
-                    , it2
-                    , colorSize
-                    , colorDifferenceDelta
-                    , isUsingAlpha
-                    , colorDifferenceDeltaForCalculatingAlpha
-                    , backgroundForBlendColor
-                    );
-            });
+                var scr = colorSource.Select(kp => (kp.Key, kp.Value)).ToList();
+                var optimizedBitmap = BitmapDisplayManager.OptimzeImageColor(scr
+                     , bitmapSource
+                     , colorSize
+                     , colorDifferenceDelta
+                     , isUsingAlpha
+                     , colorDifferenceDeltaForCalculatingAlpha
+                     , backgroundForBlendColor
+                     , out List<Color> selectedColors
+                     , out List<Color> selectedAlphaColors
+                     , out List<Color> expectedRGBColors);
+                var selectedList = new ObservableCollection<OptimizedColorItemViewModel>();
 
+                int i = 0;
+                foreach (var color in selectedColors)
+                {
+                    if (i < colorSize)
+                    {
+                        selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel()
+                        {
+                            ItemColor = color
+                        });
+                    }
+                    else
+                    {
+                        selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel()
+                        {
+                            ItemColor = selectedAlphaColors[i - colorSize],
+                            ExpectedColor = expectedRGBColors[i - colorSize]
+                        }); ;
+                    }
+                    i++;
+                }
+                SetOptimizedColorSource(selectedList);
+
+                CurrentlyDisplayedOptimizedBitmapSource = optimizedBitmap?.Also(it =>
+                {
+                    BitmapDisplayManager.CountBitmapColors(it).Apply(it =>
+                    {
+                        var newCountedSrc = new ObservableCollection<ColorItemViewModel>();
+                        foreach (var color in it)
+                        {
+                            var newColor = color.Key;
+                            newCountedSrc.Add<ColorItemViewModel>(new ColorItemViewModel { ItemColor = newColor, Count = color.Value });
+                        }
+                        SetResultRGBColorSource(newCountedSrc);
+                    });
+                });
+            });
         }
 
         void IDebugPageCommand.OnPlayPauseAnimationSprClicked()

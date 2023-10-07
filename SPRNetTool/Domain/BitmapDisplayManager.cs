@@ -38,6 +38,16 @@ namespace SPRNetTool.Domain
 
         private BitmapSourceCache DisplayedBitmapSourceCache { get; } = new BitmapSourceCache();
 
+        #region public interface
+        void IBitmapDisplayManager.SaveCurrentDisplaySourceToSprFile(string filePath)
+        {
+            // optimize image color to a list first (color size = 256)
+
+            // encrypt image base on image color list
+
+
+        }
+
         void IBitmapDisplayManager.SetSprInterval(ushort interval)
         {
             SprWorkManager.SetSprInterval((ushort)interval);
@@ -203,89 +213,8 @@ namespace SPRNetTool.Domain
 
         }
 
-        async Task<BitmapSource?> IBitmapDisplayManager.OptimzeImageColor(Dictionary<Color, long> countableColorSource
-            , BitmapSource oldBmpSource
-            , int colorSize
-            , int colorDifferenceDelta
-            , bool isUsingAlpha
-            , int colorDifferenceDeltaForCalculatingAlpha
-            , Color backgroundForBlendColor)
-        {
-            return await Task.Run<BitmapSource?>(() =>
-            {
-                var orderedList = countableColorSource.OrderByDescending(kp => kp.Value).ToDictionary(kp => kp.Key, kp => kp.Value);
-                var selectedColorList = new List<Color>();
 
-
-                // TODO: Dynamic this
-                var selectedColorRecalculatedAlapha = new List<Color>();
-                var combinedRGBList = new List<Color>();
-                var expectedRGBList = new List<Color>();
-                var deltaDistanceForNewARGBColor = 10;
-                var deltaForAlphaAvarageDeviation = 3;
-
-                // Optimize color palette
-                while (selectedColorList.Count < colorSize && orderedList.Count > 0 && colorDifferenceDelta >= 0)
-                {
-                    for (int i = 0; i < orderedList.Count; i++)
-                    {
-                        var expectedColor = orderedList.ElementAt(i).Key;
-                        var shouldAdd = true;
-                        foreach (var selectedColor in selectedColorList)
-                        {
-                            var distance = this.CalculateEuclideanDistance(expectedColor, selectedColor);
-                            if (distance < colorDifferenceDelta)
-                            {
-                                if (isUsingAlpha && distance < colorDifferenceDeltaForCalculatingAlpha)
-                                {
-                                    var alpha = this.FindAlphaColors(selectedColor, backgroundForBlendColor, expectedColor, out byte averageAbsoluteDeviation);
-                                    var newRGBColor = this.BlendColors(Color.FromArgb(alpha, selectedColor.R, selectedColor.G, selectedColor.B), backgroundForBlendColor);
-                                    var distanceNewRGBColor = this.CalculateEuclideanDistance(newRGBColor, expectedColor);
-                                    if (averageAbsoluteDeviation <= deltaForAlphaAvarageDeviation && distanceNewRGBColor <= deltaDistanceForNewARGBColor)
-                                    {
-                                        expectedRGBList.Add(expectedColor);
-                                        combinedRGBList.Add(newRGBColor);
-                                        selectedColorRecalculatedAlapha.Add(Color.FromArgb(alpha, selectedColor.R, selectedColor.G, selectedColor.B));
-                                        orderedList.Remove(expectedColor);
-                                        i--;
-                                    }
-                                }
-                                shouldAdd = false;
-                                break;
-                            }
-                        }
-                        if (shouldAdd)
-                        {
-                            selectedColorList.Add(expectedColor);
-                            orderedList.Remove(expectedColor);
-                            i--;
-                        }
-
-                        if (selectedColorList.Count >= colorSize) break;
-                    }
-                    colorDifferenceDelta -= 2;
-                }
-
-                //Combine RGB and ARGB color to selected list
-                var optimizedRGBCount = selectedColorList.Count;
-                var combinedColorList = selectedColorList.ToList().Also((it) => it.AddRange(combinedRGBList));
-
-                //reduce same combined color
-                combinedColorList = combinedColorList.GroupBy(c => c).Select(g => g.First()).ToList();
-
-
-                //======================================================
-                //Dithering
-                if (optimizedRGBCount > 0 && optimizedRGBCount <= colorSize && oldBmpSource != null)
-                {
-                    var newBmpSrc = this.FloydSteinbergDithering(oldBmpSource, combinedColorList);
-                    newBmpSrc?.Freeze();
-                    return newBmpSrc;
-                }
-
-                return null;
-            });
-        }
+        #endregion
 
         private BitmapSource? OpenSprFile(string filePath)
         {
@@ -400,7 +329,6 @@ namespace SPRNetTool.Domain
             var changedEvent = ((BitmapDisplayMangerChangedArg)args).Event;
             logger.D($"ChangedEvent: {changedEvent}~{Convert.ToString((int)changedEvent, 2)}");
         }
-
     }
 
     public class BitmapDisplayMangerChangedArg : IDomainChangedArgs
