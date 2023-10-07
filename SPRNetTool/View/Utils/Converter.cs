@@ -6,18 +6,6 @@ using System.Windows.Data;
 
 namespace SPRNetTool.View.Utils
 {
-    public class NullToVisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return value == null ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
 
     public enum InvisibleType
     {
@@ -57,6 +45,33 @@ namespace SPRNetTool.View.Utils
                     return System.Convert.ToBoolean(value) == true ? Visibility.Hidden : Visibility.Visible;
                 case InvisibleType.REVERSE_COLLAPSED:
                     return System.Convert.ToBoolean(value) == true ? Visibility.Collapsed : Visibility.Visible;
+            }
+            return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class NullToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var invisibleType = InvisibleType.COLLAPSED;
+            parameter?.IfIsThenAlso<InvisibleType>(it => invisibleType = it);
+
+            switch (invisibleType)
+            {
+                case InvisibleType.HIDDEN:
+                    return value == null ? Visibility.Hidden : Visibility.Visible;
+                case InvisibleType.COLLAPSED:
+                    return value == null ? Visibility.Collapsed : Visibility.Visible;
+                case InvisibleType.REVERSE_HIDDEN:
+                    return value != null ? Visibility.Hidden : Visibility.Visible;
+                case InvisibleType.REVERSE_COLLAPSED:
+                    return value != null ? Visibility.Collapsed : Visibility.Visible;
             }
             return Visibility.Visible;
         }

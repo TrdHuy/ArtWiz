@@ -103,7 +103,7 @@ namespace SPRNetTool.View.Pages
         private void OpenImageClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Tệp ảnh (*.png;*.jpg;*.jpeg;*.gif;*.spr)|*.png;*.jpg;*.jpeg;*.gif;*.spr|All files (*.*)|*.*";
+            openFileDialog.Filter = "Tệp ảnh |*.png;*.jpg;*.jpeg;*.gif;*.spr";
             if (openFileDialog.ShowDialog() == true)
             {
                 BitmapSource? bmpSource = null;
@@ -153,8 +153,6 @@ namespace SPRNetTool.View.Pages
             var backgroundForBlendColorKey = "Màu nền cho blend";
             var backgroundForBlendColorDes = "Màu nền được dùng cho việc blend màu foreground với kênh alpha.\n" +
                 "https://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color";
-
-
 
             var srcInput = builder.AddTextInputOption(colorCountKey
                 , colorCountKey
@@ -214,121 +212,15 @@ namespace SPRNetTool.View.Pages
             l.Show(block: async () =>
             {
                 if (viewModel.OriginalColorSource.Count == 0) return;
-
-                await Task.Run(async () =>
+                await Task.Run(() =>
                 {
-                    var orderedList = viewModel.OrderByDescendingCount(isSetToDisplaySource: false).ToList();
-                    var selectedList = new ObservableCollection<OptimizedColorItemViewModel>();
-                    var selectedColorList = new List<Color>();
-
-
-                    // TODO: Dynamic this
-                    var selectedColorRecalculatedAlapha = new List<Color>();
-                    var expectedRGBList = new List<Color>();
-                    var deltaDistanceForNewARGBColor = 10;
-                    var deltaForAlphaAvarageDeviation = 3;
-
-                    // Calculate palette
-                    while (selectedList.Count < colorSize && orderedList.Count > 0 && delta >= 0)
-                    {
-                        for (int i = 0; i < orderedList.Count; i++)
-                        {
-                            var item = orderedList[i];
-                            var expectedColor = item.ItemColor;
-                            var shouldAdd = true;
-                            foreach (var item2 in selectedList)
-                            {
-                                var distance = expectedColor.CalculateEuclideanDistance(item2.ItemColor);
-                                if (distance < delta)
-                                {
-                                    if (isUsingAlpha && distance < deltaForCompareRecalculate)
-                                    {
-                                        var alpha = item2.ItemColor.FindAlphaColors(backgroundForBlendColor, expectedColor, out byte averageAbsoluteDeviation);
-                                        var newRGBColor = Color.FromArgb(alpha, item2.ItemColor.R, item2.ItemColor.G, item2.ItemColor.B).BlendColors(backgroundForBlendColor);
-                                        var distanceNewRGBColor = newRGBColor.CalculateEuclideanDistance(expectedColor);
-                                        if (averageAbsoluteDeviation <= deltaForAlphaAvarageDeviation && distanceNewRGBColor <= deltaDistanceForNewARGBColor)
-                                        {
-                                            expectedRGBList.Add(expectedColor);
-                                            selectedColorRecalculatedAlapha.Add(Color.FromArgb(alpha, item2.ItemColor.R, item2.ItemColor.G, item2.ItemColor.B));
-                                            orderedList.RemoveAt(i);
-                                            i--;
-                                        }
-                                    }
-                                    shouldAdd = false;
-                                    break;
-                                }
-                            }
-                            if (shouldAdd)
-                            {
-                                selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel()
-                                {
-                                    ItemColor = expectedColor
-                                });
-                                selectedColorList.Add(expectedColor);
-                                orderedList.RemoveAt(i);
-                                i--;
-                            }
-
-                            if (selectedList.Count >= colorSize) break;
-                        }
-                        delta -= 2;
-                    }
-
-                    //Combine RGB and ARGB color to selected list
-                    var optimizedRGBCount = selectedList.Count;
-                    int iii = 0;
-                    foreach (var item in selectedColorRecalculatedAlapha)
-                    {
-                        selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel(backgroundForBlendColor)
-                        {
-                            ItemColor = item,
-                            ExpectedColor = expectedRGBList[iii++]
-                        });
-                    }
-
-                    //reduce same combined color
-                    selectedList = selectedList.GroupBy(c => c.CombinedColor).Select(g => g.First()).ToIndexableObservableCollection();
-                    var combinedColorList = selectedList.Select(c => c.CombinedColor).ToList();
-
-                    viewModel.SetOptimizedColorSource(selectedList);
-
-                    //=====================================================
-                    //Dithering
-                    BitmapSource? oldBmpSource = null;
-                    this.ViewElementDispatcher.Invoke(new Action(() =>
-                    {
-                        oldBmpSource = StaticImageView.Source as BitmapSource;
-
-                    }));
-                    if (optimizedRGBCount > 0 && optimizedRGBCount <= colorSize && oldBmpSource != null)
-                    {
-                        //var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, selectedColorList, isUsingAlpha, selectedColorRecalculatedAlapha, backgroundForBlendColor);
-                        var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, combinedColorList);
-                        newBmpSrc?.Freeze();
-                        this.ViewElementDispatcher.Invoke(new Action(() =>
-                        {
-                            StaticImageView2.Source = newBmpSrc;
-                        }));
-
-                        if (newBmpSrc != null)
-                        {
-                            var src = await BitmapUtil.CountColorsAsync(newBmpSrc);
-                            var newCountedSrc = new ObservableCollection<ColorItemViewModel>();
-                            await Task.Run(() =>
-                            {
-                                foreach (var color in src)
-                                {
-                                    var newColor = color.Key;
-                                    newCountedSrc.Add<ColorItemViewModel>(new ColorItemViewModel { ItemColor = newColor, Count = color.Value });
-                                }
-                            });
-
-                            viewModel.SetResultRGBColorSource(newCountedSrc);
-                        }
-                    }
+                    viewModel.OptimizeImageColor(colorSize: colorSize,
+                    colorDifferenceDelta: delta,
+                    isUsingAlpha: isUsingAlpha,
+                    colorDifferenceDeltaForCalculatingAlpha: deltaForCompareRecalculate,
+                    backgroundForBlendColor: backgroundForBlendColor);
                 });
             });
-
         }
 
         private int originalCountClick = 0;

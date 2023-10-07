@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace SPRNetTool.Utils
@@ -8,6 +10,12 @@ namespace SPRNetTool.Utils
 
     public static class Extension
     {
+
+        public static IEnumerable<T> ReduceSameItem<T>(this IEnumerable<T> @in)
+        {
+            return @in.GroupBy(i => i).Select(i => i.First());
+        }
+
         public static bool HasOneFlagOf<T>(this T e1, params T[] e2) where T : Enum
         {
             foreach (var e in e2)
@@ -30,13 +38,13 @@ namespace SPRNetTool.Utils
         }
         public static bool HasAllFlagsOf<T>(this T e1, params T[] e2) where T : Enum
         {
-            foreach(var e in e2)
+            foreach (var e in e2)
             {
                 if (Enum.IsDefined(e1.GetType(), e))
                 {
                     ulong e1Num = Convert.ToUInt64(e1);
                     ulong e2Num = Convert.ToUInt64(e);
-                    if((e1Num & e2Num) != e2Num)
+                    if ((e1Num & e2Num) != e2Num)
                     {
                         return false;
                     }
@@ -133,6 +141,7 @@ namespace SPRNetTool.Utils
             }
             return self;
         }
+
         public static void ApplyIfNotNull<T1, T2>(this (T1, T2) self, Action<T1, T2> block)
         {
             if (self.Item1 != null && self.Item2 != null)

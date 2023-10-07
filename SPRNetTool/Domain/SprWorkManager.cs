@@ -226,14 +226,14 @@ namespace SPRNetTool.Domain
         }
 
         private byte[]? EncryptedSprFile(List<byte[]> encryptedFrameData,
-          PaletteColor[] paletteData,
-          ushort globalWidth,
-          ushort globalHeight,
-          ushort globalOffX,
-          ushort globalOffY,
-          ushort direction,
-          ushort interval,
-          byte[] reserved)
+            PaletteColor[] paletteData,
+            ushort globalWidth,
+            ushort globalHeight,
+            ushort globalOffX,
+            ushort globalOffY,
+            ushort direction,
+            ushort interval,
+            byte[] reserved)
         {
 
             void WritePaletteColorToByteList(PaletteColor color, List<byte> list)
