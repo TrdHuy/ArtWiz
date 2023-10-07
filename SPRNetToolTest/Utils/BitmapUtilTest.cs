@@ -25,14 +25,6 @@ namespace SPRNetToolTest.Utils
             NUM4 = 0b00001000,
         }
 
-        
-        [Test]
-        public void test2()
-        {
-            List<int> s = new List<int> { 1, 3, 3, 3, 4, 5, 6 };
-            s.ReduceSameItem().ToList;
-
-        }
 
         [Test]
         public void test()

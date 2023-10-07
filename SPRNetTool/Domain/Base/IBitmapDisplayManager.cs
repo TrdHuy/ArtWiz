@@ -1,6 +1,7 @@
 ﻿using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -23,8 +24,13 @@ namespace SPRNetTool.Domain.Base
 
         void SaveCurrentDisplaySourceToSprFile(string filePath);
 
+        Dictionary<Color, long> CountBitmapColors(BitmapSource bitmap)
+        {
+            return this.CountColors(bitmap);
+        }
 
-        BitmapSource? OptimzeImageColor(Dictionary<Color, long> countableColorSource
+
+        BitmapSource? OptimzeImageColor(List<(Color, long)> countableColorSource
             , BitmapSource oldBmpSource
             , int colorSize
             , int colorDifferenceDelta
@@ -32,9 +38,10 @@ namespace SPRNetTool.Domain.Base
             , int colorDifferenceDeltaForCalculatingAlpha
             , Color backgroundForBlendColor
             , out List<Color> selectedColors
-            , out List<Color> selectedAlphaColors)
+            , out List<Color> selectedAlphaColors
+            , out List<Color> expectedRGBColors)
         {
-            var orderedList = countableColorSource.OrderByDescending(kp => kp.Value).ToDictionary(kp => kp.Key, kp => kp.Value);
+            var orderedList = countableColorSource.OrderByDescending(it => it.Item2).ToList();
             var selectedColorList = new List<Color>();
 
 
@@ -50,7 +57,9 @@ namespace SPRNetTool.Domain.Base
             {
                 for (int i = 0; i < orderedList.Count; i++)
                 {
-                    var expectedColor = orderedList.ElementAt(i).Key;
+                    // For performance issue, do not use ElementAt to access the value with index
+                    // use indexer instead
+                    var expectedColor = orderedList[i].Item1;
                     var shouldAdd = true;
                     foreach (var selectedColor in selectedColorList)
                     {
@@ -67,7 +76,7 @@ namespace SPRNetTool.Domain.Base
                                     expectedRGBList.Add(expectedColor);
                                     combinedRGBList.Add(newRGBColor);
                                     selectedAlphaColorsList.Add(Color.FromArgb(alpha, selectedColor.R, selectedColor.G, selectedColor.B));
-                                    orderedList.Remove(expectedColor);
+                                    orderedList.RemoveAt(i);
                                     i--;
                                 }
                             }
@@ -78,7 +87,7 @@ namespace SPRNetTool.Domain.Base
                     if (shouldAdd)
                     {
                         selectedColorList.Add(expectedColor);
-                        orderedList.Remove(expectedColor);
+                        orderedList.RemoveAt(i);
                         i--;
                     }
 
@@ -92,10 +101,14 @@ namespace SPRNetTool.Domain.Base
             var combinedColorList = selectedColorList.ToList().Also((it) => it.AddRange(combinedRGBList));
 
             //reduce same combined color
-            combinedColorList = combinedColorList.GroupBy(c => c).Select(g => g.First()).ToList();
+            combinedColorList = combinedColorList.ReduceSameItem().ToList();
 
             selectedColors = combinedColorList;
             selectedAlphaColors = selectedAlphaColorsList;
+            expectedRGBColors = expectedRGBList;
+            Debug.Assert(selectedColors.Count == selectedAlphaColors.Count + colorSize);
+            Debug.Assert(expectedRGBColors.Count == selectedAlphaColors.Count);
+
             //======================================================
             //Dithering
             if (optimizedRGBCount > 0 && optimizedRGBCount <= colorSize && oldBmpSource != null)

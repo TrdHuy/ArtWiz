@@ -204,7 +204,7 @@
 			<Grid Grid.Column="1"
 				  Background="Black">
 				<Image x:Name="StaticImageView2"
-					   Source="../../Resources/bg.jpg" />
+					   Source="{Binding CurrentlyDisplayedOptimizedBitmapSource}" />
 			</Grid>
 
 			<StackPanel Grid.Row="1"
