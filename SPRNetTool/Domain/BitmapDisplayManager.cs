@@ -22,7 +22,6 @@ namespace SPRNetTool.Domain
         protected ISprWorkManager SprWorkManager
         { get { return IDomainAccessors.DomainContext.GetDomain<ISprWorkManager>(); } }
 
-        // TODO : Add array DisplayedColorSource cache for multi frame of spr animation 
         private class BitmapSourceCache
         {
             public bool IsPlaying { get; set; }
@@ -189,8 +188,11 @@ namespace SPRNetTool.Domain
             }
             else if (fileExtension == ".spr")
             {
-                DisplayedBitmapSourceCache.DisplayedBitmapSource = this.OpenSprFile(filePath)?.Also((it) =>
+                DisplayedBitmapSourceCache.DisplayedBitmapSource = OpenSprFile(filePath)?.Also((it) =>
                 {
+                    DisplayedBitmapSourceCache.AnimationSourceCaching = new BitmapSource?[SprWorkManager.FileHead.FrameCounts];
+                    DisplayedBitmapSourceCache.ColorSourceCaching = new Dictionary<Color, long>?[SprWorkManager.FileHead.FrameCounts];
+
                     DisplayedBitmapSourceCache.IsSprImage = true;
                     if (countPixelColor)
                     {
