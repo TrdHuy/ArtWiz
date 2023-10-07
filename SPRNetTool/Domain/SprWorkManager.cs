@@ -141,15 +141,12 @@ namespace SPRNetTool.Domain
 
         byte[]? ISprWorkManager.GetByteArrayFromEncyptedFrameData(int i)
         {
-            return FrameData?[i].Let((it) =>
-            {
-                return EncryptFrameData(it.decodedFrameData
+            return FrameData?[i].Let(it => EncryptFrameData(it.decodedFrameData
                     , PaletteData.Data
                     , it.frameWidth
                     , it.frameHeight
                     , (ushort)it.frameOffX
-                    , (ushort)it.frameOffY);
-            });
+                    , (ushort)it.frameOffY));
         }
 
         #endregion
@@ -294,6 +291,39 @@ namespace SPRNetTool.Domain
             }
 
             return encryptedFileData.ToArray();
+        }
+        #endregion
+
+        #region protected interface
+        byte[]? ISprWorkManager.EncryptFrameData(PaletteColor[] pixelArray, PaletteColor[] paletteData, ushort frameWidth, ushort frameHeight, ushort frameOffX, ushort frameOffY)
+        {
+            return EncryptFrameData(pixelArray,
+                paletteData,
+                frameWidth,
+                frameHeight,
+                frameOffX,
+                frameOffY);
+        }
+
+        byte[]? ISprWorkManager.EncryptedSprFile(List<byte[]> encryptedFrameData,
+            PaletteColor[] paletteData,
+            ushort globalWidth,
+            ushort globalHeight,
+            ushort globalOffX,
+            ushort globalOffY,
+            ushort direction,
+            ushort interval,
+            byte[] reserved)
+        {
+            return EncryptedSprFile(encryptedFrameData,
+                paletteData,
+                globalWidth,
+                globalHeight,
+                globalOffX,
+                globalOffY,
+                direction,
+                interval,
+                reserved);
         }
         #endregion
 
@@ -446,6 +476,7 @@ namespace SPRNetTool.Domain
 #endif
             return decData;
         }
+
     }
 
     public enum COLORMODE

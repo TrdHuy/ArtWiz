@@ -1,6 +1,9 @@
+using SPRNetTool.Domain;
+using SPRNetTool.Domain.Base;
+using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using System.Windows.Media;
-
+using static SPRNetTool.Utils.BitmapUtil;
 namespace SPRNetToolTest.Utils
 {
     public class BitmapUtilTest
@@ -22,6 +25,29 @@ namespace SPRNetToolTest.Utils
             NUM2 = 0b00000010,
             NUM3 = 0b00000100,
             NUM4 = 0b00001000,
+        }
+
+        [Test]
+        public void test_SaveBitmapSourceToSprFile()
+        {
+            string imagePath = "Resources\\test.png".FullPath();
+            var bmpSource = LoadBitmapFromFile(imagePath);
+            Assert.NotNull(bmpSource);
+            ISprWorkManager swm = new SprWorkManager();
+            swm.SaveBitmapSourceToSprFile(bmpSource, "Resources\\test.spr");
+        }
+
+        [Test]
+        public void test_ConvertBitmapSourceToPaletteColorArray()
+        {
+            string imagePath = "Resources\\test.png".FullPath();
+            var bmpSource = LoadBitmapFromFile(imagePath);
+            var bdm = new BitmapDisplayManager();
+            Assert.NotNull(bmpSource);
+            var bytearray = bdm.ConvertBitmapSourceToByteArray(bmpSource);
+            var palarray = bdm.ConvertBitmapSourceToPaletteColorArray(bmpSource);
+            var palarrayToByte = bdm.ConvertPaletteColourArrayToByteArray(palarray);
+            Assert.That(bdm.AreByteArraysEqual(bytearray, palarrayToByte));
         }
 
         [Test]
@@ -53,7 +79,7 @@ namespace SPRNetToolTest.Utils
         public void TestLoadBitmapSourceFromFile()
         {
             string imagePath = "Resources\\test.png".FullPath();
-            var bmpSource = BitmapUtil.LoadBitmapFromFile(imagePath);
+            var bmpSource = LoadBitmapFromFile(imagePath);
             Assert.NotNull(bmpSource);
             Assert.That(bmpSource.PixelWidth * bmpSource.PixelHeight, Is.EqualTo(90000));
         }
@@ -62,9 +88,9 @@ namespace SPRNetToolTest.Utils
         public async Task TestCountColors()
         {
             string imagePath = "Resources\\test.png".FullPath();
-            var bmpSource = BitmapUtil.LoadBitmapFromFile(imagePath);
+            var bmpSource = LoadBitmapFromFile(imagePath);
             Assert.NotNull(bmpSource);
-            var src = await BitmapUtil.CountColorsAsync(bmpSource);
+            var src = await CountColorsAsync(bmpSource);
             Assert.That(src.Count, Is.EqualTo(4));
 
             var redColor = Color.FromArgb(255, 237, 28, 36);

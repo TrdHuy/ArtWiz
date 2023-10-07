@@ -1,12 +1,16 @@
 ﻿using SPRNetTool.Data;
+using SPRNetTool.Domain.Utils;
 using SPRNetTool.LogUtil;
 using SPRNetTool.Utils;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain.Base
 {
-    public interface ISprWorkManager : IObservableDomain
+    public interface ISprWorkManager : IObservableDomain, IDomainAdapter
     {
 
         #region public API
@@ -92,6 +96,49 @@ namespace SPRNetTool.Domain.Base
         }
         #endregion
 
+        #region public standalone API
+        public void SaveBitmapSourceToSprFile(BitmapSource bitmapSource, string filePath)
+        {
+            var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource);
+            var countablePaletteColors = this.CountColorsTolist(bitmapSource);
+
+            if (countablePaletteColors.Count >= 256)
+            {
+                throw new Exception("cannot save bitmap to spr because its color size > 256");
+            }
+            if (bitmapSource.PixelWidth > ushort.MaxValue)
+            {
+                throw new Exception($"cannot save bitmap to spr because its width > {ushort.MaxValue}");
+            }
+            if (bitmapSource.PixelHeight > ushort.MaxValue)
+            {
+                throw new Exception($"cannot save bitmap to spr because its height > {ushort.MaxValue}");
+            }
+            var paletteColorArray = countablePaletteColors.Select(it =>
+                new PaletteColor(it.Item1.B, it.Item1.G, it.Item1.R, it.Item1.A)).ToArray();
+
+            var encryptedFrameData = EncryptFrameData(palettePixelArray,
+                paletteColorArray,
+                frameWidth: (ushort)bitmapSource.PixelWidth,
+                frameHeight: (ushort)bitmapSource.PixelHeight,
+                frameOffX: 0,
+                frameOffY: 0) ?? throw new Exception("failed to encrypt frame data!");
+
+            using (FileStream fs = new FileStream(filePath, FileMode.Create))
+            {
+                var data = EncryptedSprFile(encryptedFrameData: new List<byte[]> { encryptedFrameData },
+                    paletteData: paletteColorArray,
+                    globalWidth: (ushort)bitmapSource.PixelWidth,
+                    globalHeight: (ushort)bitmapSource.PixelHeight,
+                    globalOffX: 0,
+                    globalOffY: 0,
+                    direction: 1,
+                    interval: 0,
+                    new byte[12]) ?? throw new Exception("Failed to encrypt SPR file!");
+                fs.Write(data, 0, data.Length);
+            }
+        }
+        #endregion
         #region protected API
         protected bool IsCacheEmpty { get; }
         protected byte[]? GetByteArrayFromEncyptedFrameData(int i);
@@ -104,6 +151,18 @@ namespace SPRNetTool.Domain.Base
         protected void InitPaletteDataFromFileStream(FileStream fs, US_SprFileHead fileHead);
         protected void InitFrameData(FileStream fs);
 
+        protected byte[]? EncryptFrameData(PaletteColor[] pixelArray, PaletteColor[] paletteData
+                   , ushort frameWidth, ushort frameHeight, ushort frameOffX, ushort frameOffY);
+
+        protected byte[]? EncryptedSprFile(List<byte[]> encryptedFrameData,
+            PaletteColor[] paletteData,
+            ushort globalWidth,
+            ushort globalHeight,
+            ushort globalOffX,
+            ushort globalOffY,
+            ushort direction,
+            ushort interval,
+            byte[] reserved);
         #endregion
     }
 }
