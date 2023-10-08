@@ -101,19 +101,20 @@ jobs:
                   return;
               }
               const project = result.Project;
-              const propertyGroup = project.PropertyGroup;
-              const versionProperties = ['AssemblyVersion', 'FileVersion', 'Version'];
-              for (const prop of versionProperties) {
-                  if (!propertyGroup.hasOwnProperty(prop)) {
-                      // Nếu thuộc tính không tồn tại, thêm nó với giá trị mặc định
-                      propertyGroup[prop] = ['1.0.0.0'];
+              const propertyGroup = project.PropertyGroup[0];
+              const propertiesToCheck = ['AssemblyVersion', 'FileVersion', 'Version'];
+              propertiesToCheck.forEach(propName => {
+                  if (!propertyGroup.hasOwnProperty(propName)) {
+                      // Nếu không tồn tại, thêm nó với giá trị mặc định
+                      propertyGroup[propName] = ['1.0.0.0'];
                   } else {
-                      // Nếu thuộc tính tồn tại, tăng giá trị lên
-                      const currentVersion = propertyGroup[prop][0].split('.').map(Number);
+                      // Nếu đã tồn tại, tăng giá trị lên
+                      const currentVersion = propertyGroup[propName][0].split('.').map(Number);
                       currentVersion[3]++; // Tăng phần số build lên
-                      propertyGroup[prop][0] = currentVersion.join('.');
+                      propertyGroup[propName][0] = currentVersion.join('.');
                   }
-              }
+              });
+
               //const builder = new xml2js.Builder();
               // const newXmlString = builder.buildObject(result);
               console.log(result);
