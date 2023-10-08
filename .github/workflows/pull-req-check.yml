@@ -100,7 +100,7 @@ jobs:
                   console.error(err);
                   return;
               }
-              const propertyGroup = result.PropertyGroup;
+              const propertyGroup = result.Project.PropertyGroup;
               // Truy cập các phần tử trong đối tượng JavaScript
               const versionProperties = ['AssemblyVersion', 'FileVersion', 'Version'];
               for (const prop of versionProperties) {
