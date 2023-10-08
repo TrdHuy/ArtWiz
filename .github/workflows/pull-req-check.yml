@@ -54,11 +54,10 @@ jobs:
     - name: Build
       uses: actions/github-script@v6
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const { Octokit } = require("@octokit/action");
           const octokit = new Octokit({
-            auth: '${{ secrets.GITHUB_TOKEN }}'
+            auth: '${{ secrets.WORK_FLOW_ACCESS_TOKEN }}'
           })
           
           const res = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
