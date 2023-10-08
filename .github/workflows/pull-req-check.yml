@@ -55,6 +55,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
+          const { Octokit } = require("@octokit/core");
           const octokit = new Octokit({
             auth: ${{ secrets.GITHUB_TOKEN }}
           })
