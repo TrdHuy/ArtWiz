@@ -102,14 +102,13 @@ jobs:
               <Version>1.0.0.1</Version>
           </PropertyGroup>`;
           
-          const propertyGroup = result.PropertyGroup;
           // Phân tích XML thành đối tượng JavaScript
           xml2js.parseString(xmlString, (err, result) => {
               if (err) {
                   console.error(err);
                   return;
               }
-
+              const propertyGroup = result.PropertyGroup;
               // Truy cập các phần tử trong đối tượng JavaScript
               const versionProperties = ['AssemblyVersion', 'FileVersion', 'Version'];
               for (const prop of versionProperties) {
