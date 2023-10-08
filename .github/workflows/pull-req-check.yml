@@ -1,4 +1,4 @@
-name: Auto Version Bump
+name: AutoVersionBump
 
 on:
   workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
