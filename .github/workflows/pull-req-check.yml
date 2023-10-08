@@ -101,7 +101,8 @@ jobs:
               <FileVersion>1.0.0.1</FileVersion>
               <Version>1.0.0.1</Version>
           </PropertyGroup>`;
-
+          
+          const propertyGroup = result.PropertyGroup;
           // Phân tích XML thành đối tượng JavaScript
           xml2js.parseString(xmlString, (err, result) => {
               if (err) {
