@@ -12,6 +12,7 @@ jobs:
   version_bump:
     runs-on: ubuntu-latest
     env:
+     VERSION_UP_ISSUE_ID: 52
      BRANCH_NAME: feature_trdhuy_autoVersionUp_p1
      PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
      GITHUB_TOKEN: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
@@ -68,6 +69,7 @@ jobs:
           const sha = res.data.sha;
           
           let newXmlString = '';
+          let newVersion = '';
           xml2js.parseString(xmlContent, (err, result) => {
               if (err) {
                   console.error(err);
@@ -86,6 +88,9 @@ jobs:
                       currentVersion[3]++; // Tăng phần số build lên
                       propertyGroup[propName][0] = currentVersion.join('.');
                   }
+                  if (propName == 'Version') {
+                    newVersion = propertyGroup[propName][0];
+                  }
               });
               const builder = new xml2js.Builder();
               newXmlString = builder.buildObject(result);
@@ -100,10 +105,10 @@ jobs:
                 path: '${{ env.PROJECT_FILE_PATH }}',
                 ref: '${{ env.BRANCH_NAME }}',
                 sha: sha,
-                message: 'my commit message',
+                message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
                 committer: {
-                  name: 'Monalisa Octocat',
-                  email: 'octocat@github.com'
+                  name: 'TrdHuy',
+                  email: 'trdtranduchuy@gmail.com'
                 },
                 content: Buffer.from(newXmlString).toString('base64'),
                 headers: {
