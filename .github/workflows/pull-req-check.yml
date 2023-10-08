@@ -14,6 +14,7 @@ jobs:
     env:
      BRANCH_NAME: feature_trdhuy_autoVersionUp_p1
      PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
+     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - name: Print Input
       run: |
@@ -54,10 +55,11 @@ jobs:
     - name: Build
       uses: actions/github-script@v6
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const { Octokit } = require("@octokit/action");
           const octokit = new Octokit({
-            auth: '${{ secrets.WORK_FLOW_ACCESS_TOKEN }}'
+            auth: '${{ secrets.GITHUB_TOKEN }}'
           })
           
           const res = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
