@@ -115,9 +115,7 @@ jobs:
                 }
               });
               console.log(updateRes);
-              
-              
-            );
+            });
          
           
     # - name: Get last commit message
