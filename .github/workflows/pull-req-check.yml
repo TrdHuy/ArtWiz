@@ -121,6 +121,10 @@ jobs:
               console.log(project);
               console.log(propertyGroup);
               console.log(newXmlString);
+              fs.writeFileSync(path, newXmlString, 'utf8');
+              let newRedXML = fs.readFileSync(path, 'utf8');
+              console.log(newRedXML);
+              console.log('File đã được cập nhật.');
           })
 # const propertyGroup = result.Project.PropertyGroup;
 # // Truy cập các phần tử trong đối tượng JavaScript
