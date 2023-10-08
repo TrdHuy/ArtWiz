@@ -58,7 +58,7 @@ jobs:
         script: |
           const { Octokit } = require("@octokit/action");
           const octokit = new Octokit({
-            auth: ${{ secrets.GITHUB_TOKEN }}
+            auth: '${{ secrets.GITHUB_TOKEN }}'
           })
           
           const res = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
