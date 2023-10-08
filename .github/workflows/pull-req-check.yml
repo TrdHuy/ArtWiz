@@ -12,7 +12,7 @@ jobs:
   version_bump:
     runs-on: ubuntu-latest
     env:
-     BRANCH_NAME: dev
+     BRANCH_NAME: refs/heads/dev
     steps:
     - name: Print Input
       run: |
