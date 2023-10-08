@@ -47,19 +47,29 @@ jobs:
           // Đọc nội dung của tệp .csproj
           let csprojContent = fs.readFileSync(path, 'utf8');
           console.log(csprojContent);
-          
+    - uses: actions/setup-node@v3
+      with:
+          node-version: 16
+    - run: npm install @octokit/action
     - name: Build
       uses: actions/github-script@v6
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const { data: getFileResponse } = await github.repos.getContent({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              path: '${{ env.PROJECT_FILE_PATH }}' // Đường dẫn tới file cần cập nhật
+          const { Octokit } = require("@octokit/action");
+          octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+            context.repo.owner,
+            context.repo.repo,
+            path: '${{ env.PROJECT_FILE_PATH }}',
+            ref: '${{ env.BRANCH_NAME }}',
+          }).then((response) => {
+              const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+              console.log('File content:', content);
+            })
+            .catch((error) => {
+              console.error('Error:', error);
             });
-          const existingFileContent = Buffer.from(getFileResponse.content, 'base64').toString('utf8');
-          console.log(existingFileContent)
+          
     # - name: Get last commit message
     #   shell: bash
     #   run: |
