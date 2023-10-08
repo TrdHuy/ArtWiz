@@ -42,7 +42,7 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          const path = ${{ env.PROJECT_FILE_PATH }};  // Thay đổi đường dẫn tương ứng
+          const path = '${{ env.PROJECT_FILE_PATH }}';  // Thay đổi đường dẫn tương ứng
           const versionRegex = /<Version>(.*?)<\/Version>/;
           // Đọc nội dung của tệp .csproj
           let csprojContent = fs.readFileSync(path, 'utf8');
@@ -92,7 +92,7 @@ jobs:
         script: |
           const xml2js = require('xml2js');
           const fs = require('fs');
-          const path = ${{ env.PROJECT_FILE_PATH }};  // Thay đổi đường dẫn tương ứng
+          const path = '${{ env.PROJECT_FILE_PATH }}';  // Thay đổi đường dẫn tương ứng
           let xmlString = fs.readFileSync(path, 'utf8');
           // Phân tích XML thành đối tượng JavaScript
           xml2js.parseString(xmlString, (err, result) => {
