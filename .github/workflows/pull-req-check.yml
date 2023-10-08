@@ -18,5 +18,10 @@ jobs:
       uses: actions/github-script@v5
       with:
         script: |
-          const log = ${{ toJSON(github) }};
-          console.log(log);
+          const fs = require('fs');
+          const path = 'SPRNetTool/SPRNetTool.csproj';  // Thay đổi đường dẫn tương ứng
+          const versionRegex = /<Version>(.*?)<\/Version>/;
+          // Đọc nội dung của tệp .csproj
+          let csprojContent = fs.readFileSync(path, 'utf8');
+          console.log(csprojContent);
+          
