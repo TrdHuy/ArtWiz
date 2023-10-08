@@ -44,3 +44,8 @@ jobs:
           let csprojContent = fs.readFileSync(path, 'utf8');
           console.log(csprojContent);
           
+    - name: Build
+      run: |
+          echo "Building the code..."
+          
+      
