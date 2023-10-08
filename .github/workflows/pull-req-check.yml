@@ -26,13 +26,13 @@ jobs:
 
     - name: Githublog
       id: extract_version
-      uses: actions/github-script@v5
+      uses: actions/github-script@v6
       with:
         script: |
           const log = ${{ toJSON(github) }};
           console.log(log);
     - name: Github object
-      uses: actions/github-script@v5
+      uses: actions/github-script@v6
       with:
         script: |
           console.log(github);    
