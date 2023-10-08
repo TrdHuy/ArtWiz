@@ -57,19 +57,20 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const { Octokit } = require("@octokit/action");
-          octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-            context.repo.owner,
-            context.repo.repo,
+          const octokit = new Octokit({
+            auth: ${{ secrets.GITHUB_TOKEN }}
+          })
+          
+          const res = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
             path: '${{ env.PROJECT_FILE_PATH }}',
             ref: '${{ env.BRANCH_NAME }}',
-          }).then((response) => {
-              const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
-              console.log('File content:', content);
-            })
-            .catch((error) => {
-              console.error('Error:', error);
-            });
-          
+            headers: {
+              'X-GitHub-Api-Version': '2022-11-28'
+            }
+          })
+          console.log(res)
     # - name: Get last commit message
     #   shell: bash
     #   run: |
