@@ -110,12 +110,21 @@ jobs:
               }
 
               // Truy cập các phần tử trong đối tượng JavaScript
-              const propertyGroup = result.PropertyGroup;
-              console.log(propertyGroup.OutputType[0]); // WinExe
-              console.log(propertyGroup.TargetFramework[0]); // net6.0-windows
-              // ...
-
-              // Chuyển đối tượng JavaScript thành JSON
-              const jsonResult = JSON.stringify(result);
-              console.log(jsonResult);
+              const versionProperties = ['AssemblyVersion', 'FileVersion', 'Version'];
+              for (const prop of versionProperties) {
+                  if (!propertyGroup.hasOwnProperty(prop)) {
+                      // Nếu thuộc tính không tồn tại, thêm nó với giá trị mặc định
+                      propertyGroup[prop] = ['1.0.0.0'];
+                  } else {
+                      // Nếu thuộc tính tồn tại, tăng giá trị lên
+                      const currentVersion = propertyGroup[prop][0].split('.').map(Number);
+                      currentVersion[3]++; // Tăng phần số build lên
+                      propertyGroup[prop][0] = currentVersion.join('.');
+                  }
+              }
+              // Chuyển đối tượng JavaScript thành chuỗi XML mới
+              const builder = new xml2js.Builder();
+              const newXmlString = builder.buildObject(result);
+          
+              console.log(newXmlString);
           })
