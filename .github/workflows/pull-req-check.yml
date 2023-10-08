@@ -114,12 +114,12 @@ jobs:
                       propertyGroup[prop][0] = currentVersion.join('.');
                   }
               }
-              const builder = new xml2js.Builder();
-              const newXmlString = builder.buildObject(result);
+              //const builder = new xml2js.Builder();
+              // const newXmlString = builder.buildObject(result);
               console.log(result);
               console.log(project);
               console.log(propertyGroup);
-              console.log(newXmlString);
+              //console.log(newXmlString);
           })
 # const propertyGroup = result.Project.PropertyGroup;
 # // Truy cập các phần tử trong đối tượng JavaScript
