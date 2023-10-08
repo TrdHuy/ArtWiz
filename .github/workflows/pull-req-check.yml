@@ -12,7 +12,7 @@ jobs:
   version_bump:
     runs-on: ubuntu-latest
     env:
-     BRANCH_NAME: feature_trdhuy_autoVersionUp_p1
+     BRANCH_NAME: dev
      PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -71,6 +71,8 @@ jobs:
               'X-GitHub-Api-Version': '2022-11-28'
             }
           })
+          const xmlContent = Buffer.from(response.data.content, 'base64').toString('utf-8');
+          console.log('File content:', xmlContent);
           console.log(res)
     # - name: Get last commit message
     #   shell: bash
