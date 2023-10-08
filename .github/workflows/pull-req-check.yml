@@ -65,6 +65,8 @@ jobs:
           })
           const xmlContent = Buffer.from(res.data.content, 'base64').toString('utf-8');
           console.log('File content:', xmlContent);
+          const sha = res.data.sha;
+          
           let newXmlString = '';
           xml2js.parseString(xmlContent, (err, result) => {
               if (err) {
@@ -97,6 +99,7 @@ jobs:
                 repo: context.repo.repo,
                 path: '${{ env.PROJECT_FILE_PATH }}',
                 ref: '${{ env.BRANCH_NAME }}',
+                sha: sha,
                 message: 'my commit message',
                 committer: {
                   name: 'Monalisa Octocat',
