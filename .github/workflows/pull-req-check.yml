@@ -18,31 +18,4 @@ jobs:
       uses: actions/github-script@v5
       with:
         script: |
-          console.log(github);
-          const commits = github.context.payload.commits;
-          const regex = /#(\d+)/;  // Regex để trích xuất số phiên bản
-          let newVersion = "1.0.0.0";  // Phiên bản mặc định
-
-          for (const commit of commits) {
-            const match = regex.exec(commit.message);
-            if (match) {
-              newVersion = `1.0.0.${parseInt(match[1]) + 1}`;
-              break;  // Tìm thấy issue ID, thoát vòng lặp
-            }
-          }
-
-          return newVersion;
-
-    - name: Update AssemblyInfo.cs
-      run: |
-        newVersion="${{ steps.extract_version.outputs.result }}"
-        echo "Updating AssemblyVersion to $newVersion in AssemblyInfo.cs"
-        sed -i "s/AssemblyVersion(\".*\")/AssemblyVersion(\"$newVersion\")/" path/to/AssemblyInfo.cs
-
-    - name: Commit and Push Version Bump
-      run: |
-        git config --local user.email "actions@github.com"
-        git config --local user.name "GitHub Actions"
-        git add path/to/AssemblyInfo.cs
-        git commit -m "Auto version bump to $newVersion"
-        git push origin main
+          console.log("hello");
