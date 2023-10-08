@@ -103,6 +103,7 @@ jobs:
               
             });
             if (newXmlString != '' ){
+              console.log('Start update version')
               const updateRes = await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
