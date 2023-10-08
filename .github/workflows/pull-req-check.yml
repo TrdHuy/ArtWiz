@@ -51,7 +51,9 @@ jobs:
     - name: Build
       uses: actions/github-script@v6
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
+          const github = context.github;
           const { data: getFileResponse } = await github.repos.getContent({
               owner: context.repo.owner,
               repo: context.repo.repo,
