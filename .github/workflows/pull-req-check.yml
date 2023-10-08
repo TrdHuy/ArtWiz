@@ -12,7 +12,7 @@ jobs:
   version_bump:
     runs-on: ubuntu-latest
     env:
-     BRANCH_NAME: dev
+     BRANCH_NAME: feature_trdhuy_autoVersionUp_p1
      PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
     steps:
     - name: Print Input
@@ -38,7 +38,7 @@ jobs:
           console.log(github);    
           
     - name: project file detail
-      uses: actions/github-script@v5
+      uses: actions/github-script@v6
       with:
         script: |
           const fs = require('fs');
@@ -49,97 +49,79 @@ jobs:
           console.log(csprojContent);
           
     - name: Build
-      run: |
-          echo "Building the code..."
-    - name: Get last commit message
-      shell: bash
-      run: |
-        response=$(curl -L \
-        -H "Accept: application/vnd.github+json" \
-        -H "Authorization: Bearer  ${{ secrets.GITHUB_TOKEN }}" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
-        https://api.github.com/repos/${{ github.repository }}/commits/${{ env.BRANCH_NAME }})
-        commit_message=$(echo "$response" | jq -r '.commit.message')
-        # In commit message
-        echo "Commit Message: $commit_message"
-        echo "LAST_COMMIT_MESSAGE=$commit_message" >> $GITHUB_ENV
-        
-    - name: Get last commit message
-      id: last_commit
-      uses: actions/github-script@v4
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          console.log(context.repo)
-          const { data: commits } = await github.repos.listCommits({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: 'dev',
-            per_page: 1
-          });
-          const commitMessage = commits[0].commit.message;
-          console.log(commitMessage);
-          console.log(process.env.LAST_COMMIT_MESSAGE);
-          
-    - uses: actions/setup-node@v3
-      with:
-          node-version: 16
-    - run: npm install xml2js
-    - name: Run JavaScript script
       uses: actions/github-script@v6
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const xml2js = require('xml2js');
-          const fs = require('fs');
-          const path = '${{ env.PROJECT_FILE_PATH }}';  // Thay đổi đường dẫn tương ứng
-          let xmlString = fs.readFileSync(path, 'utf8');
-          // Phân tích XML thành đối tượng JavaScript
-          xml2js.parseString(xmlString, (err, result) => {
-              if (err) {
-                  console.error(err);
-                  return;
-              }
-              const project = result.Project;
-              const propertyGroup = project.PropertyGroup[0];
-              const propertiesToCheck = ['AssemblyVersion', 'FileVersion', 'Version'];
-              propertiesToCheck.forEach(propName => {
-                  if (!propertyGroup.hasOwnProperty(propName)) {
-                      // Nếu không tồn tại, thêm nó với giá trị mặc định
-                      propertyGroup[propName] = ['1.0.0.0'];
-                  } else {
-                      // Nếu đã tồn tại, tăng giá trị lên
-                      const currentVersion = propertyGroup[propName][0].split('.').map(Number);
-                      currentVersion[3]++; // Tăng phần số build lên
-                      propertyGroup[propName][0] = currentVersion.join('.');
-                  }
-              });
+          const { data: getFileResponse } = await github.repos.getContent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: '${{ env.PROJECT_FILE_PATH }}', // Đường dẫn tới file cần cập nhật
+              ref: '${{ env.BRANCH_NAME }}', // Tham chiếu tới nhánh
+            });
+          const existingFileContent = Buffer.from(getFileResponse.content, 'base64').toString('utf8');
+          console.log(existingFileContent)
+    # - name: Get last commit message
+    #   shell: bash
+    #   run: |
+    #     response=$(curl -L \
+    #     -H "Accept: application/vnd.github+json" \
+    #     -H "Authorization: Bearer  ${{ secrets.GITHUB_TOKEN }}" \
+    #     -H "X-GitHub-Api-Version: 2022-11-28" \
+    #     https://api.github.com/repos/${{ github.repository }}/commits/${{ env.BRANCH_NAME }})
+    #     commit_message=$(echo "$response" | jq -r '.commit.message')
+    #     # In commit message
+    #     echo "Commit Message: $commit_message"
+    #     echo "LAST_COMMIT_MESSAGE=$commit_message" >> $GITHUB_ENV
 
-              const builder = new xml2js.Builder();
-              const newXmlString = builder.buildObject(result);
-              console.log(result);
-              console.log(project);
-              console.log(propertyGroup);
-              console.log(newXmlString);
-              fs.writeFileSync(path, newXmlString, 'utf8');
-              let newRedXML = fs.readFileSync(path, 'utf8');
-              console.log(newRedXML);
-              console.log('File đã được cập nhật.');
-          })
-# const propertyGroup = result.Project.PropertyGroup;
-# // Truy cập các phần tử trong đối tượng JavaScript
-# const versionProperties = ['AssemblyVersion', 'FileVersion', 'Version'];
-# for (const prop of versionProperties) {
-#     if (!propertyGroup.hasOwnProperty(prop)) {
-#         // Nếu thuộc tính không tồn tại, thêm nó với giá trị mặc định
-#         propertyGroup[prop] = ['1.0.0.0'];
-#     } else {
-#         // Nếu thuộc tính tồn tại, tăng giá trị lên
-#         const currentVersion = propertyGroup[prop][0].split('.').map(Number);
-#         currentVersion[3]++; // Tăng phần số build lên
-#         propertyGroup[prop][0] = currentVersion.join('.');
-#     }
-# }
-# // Chuyển đối tượng JavaScript thành chuỗi XML mới
-# const builder = new xml2js.Builder();
-# const newXmlString = builder.buildObject(result);
+    # - uses: actions/setup-node@v3
+    #   with:
+    #       node-version: 16
+    # - run: npm install xml2js
+    # - name: Run JavaScript script
+    #   uses: actions/github-script@v6
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     script: |
+    #       const xml2js = require('xml2js');
+    #       const fs = require('fs');
+    #       const path = '${{ env.PROJECT_FILE_PATH }}';  // Thay đổi đường dẫn tương ứng
+    #       let xmlString = fs.readFileSync(path, 'utf8');
+    #       // Phân tích XML thành đối tượng JavaScript
+    #       xml2js.parseString(xmlString, (err, result) => {
+    #           if (err) {
+    #               console.error(err);
+    #               return;
+    #           }
+    #           const project = result.Project;
+    #           const propertyGroup = project.PropertyGroup[0];
+    #           const propertiesToCheck = ['AssemblyVersion', 'FileVersion', 'Version'];
+    #           propertiesToCheck.forEach(propName => {
+    #               if (!propertyGroup.hasOwnProperty(propName)) {
+    #                   // Nếu không tồn tại, thêm nó với giá trị mặc định
+    #                   propertyGroup[propName] = ['1.0.0.0'];
+    #               } else {
+    #                   // Nếu đã tồn tại, tăng giá trị lên
+    #                   const currentVersion = propertyGroup[propName][0].split('.').map(Number);
+    #                   currentVersion[3]++; // Tăng phần số build lên
+    #                   propertyGroup[propName][0] = currentVersion.join('.');
+    #               }
+    #           });
+
+    #           const builder = new xml2js.Builder();
+    #           const newXmlString = builder.buildObject(result);
+    #           fs.writeFileSync(path, newXmlString, 'utf8');
+    #           let newRedXML = fs.readFileSync(path, 'utf8');
+    #           console.log(newRedXML);
+    #           console.log('File đã được cập nhật.');
+    #           const branchExists = await github.repos.getBranch({
+    #             owner: context.repo.owner,
+    #             repo: context.repo.repo,
+    #             branch: '${{ env.BRANCH_NAME }}',
+    #           }).catch(() => false);
+    #           if (!branchExists) {
+    #             console.log(`Branch ${{ env.BRANCH_NAME }} does not exist.`);
+    #             return;
+    #           }
+    #           console.log(`Branch ${{ env.BRANCH_NAME }} exist.`);
+                
+    #       })
