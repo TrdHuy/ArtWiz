@@ -57,6 +57,8 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
+          console.log(context.repo)
+          console.log(${{ toJSON(context.repo) }})
           const { data: commits } = await github.repos.listCommits({
             owner: context.repo.owner,
             repo: context.repo.repo,
