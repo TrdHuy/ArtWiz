@@ -51,4 +51,18 @@ jobs:
       run: |
           echo "Building the code..."
           
-      
+    - name: Get last commit message
+      id: last_commit
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { data: commits } = await github.repos.listCommits({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: 'dev', // Tên nhánh bạn muốn lấy commit message
+            per_page: 1, // Số lượng commit bạn muốn lấy (1 là commit cuối cùng)
+          });
+          const commitMessage = commits[0].commit.message;
+          console.log(commitMessage);
+          return commitMessage;
