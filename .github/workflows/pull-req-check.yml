@@ -100,7 +100,12 @@ jobs:
                   console.error(err);
                   return;
               }
+              const project = result.Project;
+              const propertyGroup = project.PropertyGroup;
+              
               console.log(result);
+              console.log(project);
+              console.log(propertyGroup);
           })
 # const propertyGroup = result.Project.PropertyGroup;
 # // Truy cập các phần tử trong đối tượng JavaScript
