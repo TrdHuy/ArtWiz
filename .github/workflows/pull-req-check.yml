@@ -53,16 +53,15 @@ jobs:
           
     - name: Get last commit message
       id: last_commit
-      uses: actions/github-script@v5
+      uses: actions/github-script@v3
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           console.log(context.repo)
-          const { data: commits } = await github.repos.listCommits({
+          const data = await github.repos.listCommits({
             owner: context.repo.owner,
             repo: context.repo.repo,
             per_page: 1
           });
-          const commitMessage = commits[0].commit.message;
-          console.log(commitMessage);
-          return commitMessage;
+          console.log(data)
+          
