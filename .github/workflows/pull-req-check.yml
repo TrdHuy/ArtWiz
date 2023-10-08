@@ -56,8 +56,7 @@ jobs:
           const { data: getFileResponse } = await github.repos.getContent({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              path: '${{ env.PROJECT_FILE_PATH }}', // Đường dẫn tới file cần cập nhật
-              ref: '${{ env.BRANCH_NAME }}', // Tham chiếu tới nhánh
+              path: '${{ env.PROJECT_FILE_PATH }}' // Đường dẫn tới file cần cập nhật
             });
           const existingFileContent = Buffer.from(getFileResponse.content, 'base64').toString('utf8');
           console.log(existingFileContent)
