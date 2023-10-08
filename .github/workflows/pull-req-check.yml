@@ -93,7 +93,7 @@ jobs:
                       currentVersion[3]++; // Tăng phần số build lên
                       propertyGroup[propName][0] = currentVersion.join('.');
                   }
-              }
+              });
               const builder = new xml2js.Builder();
               const newXmlString = builder.buildObject(result);
               console.log(newXmlString);
