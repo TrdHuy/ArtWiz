@@ -18,4 +18,5 @@ jobs:
       uses: actions/github-script@v5
       with:
         script: |
-          console.log(github);
+          const log = ${{ toJSON(github) }};
+          console.log(log);
