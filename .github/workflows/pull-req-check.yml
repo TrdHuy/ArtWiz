@@ -1,20 +1,39 @@
 name: Auto Version Bump
 
 on:
-  push:
-    branches:
-      - '*'
+  workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
+    inputs:
+      my_input:
+        description: A custom input
+        required: false
+        default: "default_value"
 
 jobs:
   version_bump:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Print Input
+      run: |
+        echo "Input: ${{ github.event.inputs.my_input }}"
+        
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Extract Version Number from Commit
+    - name: Githublog
       id: extract_version
+      uses: actions/github-script@v5
+      with:
+        script: |
+          const log = ${{ toJSON(github) }};
+          console.log(log);
+    - name: Github object
+      uses: actions/github-script@v5
+      with:
+        script: |
+          console.log(github);    
+          
+    - name: project file detail
       uses: actions/github-script@v5
       with:
         script: |
