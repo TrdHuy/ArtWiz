@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
      BRANCH_NAME: dev
+     PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
     steps:
     - name: Print Input
       run: |
@@ -41,7 +42,7 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          const path = 'SPRNetTool/SPRNetTool.csproj';  // Thay đổi đường dẫn tương ứng
+          const path = ${{ env.PROJECT_FILE_PATH }};  // Thay đổi đường dẫn tương ứng
           const versionRegex = /<Version>(.*?)<\/Version>/;
           // Đọc nội dung của tệp .csproj
           let csprojContent = fs.readFileSync(path, 'utf8');
@@ -90,18 +91,9 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const xml2js = require('xml2js');
-          const xmlString = `<PropertyGroup>
-              <OutputType>WinExe</OutputType>
-              <TargetFramework>net6.0-windows</TargetFramework>
-              <Nullable>enable</Nullable>
-              <UseWPF>true</UseWPF>
-              <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-              <UseWindowsForms>True</UseWindowsForms>
-              <AssemblyVersion>1.0.0.1</AssemblyVersion>
-              <FileVersion>1.0.0.1</FileVersion>
-              <Version>1.0.0.1</Version>
-          </PropertyGroup>`;
-          
+          const fs = require('fs');
+          const path = ${{ env.PROJECT_FILE_PATH }};  // Thay đổi đường dẫn tương ứng
+          let xmlString = fs.readFileSync(path, 'utf8');
           // Phân tích XML thành đối tượng JavaScript
           xml2js.parseString(xmlString, (err, result) => {
               if (err) {
