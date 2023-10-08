@@ -1,9 +1,12 @@
 name: AutoVersionBump
 
 on:
-  push:
-    branches:
-      - '*'
+  workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
+    inputs:
+      my_input:
+        description: A custom input
+        required: false
+        default: "default_value"
 
 jobs:
   version_bump:
