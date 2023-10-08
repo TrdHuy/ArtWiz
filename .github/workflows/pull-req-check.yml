@@ -79,6 +79,11 @@ jobs:
           const commitMessage = commits[0].commit.message;
           console.log(commitMessage);
           console.log(process.env.LAST_COMMIT_MESSAGE);
+          
+    - uses: actions/setup-node@v3
+      with:
+          node-version: 16
+    - run: npm install xml2js
     - name: Run JavaScript script
       uses: actions/github-script@v6
       with:
