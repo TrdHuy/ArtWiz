@@ -79,3 +79,38 @@ jobs:
           const commitMessage = commits[0].commit.message;
           console.log(commitMessage);
           console.log(process.env.LAST_COMMIT_MESSAGE);
+    - name: Run JavaScript script
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const xml2js = require('xml2js');
+          const xmlString = `<PropertyGroup>
+              <OutputType>WinExe</OutputType>
+              <TargetFramework>net6.0-windows</TargetFramework>
+              <Nullable>enable</Nullable>
+              <UseWPF>true</UseWPF>
+              <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+              <UseWindowsForms>True</UseWindowsForms>
+              <AssemblyVersion>1.0.0.1</AssemblyVersion>
+              <FileVersion>1.0.0.1</FileVersion>
+              <Version>1.0.0.1</Version>
+          </PropertyGroup>`;
+
+          // Phân tích XML thành đối tượng JavaScript
+          xml2js.parseString(xmlString, (err, result) => {
+              if (err) {
+                  console.error(err);
+                  return;
+              }
+
+              // Truy cập các phần tử trong đối tượng JavaScript
+              const propertyGroup = result.PropertyGroup;
+              console.log(propertyGroup.OutputType[0]); // WinExe
+              console.log(propertyGroup.TargetFramework[0]); // net6.0-windows
+              // ...
+
+              // Chuyển đối tượng JavaScript thành JSON
+              const jsonResult = JSON.stringify(result);
+              console.log(jsonResult);
+          })
