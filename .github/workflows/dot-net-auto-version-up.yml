@@ -26,18 +26,22 @@ jobs:
      PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
      GITHUB_TOKEN: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
     steps:
-      - name: Get Action Actor
-        shell: bash
-        id: actor
-        run: echo "Action was triggered by $GITHUB_ACTOR"
-
-      - name: Check Actor
+      - name: Check if scheduled job
         shell: bash
         run: |
-          if [ "$GITHUB_ACTOR" == "username" ]; then
-            echo "The action was triggered by username."
+          echo "event_name= ${{ github.event_name }}"
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "This is a scheduled job."
           else
-            echo "The action was triggered by someone else."
+            echo "This job is not scheduled."
+          fi
+          echo "actor= ${{ github.actor }}"
+          echo "json= ${{ toJson(github) }}"
+
+          if [ "${{ github.actor }}" == "your_username" ]; then
+            echo "This job was triggered by you."
+          else
+            echo "This job was triggered by someone else."
           fi
     # - name: Get version up type
     #   shell: bash
