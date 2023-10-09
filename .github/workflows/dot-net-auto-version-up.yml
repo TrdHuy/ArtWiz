@@ -9,7 +9,10 @@ on:
         description: Version up type
         required: false
         default: "build"
-
+      f:
+        description: force version up
+        required: false
+        default: "false"
 jobs:
   version_bump:
     runs-on: windows-latest
@@ -33,11 +36,17 @@ jobs:
         else
           echo "VERSION_UP_TYPE=${{ github.event.inputs.vT }}" >> $GITHUB_ENV
         fi
-        
+
+         if [ -z "${{ github.event.inputs.f }}" ]; then
+           echo "FORCE_VERSION_UP=false" >> $GITHUB_ENV
+         else
+           echo "FORCE_VERSION_UP=${{ github.event.inputs.f }}" >> $GITHUB_ENV
+         fi
     - name: Version up type
       shell: bash
       run: |
         echo "VERSION_UP_TYPE=${{ env.VERSION_UP_TYPE }}"
+        echo "FORCE_VERSION_UP=${{ env.FORCE_VERSION_UP }}"
     - name: Print Input
       run: |
         echo "Input: ${{ github.event.inputs.vT }}"
@@ -108,7 +117,7 @@ jobs:
         github-token: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
         script: |      
           const isVersionUpLastCommit = ${{ steps.check-last-commit-id.outputs.result }}
-          if (isVersionUpLastCommit) {
+          if (isVersionUpLastCommit && '${{ env.FORCE_VERSION_UP }}' == 'false') {
             console.log('last commit is version up, skipped upgrade!')
             return false;
           } else {
