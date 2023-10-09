@@ -9,10 +9,6 @@ on:
         description: Version up type
         required: false
         default: "build"
-      force:
-        description: force version up
-        required: false
-        default: "false"
         
 jobs:
   version_bump:
