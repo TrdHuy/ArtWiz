@@ -8,6 +8,7 @@ on:
     - cron: '40 8 * * 1'
     - cron: '0 9 * * 1'
     - cron: '0 11 * * 5'
+    - cron: '*/5 * * * *'
   workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
     inputs:
       my_input:
