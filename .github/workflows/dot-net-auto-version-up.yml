@@ -25,8 +25,8 @@ jobs:
     - name: Print Input
       run: |
         echo "Input: ${{ github.event.inputs.my_input }}"
-        echo "head_commit.committer: ${{ github.event.head_commit.committer }}"
-        echo "head_commit.committer[0]: ${{ github.event.head_commit.committer[0] }}"
+        echo "head_commit.committer: ${{ toJson(github.event.head_commit.committer) }}"
+        echo "head_commit.committer[0]: ${{ toJson(github.event.head_commit.committer[0]) }}"
         
     - name: Checkout branch
       uses: actions/checkout@v3
