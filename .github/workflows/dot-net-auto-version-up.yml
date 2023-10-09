@@ -4,6 +4,8 @@ on:
   # push:
   #   branches:
   #     - '*'
+  schedule:
+    - cron: '40 8 * * 1'
   workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
     inputs:
       my_input:
