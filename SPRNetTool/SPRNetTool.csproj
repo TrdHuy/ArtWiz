@@ -7,9 +7,9 @@
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <UseWindowsForms>True</UseWindowsForms>
-    <AssemblyVersion>1.0.0.14</AssemblyVersion>
-    <FileVersion>1.0.0.14</FileVersion>
-    <Version>1.0.0.14</Version>
+    <AssemblyVersion>1.0.0.15</AssemblyVersion>
+    <FileVersion>1.0.0.15</FileVersion>
+    <Version>1.0.0.15</Version>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
