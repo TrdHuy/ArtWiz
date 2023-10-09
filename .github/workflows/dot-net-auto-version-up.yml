@@ -70,6 +70,7 @@ jobs:
           const xmlContent = Buffer.from(res.data.content, 'base64').toString('utf-8');
           console.log('File content:', xmlContent);
           const sha = res.data.sha;
+          console.log('sha:', sha);
           
           let newXmlString = '';
           let newVersion = '';
