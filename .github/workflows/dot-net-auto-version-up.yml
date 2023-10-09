@@ -24,9 +24,9 @@ jobs:
       shell: bash
       run: |
         if [ -z "${{ github.event.inputs.vT }}" ]; then
-          echo "VERSION_UP_TYPE=build" >> $GITHUB_ENV
+          echo "VERSION_UP_TYPE='build'" >> $GITHUB_ENV
         else
-          echo "VERSION_UP_TYPE=${{ github.event.inputs.vT }}" >> $GITHUB_ENV
+          echo "VERSION_UP_TYPE='${{ github.event.inputs.vT }}'" >> $GITHUB_ENV
         fi
         echo "VERSION_UP_TYPE=${{ env.VERSION_UP_TYPE }}"
         
