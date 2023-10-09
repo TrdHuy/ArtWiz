@@ -28,8 +28,10 @@ jobs:
         else
           echo "VERSION_UP_TYPE='${{ github.event.inputs.vT }}'" >> $GITHUB_ENV
         fi
+    - name: Get version up type
+      shell: bash
+      run: |
         echo "VERSION_UP_TYPE=${{ env.VERSION_UP_TYPE }}"
-        
     # - name: Print Input
     #   run: |
     #     echo "Input: ${{ github.event.inputs.vT }}"
