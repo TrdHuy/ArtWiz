@@ -46,7 +46,7 @@ jobs:
       with:
           node-version: 16
     - run: npm install @octokit/action
-    # - run: npm install xml2js    
+    - run: npm install xml2js    
     - name: Check last commit
       uses: actions/github-script@v6
       id: check-last-commit-id
