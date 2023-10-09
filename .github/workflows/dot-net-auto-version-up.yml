@@ -49,6 +49,7 @@ jobs:
     # - run: npm install xml2js    
     - name: Check last commit
       uses: actions/github-script@v6
+      id: check-last-commit-id
       with:
         github-token: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
         script: |
@@ -70,7 +71,27 @@ jobs:
           
           console.log(res);
           console.log(commitMessages);
+          const match = commitMessages.match(normalCommitRegex);
+          let isVersionUpLastCommit = false
+          if (match && match[1]) {
+            isVersionUpLastCommit = match[1] == ${{ env.VERSION_UP_ISSUE_ID }}
+          }
+          console.log(`isVersionUpLastCommit: ${isVersionUpLastCommit}`)
+          return isVersionUpLastCommit;
           
+    - name: Version up
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
+        script: |      
+          const isVersionUpLastCommit = ${{ steps.check-last-commit-id.outputs.result }}
+          if (isVersionUpLastCommit) {
+            console.log('last commit is version up, skipped upgrade!')
+            return;
+          } else {
+            console.log('last commit is not version up, continue upgrade!')
+            
+          }
     # - name: Version up
     #   uses: actions/github-script@v6
     #   with:
@@ -145,7 +166,7 @@ jobs:
     #           });
     #           console.log(updateRes);
     #         }
-           
+               
           
     # - name: Get last commit message
     #   shell: bash
