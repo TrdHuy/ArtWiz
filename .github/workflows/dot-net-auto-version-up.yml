@@ -65,8 +65,10 @@ jobs:
               'X-GitHub-Api-Version': '2022-11-28'
             }
           })
-          console.log(res);
+          const commitMessages = res.data.commit[0].message;
           
+          console.log(res);
+          console.log(commitMessages);
           
     # - name: Version up
     #   uses: actions/github-script@v6
