@@ -18,6 +18,7 @@ jobs:
     runs-on: windows-latest
     env:
      VERSION_UP_ISSUE_ID: 52
+     VERSION_UP_COMMITER_NAME: ${{ vars.CICD_COMMITER_NAME }}
      BRANCH_NAME: feature_trdhuy_autoVersionUp_p1
      PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
      GITHUB_TOKEN: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
@@ -25,6 +26,7 @@ jobs:
     - name: Print Input
       run: |
         echo "Input: ${{ github.event.inputs.my_input }}"
+        echo "VERSION_UP_COMMITER_NAME ${{ env.VERSION_UP_COMMITER_NAME }}"
         echo "head_commit.committer: ${{ toJson(github.event.head_commit.committer) }}"
         echo "head_commit.committer.name: ${{ github.event.head_commit.committer.name }}"
         echo "head_commit.committer[0]: ${{ toJson(github.event.head_commit.committer[0]) }}"
@@ -235,7 +237,7 @@ jobs:
     #             sha: sha,
     #             message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
     #             committer: {
-    #               name: 'TrdHuy',
+    #               name: '${{ env.VERSION_UP_COMMITER_NAME }}',
     #               email: 'trdtranduchuy@gmail.com'
     #             },
     #             content: Buffer.from(newXmlString).toString('base64'),
