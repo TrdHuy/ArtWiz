@@ -52,6 +52,10 @@ jobs:
       with:
         github-token: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
         script: |
+          const { Octokit } = require("@octokit/action");
+          const octokit = new Octokit({
+            auth: '${{ secrets.WORK_FLOW_ACCESS_TOKEN }}'
+          })
           const res = await octokit.request('GET /repos/{owner}/{repo}/commits', {
             owner: context.repo.owner,
             repo: context.repo.repo,
