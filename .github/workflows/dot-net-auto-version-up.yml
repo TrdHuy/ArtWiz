@@ -25,6 +25,8 @@ jobs:
     - name: Print Input
       run: |
         echo "Input: ${{ github.event.inputs.my_input }}"
+        echo "head_commit.committer: ${{ github.event.head_commit.committer }}"
+        echo "head_commit.committer[0]: ${{ github.event.head_commit.committer[0] }}"
         
     - name: Checkout branch
       uses: actions/checkout@v3
@@ -151,7 +153,7 @@ jobs:
                   sha: sha,
                   message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
                   committer: {
-                    name: 'TrdHuy',
+                    name: 'TrdHuyCICD',
                     email: 'trdtranduchuy@gmail.com'
                   },
                   content: Buffer.from(newXmlString).toString('base64'),
