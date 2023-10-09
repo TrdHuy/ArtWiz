@@ -1,9 +1,9 @@
 name: AutoVersionBump
 
 on:
-  push:
-    branches:
-      - '*'
+  # push:
+  #   branches:
+  #     - '*'
   workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
     inputs:
       my_input:
