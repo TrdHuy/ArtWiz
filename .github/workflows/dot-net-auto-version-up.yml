@@ -8,10 +8,10 @@ on:
     - cron: '0 11 * * 5'
   workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
     inputs:
-      my_input:
-        description: A custom input
+      vT:
+        description: Version up type
         required: false
-        default: "default_value"
+        default: "build"
 
 jobs:
   version_bump:
@@ -23,9 +23,19 @@ jobs:
      PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
      GITHUB_TOKEN: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
     steps:
+    - name: Get version up type
+      shell: bash
+      run: |
+        if [ -z "${{ github.event.inputs.vT }}" ]; then
+          echo "VERSION_UP_TYPE=build" >> $GITHUB_ENV
+        else
+          echo "VERSION_UP_TYPE=${{ github.event.inputs.vT }}" >> $GITHUB_ENV
+        fi
+        echo "VERSION_UP_TYPE=${{ env.VERSION_UP_TYPE }}"
+        
     - name: Print Input
       run: |
-        echo "Input: ${{ github.event.inputs.my_input }}"
+        echo "Input: ${{ github.event.inputs.vT }}"
         echo "VERSION_UP_COMMITER_NAME ${{ env.VERSION_UP_COMMITER_NAME }}"
         echo "head_commit.committer: ${{ toJson(github.event.head_commit.committer) }}"
         echo "head_commit.committer.name: ${{ github.event.head_commit.committer.name }}"
@@ -156,7 +166,7 @@ jobs:
                   sha: sha,
                   message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
                   committer: {
-                    name: 'TrdHuyCICD',
+                    name: '${{ env.VERSION_UP_COMMITER_NAME }}',
                     email: 'trdtranduchuy@gmail.com'
                   },
                   content: Buffer.from(newXmlString).toString('base64'),
