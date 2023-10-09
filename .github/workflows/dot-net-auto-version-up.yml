@@ -13,7 +13,7 @@ on:
 
 jobs:
   version_bump:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
      VERSION_UP_ISSUE_ID: 52
      BRANCH_NAME: feature_trdhuy_autoVersionUp_p1
@@ -81,13 +81,14 @@ jobs:
           
     - name: Version up
       uses: actions/github-script@v6
+      id: version-up-id
       with:
         github-token: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
         script: |      
           const isVersionUpLastCommit = ${{ steps.check-last-commit-id.outputs.result }}
           if (isVersionUpLastCommit) {
             console.log('last commit is version up, skipped upgrade!')
-            return;
+            return false;
           } else {
             console.log('last commit is not version up, continue upgrade!')
             const xml2js = require('xml2js');
@@ -157,8 +158,14 @@ jobs:
                   }
                 });
                 console.log(updateRes);
+                return true;
               }            
           }
+          
+    - name: Build
+      run: |
+         echo version up step: ${{ steps.version-up-id.outputs.result }}
+         
     # - name: Version up
     #   uses: actions/github-script@v6
     #   with:
