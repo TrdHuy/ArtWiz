@@ -1,0 +1,104 @@
+on:      
+  push:
+    branches:
+      - '*'
+jobs:
+
+  build:
+    runs-on: windows-latest
+    env:
+     VERSION_UP_ISSUE_ID: 52
+     PROJEFCT_PATH: SPRNetTool\SPRNetTool.csproj
+     # GIT_CONTEXT: ${{ toJson(github) }}
+     
+    steps:
+    ################### CORE REGION #######################
+    - name: Checkout repo
+      uses: actions/checkout@v3
+      with: 
+        fetch-depth: 0
+    - name: Check Commit Message by github script
+      uses: actions/github-script@v5
+      id: get-last-issue-id
+      with:
+        result-encoding: string
+        script: |
+          const versionUpIssueId = process.env.VERSION_UP_ISSUE_ID;
+          const refName = ${{ toJSON(github.ref_name) }};
+          console.log(`refName: ${refName}`);
+          const commits = ${{ toJSON(github.event.commits) }};
+          const commitMessages = commits.map(function (commit) {
+              return commit.message;
+          });
+          const normalCommitRegex = /^\[#(\d+)\] .+/;
+          const mergeCommitByGHRegex = /^Merge branch '(\S+)' into (\S+)$/;
+
+          const issueIds = commitMessages.map(function (message) {
+              const match = message.match(normalCommitRegex);
+              if (match && match[1]) {
+                return match[1]; // Lấy số id từ kết quả match
+              } else {
+                const mergeMatch = message.match(mergeCommitByGHRegex);
+                if (mergeMatch && mergeMatch[2] == refName) {
+                  console.log("This is auto merge commit by GitHub")
+                  return "";
+                }else{
+                   throw new Error(`Commit message "${message}" is invaild `);
+                }
+              }
+          });
+
+          for (const issueId of issueIds) {
+            try {
+              if (issueId == ""){
+                 continue;
+              }
+              const rawData = await github.rest.issues.get({
+                issue_number: issueId,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              const data = rawData.data;
+              const issueUrl = data.html_url;
+              if (issueUrl.includes("/issues/")) {
+                  console.log("Đây là URL của issue.");
+              } else {
+                 throw new Error(`github ID: "${issueId}" not invaild `);
+              }
+              console.log(`Tiêu đề: ${data.title}`);
+              console.log(`versionUpIssueId: ${versionUpIssueId}`);
+            } catch (error) {
+              console.log(`Issue #${issueId} không tồn tại.`);
+              console.log(error);
+            }
+          }
+          return issueIds[issueIds.length - 1];
+          
+    - name: Export issue to env
+      shell: bash
+      run: |
+        echo "ISSUE_NUMBER=${{steps.get-last-issue-id.outputs.result}}" >> $GITHUB_ENV
+      
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    ################### END CORE REGION #######################
+
+
+    # The coverage report only supported for version up commit, unittest_* and dev* branch 
+    ################### BUILD ARTIFACT #######################
+    - name: Restore 
+      run: dotnet restore ${{ env.PROJEFCT_PATH }}
+    - name: Build 
+      run: dotnet build ${{ env.PROJEFCT_PATH }} -c Release --no-restore
+    - name: Heavy publish
+      run: dotnet publish ${{ env.PROJEFCT_PATH }} -c Release --self-contained -p:PublishSingleFile=true --no-build -o heavy_publish
+    - name: Zip release
+      run: Compress-Archive -Path 'heavy_publish' -DestinationPath 'heavy_publish.zip'
+    ################### END BUILD ARTIFACT #######################
+    - name: Upload heavy_publish artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: heavy_publish.zip
+        path: heavy_publish.zip
