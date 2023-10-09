@@ -56,7 +56,7 @@ jobs:
           const octokit = new Octokit({
             auth: '${{ secrets.WORK_FLOW_ACCESS_TOKEN }}'
           })
-          const res = await octokit.request('GET /repos/{owner}/{repo}/commits', {
+          const res = await octokit.request('GET /repos/{owner}/{repo}/commits/{branch}', {
             owner: context.repo.owner,
             repo: context.repo.repo,
             branch: '${{ env.BRANCH_NAME }}',
