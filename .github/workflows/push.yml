@@ -92,7 +92,7 @@ jobs:
     ################### BUILD ARTIFACT #######################
     - run: dotnet restore ${{ env.PROJEFCT_PATH }}
     - name: Heavy publish
-      run: msbuild ${{ env.PROJEFCT_PATH }} /t:Publish /p:Configuration=Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:PublishDir=..\heavy_publish /p:DebugType=pdbnone /p:DebugSymbols=false /p:GenerateDependencyFile=false
+      run: msbuild SPRNetTool\SPRNetTool.csproj /t:Publish /p:Configuration=Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:PublishDir=..\heavy_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
     - name: Zip release
       run: Compress-Archive -Path 'heavy_publish' -DestinationPath 'heavy_publish.zip'
     ################### END BUILD ARTIFACT #######################
