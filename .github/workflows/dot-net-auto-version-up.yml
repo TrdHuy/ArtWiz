@@ -90,7 +90,74 @@ jobs:
             return;
           } else {
             console.log('last commit is not version up, continue upgrade!')
+            const xml2js = require('xml2js');
+            const { Octokit } = require("@octokit/action");
+            const octokit = new Octokit({
+              auth: '${{ secrets.WORK_FLOW_ACCESS_TOKEN }}'
+            })
+            const res = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: '${{ env.PROJECT_FILE_PATH }}',
+              ref: '${{ env.BRANCH_NAME }}',
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+              }
+            })
+            const xmlContent = Buffer.from(res.data.content, 'base64').toString('utf-8');
+            console.log('File content:', xmlContent);
+            const sha = res.data.sha;
+            console.log('sha:', sha);
             
+            let newXmlString = '';
+            let newVersion = '';
+            xml2js.parseString(xmlContent, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                const project = result.Project;
+                const propertyGroup = project.PropertyGroup[0];
+                const propertiesToCheck = ['AssemblyVersion', 'FileVersion', 'Version'];
+                propertiesToCheck.forEach(propName => {
+                    if (!propertyGroup.hasOwnProperty(propName)) {
+                        // Nếu không tồn tại, thêm nó với giá trị mặc định
+                        propertyGroup[propName] = ['1.0.0.0'];
+                    } else {
+                        // Nếu đã tồn tại, tăng giá trị lên
+                        const currentVersion = propertyGroup[propName][0].split('.').map(Number);
+                        currentVersion[3]++; // Tăng phần số build lên
+                        propertyGroup[propName][0] = currentVersion.join('.');
+                    }
+                    if (propName == 'Version') {
+                      newVersion = propertyGroup[propName][0];
+                    }
+                });
+                const builder = new xml2js.Builder();
+                newXmlString = builder.buildObject(result);
+                console.log(newXmlString);
+                console.log('File đã được cập nhật.');
+              });
+              if (newXmlString != '' ){
+                console.log('Start update version')
+                const updateRes = await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  path: '${{ env.PROJECT_FILE_PATH }}',
+                  branch: '${{ env.BRANCH_NAME }}',
+                  sha: sha,
+                  message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
+                  committer: {
+                    name: 'TrdHuy',
+                    email: 'trdtranduchuy@gmail.com'
+                  },
+                  content: Buffer.from(newXmlString).toString('base64'),
+                  headers: {
+                    'X-GitHub-Api-Version': '2022-11-28'
+                  }
+                });
+                console.log(updateRes);
+              }            
           }
     # - name: Version up
     #   uses: actions/github-script@v6
