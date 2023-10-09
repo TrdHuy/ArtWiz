@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     env:
      VERSION_UP_ISSUE_ID: 12
-     BUILD_HEAVY_PUBLISH: true
+     BUILD_HEAVY_PUBLISH: false
      PROJEFCT_PATH: SPRNetTool\SPRNetTool.csproj
      # GIT_CONTEXT: ${{ toJson(github) }}
      
