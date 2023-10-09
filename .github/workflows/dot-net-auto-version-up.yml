@@ -26,8 +26,8 @@ jobs:
         if [ -z "${{ github.event.inputs.vT }}" ]; then
           echo "VERSION_UP_TYPE=build" >> $GITHUB_ENV
         elif [[ "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_PATCH }}" \
-          && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_BUILD }}" \ 
-          && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_MAJOR }}" \ 
+          && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_BUILD }}" \
+          && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_MAJOR }}" \
           && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_MINOR }}" ]]; then
           echo "VERSION_UP_TYPE=${{ github.event.inputs.vT }}" >> $GITHUB_ENV
         else
