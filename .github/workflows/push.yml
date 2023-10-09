@@ -90,6 +90,7 @@ jobs:
 
     # The coverage report only supported for version up commit, unittest_* and dev* branch 
     ################### BUILD ARTIFACT #######################
+    - run: dotnet restore ${{ env.PROJEFCT_PATH }}
     - name: Heavy publish
       run: msbuild ${{ env.PROJEFCT_PATH }} /t:Publish /p:Configuration=Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:PublishDir=..\heavy_publish /p:DebugType=pdbnone /p:DebugSymbols=false /p:GenerateDependencyFile=false
     - name: Zip release
