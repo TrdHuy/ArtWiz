@@ -33,7 +33,7 @@ jobs:
           if [ "${{ github.event_name }}" == "schedule" ]; then
             echo "This is a scheduled job."
           else
-            if [ "${{ github.actor }}" == "TrdHuy" ]; then
+            if [ "${{ github.actor }}" == "TrdHuy2" ]; then
               echo "This is triggered by Huy"
             else
               exit 1
