@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-     VERSION_UP_ISSUE_ID: 12
+     VERSION_UP_ISSUE_ID: 52
      BUILD_HEAVY_PUBLISH: false
      PROJEFCT_PATH: SPRNetTool\SPRNetTool.csproj
      # GIT_CONTEXT: ${{ toJson(github) }}
@@ -88,6 +88,81 @@ jobs:
     ################### END CORE REGION #######################
 
 
+    # The coverage report only supported for version up commit, unittest_* and dev* branch 
+    ################### UNITTES REGION #######################
+    - name: Run tests with coverage
+      run: dotnet test --configuration Release --collect:"XPlat Code Coverage"
+    - name: ReportGenerator
+      uses: danielpalme/ReportGenerator-GitHub-Action@4.8.7
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID || startsWith(github.ref, 'refs/heads/unittest_') || startsWith(github.ref, 'refs/heads/dev')
+      with:
+        reports: '*Test/TestResults/*/coverage.cobertura.xml'
+        targetdir: 'CoverageReports'
+        reporttypes: 'HtmlInline;Cobertura'
+        verbosity: 'Verbose'
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID || startsWith(github.ref, 'refs/heads/unittest_') || startsWith(github.ref, 'refs/heads/dev')
+      with:
+        name: CoverageReports-Release # Artifact name        
+        path: CoverageReports # Directory containing files to upload
+    ################### END UNITTEST REGION #######################
+
+
+
+    # The ARC report only supported for version up commit 
+    ################### SAM REGION #######################
+    # Run SAM 
+    - name: create arcrunner.bat
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      shell: cmd
+      run: |
+        set projectPath=%CD%
+        set samPath=%projectPath%\ArcRpter\bin\sam.exe
+        set samDir=%projectPath%\.sam-dir
+        (
+        	echo @echo off
+        	echo %samPath% init --sam-dir %samDir%
+        	echo dotnet clean SPRNetTool\SPRNetTool.csproj -c Release
+        	echo %samPath% scan --sam-dir %samDir% --source-path %projectPath% --language cs dotnet build SPRNetTool\SPRNetTool.csproj -c Release
+        	echo %samPath% analyze --sam-dir %samDir% --source-path %projectPath% --language cs 
+        	echo %samPath% calculate --sam-dir %samDir% --source-path %projectPath% --language cs 
+        ) > arcrunner.bat
+        type %CD%\arcrunner.bat
+        powershell -command "ls"
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      with:
+        python-version: '3.11'
+    - name: Add Python to PATH
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      run: |
+        echo "%PYTHON%;%PYTHON%\Scripts" >> $GITHUB_PATH  # Đảm bảo Python được thêm vào biến môi trường PATH
+    # TODO: Dynamic asset download link
+    # Refer: https://stackoverflow.com/questions/20396329/how-to-download-github-release-from-private-repo-using-command-line
+    - name: Download and Install ArcRpter
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      run: |
+        Write-Host Hello world
+        $url = "https://api.github.com/repos/TrdHuy/ArcRpter/releases/assets/126947734"
+        $outPath = "ArcRpter.zip"
+        $pat = "${{ secrets.WORK_FLOW_ACCESS_TOKEN }}"
+        Invoke-WebRequest -Uri $url -OutFile $outPath -Headers @{"Authorization" = "token $pat"; "Accept" = "application/octet-stream"}
+        Expand-Archive -Path ArcRpter.zip -DestinationPath ArcRpter
+    - name: Run arcrunner.bat
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      run: |
+        ./arcrunner.bat
+    - name: Upload artifact
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: ArcReport # Artifact name        
+        path: .sam-dir\sam-result # Directory containing files to upload
+    ################### END SAM REGION #######################
+
+    
     ################### BUILD ARTIFACT #######################
     - name: Setup MSBuild.exe
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
@@ -96,18 +171,18 @@ jobs:
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
       run: dotnet restore ${{ env.PROJEFCT_PATH }}
       
-    # - name: Light publish
-    #   if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
-    #   run: msbuild SPRNetTool\SPRNetTool.csproj /t:Publish /p:Configuration=Release /p:PublishDir=..\light_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
-    # - name: Zip light release
-    #   if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
-    #   run: Compress-Archive -Path 'light_publish' -DestinationPath 'light_publish.zip'
-    # - name: Upload light_publish artifacts
-    #   if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: light_publish.zip
-    #     path: light_publish.zip
+    - name: Light publish
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      run: msbuild SPRNetTool\SPRNetTool.csproj /t:Publish /p:Configuration=Release /p:PublishDir=..\light_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
+    - name: Zip light release
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      run: Compress-Archive -Path 'light_publish' -DestinationPath 'light_publish.zip'
+    - name: Upload light_publish artifacts
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      uses: actions/upload-artifact@v3
+      with:
+        name: light_publish.zip
+        path: light_publish.zip
         
     - name: Heavy publish
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID && env.BUILD_HEAVY_PUBLISH == 'true'
