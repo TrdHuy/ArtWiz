@@ -1,9 +1,6 @@
 name: AutoVersionBump
 
 on:
-  push:
-    branches:
-      - '*'
   schedule:
     - cron: '0 11 * * 5'
   workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
