@@ -23,6 +23,20 @@ jobs:
      PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
      GITHUB_TOKEN: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
     steps:
+    - name: Check have permission to run job
+      shell: bash
+      run: |
+        echo "event_name= ${{ github.event_name }}"
+        if [ "${{ github.event_name }}" == "schedule" ]; then
+          echo "This is a scheduled job."
+        else
+          if [ "${{ github.actor }}" == "TrdHuy" ]; then
+            echo "This is triggered by TrdHuy"
+          else
+            echo "You don't have permission to run this job!"
+            exit 1
+          fi
+        fi
     - name: Get version up type
       shell: bash
       run: |
