@@ -1,6 +1,9 @@
 name: AutoVersionBump
 
 on:
+  push:
+    branches:
+      - '*'
   workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
     inputs:
       my_input:
@@ -43,111 +46,52 @@ jobs:
       with:
           node-version: 16
     - run: npm install @octokit/action
-    - run: npm install xml2js
-    - name: Build
+    # - run: npm install xml2js    
+    - name: Check last commit
       uses: actions/github-script@v6
       with:
         github-token: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
         script: |
-          const xml2js = require('xml2js');
-          const { Octokit } = require("@octokit/action");
-          const octokit = new Octokit({
-            auth: '${{ secrets.WORK_FLOW_ACCESS_TOKEN }}'
-          })
-          
-          const res = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+          const res = await octokit.request('GET /repos/{owner}/{repo}/commits', {
             owner: context.repo.owner,
             repo: context.repo.repo,
-            path: '${{ env.PROJECT_FILE_PATH }}',
-            ref: '${{ env.BRANCH_NAME }}',
+            branch: '${{ env.BRANCH_NAME }}',
+            per_page: 1,
             headers: {
               'X-GitHub-Api-Version': '2022-11-28'
             }
           })
-          const xmlContent = Buffer.from(res.data.content, 'base64').toString('utf-8');
-          console.log('File content:', xmlContent);
-          const sha = res.data.sha;
-          console.log('sha:', sha);
+          console.log(res);
           
-          let newXmlString = '';
-          let newVersion = '';
-          xml2js.parseString(xmlContent, (err, result) => {
-              if (err) {
-                  console.error(err);
-                  return;
-              }
-              const project = result.Project;
-              const propertyGroup = project.PropertyGroup[0];
-              const propertiesToCheck = ['AssemblyVersion', 'FileVersion', 'Version'];
-              propertiesToCheck.forEach(propName => {
-                  if (!propertyGroup.hasOwnProperty(propName)) {
-                      // Nếu không tồn tại, thêm nó với giá trị mặc định
-                      propertyGroup[propName] = ['1.0.0.0'];
-                  } else {
-                      // Nếu đã tồn tại, tăng giá trị lên
-                      const currentVersion = propertyGroup[propName][0].split('.').map(Number);
-                      currentVersion[3]++; // Tăng phần số build lên
-                      propertyGroup[propName][0] = currentVersion.join('.');
-                  }
-                  if (propName == 'Version') {
-                    newVersion = propertyGroup[propName][0];
-                  }
-              });
-              const builder = new xml2js.Builder();
-              newXmlString = builder.buildObject(result);
-              console.log(newXmlString);
-              console.log('File đã được cập nhật.');
-            });
-            if (newXmlString != '' ){
-              console.log('Start update version')
-              const updateRes = await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: '${{ env.PROJECT_FILE_PATH }}',
-                branch: '${{ env.BRANCH_NAME }}',
-                sha: sha,
-                message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
-                committer: {
-                  name: 'TrdHuy',
-                  email: 'trdtranduchuy@gmail.com'
-                },
-                content: Buffer.from(newXmlString).toString('base64'),
-                headers: {
-                  'X-GitHub-Api-Version': '2022-11-28'
-                }
-              });
-              console.log(updateRes);
-            }
-           
           
-    # - name: Get last commit message
-    #   shell: bash
-    #   run: |
-    #     response=$(curl -L \
-    #     -H "Accept: application/vnd.github+json" \
-    #     -H "Authorization: Bearer  ${{ secrets.GITHUB_TOKEN }}" \
-    #     -H "X-GitHub-Api-Version: 2022-11-28" \
-    #     https://api.github.com/repos/${{ github.repository }}/commits/${{ env.BRANCH_NAME }})
-    #     commit_message=$(echo "$response" | jq -r '.commit.message')
-    #     # In commit message
-    #     echo "Commit Message: $commit_message"
-    #     echo "LAST_COMMIT_MESSAGE=$commit_message" >> $GITHUB_ENV
-
-    # - uses: actions/setup-node@v3
-    #   with:
-    #       node-version: 16
-    # - run: npm install xml2js
-    # - name: Run JavaScript script
+    # - name: Version up
     #   uses: actions/github-script@v6
     #   with:
-    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     github-token: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
     #     script: |
     #       const xml2js = require('xml2js');
-    #       const fs = require('fs');
-    #       const path = '${{ env.PROJECT_FILE_PATH }}';  // Thay đổi đường dẫn tương ứng
-    #       let xmlString = fs.readFileSync(path, 'utf8');
-    #       // Phân tích XML thành đối tượng JavaScript
-    #       xml2js.parseString(xmlString, (err, result) => {
+    #       const { Octokit } = require("@octokit/action");
+    #       const octokit = new Octokit({
+    #         auth: '${{ secrets.WORK_FLOW_ACCESS_TOKEN }}'
+    #       })
+          
+    #       const res = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+    #         owner: context.repo.owner,
+    #         repo: context.repo.repo,
+    #         path: '${{ env.PROJECT_FILE_PATH }}',
+    #         ref: '${{ env.BRANCH_NAME }}',
+    #         headers: {
+    #           'X-GitHub-Api-Version': '2022-11-28'
+    #         }
+    #       })
+    #       const xmlContent = Buffer.from(res.data.content, 'base64').toString('utf-8');
+    #       console.log('File content:', xmlContent);
+    #       const sha = res.data.sha;
+    #       console.log('sha:', sha);
+          
+    #       let newXmlString = '';
+    #       let newVersion = '';
+    #       xml2js.parseString(xmlContent, (err, result) => {
     #           if (err) {
     #               console.error(err);
     #               return;
@@ -165,23 +109,48 @@ jobs:
     #                   currentVersion[3]++; // Tăng phần số build lên
     #                   propertyGroup[propName][0] = currentVersion.join('.');
     #               }
+    #               if (propName == 'Version') {
+    #                 newVersion = propertyGroup[propName][0];
+    #               }
     #           });
-
     #           const builder = new xml2js.Builder();
-    #           const newXmlString = builder.buildObject(result);
-    #           fs.writeFileSync(path, newXmlString, 'utf8');
-    #           let newRedXML = fs.readFileSync(path, 'utf8');
-    #           console.log(newRedXML);
+    #           newXmlString = builder.buildObject(result);
+    #           console.log(newXmlString);
     #           console.log('File đã được cập nhật.');
-    #           const branchExists = await github.repos.getBranch({
+    #         });
+    #         if (newXmlString != '' ){
+    #           console.log('Start update version')
+    #           const updateRes = await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
     #             owner: context.repo.owner,
     #             repo: context.repo.repo,
+    #             path: '${{ env.PROJECT_FILE_PATH }}',
     #             branch: '${{ env.BRANCH_NAME }}',
-    #           }).catch(() => false);
-    #           if (!branchExists) {
-    #             console.log(`Branch ${{ env.BRANCH_NAME }} does not exist.`);
-    #             return;
-    #           }
-    #           console.log(`Branch ${{ env.BRANCH_NAME }} exist.`);
-                
-    #       })
+    #             sha: sha,
+    #             message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
+    #             committer: {
+    #               name: 'TrdHuy',
+    #               email: 'trdtranduchuy@gmail.com'
+    #             },
+    #             content: Buffer.from(newXmlString).toString('base64'),
+    #             headers: {
+    #               'X-GitHub-Api-Version': '2022-11-28'
+    #             }
+    #           });
+    #           console.log(updateRes);
+    #         }
+           
+          
+    # - name: Get last commit message
+    #   shell: bash
+    #   run: |
+    #     response=$(curl -L \
+    #     -H "Accept: application/vnd.github+json" \
+    #     -H "Authorization: Bearer  ${{ secrets.GITHUB_TOKEN }}" \
+    #     -H "X-GitHub-Api-Version: 2022-11-28" \
+    #     https://api.github.com/repos/${{ github.repository }}/commits/${{ env.BRANCH_NAME }})
+    #     commit_message=$(echo "$response" | jq -r '.commit.message')
+    #     # In commit message
+    #     echo "Commit Message: $commit_message"
+    #     echo "LAST_COMMIT_MESSAGE=$commit_message" >> $GITHUB_ENV
+
+  
