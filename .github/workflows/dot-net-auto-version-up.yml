@@ -9,7 +9,10 @@ on:
         description: Version up type
         required: false
         default: "build"
-        
+      force:
+        description: Version up type
+        required: false
+        default: "build"
 jobs:
   version_bump:
     runs-on: windows-latest
