@@ -62,7 +62,7 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             path: '${{ env.PROJECT_FILE_PATH }}',
-            ref: '${{ env.BRANCH_NAME }}',
+            branch: '${{ env.BRANCH_NAME }}',
             headers: {
               'X-GitHub-Api-Version': '2022-11-28'
             }
