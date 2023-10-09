@@ -26,6 +26,7 @@ jobs:
       run: |
         echo "Input: ${{ github.event.inputs.my_input }}"
         echo "head_commit.committer: ${{ toJson(github.event.head_commit.committer) }}"
+        echo "head_commit.committer.name: ${{ github.event.head_commit.committer.name }}"
         echo "head_commit.committer[0]: ${{ toJson(github.event.head_commit.committer[0]) }}"
         
     - name: Checkout branch
