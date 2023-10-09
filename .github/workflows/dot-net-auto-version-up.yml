@@ -12,7 +12,7 @@ on:
       force:
         description: Version up type
         required: false
-        default: "build"
+        default: "false"
 jobs:
   version_bump:
     runs-on: windows-latest
