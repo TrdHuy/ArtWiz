@@ -102,7 +102,7 @@ namespace SPRNetTool.Domain.Base
             var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource);
             var countablePaletteColors = this.CountColorsTolist(bitmapSource);
 
-            if (countablePaletteColors.Count >= 256)
+            if (countablePaletteColors.Count > 256)
             {
                 throw new Exception("cannot save bitmap to spr because its color size > 256");
             }

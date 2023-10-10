@@ -17,5 +17,8 @@
 
         void OnDecreaseIntervalButtonClicked();
         void OnIncreaseIntervalButtonClicked();
+
+        void OnSaveCurrentDisplayedBitmapSourceToSpr(string filePath);
+
     }
 }
