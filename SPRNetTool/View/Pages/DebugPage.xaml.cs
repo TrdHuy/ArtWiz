@@ -42,6 +42,8 @@ namespace SPRNetTool.View.Pages
         SPRInfo_FrameOffsetYMinusButton,
         SPRInfo_IntervalMinusButton,
         SPRInfo_IntervalPlusButton,
+
+        ImageInfo_ExportToSingleFrameSprFile,
     }
 
     public partial class DebugPage : BasePageViewer
@@ -365,6 +367,28 @@ namespace SPRNetTool.View.Pages
 
         private void OnRunLeftMouseUp(object sender, MouseButtonEventArgs e)
         {
+            (sender as TextBlock)?.Tag.IfIs<DebugPageTagID>((tag) =>
+            {
+                switch (tag)
+                {
+                    case DebugPageTagID.ImageInfo_ExportToSingleFrameSprFile:
+                        {
+                            SaveFileDialog saveFileDialog = new SaveFileDialog();
+                            if (saveFileDialog.ShowDialog() == true)
+                            {
+                                LoadingWindow l = new LoadingWindow(ownerWindow, "Saving to Spr file!");
+                                l.Show(block: async () =>
+                                {
+                                    await Task.Run(() =>
+                                    {
+                                        commandVM?.OnSaveCurrentDisplayedBitmapSourceToSpr(saveFileDialog.FileName);
+                                    });
+                                });
+                            }
+                            break;
+                        }
+                }
+            });
             (sender as Run)?.Tag.IfIs<DebugPageTagID>((tag) =>
             {
                 switch (tag)

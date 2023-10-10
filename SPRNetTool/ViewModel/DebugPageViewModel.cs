@@ -588,5 +588,17 @@ namespace SPRNetTool.ViewModel
                 BitmapDisplayManager.SetSprInterval((ushort)(SprFileHead.Interval + 1));
             }
         }
+
+        void IDebugPageCommand.OnSaveCurrentDisplayedBitmapSourceToSpr(string filePath)
+        {
+            if (IsSpr) return;
+            CurrentlyDisplayedBitmapSource?.Apply(it =>
+            {
+                BitmapDisplayManager.OptimzeImageColorNA256(it)?.Apply(it =>
+                {
+                    SprWorkManager.SaveBitmapSourceToSprFile(it, filePath);
+                });
+            });
+        }
     }
 }

@@ -38,15 +38,6 @@ namespace SPRNetTool.Domain
         private BitmapSourceCache DisplayedBitmapSourceCache { get; } = new BitmapSourceCache();
 
         #region public interface
-        void IBitmapDisplayManager.SaveCurrentDisplaySourceToSprFile(string filePath)
-        {
-            // optimize image color to a list first (color size = 256)
-
-            // encrypt image base on image color list
-
-
-        }
-
         void IBitmapDisplayManager.SetSprInterval(ushort interval)
         {
             SprWorkManager.SetSprInterval((ushort)interval);
@@ -213,7 +204,6 @@ namespace SPRNetTool.Domain
 
 
         }
-
 
         #endregion
 

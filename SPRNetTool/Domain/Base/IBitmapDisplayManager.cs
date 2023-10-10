@@ -22,11 +22,24 @@ namespace SPRNetTool.Domain.Base
 
         void SetSprInterval(ushort interval);
 
-        void SaveCurrentDisplaySourceToSprFile(string filePath);
-
         Dictionary<Color, long> CountBitmapColors(BitmapSource bitmap)
         {
             return this.CountColorsToDictionary(bitmap);
+        }
+
+        BitmapSource? OptimzeImageColorNA256(BitmapSource bmpSource)
+        {
+            var optimizedBmp = OptimzeImageColor(countableColorSource: this.CountColorsTolist(bmpSource),
+                bmpSource: bmpSource,
+                colorSize: 256,
+                colorDifferenceDelta: 100,
+                isUsingAlpha: false,
+                colorDifferenceDeltaForCalculatingAlpha: 10,
+                backgroundForBlendColor: Colors.White,
+                out _,
+                out _,
+                out _);
+            return optimizedBmp;
         }
 
         /// <summary>
@@ -133,5 +146,6 @@ namespace SPRNetTool.Domain.Base
 
             return null;
         }
+
     }
 }
