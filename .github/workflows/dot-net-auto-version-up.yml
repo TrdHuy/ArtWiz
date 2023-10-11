@@ -178,7 +178,6 @@ jobs:
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     path: '${{ env.PROJECT_FILE_PATH }}',
-                    branch: refsBranchName,
                     sha: sha,
                     message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
                     committer: {
