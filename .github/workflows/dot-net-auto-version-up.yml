@@ -104,7 +104,7 @@ jobs:
             console.log(targetBranchRes);
             function generateBranchName() {
                 const now = new Date();
-                const branchName = `refs/versionup/versionUpAutoBranch_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
+                const branchName = `refs/heads/versionUpAutoBranch_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
                 return branchName;
             }
             const refsBranchName = generateBranchName();
@@ -178,6 +178,7 @@ jobs:
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     path: '${{ env.PROJECT_FILE_PATH }}',
+                    branch: refsBranchName,
                     sha: sha,
                     message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
                     committer: {
