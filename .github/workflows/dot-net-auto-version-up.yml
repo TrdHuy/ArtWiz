@@ -3,7 +3,7 @@ name: AutoVersionBump
 on:
   push:
     branches:
-      - '*'
+      - 'feature_trdhuy_autoVersionUp_p1'
   schedule:
     - cron: '0 11 * * 5'
   workflow_dispatch:  # Đây là sự kiện để kích hoạt quy trình
@@ -88,6 +88,8 @@ jobs:
           github-token: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
           script: |
             const { Octokit } = require("@octokit/action");
+            const xml2js = require('xml2js');
+            
             const octokit = new Octokit({
               auth: '${{ secrets.WORK_FLOW_ACCESS_TOKEN }}'
             })
@@ -99,34 +101,34 @@ jobs:
                 'X-GitHub-Api-Version': '2022-11-28'
               }
             })
-            console.log(`targetBranchRes=${targetBranchRes}`);
+            console.log(targetBranchRes);
             function generateBranchName() {
               const now = new Date();
-              const branchName = `versionUpAutoBranch_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
+              const branchName = `refs/versionup/versionUpAutoBranch_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
               return branchName;
             }
             const refsBranchName = generateBranchName();
-            console.log(`refsBranchName=${refsBranchName}`);
+            console.log(refsBranchName);
             const createRefRes = await octokit.request('POST /repos/{owner}/{repo}/git/refs', {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: `refs/heads/${refsBranchName}`,
+              ref: ${refsBranchName},
               sha: targetBranchRes.data.commit.sha,
               headers: {
                 'X-GitHub-Api-Version': '2022-11-28'
               }
             })
-            console.log(`createRefRes=${createRefRes}`);
+            console.log(createRefRes);
             const getContentRes = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
               owner: context.repo.owner,
               repo: context.repo.repo,
               path: '${{ env.PROJECT_FILE_PATH }}',
-              ref: `refs/heads/${refsBranchName}`,
+              ref: ${refsBranchName},
               headers: {
                 'X-GitHub-Api-Version': '2022-11-28'
               }
             })
-            console.log(`getContentRes=${getContentRes}`);
+            console.log(getContentRes);
             
             const xmlContent = Buffer.from(getContentRes.data.content, 'base64').toString('utf-8');
             console.log('File content:', xmlContent);
@@ -177,7 +179,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   path: '${{ env.PROJECT_FILE_PATH }}',
-                  branch: `refs/heads/${refsBranchName}`,
+                  branch: ${refsBranchName},
                   sha: sha,
                   message: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
                   committer: {
@@ -195,7 +197,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   title: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
-                  head: `refs/heads/${refsBranchName}`,
+                  head: ${refsBranchName},
                   base: '${{ env.BRANCH_NAME }}',
                   headers: {
                     'X-GitHub-Api-Version': '2022-11-28'
