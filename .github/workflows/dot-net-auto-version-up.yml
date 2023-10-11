@@ -26,30 +26,30 @@ jobs:
      PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
      GITHUB_TOKEN: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
     steps:
-    # - name: Get version up type
-    #   shell: bash
-    #   run: |
-    #     if [ -z "${{ github.event.inputs.vT }}" ]; then
-    #       echo "VERSION_UP_TYPE=${{ vars.VERSION_UP_BUILD }}" >> $GITHUB_ENV
-    #     elif [[ "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_PATCH }}" \
-    #       && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_BUILD }}" \
-    #       && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_MAJOR }}" \
-    #       && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_MINOR }}" ]]; then
-    #       echo "VERSION_UP_TYPE=${{ vars.VERSION_UP_BUILD }}" >> $GITHUB_ENV
-    #     else
-    #       echo "VERSION_UP_TYPE=${{ github.event.inputs.vT }}" >> $GITHUB_ENV
-    #     fi
-
-    #      if [ -z "${{ github.event.inputs.force }}" ]; then
-    #        echo "FORCE_VERSION_UP=false" >> $GITHUB_ENV
-    #      else
-    #        echo "FORCE_VERSION_UP=${{ github.event.inputs.force }}" >> $GITHUB_ENV
-    #      fi
-    # - name: Version up type
-    #   shell: bash
-    #   run: |
-    #     echo "VERSION_UP_TYPE=${{ env.VERSION_UP_TYPE }}"
-    #     echo "FORCE_VERSION_UP=${{ env.FORCE_VERSION_UP }}"
+      - name: Get version up type
+        shell: bash
+        run: |
+          if [ -z "${{ github.event.inputs.vT }}" ]; then
+            echo "VERSION_UP_TYPE=${{ vars.VERSION_UP_BUILD }}" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_PATCH }}" \
+            && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_BUILD }}" \
+            && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_MAJOR }}" \
+            && "${{ github.event.inputs.vT }}" != "${{ vars.VERSION_UP_MINOR }}" ]]; then
+            echo "VERSION_UP_TYPE=${{ vars.VERSION_UP_BUILD }}" >> $GITHUB_ENV
+          else
+            echo "VERSION_UP_TYPE=${{ github.event.inputs.vT }}" >> $GITHUB_ENV
+          fi
+  
+           if [ -z "${{ github.event.inputs.force }}" ]; then
+             echo "FORCE_VERSION_UP=false" >> $GITHUB_ENV
+           else
+             echo "FORCE_VERSION_UP=${{ github.event.inputs.force }}" >> $GITHUB_ENV
+           fi
+      - name: Version up type
+        shell: bash
+        run: |
+          echo "VERSION_UP_TYPE=${{ env.VERSION_UP_TYPE }}"
+          echo "FORCE_VERSION_UP=${{ env.FORCE_VERSION_UP }}"
     # - name: Print Input
     #   run: |
     #     echo "Input: ${{ github.event.inputs.vT }}"
