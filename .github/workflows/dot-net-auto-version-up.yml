@@ -112,7 +112,7 @@ jobs:
             const createRefRes = await octokit.request('POST /repos/{owner}/{repo}/git/refs', {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: `heads/${refsBranchName}`,
+                ref: `refs/heads/${refsBranchName}`,
                 sha: targetBranchRes.data.commit.sha,
                 headers: {
                     'X-GitHub-Api-Version': '2022-11-28'
