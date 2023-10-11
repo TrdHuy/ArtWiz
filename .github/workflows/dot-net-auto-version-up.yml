@@ -35,7 +35,7 @@ jobs:
             echo "This is a scheduled job."
           else
             IFS=',' read -ra actors <<< "${{ env.ALLOWED_ACTORS }}"
-            for actor in "${actor[@]}"; do
+            for actor in "${actors[@]}"; do
               if [ "${{ github.actor }}" == "$actor" ]; then
                 echo "$actor is allowed to run this job!"
                 exit 0
