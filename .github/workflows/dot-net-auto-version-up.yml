@@ -20,6 +20,7 @@ jobs:
   version_bump:
     runs-on: windows-latest
     env:
+     ALLOWED_ACTORS: "TrdHuy,BalalaX"
      VERSION_UP_ISSUE_ID: 52
      VERSION_UP_COMMITER_NAME: ${{ vars.CICD_COMMITER_NAME }}
      BRANCH_NAME: feature_trdhuy_autoVersionUp_p1
@@ -33,12 +34,15 @@ jobs:
           if [ "${{ github.event_name }}" == "schedule" ]; then
             echo "This is a scheduled job."
           else
-            if [ "${{ github.actor }}" == "TrdHuy" ]; then
-              echo "This is triggered by TrdHuy"
-            else
-              echo "You don't have permission to run this job!"
-              exit 1
-            fi
+            IFS=',' read -ra actors <<< "${{ env.ALLOWED_ACTORS }}"
+            for actor in "${actor[@]}"; do
+              if [ "${{ github.actor }}" == "$actor" ]; then
+                echo "$actor is allowed to run this job!"
+                exit 0
+              fi
+            done
+            echo "You don't have permission to run this job!"
+            exit 1
           fi
       - name: Get version up type
         shell: bash
