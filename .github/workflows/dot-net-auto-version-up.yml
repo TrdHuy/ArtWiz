@@ -190,19 +190,18 @@ jobs:
                     }
                 });
                 console.log(updateRes);
-    
-    #     const creatPullRes = await octokit.request('POST /repos/{owner}/{repo}/pulls', {
-    #         owner: context.repo.owner,
-    #         repo: context.repo.repo,
-    #         title: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
-    #         head: refsBranchName,
-    #         base: '${{ env.BRANCH_NAME }}',
-    #         headers: {
-    #             'X-GitHub-Api-Version': '2022-11-28'
-    #         }
-    #     })
-    #     console.log(creatPullRes);
-    # }                    
+                const creatPullRes = await octokit.request('POST /repos/{owner}/{repo}/pulls', {
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    title: `[#${{ env.VERSION_UP_ISSUE_ID }}] Version up: ${newVersion}`,
+                    head: refsBranchName,
+                    base: '${{ env.BRANCH_NAME }}',
+                    headers: {
+                        'X-GitHub-Api-Version': '2022-11-28'
+                    }
+                })
+                console.log(creatPullRes);
+            }                    
     #       const res = await octokit.request('GET /repos/{owner}/{repo}/commits/{branch}', {
     #         owner: context.repo.owner,
     #         repo: context.repo.repo,
