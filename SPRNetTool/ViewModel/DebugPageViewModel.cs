@@ -520,49 +520,50 @@ namespace SPRNetTool.ViewModel
             SprWorkManager.SaveCurrentWorkToSpr(filePath);
         }
 
+        #region Change frame offset command
         private TaskPool ModifyFrameOffTaskPool = new TaskPool(cores: 1);
         void IDebugPageCommand.OnIncreaseFrameOffsetXButtonClicked(uint delta)
         {
             if (!IsSpr) return;
-
-            var newOffX = (short)(SprFrameData.frameOffX + (delta == 0 ? 1 : delta));
-            Task increaseTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(newOffX, SprFrameData.frameOffY);
-                Logger.Raw.D($"newOffX = {newOffX}");
-            });
-            ModifyFrameOffTaskPool.AddTaskToSinglePool(increaseTask);
-
-            _sprFrameData.frameOffX = newOffX;
-            Invalidate(nameof(SprFrameData));
+            SetFrameOffset((int)delta, 0);
         }
+
         void IDebugPageCommand.OnDecreaseFrameOffsetXButtonClicked(uint delta)
         {
             if (!IsSpr) return;
-            var newOffX = (short)(SprFrameData.frameOffX - (delta == 0 ? 1 : delta));
-            Task decreaseTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(newOffX, SprFrameData.frameOffY);
-                Logger.Raw.D($"newOffX = {newOffX}");
-            });
-            ModifyFrameOffTaskPool.AddTaskToSinglePool(decreaseTask);
-
-            _sprFrameData.frameOffX = newOffX;
-            Invalidate(nameof(SprFrameData));
+            SetFrameOffset(-(int)delta, 0);
         }
         void IDebugPageCommand.OnIncreaseFrameOffsetYButtonClicked(uint delta)
         {
             if (!IsSpr) return;
 
-            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(SprFrameData.frameOffX, (short)(SprFrameData.frameOffY + (delta == 0 ? 1 : delta)));
+            SetFrameOffset(0,(int)delta);
+
         }
 
         void IDebugPageCommand.OnDecreaseFrameOffsetYButtonClicked(uint delta)
         {
             if (!IsSpr) return;
 
-            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(SprFrameData.frameOffX, (short)(SprFrameData.frameOffY - (delta == 0 ? 1 : delta)));
+            SetFrameOffset(0, -(int)delta);
         }
+
+        private void SetFrameOffset(int deltaX, int deltaY)
+        {
+            var newOffX = (short)(SprFrameData.frameOffX + deltaX);
+            var newOffY = (short)(SprFrameData.frameOffY + deltaY);
+            Task changeTask = new Task(() =>
+            {
+                BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(newOffX, newOffY);
+                Logger.Raw.D($"newOffX = {newOffX}, newOffY = {newOffY}");
+            });
+            ModifyFrameOffTaskPool.AddTaskToSinglePool(changeTask);
+
+            _sprFrameData.frameOffX = newOffX;
+            _sprFrameData.frameOffY = newOffY;
+            Invalidate(nameof(SprFrameData));
+        }
+        #endregion
 
         void IDebugPageCommand.OnIncreaseCurrentlyDisplayedSprFrameIndex()
         {

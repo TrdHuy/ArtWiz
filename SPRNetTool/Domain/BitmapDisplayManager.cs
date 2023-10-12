@@ -319,7 +319,7 @@ namespace SPRNetTool.Domain
         {
             base.NotifyChanged(args);
             var changedEvent = ((BitmapDisplayMangerChangedArg)args).Event;
-            logger.D($"ChangedEvent: {changedEvent}~{Convert.ToString((int)changedEvent, 2)}");
+            logger.D($"ChangedEvent: dec={changedEvent},bin={Convert.ToString((int)changedEvent, 2)}");
         }
     }
 
