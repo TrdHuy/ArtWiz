@@ -115,7 +115,8 @@ namespace SPRNetTool.Domain
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                     changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
                         | CURRENT_COLOR_SOURCE_CHANGED
-                        | SPR_FRAME_DATA_CHANGED,
+                        | SPR_FRAME_DATA_CHANGED
+                        | SPR_FRAME_OFFSET_CHANGED,
                     currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                     colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                     sprFrameData: SprWorkManager.GetFrameData(index)));
@@ -318,7 +319,7 @@ namespace SPRNetTool.Domain
         {
             base.NotifyChanged(args);
             var changedEvent = ((BitmapDisplayMangerChangedArg)args).Event;
-            logger.D($"ChangedEvent: {changedEvent}~{Convert.ToString((int)changedEvent, 2)}");
+            logger.D($"ChangedEvent: dec={changedEvent},bin={Convert.ToString((int)changedEvent, 2)}");
         }
     }
 
@@ -332,6 +333,7 @@ namespace SPRNetTool.Domain
             SPR_FILE_HEAD_CHANGED = 0b1000,
             SPR_FRAME_INDEX_CHANGED = 0b10000,
             SPR_FRAME_DATA_CHANGED = 0b100000,
+            SPR_FRAME_OFFSET_CHANGED = 0b1000000,
         }
 
         public ChangedEvent Event { get; private set; }
