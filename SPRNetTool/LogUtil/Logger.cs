@@ -67,9 +67,9 @@ namespace SPRNetTool.LogUtil
 
         public void D(string message, [CallerMemberName] string caller = "")
         {
+#if DEBUG
             var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tD\t{PROJECT_TAG}\t{classTag}\t{caller}\t{message}";
             Debug.WriteLine(log);
-#if DEBUG
             _logWriter.WriteLine(log);
 #endif
         }
@@ -93,9 +93,9 @@ namespace SPRNetTool.LogUtil
         {
             public static void D(string message, [CallerMemberName] string caller = "")
             {
+#if DEBUG
                 var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tD\t{PROJECT_TAG}\t{caller}\t{message}";
                 Debug.WriteLine(log);
-#if DEBUG
                 _logWriter.WriteLine(log);
 #endif
             }
