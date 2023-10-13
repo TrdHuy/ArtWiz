@@ -145,9 +145,8 @@ namespace SPRNetTool.Domain
 
                 DisplayedBitmapSourceCache.DisplayedBitmapSource = it[index];
                 DisplayedBitmapSourceCache.ColorSourceCaching?
-                   .Apply(it => it[index] = it[index]
-                       .IfNullThenLet(() => DisplayedBitmapSourceCache.DisplayedBitmapSource?
-                           .Let(it => this.CountColorsToDictionary(it))));
+                    .Also(it => it[index] = DisplayedBitmapSourceCache.DisplayedBitmapSource?
+                        .Let(it => this.CountColorsToDictionary(it)));
                 DisplayedBitmapSourceCache.CurrentFrameIndex = index;
                 DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.ColorSourceCaching?[index];
                 NotifyChanged(new BitmapDisplayMangerChangedArg(

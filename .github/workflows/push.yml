@@ -126,7 +126,7 @@ jobs:
         	echo dotnet clean SPRNetTool\SPRNetTool.csproj -c Release
         	echo %samPath% scan --sam-dir %samDir% --source-path %projectPath% --language cs dotnet build SPRNetTool\SPRNetTool.csproj -c Release
         	echo %samPath% analyze --sam-dir %samDir% --source-path %projectPath% --language cs 
-        	echo %samPath% calculate --sam-dir %samDir% --source-path %projectPath% --language cs 
+        	echo %samPath% calculate --sam-dir %samDir% --source-path %projectPath% --language cs --scoring-metrics cc,dc,mcd,cbo,loc,ncs
         ) > arcrunner.bat
         type %CD%\arcrunner.bat
         powershell -command "ls"
