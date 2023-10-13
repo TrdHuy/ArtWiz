@@ -381,7 +381,7 @@ namespace SPRNetTool.View.Pages
                                 {
                                     await Task.Run(() =>
                                     {
-                                        commandVM?.OnSaveCurrentDisplayedBitmapSourceToSpr(saveFileDialog.FileName);
+                                        commandVM?.OnSaveCurrentDisplayedBitmapSourceToSpr(Path.ChangeExtension(saveFileDialog.FileName, "spr"));
                                     });
                                 });
                             }
