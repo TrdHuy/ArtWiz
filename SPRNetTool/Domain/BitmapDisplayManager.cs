@@ -98,20 +98,19 @@ namespace SPRNetTool.Domain
 
             DisplayedBitmapSourceCache.AnimationSourceCaching?.Also(it =>
             {
-                it[index] = SprWorkManager.GetFrameData(index)?
-                        .Let((it) => this.GetBitmapFromRGBArray(
-                            this.ConvertPaletteColourArrayToByteArray(it.globalFrameData)
-                            , SprWorkManager.FileHead.GlobalWidth
-                            , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
-                        .Also((it) => it.Freeze());
+            it[index] = SprWorkManager.GetFrameData(index)?
+                    .Let((it) => this.GetBitmapFromRGBArray(
+                        this.ConvertPaletteColourArrayToByteArray(it.globalFrameData)
+                        , SprWorkManager.FileHead.GlobalWidth
+                        , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
+                    .Also((it) => it.Freeze());
 
-                DisplayedBitmapSourceCache.DisplayedBitmapSource = it[index];
-                DisplayedBitmapSourceCache.ColorSourceCaching?
-                   .Apply(it => it[index] = it[index]
-                       .IfNullThenLet(() => DisplayedBitmapSourceCache.DisplayedBitmapSource?
-                           .Let(it => this.CountColorsToDictionary(it))));
-                DisplayedBitmapSourceCache.CurrentFrameIndex = index;
-                DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.ColorSourceCaching?[index];
+            DisplayedBitmapSourceCache.DisplayedBitmapSource = it[index];
+            DisplayedBitmapSourceCache.ColorSourceCaching?
+                                       .Also(it2 =>  it2[index] = DisplayedBitmapSourceCache.DisplayedBitmapSource?
+                                       .Let(it => this.CountColorsToDictionary(it)));
+            DisplayedBitmapSourceCache.CurrentFrameIndex = index;
+            DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.ColorSourceCaching?[index];
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                     changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
                         | CURRENT_COLOR_SOURCE_CHANGED
