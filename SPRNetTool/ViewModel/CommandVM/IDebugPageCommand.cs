@@ -9,6 +9,9 @@
         void OnIncreaseFrameOffsetXButtonClicked(uint delta = 1);
         void OnDecreaseFrameOffsetXButtonClicked(uint delta = 1);
 
+        void OnIncreaseFrameWidthButtonClicked(uint delta = 1);
+        void OnDecreaseFrameWidthButtonClicked(uint delta = 1);
+
         void OnIncreaseFrameOffsetYButtonClicked(uint delta = 1);
         void OnDecreaseFrameOffsetYButtonClicked(uint delta = 1);
 

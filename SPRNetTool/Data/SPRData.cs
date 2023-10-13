@@ -178,9 +178,18 @@ namespace SPRNetTool.Data
         public short frameOffX { get; set; }
         public short frameOffY { get; set; }
 
-        public byte[] encryptedFrameData;
-        public PaletteColor[] decodedFrameData;
-        public PaletteColor[] globalFrameData;
+        public byte[] encryptedFrameData { get; set; }
+        public PaletteColor[] decodedFrameData { get; set; }
+        public PaletteColor[] globalFrameData { get; set; }
+
+        public FrameRGBACache? modifiedFrameRGBACache { get; set; }
+
+        public class FrameRGBACache
+        {
+            public FrameRGBA frameRGBA;
+        }
+
     }
+
 
 }

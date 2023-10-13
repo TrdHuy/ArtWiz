@@ -14,6 +14,9 @@ namespace SPRNetTool.Domain.Base
 
         void SetCurrentlyDisplayedFrameOffset(short frameOffX, short frameOffY);
 
+        void SetCurrentlyDisplayedFrameSize(ushort frameWidth, ushort frameHeight);
+
+
         void StartSprAnimation();
 
         void StopSprAnimation();

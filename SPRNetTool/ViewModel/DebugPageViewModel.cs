@@ -522,6 +522,19 @@ namespace SPRNetTool.ViewModel
 
         #region Change frame offset command
         private TaskPool ModifyFrameOffTaskPool = new TaskPool(cores: 1);
+        void IDebugPageCommand.OnIncreaseFrameWidthButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+            SetFrameSize((int)delta, 0);
+
+        }
+
+        void IDebugPageCommand.OnDecreaseFrameWidthButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+            SetFrameSize(-(int)delta, 0);
+        }
+
         void IDebugPageCommand.OnIncreaseFrameOffsetXButtonClicked(uint delta)
         {
             if (!IsSpr) return;
@@ -537,7 +550,7 @@ namespace SPRNetTool.ViewModel
         {
             if (!IsSpr) return;
 
-            SetFrameOffset(0,(int)delta);
+            SetFrameOffset(0, (int)delta);
 
         }
 
@@ -561,6 +574,24 @@ namespace SPRNetTool.ViewModel
 
             _sprFrameData.frameOffX = newOffX;
             _sprFrameData.frameOffY = newOffY;
+            Invalidate(nameof(SprFrameData));
+        }
+
+        private void SetFrameSize(int deltaWidth, int deltaHeight)
+        {
+            var tempWidth = SprFrameData.frameWidth + deltaWidth;
+            var tempHeight = SprFrameData.frameHeight + deltaHeight;
+            var newWidth = (ushort)(tempWidth < 0 ? 0 : tempWidth);
+            var newHeight = (ushort)(tempHeight < 0 ? 0 : tempHeight);
+            Task changeTask = new Task(() =>
+            {
+                BitmapDisplayManager.SetCurrentlyDisplayedFrameSize(newWidth, newHeight);
+                Logger.Raw.D($"newWidth = {newWidth}, newHeight = {newHeight}");
+            });
+            ModifyFrameOffTaskPool.AddTaskToSinglePool(changeTask);
+
+            _sprFrameData.frameWidth = newWidth;
+            _sprFrameData.frameHeight = newHeight;
             Invalidate(nameof(SprFrameData));
         }
         #endregion

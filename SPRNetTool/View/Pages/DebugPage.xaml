@@ -360,12 +360,14 @@
 					<Run Text=" &#xf146; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameWidthMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}">
 					</Run>
 					<Run Text="{Binding SprFrameData.frameWidth}" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameWidthPlusButton}"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
