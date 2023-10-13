@@ -377,6 +377,7 @@
 					<Run Text=" &#xf146; "
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
 						 FontSize="16"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameHeightMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}">
 					</Run>
@@ -384,6 +385,7 @@
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
+						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameHeightPlusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
 					<LineBreak />

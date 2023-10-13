@@ -420,7 +420,8 @@ namespace SPRNetTool.ViewModel
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))
                         {
-                            if (!castArgs.Event.HasFlag(SPR_FRAME_OFFSET_CHANGED))
+                            if (!castArgs.Event.HasFlag(SPR_FRAME_OFFSET_CHANGED) &&
+                                !castArgs.Event.HasFlag(SPR_FRAME_SIZE_CHANGED))
                             {
                                 SprFrameData = castArgs.SprFrameData ?? new FrameRGBA();
                             }
@@ -533,6 +534,19 @@ namespace SPRNetTool.ViewModel
         {
             if (!IsSpr) return;
             SetFrameSize(-(int)delta, 0);
+        }
+
+        void IDebugPageCommand.OnIncreaseFrameHeightButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+            SetFrameSize(0, (int)delta);
+
+        }
+
+        void IDebugPageCommand.OnDecreaseFrameHeightButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+            SetFrameSize(0, -(int)delta);
         }
 
         void IDebugPageCommand.OnIncreaseFrameOffsetXButtonClicked(uint delta)

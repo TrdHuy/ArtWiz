@@ -6,6 +6,8 @@
 
         void OnSaveCurrentWorkManagerToFileSprClicked(string filePath);
 
+        void OnDecreaseFrameHeightButtonClicked(uint delta = 1);
+        void OnIncreaseFrameHeightButtonClicked(uint delta = 1);
         void OnIncreaseFrameOffsetXButtonClicked(uint delta = 1);
         void OnDecreaseFrameOffsetXButtonClicked(uint delta = 1);
 

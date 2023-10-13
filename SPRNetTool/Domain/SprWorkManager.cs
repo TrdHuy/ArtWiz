@@ -101,15 +101,14 @@ namespace SPRNetTool.Domain
                             .FrameRGBACache()
                             .Also((it) =>
                             {
+                                it.frameOffX = FrameData[frameIndex].frameOffX;
+                                it.frameOffY = FrameData[frameIndex].frameOffY;
                                 FrameData[frameIndex].modifiedFrameRGBACache = it;
                             });
-                    var modifiedFrameRGBA = modifiedFrameRGBACache.frameRGBA;
 
-                    modifiedFrameRGBA.frameOffX = FrameData[frameIndex].frameOffX;
-                    modifiedFrameRGBA.frameOffY = FrameData[frameIndex].frameOffY;
-
-                    modifiedFrameRGBA.frameWidth = newFrameWidth;
-                    modifiedFrameRGBA.frameHeight = newFrameHeight;
+                    modifiedFrameRGBACache.frameWidth = newFrameWidth;
+                    modifiedFrameRGBACache.frameHeight = newFrameHeight;
+                    modifiedFrameRGBACache.decodedFrameData = newDecodedFrameData;
                     var globalData = InitGlobalizedFrameDataFromModifiedCache(frameIndex);
                     if (globalData == null) throw new Exception("Failed to set new frame offset");
                     FrameData[frameIndex].globalFrameData = globalData;
@@ -121,12 +120,30 @@ namespace SPRNetTool.Domain
         {
             if (frameIndex >= 0 && frameIndex < FileHead.FrameCounts && FrameData != null)
             {
-                if (offsetY != FrameData[frameIndex].frameOffY
-                    || offsetX != FrameData[frameIndex].frameOffX)
+                var modifiedFrameRGBACache = FrameData[frameIndex]
+                    .modifiedFrameRGBACache ?? new FrameRGBA
+                        .FrameRGBACache()
+                        .Also((it) =>
+                        {
+                            it.frameHeight = FrameData[frameIndex].frameHeight;
+                            it.frameWidth = FrameData[frameIndex].frameWidth;
+
+                            it.frameOffX = FrameData[frameIndex].frameOffX;
+                            it.frameOffY = FrameData[frameIndex].frameOffY;
+                            var copiedDecodedFrameData = new PaletteColor[FrameData[frameIndex].decodedFrameData.Length];
+                            Array.Copy(FrameData[frameIndex].decodedFrameData,
+                                copiedDecodedFrameData,
+                                FrameData[frameIndex].decodedFrameData.Length);
+                            it.decodedFrameData = copiedDecodedFrameData;
+                            FrameData[frameIndex].modifiedFrameRGBACache = it;
+                        });
+
+                if (offsetY != modifiedFrameRGBACache.frameOffY
+                    || offsetX != modifiedFrameRGBACache.frameOffX)
                 {
-                    FrameData[frameIndex].frameOffY = offsetY;
-                    FrameData[frameIndex].frameOffX = offsetX;
-                    var globalData = InitGlobalizedFrameDataFromOrigin(frameIndex);
+                    modifiedFrameRGBACache.frameOffY = offsetY;
+                    modifiedFrameRGBACache.frameOffX = offsetX;
+                    var globalData = InitGlobalizedFrameDataFromModifiedCache(frameIndex);
                     if (globalData == null) throw new Exception("Failed to set new frame offset");
                     FrameData[frameIndex].globalFrameData = globalData;
                 }
@@ -392,7 +409,7 @@ namespace SPRNetTool.Domain
                 var cache = FrameData[index].modifiedFrameRGBACache;
                 if (cache != null)
                 {
-                    return InitGlobalizedFrameData(FileHead, cache.frameRGBA);
+                    return InitGlobalizedFrameData(FileHead, cache.toFrameRGBA());
                 }
             }
             return null;
