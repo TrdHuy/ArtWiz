@@ -178,9 +178,102 @@ namespace SPRNetTool.Data
         public short frameOffX { get; set; }
         public short frameOffY { get; set; }
 
-        public byte[] encryptedFrameData;
-        public PaletteColor[] decodedFrameData;
-        public PaletteColor[] globalFrameData;
+        public byte[] encryptedFrameData { get; set; }
+        public PaletteColor[] decodedFrameData { get; set; }
+        public PaletteColor[] globalFrameData { get; set; }
+
+        public FrameRGBACache? modifiedFrameRGBACache { get; set; }
+
+        public class FrameRGBACache
+        {
+            private FrameRGBA frameRGBA;
+
+            public ushort frameWidth
+            {
+                get
+                {
+                    return frameRGBA.frameWidth;
+                }
+                set
+                {
+                    frameRGBA.frameWidth = value;
+                }
+            }
+            public ushort frameHeight
+            {
+                get
+                {
+                    return frameRGBA.frameHeight;
+                }
+                set
+                {
+                    frameRGBA.frameHeight = value;
+                }
+            }
+            public short frameOffX
+            {
+                get
+                {
+                    return frameRGBA.frameOffX;
+                }
+                set
+                {
+                    frameRGBA.frameOffX = value;
+                }
+            }
+            public short frameOffY
+            {
+                get
+                {
+                    return frameRGBA.frameOffY;
+                }
+                set
+                {
+                    frameRGBA.frameOffY = value;
+                }
+            }
+
+            public byte[] encryptedFrameData
+            {
+                get
+                {
+                    return frameRGBA.encryptedFrameData;
+                }
+                set
+                {
+                    frameRGBA.encryptedFrameData = value;
+                }
+            }
+            public PaletteColor[] decodedFrameData
+            {
+                get
+                {
+                    return frameRGBA.decodedFrameData;
+                }
+                set
+                {
+                    frameRGBA.decodedFrameData = value;
+                }
+            }
+            public PaletteColor[] globalFrameData
+            {
+                get
+                {
+                    return frameRGBA.globalFrameData;
+                }
+                set
+                {
+                    frameRGBA.globalFrameData = value;
+                }
+            }
+
+            public FrameRGBA toFrameRGBA()
+            {
+                return frameRGBA;
+            }
+        }
+
     }
+
 
 }

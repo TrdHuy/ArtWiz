@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -81,6 +80,43 @@ namespace SPRNetTool.Domain
                     currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                     colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                     sprFrameIndex: index,
+                    sprFrameData: SprWorkManager.GetFrameData(index)));
+            });
+        }
+
+        void IBitmapDisplayManager.SetCurrentlyDisplayedFrameSize(ushort frameWidth, ushort frameHeight)
+        {
+            if (DisplayedBitmapSourceCache.AnimationSourceCaching == null ||
+                DisplayedBitmapSourceCache.AnimationSourceCaching.Length != SprWorkManager.FileHead.FrameCounts)
+            {
+                DisplayedBitmapSourceCache.AnimationSourceCaching = new BitmapSource?[SprWorkManager.FileHead.FrameCounts];
+                DisplayedBitmapSourceCache.ColorSourceCaching = new Dictionary<Color, long>?[SprWorkManager.FileHead.FrameCounts];
+            }
+            uint index = DisplayedBitmapSourceCache.CurrentFrameIndex ?? 0;
+            SprWorkManager.SetFrameSize(frameWidth, frameHeight, index, Colors.Aqua);
+
+            DisplayedBitmapSourceCache.AnimationSourceCaching?.Also(it =>
+            {
+                it[index] = SprWorkManager.GetFrameData(index)?
+                        .Let((it) => this.GetBitmapFromRGBArray(
+                            this.ConvertPaletteColourArrayToByteArray(it.globalFrameData)
+                            , SprWorkManager.FileHead.GlobalWidth
+                            , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
+                        .Also((it) => it.Freeze());
+
+                DisplayedBitmapSourceCache.DisplayedBitmapSource = it[index];
+                DisplayedBitmapSourceCache.ColorSourceCaching?
+                    .Also(it => it[index] = DisplayedBitmapSourceCache.DisplayedBitmapSource?
+                        .Let(it => this.CountColorsToDictionary(it)));
+                DisplayedBitmapSourceCache.CurrentFrameIndex = index;
+                DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.ColorSourceCaching?[index];
+                NotifyChanged(new BitmapDisplayMangerChangedArg(
+                    changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
+                        | CURRENT_COLOR_SOURCE_CHANGED
+                        | SPR_FRAME_DATA_CHANGED
+                        | SPR_FRAME_SIZE_CHANGED,
+                    currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
+                    colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                     sprFrameData: SprWorkManager.GetFrameData(index)));
             });
         }
@@ -333,6 +369,7 @@ namespace SPRNetTool.Domain
             SPR_FRAME_INDEX_CHANGED = 0b10000,
             SPR_FRAME_DATA_CHANGED = 0b100000,
             SPR_FRAME_OFFSET_CHANGED = 0b1000000,
+            SPR_FRAME_SIZE_CHANGED = 0b10000000,
         }
 
         public ChangedEvent Event { get; private set; }

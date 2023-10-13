@@ -42,6 +42,10 @@ namespace SPRNetTool.View.Pages
         SPRInfo_FrameOffsetYMinusButton,
         SPRInfo_IntervalMinusButton,
         SPRInfo_IntervalPlusButton,
+        SPRInfo_FrameWidthMinusButton,
+        SPRInfo_FrameWidthPlusButton,
+        SPRInfo_FrameHeightMinusButton,
+        SPRInfo_FrameHeightPlusButton,
 
         ImageInfo_ExportToSingleFrameSprFile,
     }
@@ -438,6 +442,26 @@ namespace SPRNetTool.View.Pages
                             commandVM?.OnDecreaseIntervalButtonClicked();
                             break;
                         }
+                    case DebugPageTagID.SPRInfo_FrameWidthMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameWidthButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameWidthPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameWidthButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameHeightMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameHeightButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameHeightPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameHeightButtonClicked();
+                            break;
+                        }
                 }
             });
         }
@@ -511,6 +535,26 @@ namespace SPRNetTool.View.Pages
                     case DebugPageTagID.SPRInfo_IntervalMinusButton:
                         {
                             commandVM?.OnDecreaseIntervalButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameWidthMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameWidthButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameWidthPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameWidthButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameHeightMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameHeightButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameHeightPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameHeightButtonClicked((uint)(1 + args.HoldingCounter / 5));
                             break;
                         }
                 }

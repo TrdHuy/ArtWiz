@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain.Base
@@ -14,8 +15,27 @@ namespace SPRNetTool.Domain.Base
     {
 
         #region public API
+        /// <summary>
+        /// Thay đổi frame offset theo frame index 
+        /// </summary>
+        /// <param name="offsetY">giá trị offset Y mới</param>
+        /// <param name="offsetX">giá trị offset X mới</param>
+        /// <param name="frameIndex">index của frame cần thay đổi</param>
         void SetFrameOffset(short offsetY, short offsetX, uint frameIndex);
 
+        /// <summary>
+        /// Thay đổi frame size theo frame index
+        /// </summary>
+        /// <param name="frameWidth">Chiều rộng mới của frame</param>
+        /// <param name="frameHeight">Chiều cao mới của frame</param>
+        /// <param name="frameIndex">index của frame cần thay đổi</param>
+        /// <param name="extendingColor">màu sử dụng cho việc mở rộng ảnh</param>
+        void SetFrameSize(ushort frameWidth, ushort frameHeight, uint frameIndex, Color? extendingColor = null);
+
+        /// <summary>
+        /// Thay đổi khoảng thời gian giữa các frame khi hiển thị animation
+        /// </summary>
+        /// <param name="interval">khoảng thời gian mới</param>
         void SetSprInterval(ushort interval);
 
         /// <summary>
