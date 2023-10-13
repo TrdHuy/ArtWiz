@@ -27,21 +27,6 @@ namespace SPRNetToolTest.Utils
             NUM3 = 0b00000100,
             NUM4 = 0b00001000,
         }
-        [Test]
-        public void test_()
-        {
-            var frame = new FrameRGBA();
-            frame.modifiedFrameRGBACache = new FrameRGBA.FrameRGBACache();
-            frame.modifiedFrameRGBACache.frameRGBA.frameOffX = 192;
-            frame.decodedFrameData = new PaletteColor[2];
-            FrameRGBA frame2;
-
-            var frame3 = frame;
-            frame3.frameOffX = 19;
-            frame3.decodedFrameData[0].Alpha = 100;
-            frame3.modifiedFrameRGBACache.frameRGBA.frameOffX = 19;
-            var x = 1;
-        }
 
         [Test]
         public void test_SaveBitmapSourceToSprFile()
