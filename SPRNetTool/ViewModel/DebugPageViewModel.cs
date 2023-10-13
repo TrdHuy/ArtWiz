@@ -422,7 +422,7 @@ namespace SPRNetTool.ViewModel
                             if (!castArgs.Event.HasFlag(SPR_FRAME_OFFSET_CHANGED) &&
                                 !castArgs.Event.HasFlag(SPR_FRAME_SIZE_CHANGED))
                             {
-                                SprFrameData = castArgs.SprFrameData ?? new FrameRGBA();
+                                SprFrameData = castArgs.SprFrameData?.modifiedFrameRGBACache?.toFrameRGBA() ?? new FrameRGBA();
                             }
                         }
                     }

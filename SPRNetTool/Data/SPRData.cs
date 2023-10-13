@@ -179,7 +179,7 @@ namespace SPRNetTool.Data
         public short frameOffY { get; set; }
 
         public byte[] encryptedFrameData { get; set; }
-        public PaletteColor[] decodedFrameData { get; set; }
+        public PaletteColor[] originDecodedFrameData { get; set; }
         public PaletteColor[] globalFrameData { get; set; }
 
         public FrameRGBACache? modifiedFrameRGBACache { get; set; }
@@ -244,15 +244,15 @@ namespace SPRNetTool.Data
                     frameRGBA.encryptedFrameData = value;
                 }
             }
-            public PaletteColor[] decodedFrameData
+            public PaletteColor[] modifiedFrameData
             {
                 get
                 {
-                    return frameRGBA.decodedFrameData;
+                    return frameRGBA.originDecodedFrameData;
                 }
                 set
                 {
-                    frameRGBA.decodedFrameData = value;
+                    frameRGBA.originDecodedFrameData = value;
                 }
             }
             public PaletteColor[] globalFrameData
@@ -270,6 +270,11 @@ namespace SPRNetTool.Data
             public FrameRGBA toFrameRGBA()
             {
                 return frameRGBA;
+            }
+
+            public void InitFrameRGBA(FrameRGBA initData)
+            {
+                frameRGBA = initData;
             }
         }
 
