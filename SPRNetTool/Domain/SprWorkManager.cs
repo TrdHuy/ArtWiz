@@ -1,8 +1,6 @@
-﻿using Microsoft.VisualBasic.Logging;
-using SPRNetTool.Data;
+﻿using SPRNetTool.Data;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
-using SPRNetTool.LogUtil;
 using SPRNetTool.Utils;
 using System;
 using System.Collections.Generic;
@@ -10,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain
 {
