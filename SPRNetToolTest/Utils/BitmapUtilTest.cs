@@ -28,6 +28,16 @@ namespace SPRNetToolTest.Utils
         }
 
         [Test]
+        public void test_e()
+        {
+            string imagePath = "Resources\\test.png".FullPath();
+            var x1 = System.DateTime.Now;
+            var x2 = System.DateTime.Now;
+            var x3 = x2 - x1;
+
+        }
+
+        [Test]
         public void test_SaveBitmapSourceToSprFile()
         {
             string imagePath = "Resources\\test.png".FullPath();
