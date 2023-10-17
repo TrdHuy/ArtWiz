@@ -488,6 +488,31 @@ namespace SPRNetTool.View.Pages
             });
             Res res = inputWindow.Show();
             if (res == Res.CANCEL) return;
+            BitmapEncoder? encoder = null;
+            switch (checkedContent) 
+            {
+                case "jpg": 
+                    encoder = new JpegBitmapEncoder();
+                    break;
+                case "png":
+                    encoder = new PngBitmapEncoder();
+                    break;
+                default: 
+                    return;
+            }
+            SaveFileDialog saveFile = new SaveFileDialog();
+            saveFile.AddExtension = true;
+            saveFile.DefaultExt = checkedContent;
+            if(saveFile.ShowDialog() == true)
+            {
+                string filePath = saveFile.FileName;
+                using (FileStream stream = new FileStream(filePath, FileMode.Create))
+                {
+                    if (viewModel.CurrentlyDisplayedBitmapSource == null) return;
+                    encoder.Frames.Add(BitmapFrame.Create(viewModel.CurrentlyDisplayedBitmapSource));
+                    encoder.Save(stream);
+                }
+            }
         }
 
         private void OnRunMouseHold(object sender, MouseHoldEventArgs args)
