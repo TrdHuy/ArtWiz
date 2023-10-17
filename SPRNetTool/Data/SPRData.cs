@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using static SPRNetTool.Data.FrameRGBA;
 
 namespace SPRNetTool.Data
 {
