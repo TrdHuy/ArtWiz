@@ -46,6 +46,14 @@ namespace SPRNetTool.View.Pages
         SPRInfo_FrameWidthPlusButton,
         SPRInfo_FrameHeightMinusButton,
         SPRInfo_FrameHeightPlusButton,
+        SPRInfo_GlobalWidthMinusButton,
+        SPRInfo_GlobalWidthPlusButton,
+        SPRInfo_GlobalHeightMinusButton,
+        SPRInfo_GlobalHeightPlusButton,
+        SPRInfo_GlobalOffsetXPlusButton,
+        SPRInfo_GlobalOffsetXMinusButton,
+        SPRInfo_GlobalOffsetYPlusButton,
+        SPRInfo_GlobalOffsetYMinusButton,
 
         ImageInfo_ExportToSingleFrameSprFile,
     }
@@ -69,42 +77,6 @@ namespace SPRNetTool.View.Pages
             this.ownerWindow = (Window)ownerWindow;
             commandVM = DataContext.IfIsThenAlso<IDebugPageCommand>((it) => it);
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            string filePath = "Resources/cuukiem.spr".FullPath();
-            try
-            {
-
-                US_SprFileHead header;
-                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                {
-                    workManager.InitWorkManagerFromSprFile(fs);
-                    //if (decdata != null)
-                    //    Extension.Print2DArrayToFile(decdata, frameHeight, frameWidth, "test.txt");
-                    var data = workManager.GetFrameData(0);
-                    if (data != null)
-                    {
-                        //Extension.Print2DArrayToFile(data?.decodedFrameData, data?.frameHeight ?? 0, data?.frameWidth ?? 0, "dec.txt");
-                        BitmapUtil.Print2DArrayToFile(data?.globalFrameData, workManager.FileHead.GlobalHeight, workManager.FileHead.GlobalWidth, "glb.txt");
-                        var byteData = BitmapUtil.ConvertPaletteColourArrayToByteArray(data?.globalFrameData);
-                        var bmpSrc = BitmapUtil.GetBitmapFromRGBArray(byteData, workManager.FileHead.GlobalWidth, workManager.FileHead.GlobalHeight, PixelFormats.Bgra32);
-                        StaticImageView.Source = bmpSrc;
-                        BitmapUtil.CountColors(bmpSrc, out long argbCount, out long rgbCount, out Dictionary<Color, long> src);
-                        //var ditheringBmp = BitmapUtil.ApplyDithering(bmpSrc, 100);
-                        //CountColors(ditheringBmp, out long argbCount2, out long rgbCount2);
-                        //StaticImageView2.Source = ditheringBmp;
-                    }
-
-
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi: " + ex.Message);
-            }
-        }
-
 
         private void OpenImageClick(object sender, RoutedEventArgs e)
         {
@@ -462,10 +434,29 @@ namespace SPRNetTool.View.Pages
                             commandVM?.OnIncreaseFrameHeightButtonClicked();
                             break;
                         }
+                    case DebugPageTagID.SPRInfo_GlobalOffsetXMinusButton:
+                        {
+                            commandVM?.OnDecreaseSprGlobalOffsetXButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalOffsetXPlusButton:
+                        {
+                            commandVM?.OnIncreaseSprGlobalOffsetXButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalOffsetYMinusButton:
+                        {
+                            commandVM?.OnDecreaseSprGlobalOffsetYButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalOffsetYPlusButton:
+                        {
+                            commandVM?.OnIncreaseSprGlobalOffsetYButtonClicked();
+                            break;
+                        }
                 }
             });
         }
-
 
         private void SaveCurrentSourceClick(object sender, RoutedEventArgs e)
         {
@@ -555,6 +546,26 @@ namespace SPRNetTool.View.Pages
                     case DebugPageTagID.SPRInfo_FrameHeightPlusButton:
                         {
                             commandVM?.OnIncreaseFrameHeightButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalOffsetXMinusButton:
+                        {
+                            commandVM?.OnDecreaseSprGlobalOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalOffsetXPlusButton:
+                        {
+                            commandVM?.OnIncreaseSprGlobalOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalOffsetYMinusButton:
+                        {
+                            commandVM?.OnDecreaseSprGlobalOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalOffsetYPlusButton:
+                        {
+                            commandVM?.OnIncreaseSprGlobalOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
                             break;
                         }
                 }

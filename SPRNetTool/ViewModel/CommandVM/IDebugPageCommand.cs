@@ -25,5 +25,10 @@
 
         void OnSaveCurrentDisplayedBitmapSourceToSpr(string filePath);
 
+        void OnIncreaseSprGlobalOffsetXButtonClicked(uint delta = 1);
+        void OnDecreaseSprGlobalOffsetXButtonClicked(uint delta = 1);
+        void OnIncreaseSprGlobalOffsetYButtonClicked(uint delta = 1);
+        void OnDecreaseSprGlobalOffsetYButtonClicked(uint delta = 1);
+
     }
 }
