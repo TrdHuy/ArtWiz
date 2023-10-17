@@ -573,6 +573,30 @@ namespace SPRNetTool.ViewModel
 
             SetFrameOffset(0, -(int)delta);
         }
+        void IDebugPageCommand.OnIncreaseSprGlobalOffsetXButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalOffset((int)delta, 0);
+        }
+        void IDebugPageCommand.OnDecreaseSprGlobalOffsetXButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalOffset(-(int)delta, 0);
+        }
+        void IDebugPageCommand.OnIncreaseSprGlobalOffsetYButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalOffset(0, (int)delta);
+        }
+        void IDebugPageCommand.OnDecreaseSprGlobalOffsetYButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalOffset(0, -(int)delta);
+        }
 
         private void SetFrameOffset(int deltaX, int deltaY)
         {
@@ -587,6 +611,21 @@ namespace SPRNetTool.ViewModel
 
             _sprFrameData.frameOffX = newOffX;
             _sprFrameData.frameOffY = newOffY;
+            Invalidate(nameof(SprFrameData));
+        }
+        private void SetGlobalOffset(int deltaX, int deltaY)
+        {
+            var newOffX = (short)(SprFileHead.OffX + deltaX);
+            var newOffY = (short)(SprFileHead.OffY + deltaY);
+            Task changeTask = new Task(() =>
+            {
+                BitmapDisplayManager.SetSprGlobalOffset(newOffX, newOffY);
+                Logger.Raw.D($"newOffX = {newOffX}, newOffY = {newOffY}");
+            });
+            ModifyFrameOffTaskPool.AddTaskToSinglePool(changeTask);
+
+            _sprFileHead.OffX = newOffX;
+            _sprFileHead.OffY = newOffY;
             Invalidate(nameof(SprFrameData));
         }
 

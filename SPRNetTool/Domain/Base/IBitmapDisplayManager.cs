@@ -21,6 +21,9 @@ namespace SPRNetTool.Domain.Base
 
         void StopSprAnimation();
 
+
+        void SetSprGlobalOffset(short offX, short offY);
+
         void SetCurrentlyDisplayedSprFrameIndex(uint index);
 
         void SetSprInterval(ushort interval);
