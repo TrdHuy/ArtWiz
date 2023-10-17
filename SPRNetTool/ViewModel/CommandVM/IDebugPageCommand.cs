@@ -30,5 +30,9 @@
         void OnIncreaseSprGlobalOffsetYButtonClicked(uint delta = 1);
         void OnDecreaseSprGlobalOffsetYButtonClicked(uint delta = 1);
 
+        void OnIncreaseSprGlobalWidthButtonClicked(uint delta = 1);
+        void OnDecreaseSprGlobalWidthButtonClicked(uint delta = 1);
+        void OnIncreaseSprGlobalHeightButtonClicked(uint delta = 1);
+        void OnDecreaseSprGlobalHeightButtonClicked(uint delta = 1);
     }
 }
