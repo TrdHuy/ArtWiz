@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using SPRNetTool.Data;
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
@@ -454,6 +453,26 @@ namespace SPRNetTool.View.Pages
                             commandVM?.OnIncreaseSprGlobalOffsetYButtonClicked();
                             break;
                         }
+                    case DebugPageTagID.SPRInfo_GlobalWidthMinusButton:
+                        {
+                            commandVM?.OnDecreaseSprGlobalWidthButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalWidthPlusButton:
+                        {
+                            commandVM?.OnIncreaseSprGlobalWidthButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalHeightMinusButton:
+                        {
+                            commandVM?.OnDecreaseSprGlobalHeightButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalHeightPlusButton:
+                        {
+                            commandVM?.OnIncreaseSprGlobalHeightButtonClicked();
+                            break;
+                        }
                 }
             });
         }
@@ -566,6 +585,26 @@ namespace SPRNetTool.View.Pages
                     case DebugPageTagID.SPRInfo_GlobalOffsetYPlusButton:
                         {
                             commandVM?.OnIncreaseSprGlobalOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalWidthMinusButton:
+                        {
+                            commandVM?.OnDecreaseSprGlobalWidthButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalWidthPlusButton:
+                        {
+                            commandVM?.OnIncreaseSprGlobalWidthButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalHeightMinusButton:
+                        {
+                            commandVM?.OnDecreaseSprGlobalHeightButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_GlobalHeightPlusButton:
+                        {
+                            commandVM?.OnIncreaseSprGlobalHeightButtonClicked((uint)(1 + args.HoldingCounter / 5));
                             break;
                         }
                 }

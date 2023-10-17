@@ -15,6 +15,14 @@ namespace SPRNetTool.Domain.Base
     {
 
         #region public API
+
+        /// <summary>
+        /// Thay đổi global size của file spr
+        /// </summary>
+        /// <param name="width">giá trị chiều rộng mới</param>
+        /// <param name="height">giá trị chiều cao mới</param>
+        void SetGlobalSize(ushort width, ushort height);
+
         /// <summary>
         /// Thay đổi global offset của file spr
         /// </summary>

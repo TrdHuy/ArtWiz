@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using static SPRNetTool.Data.FrameRGBA;
 
 namespace SPRNetTool.Data
 {
@@ -178,6 +177,18 @@ namespace SPRNetTool.Data
                     sprFileHead.OffY = value;
                 }
             }
+            public ushort Interval
+            {
+                get
+                {
+                    return sprFileHead.Interval;
+                }
+                set
+                {
+                    sprFileHead.Interval = value;
+                }
+            }
+
             public SprFileHead toSprFileHead()
             {
                 return sprFileHead;

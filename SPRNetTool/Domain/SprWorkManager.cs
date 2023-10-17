@@ -90,14 +90,36 @@ namespace SPRNetTool.Domain
                     modifiedFrameRGBACache.frameWidth = newFrameWidth;
                     modifiedFrameRGBACache.frameHeight = newFrameHeight;
                     modifiedFrameRGBACache.modifiedFrameData = newDecodedFrameData;
-                    var globalData = InitGlobalizedFrameDataFromModifiedCache(frameIndex);
-                    if (globalData == null) throw new Exception("Failed to set new frame offset");
-                    FrameData[frameIndex].globalFrameData = globalData;
+                    FrameData[frameIndex].isNeedToRedrawGlobalFrameData = true;
 
                     pf_logger.I($"set frame size from {oldWidth}x{oldHeight} to {newFrameWidth}x{newFrameHeight} in: {(DateTime.Now - startTime).TotalMilliseconds}ms");
                 }
             }
         }
+
+        void ISprWorkManager.SetGlobalSize(ushort width, ushort height)
+        {
+            var sprFileHeadCache = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
+            {
+                it.InitFromSprFileHead(FileHead);
+                FileHead.modifiedSprFileHeadCache = it;
+            });
+            if (width != sprFileHeadCache.globalWidth || height != sprFileHeadCache.globalHeight)
+            {
+                sprFileHeadCache.globalWidth = width;
+                sprFileHeadCache.globalHeight = height;
+                int count = FrameData?.Length ?? 0;
+                FrameData?.Apply(it =>
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        it[i].isNeedToRedrawGlobalFrameData = true;
+                    }
+                });
+
+            }
+        }
+
 
         void ISprWorkManager.SetGlobalOffset(short offsetX, short offsetY)
         {
@@ -118,7 +140,7 @@ namespace SPRNetTool.Domain
                         it[i].isNeedToRedrawGlobalFrameData = true;
                     }
                 });
-                    
+
             }
         }
         void ISprWorkManager.SetFrameOffset(short offsetY, short offsetX, uint frameIndex)
@@ -151,9 +173,8 @@ namespace SPRNetTool.Domain
                     var oldOffsetX = modifiedFrameRGBACache.frameOffX;
                     modifiedFrameRGBACache.frameOffY = offsetY;
                     modifiedFrameRGBACache.frameOffX = offsetX;
-                    var globalData = InitGlobalizedFrameDataFromModifiedCache(frameIndex);
-                    if (globalData == null) throw new Exception("Failed to set new frame offset");
-                    FrameData[frameIndex].globalFrameData = globalData;
+                    FrameData[frameIndex].isNeedToRedrawGlobalFrameData = true;
+
                     pf_logger.I($"set frame offset from {oldOffsetX}-{oldOffsetY} to {offsetX}-{offsetY} in: {(DateTime.Now - startTime).TotalMilliseconds}ms");
                 }
             }
@@ -163,7 +184,13 @@ namespace SPRNetTool.Domain
         void ISprWorkManager.SetSprInterval(ushort interval)
         {
             if (IsCacheEmpty) return;
-            FileHead.Interval = interval;
+
+            var sprFileHeadCache = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
+            {
+                it.InitFromSprFileHead(FileHead);
+                FileHead.modifiedSprFileHeadCache = it;
+            });
+            sprFileHeadCache.Interval = interval;
         }
 
 
@@ -178,7 +205,7 @@ namespace SPRNetTool.Domain
 
         PaletteColor[]? ISprWorkManager.GetGlobalFrameColorData(uint index, out bool isFrameRedrawed)
         {
-           var isRedrawed = false;
+            var isRedrawed = false;
             if (index < FileHead.FrameCounts)
             {
                 FrameData?.Apply(it =>
@@ -188,6 +215,7 @@ namespace SPRNetTool.Domain
                         var globalData = InitGlobalizedFrameDataFromModifiedCache(index);
                         if (globalData == null) throw new Exception("Failed to redraw global frame data from modified cache");
                         it[index].globalFrameData = globalData;
+                        it[index].isNeedToRedrawGlobalFrameData = false;
                         isRedrawed = true;
                     }
                 });
@@ -523,14 +551,21 @@ namespace SPRNetTool.Domain
                 return globalData;
             }
 
-            for (long hi = frameOffY < 0 ? 0 : frameOffY; hi < FileHead.GlobalHeight && hi < frameOffY + frameHeight; hi++)
+            for (long hi = frameOffY < 0 ? 0 : frameOffY; hi < sprFileHead.GlobalHeight && hi < frameOffY + frameHeight; hi++)
             {
-                for (long wi = frameOffX < 0 ? 0 : frameOffX; wi < FileHead.GlobalWidth && wi < frameOffX + frameWidth; wi++)
+                for (long wi = frameOffX < 0 ? 0 : frameOffX; wi < sprFileHead.GlobalWidth && wi < frameOffX + frameWidth; wi++)
                 {
-                    globalData[hi * sprFileHead.GlobalWidth + wi].Red = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Red;
-                    globalData[hi * sprFileHead.GlobalWidth + wi].Green = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Green;
-                    globalData[hi * sprFileHead.GlobalWidth + wi].Blue = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Blue;
-                    globalData[hi * sprFileHead.GlobalWidth + wi].Alpha = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Alpha;
+                    try
+                    {
+                        globalData[hi * sprFileHead.GlobalWidth + wi].Red = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Red;
+                        globalData[hi * sprFileHead.GlobalWidth + wi].Green = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Green;
+                        globalData[hi * sprFileHead.GlobalWidth + wi].Blue = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Blue;
+                        globalData[hi * sprFileHead.GlobalWidth + wi].Alpha = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Alpha;
+                    }
+                    catch (Exception e)
+                    {
+                        var x = 10;
+                    }
                 }
             }
             pf_logger.I($"init global frame data {sprFileHead.GlobalWidth}x{sprFileHead.GlobalHeight} in: {(DateTime.Now - startTime).TotalMilliseconds}ms");
