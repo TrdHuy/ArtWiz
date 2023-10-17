@@ -1,4 +1,6 @@
-﻿using SPRNetTool.View.Base;
+﻿using SPRNetTool.Utils;
+using SPRNetTool.View.Base;
+using SPRNetTool.View.Utils;
 using SPRNetTool.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -34,10 +36,9 @@ namespace SPRNetTool.View
     public partial class InputWindow : Window
     {
 
-
         public enum ContentType
         {
-            TEXT, CHECKBOX, COMBO
+            TEXT, CHECKBOX, COMBO, RADIO
         }
         public enum Res
         {
@@ -45,45 +46,106 @@ namespace SPRNetTool.View
         }
         public class InputBuilder
         {
-            // Title, description, input type, condition, ContentType(equal input type), value changed callback
-            private List<(string, string, (string, bool, (List<string>, int)?), (Func<string, string, bool>?, Func<bool>?)
-                , ContentType, Action<ObservableCollection<ItemViewModel>, bool>?
-                , Action<ObservableCollection<ItemViewModel>, int>?)> res
-                = new List<(string, string, (string, bool, (List<string>, int)?), (Func<string, string, bool>?, Func<bool>?),
-                    ContentType, Action<ObservableCollection<ItemViewModel>, bool>?
-                , Action<ObservableCollection<ItemViewModel>, int>?)>();
-
-            public InputBuilder Add(string tilte, string description, string inputDefault, Func<string, string, bool> condition)
+            public abstract class InputOption
             {
-                res.Add((tilte, description, (inputDefault, false, null), (condition, null), ContentType.TEXT, null, null));
+                public string Title { get; private set; }
+                public string Description { get; private set; }
+
+                public InputOption(string title, string description)
+                {
+                    Title = title;
+                    Description = description;
+                }
+            }
+
+            public class TextInputOption : InputOption
+            {
+                public string InputDefault { get; private set; }
+                public Func<string, string, bool> PreviewInputCondition { get; private set; }
+
+
+                public TextInputOption(string title, string description, string inputDefault, Func<string, string, bool> previewInputCondition) : base(title, description)
+                {
+                    InputDefault = inputDefault;
+                    PreviewInputCondition = previewInputCondition;
+                }
+            }
+
+            public class CheckBoxInputOption : InputOption
+            {
+                public bool InputDefault { get; private set; }
+                public Func<bool> SupportCondition { get; private set; }
+                public Action<ObservableCollection<ItemViewModel>, bool>? Callback { get; private set; }
+
+
+                public CheckBoxInputOption(string title, string description, bool inputDefault, Func<bool> supportCondition, Action<ObservableCollection<ItemViewModel>, bool>? callback = null) : base(title, description)
+                {
+                    InputDefault = inputDefault;
+                    SupportCondition = supportCondition;
+                    Callback = callback;
+                }
+            }
+
+            public class ComboInputOption : InputOption
+            {
+                public int InputDefault { get; private set; }
+                public Func<bool> SupportCondition { get; private set; }
+                public List<string> Options { get; private set; }
+                public Action<ObservableCollection<ItemViewModel>, int>? Callback { get; private set; }
+
+
+                public ComboInputOption(string title, string description, List<string> options
+                    , int defaultSelection, Func<bool> supportCondition
+                    , Action<ObservableCollection<ItemViewModel>, int>? callback = null) : base(title, description)
+                {
+                    InputDefault = defaultSelection;
+                    Options = options;
+                    SupportCondition = supportCondition;
+                    Callback = callback;
+                }
+            }
+            public class RadioInputOption : InputOption
+            {
+                public List<string> Options { get; private set; }
+
+                public RadioInputOption(string title, string description, List<string> options) : base(title, description)
+                {
+                    Options = options;
+                }
+            }
+
+            private List<InputOption> options = new List<InputOption>();
+
+            public InputBuilder AddTextInputOption(string title, string description, string inputDefault, Func<string, string, bool> condition)
+            {
+                options.Add(new TextInputOption(title, description, inputDefault, condition));
                 return this;
             }
 
-            public InputBuilder Add(string tilte, string description, bool inputDefault, Func<bool> condition, Action<ObservableCollection<ItemViewModel>, bool>? callback = null)
+            public InputBuilder AddCheckBoxOption(string title, string description, bool inputDefault, Func<bool> condition, Action<ObservableCollection<ItemViewModel>, bool>? callback = null)
             {
-                res.Add((tilte, description, ("", inputDefault, null), (null, condition), ContentType.CHECKBOX, callback, null));
+                options.Add(new CheckBoxInputOption(title, description, inputDefault, condition, callback));
                 return this;
             }
 
-            public InputBuilder Add(string tilte, string description, List<string> options, int defaultSelection, Func<bool> condition, Action<ObservableCollection<ItemViewModel>, int>? callback = null)
+            public InputBuilder AddComboBoxOption(string title, string description, List<string> comboOptions, int defaultSelection, Func<bool> condition, Action<ObservableCollection<ItemViewModel>, int>? callback = null)
             {
-                res.Add((tilte, description, ("", false, (options, defaultSelection)), (null, condition), ContentType.COMBO, null, callback));
+                options.Add(new ComboInputOption(title, description, comboOptions, defaultSelection, condition, callback));
                 return this;
             }
 
-            public List<(string, string, (string, bool, (List<string>, int)?)
-                , (Func<string, string, bool>?, Func<bool>?)
-                , ContentType, Action<ObservableCollection<ItemViewModel>, bool>?
-                , Action<ObservableCollection<ItemViewModel>, int>?)> Build()
+            public InputBuilder AddRadioOptions(string title, string description, List<string> content)
             {
-                return res;
+                options.Add(new RadioInputOption(title, description, content));
+                return this;
             }
+            public List<InputOption> Build() { return options; }
         }
 
 
         public class ItemViewModel : BaseViewModel
         {
-            private ObservableCollection<string> _comboOptions = new ObservableCollection<string>();
+            private ObservableCollection<string>? _comboOptions = new ObservableCollection<string>();
             private string _content = "";
             private bool _isDisabled = false;
             private int _comboSelection = 0;
@@ -91,6 +153,8 @@ namespace SPRNetTool.View
             private string _description = "";
             private bool _checkContent = false;
             private ContentType _contentType = ContentType.TEXT;
+            private ObservableCollection<string>? _radioOptions = new ObservableCollection<string>();
+
             public string Title
             {
                 get { return _title; }
@@ -119,7 +183,7 @@ namespace SPRNetTool.View
                 }
             }
 
-            public ObservableCollection<string> ComboOptions
+            public ObservableCollection<string>? ComboOptions
             {
                 get { return _comboOptions; }
                 set
@@ -167,6 +231,16 @@ namespace SPRNetTool.View
                 }
             }
 
+            public ObservableCollection<string>? RadioOptions
+            {
+                get { return _radioOptions; }
+                set
+                {
+                    _radioOptions = value;
+                    Invalidate();
+                }
+            }
+
             public Func<string, string, bool>? TextCondition { get; set; }
             public Func<bool>? CheckCondition { get; set; }
             public Action<ObservableCollection<ItemViewModel>, bool>? CheckChangedCallback { get; set; }
@@ -179,9 +253,7 @@ namespace SPRNetTool.View
         private Res curRes = Res.CANCEL;
 
         public InputWindow(
-            List<(string, string, (string, bool, (List<string>, int)?), (Func<string, string, bool>?, Func<bool>?)
-                , ContentType, Action<ObservableCollection<ItemViewModel>, bool>?
-                , Action<ObservableCollection<ItemViewModel>, int>?)> src
+            List<InputBuilder.InputOption> src
             , Window? owner = null
             , Action<Dictionary<string, object>>? agreeButtonClicked = null
             , Action? cancelButtonClicked = null)
@@ -197,25 +269,83 @@ namespace SPRNetTool.View
             {
                 var newItemVM = new ItemViewModel()
                 {
-                    Description = item.Item2,
-                    Title = item.Item1,
-                    ContentType = item.Item5,
-                    Content = item.Item3.Item1,
-                    //ComboOptions = new ObservableCollection<string>(item.Item3.Item3?.Item1),
-                    CheckContent = item.Item3.Item2,
-                    TextCondition = item.Item4.Item1,
-                    CheckCondition = item.Item4.Item2,
-                    CheckChangedCallback = item.Item6
+                    Description = item.Description,
+                    Title = item.Title,
+                    ContentType = item.Let((it) =>
+                    {
+                        switch (it)
+                        {
+                            case InputBuilder.TextInputOption:
+                                return ContentType.TEXT;
+                            case InputBuilder.ComboInputOption:
+                                return ContentType.COMBO;
+                            case InputBuilder.CheckBoxInputOption:
+                                return ContentType.CHECKBOX;
+                            case InputBuilder.RadioInputOption:
+                                return ContentType.RADIO;
+
+                        }
+                        return ContentType.TEXT;
+                    }),
+                    Content = item.Let((it) =>
+                    {
+                        switch (it)
+                        {
+                            case InputBuilder.TextInputOption:
+                                return (it as InputBuilder.TextInputOption)?.InputDefault ?? "";
+                        }
+                        return "";
+                    }),
+                    ComboOptions = item.IfIsThenLet<InputBuilder.ComboInputOption, ObservableCollection<string>>(it2 =>
+                             new ObservableCollection<string>(it2.Options)),
+                    ComboSelection = item.IfIsThenLet<InputBuilder.ComboInputOption, int>(it2 =>
+                             it2.InputDefault),
+                    CheckContent = item.Let((it) =>
+                    {
+                        switch (it)
+                        {
+                            case InputBuilder.ComboInputOption:
+                                return (it as InputBuilder.CheckBoxInputOption)?.InputDefault ?? false;
+                        }
+                        return false;
+                    }),
+                    TextCondition = item.Let((it) =>
+                    {
+                        switch (it)
+                        {
+                            case InputBuilder.TextInputOption:
+                                return (it as InputBuilder.TextInputOption)?.PreviewInputCondition;
+                        }
+                        return null;
+                    }),
+                    CheckCondition = item.Let((it) =>
+                    {
+                        switch (it)
+                        {
+                            case InputBuilder.CheckBoxInputOption:
+                                return (it as InputBuilder.CheckBoxInputOption)?.SupportCondition;
+                        }
+                        return null;
+                    }),
+                    CheckChangedCallback = item.Let((it) =>
+                    {
+                        switch (it)
+                        {
+                            case InputBuilder.CheckBoxInputOption:
+                                return (it as InputBuilder.CheckBoxInputOption)?.Callback;
+                        }
+                        return null;
+                    }),
+
+                    RadioOptions = item.IfIsThenLet<InputBuilder.RadioInputOption, ObservableCollection<string>>(it2 =>
+                             new ObservableCollection<string>(it2.Options))
+
                 };
-                if (item.Item3.Item3?.Item1 != null)
-                {
-                    newItemVM.ComboOptions = new ObservableCollection<string>(item.Item3.Item3?.Item1);
-                    newItemVM.ComboSelection = item.Item3.Item3?.Item2 ?? 0;
-                }
                 InputSource.Add(newItemVM);
             }
             TitleListView.ItemsSource = InputSource;
             InputListView.ItemsSource = InputSource;
+
             foreach (var item in InputSource)
             {
                 item.CheckChangedCallback?.Invoke(InputSource, Convert.ToBoolean(item.CheckContent));
@@ -256,6 +386,11 @@ namespace SPRNetTool.View
                 {
                     newSource.Add(item.Title, item.ComboSelection);
                 }
+                else if (item.ContentType == ContentType.RADIO)
+                {
+                    newSource.Add(item.Title, item.Content);
+                }
+
             }
             AgreeButtonClicked?.Invoke(newSource);
             curRes = Res.AGREE;
@@ -286,6 +421,16 @@ namespace SPRNetTool.View
             if (context != null && isChecked != null)
             {
                 context.CheckChangedCallback?.Invoke(InputSource, isChecked ?? false);
+            }
+        }
+
+        public void Radio_Checked(object sender, RoutedEventArgs e)
+        {
+            var context = (sender as RadioButton)?.FindAncestor<ItemsControl>()?.DataContext as ItemViewModel;
+            var content = (sender as RadioButton)?.Content;
+            if (context != null)
+            {
+                context.Content = content?.ToString() ?? "";
             }
         }
     }

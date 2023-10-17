@@ -8,44 +8,83 @@ jobs:
     runs-on: windows-latest
     env:
      VERSION_UP_ISSUE_ID: 52
-
+     BUILD_HEAVY_PUBLISH: false
+     PROJEFCT_PATH: SPRNetTool\SPRNetTool.csproj
+     # GIT_CONTEXT: ${{ toJson(github) }}
+     
     steps:
     ################### CORE REGION #######################
     - name: Checkout repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with: 
         fetch-depth: 0
-    - name: Check commit messages
+    - name: Check Commit Message by github script
+      uses: actions/github-script@v5
+      id: get-last-issue-id
+      with:
+        result-encoding: string
+        script: |
+          const versionUpIssueId = process.env.VERSION_UP_ISSUE_ID;
+          const refName = ${{ toJSON(github.ref_name) }};
+          console.log(`refName: ${refName}`);
+          const commits = ${{ toJSON(github.event.commits) }};
+          const commitMessages = commits.map(function (commit) {
+              return commit.message;
+          });
+          const normalCommitRegex = /^\[#(\d+)\] .+/;
+          const mergeCommitByGHRegex = /^Merge branch '(\S+)' into (\S+)$/;
+
+          const issueIds = commitMessages.map(function (message) {
+              const match = message.match(normalCommitRegex);
+              if (match && match[1]) {
+                return match[1]; // Lấy số id từ kết quả match
+              } else {
+                const mergeMatch = message.match(mergeCommitByGHRegex);
+                if (mergeMatch && mergeMatch[2] == refName) {
+                  console.log("This is auto merge commit by GitHub")
+                  return "";
+                }else{
+                   throw new Error(`Commit message "${message}" is invaild `);
+                }
+              }
+          });
+
+          for (const issueId of issueIds) {
+            try {
+              if (issueId == ""){
+                 continue;
+              }
+              const rawData = await github.rest.issues.get({
+                issue_number: issueId,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              const data = rawData.data;
+              const issueUrl = data.html_url;
+              if (issueUrl.includes("/issues/")) {
+                  console.log("Đây là URL của issue.");
+              } else {
+                 throw new Error(`github ID: "${issueId}" not invaild `);
+              }
+              console.log(`Tiêu đề: ${data.title}`);
+              console.log(`versionUpIssueId: ${versionUpIssueId}`);
+            } catch (error) {
+              console.log(`Issue #${issueId} không tồn tại.`);
+              console.log(error);
+            }
+          }
+          return issueIds[issueIds.length - 1];
+          
+    - name: Export issue to env
       shell: bash
       run: |
-        echo "${{ github.event.commits[0].message }}"
-        git log --format=%s "${{ github.event.before }}...${{ github.event.after }}" | while read -r line; do
-          if [[ $line =~ \[#[0-9]+\] ]]; then
-            echo "Commit Message: $line (Matched)"
-            issue_number=$(echo "$line" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
-            if [[ -n "$issue_number" ]]; then
-              # Kiểm tra sự tồn tại của issue bằng GitHub API 
-              apiUrl=https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/issues/$issue_number
-              response=$(curl -s $apiUrl)
-              echo $apiUrl
-              url=$(echo "$response" | jq -r '.html_url')
-              if [[ $url =~ ^https://github.com/.*\/issues\/[0-9]+$ ]]; then
-                echo "Đây là URL của issues: $url"
-                echo "ISSUE_NUMBER=$issue_number" >> $GITHUB_ENV
-              else
-                echo "Đây không phải là URL của issues: $url"
-                exit 1
-              fi
-            fi
-          else
-            echo "Commit Message: $line (Not Matched)"
-            exit 1 # Exit với mã thành công nếu tìm thấy
-          fi
-        done
+        echo "ISSUE_NUMBER=${{steps.get-last-issue-id.outputs.result}}" >> $GITHUB_ENV
+      
     - name: Install .NET Core
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
+    
     ################### END CORE REGION #######################
 
 
@@ -87,7 +126,7 @@ jobs:
         	echo dotnet clean SPRNetTool\SPRNetTool.csproj -c Release
         	echo %samPath% scan --sam-dir %samDir% --source-path %projectPath% --language cs dotnet build SPRNetTool\SPRNetTool.csproj -c Release
         	echo %samPath% analyze --sam-dir %samDir% --source-path %projectPath% --language cs 
-        	echo %samPath% calculate --sam-dir %samDir% --source-path %projectPath% --language cs 
+        	echo %samPath% calculate --sam-dir %samDir% --source-path %projectPath% --language cs --scoring-metrics cc,dc,mcd,cbo,loc,ncs
         ) > arcrunner.bat
         type %CD%\arcrunner.bat
         powershell -command "ls"
@@ -122,3 +161,39 @@ jobs:
         name: ArcReport # Artifact name        
         path: .sam-dir\sam-result # Directory containing files to upload
     ################### END SAM REGION #######################
+
+    
+    ################### BUILD ARTIFACT #######################
+    - name: Setup MSBuild.exe
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      uses: microsoft/setup-msbuild@v1.0.2
+    - name: Restore package
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      run: dotnet restore ${{ env.PROJEFCT_PATH }}
+      
+    - name: Light publish
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      run: msbuild SPRNetTool\SPRNetTool.csproj /t:Publish /p:Configuration=Release /p:PublishDir=..\light_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
+    - name: Zip light release
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      run: Compress-Archive -Path 'light_publish' -DestinationPath 'light_publish.zip'
+    - name: Upload light_publish artifacts
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      uses: actions/upload-artifact@v3
+      with:
+        name: light_publish.zip
+        path: light_publish.zip
+        
+    - name: Heavy publish
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID && env.BUILD_HEAVY_PUBLISH == 'true'
+      run: msbuild SPRNetTool\SPRNetTool.csproj /t:Publish /p:Configuration=Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:PublishDir=..\heavy_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
+    - name: Zip heavy release
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID && env.BUILD_HEAVY_PUBLISH == 'true'
+      run: Compress-Archive -Path 'heavy_publish' -DestinationPath 'heavy_publish.zip'
+    - name: Upload heavy_publish artifacts
+      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID && env.BUILD_HEAVY_PUBLISH == 'true'
+      uses: actions/upload-artifact@v3
+      with:
+        name: heavy_publish.zip
+        path: heavy_publish.zip
+    ################### END BUILD ARTIFACT #######################

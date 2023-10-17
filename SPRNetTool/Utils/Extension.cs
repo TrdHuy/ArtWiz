@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace SPRNetTool.Utils
@@ -8,6 +9,77 @@ namespace SPRNetTool.Utils
 
     public static class Extension
     {
+
+        public static IEnumerable<T> ReduceSameItem<T>(this IEnumerable<T> @in)
+        {
+            return @in.GroupBy(i => i).Select(i => i.First());
+        }
+
+        public static bool HasOneFlagOf<T>(this T e1, params T[] e2) where T : Enum
+        {
+            foreach (var e in e2)
+            {
+                if (Enum.IsDefined(e1.GetType(), e))
+                {
+                    ulong e1Num = Convert.ToUInt64(e1);
+                    ulong e2Num = Convert.ToUInt64(e);
+                    if ((e1Num & e2Num) == e2Num)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+        public static bool HasAllFlagsOf<T>(this T e1, params T[] e2) where T : Enum
+        {
+            foreach (var e in e2)
+            {
+                if (Enum.IsDefined(e1.GetType(), e))
+                {
+                    ulong e1Num = Convert.ToUInt64(e1);
+                    ulong e2Num = Convert.ToUInt64(e);
+                    if ((e1Num & e2Num) != e2Num)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool HasFlag<T>(this T e1, T e2) where T : Enum
+        {
+            if (e1.GetType() == e2.GetType())
+            {
+                if (Enum.IsDefined(e1.GetType(), e2))
+                {
+                    ulong e1Num = Convert.ToUInt64(e1);
+                    ulong e2Num = Convert.ToUInt64(e2);
+                    return (e1Num & e2Num) == e2Num;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        public static byte[] ToByteArray<T>(this T value) where T : struct
+        {
+            int structSize = Marshal.SizeOf(typeof(T));
+            byte[] result = new byte[structSize];
+            IntPtr structPtr = Marshal.AllocHGlobal(structSize);
+            Marshal.StructureToPtr(value, structPtr, false);
+            Marshal.Copy(structPtr, result, 0, structSize);
+            Marshal.FreeHGlobal(structPtr);
+            return result;
+        }
 
         public static void CopyStructToArray<T>(this T value, byte[] arr, int offset) where T : struct
         {
@@ -68,6 +140,7 @@ namespace SPRNetTool.Utils
             }
             return self;
         }
+
         public static void ApplyIfNotNull<T1, T2>(this (T1, T2) self, Action<T1, T2> block)
         {
             if (self.Item1 != null && self.Item2 != null)
@@ -221,6 +294,15 @@ namespace SPRNetTool.Utils
                 return block(e);
             }
             return default(T);
+        }
+
+        public static R? IfIsThenLet<T, R>(this object self, Func<T, R> block)
+        {
+            if (self is T e)
+            {
+                return block(e);
+            }
+            return default(R);
         }
 
 

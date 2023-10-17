@@ -17,7 +17,13 @@ namespace SPRNetTool.Domain.Utils
 {
     public static class BitmapUtil
     {
-        public static Dictionary<Color, long> CountColors(this IDomainAdapter adapter, BitmapSource bitmap)
+        public static List<(Color, long)> CountColorsTolist(this IDomainAdapter adapter, BitmapSource bitmap)
+        {
+            adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc);
+            return argbSrc.Select(kp => (kp.Key, kp.Value)).ToList();
+        }
+
+        public static Dictionary<Color, long> CountColorsToDictionary(this IDomainAdapter adapter, BitmapSource bitmap)
         {
             adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc);
             return argbSrc;
@@ -80,9 +86,52 @@ namespace SPRNetTool.Domain.Utils
             argbSrc = aRGBColorSet;
         }
 
-        public static byte[] ConvertPaletteColourArrayToByteArray(this IDomainAdapter adapter, PaletteColour[] colors)
+        public static byte[] ConvertBitmapSourceToByteArray(this IDomainAdapter adapter, BitmapSource bmp)
         {
-            int colorSize = Marshal.SizeOf(typeof(PaletteColour));
+            int width = bmp.PixelWidth;
+            int height = bmp.PixelHeight;
+            int stride = (width * bmp.Format.BitsPerPixel + 7) / 8;
+            byte[] pixelData = new byte[stride * height];
+            bmp.CopyPixels(pixelData, stride, 0);
+            return pixelData;
+        }
+
+        public static PaletteColor[] ConvertBitmapSourceToPaletteColorArray(this IDomainAdapter adapter, BitmapSource bitmapSource)
+        {
+            int width = bitmapSource.PixelWidth;
+            int height = bitmapSource.PixelHeight;
+            int stride = (width * bitmapSource.Format.BitsPerPixel + 7) / 8;
+            byte[] pixelData = new byte[height * stride];
+
+            bitmapSource.CopyPixels(pixelData, stride, 0);
+            PaletteColor[] paletteColors = new PaletteColor[width * height];
+            for (int i = 0; i < width * height; i++)
+            {
+                if (bitmapSource.Format == PixelFormats.Bgr32)
+                {
+                    int offset = i * 4;
+                    paletteColors[i] = new PaletteColor(blue: pixelData[offset],
+                        green: pixelData[offset + 1],
+                        red: pixelData[offset + 2],
+                        alpha: pixelData[offset + 3]);
+                }
+                else if (bitmapSource.Format == PixelFormats.Rgb24)
+                {
+                    int offset = i * 3;
+                    paletteColors[i] = new PaletteColor(blue: pixelData[offset + 2],
+                        green: pixelData[offset + 1],
+                        red: pixelData[offset],
+                        alpha: 255);
+                }
+
+            }
+
+            return paletteColors;
+        }
+
+        public static byte[] ConvertPaletteColourArrayToByteArray(this IDomainAdapter adapter, PaletteColor[] colors)
+        {
+            int colorSize = Marshal.SizeOf(typeof(PaletteColor));
             byte[] byteArray = new byte[colors.Length * colorSize];
 
             for (int i = 0; i < colors.Length; i++)
@@ -233,6 +282,27 @@ namespace SPRNetTool.Domain.Utils
             return bitmap;
         }
 
+        public static bool AreByteArraysEqual(this IDomainAdapter adapter, byte[] array1, byte[] array2)
+        {
+            // Nếu mảng có chiều dài khác nhau, chúng không giống nhau
+            if (array1.Length != array2.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < array1.Length; i++)
+            {
+                // So sánh từng phần tử của hai mảng
+                if (array1[i] != array2[i])
+                {
+                    return false;
+                }
+            }
+
+            // Nếu không có phần tử nào khác nhau, chúng giống nhau
+            return true;
+        }
+
         private static Color FindClosestPaletteColor(this IDomainAdapter adapter, Color sourceColor, List<Color> palette)
         {
             // Tìm màu gần nhất trong bảng màu giới hạn
@@ -366,7 +436,7 @@ namespace SPRNetTool.Domain.Utils
             return bitmapSource;
         }
 
-        public static string PaletteColourToString(this IDomainAdapter adapter, PaletteColour color)
+        public static string PaletteColourToString(this IDomainAdapter adapter, PaletteColor color)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(color.Red.ToString("D3"));
@@ -379,7 +449,7 @@ namespace SPRNetTool.Domain.Utils
             return sb.ToString();
         }
 
-        public static void Print2DArrayToFile(this IDomainAdapter adapter, PaletteColour[] arr, int rows, int cols, string relativePath)
+        public static void Print2DArrayToFile(this IDomainAdapter adapter, PaletteColor[] arr, int rows, int cols, string relativePath)
         {
             string outputPath = relativePath.FullPath();
             using (StreamWriter outputFile = new StreamWriter(outputPath))

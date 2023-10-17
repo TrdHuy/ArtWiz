@@ -4,6 +4,7 @@ using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
+using SPRNetTool.View.Utils;
 using SPRNetTool.ViewModel;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
@@ -17,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.View.InputWindow;
@@ -32,6 +34,20 @@ namespace SPRNetTool.View.Pages
         OriginalList_CountHeader,
 
         SPRInfo_PlayButton,
+        SPRInfo_FrameIndexPlusButton,
+        SPRInfo_FrameIndexMinusButton,
+        SPRInfo_FrameOffsetXPlusButton,
+        SPRInfo_FrameOffsetXMinusButton,
+        SPRInfo_FrameOffsetYPlusButton,
+        SPRInfo_FrameOffsetYMinusButton,
+        SPRInfo_IntervalMinusButton,
+        SPRInfo_IntervalPlusButton,
+        SPRInfo_FrameWidthMinusButton,
+        SPRInfo_FrameWidthPlusButton,
+        SPRInfo_FrameHeightMinusButton,
+        SPRInfo_FrameHeightPlusButton,
+
+        ImageInfo_ExportToSingleFrameSprFile,
     }
 
     public partial class DebugPage : BasePageViewer
@@ -41,7 +57,7 @@ namespace SPRNetTool.View.Pages
         public override object ViewModel => DataContext;
 
         //TODO: remove this because it belong to domain layer
-        private ISprWorkManager workManager = new WorkManager();
+        private ISprWorkManager workManager = new SprWorkManager();
         private DebugPageViewModel viewModel;
         private IDebugPageCommand? commandVM;
 
@@ -63,16 +79,16 @@ namespace SPRNetTool.View.Pages
                 US_SprFileHead header;
                 using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    workManager.InitWorkManager(fs);
+                    workManager.InitWorkManagerFromSprFile(fs);
                     //if (decdata != null)
                     //    Extension.Print2DArrayToFile(decdata, frameHeight, frameWidth, "test.txt");
                     var data = workManager.GetFrameData(0);
                     if (data != null)
                     {
                         //Extension.Print2DArrayToFile(data?.decodedFrameData, data?.frameHeight ?? 0, data?.frameWidth ?? 0, "dec.txt");
-                        BitmapUtil.Print2DArrayToFile(data?.globleFrameData, workManager.FileHead.GlobleHeight, workManager.FileHead.GlobleWidth, "glb.txt");
-                        var byteData = BitmapUtil.ConvertPaletteColourArrayToByteArray(data?.globleFrameData);
-                        var bmpSrc = BitmapUtil.GetBitmapFromRGBArray(byteData, workManager.FileHead.GlobleWidth, workManager.FileHead.GlobleHeight, PixelFormats.Bgra32);
+                        BitmapUtil.Print2DArrayToFile(data?.globalFrameData, workManager.FileHead.GlobalHeight, workManager.FileHead.GlobalWidth, "glb.txt");
+                        var byteData = BitmapUtil.ConvertPaletteColourArrayToByteArray(data?.globalFrameData);
+                        var bmpSrc = BitmapUtil.GetBitmapFromRGBArray(byteData, workManager.FileHead.GlobalWidth, workManager.FileHead.GlobalHeight, PixelFormats.Bgra32);
                         StaticImageView.Source = bmpSrc;
                         BitmapUtil.CountColors(bmpSrc, out long argbCount, out long rgbCount, out Dictionary<Color, long> src);
                         //var ditheringBmp = BitmapUtil.ApplyDithering(bmpSrc, 100);
@@ -93,7 +109,7 @@ namespace SPRNetTool.View.Pages
         private void OpenImageClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Tệp ảnh (*.png;*.jpg;*.jpeg;*.gif;*.spr)|*.png;*.jpg;*.jpeg;*.gif;*.spr|All files (*.*)|*.*";
+            openFileDialog.Filter = "Tệp ảnh |*.png;*.jpg;*.jpeg;*.gif;*.spr";
             if (openFileDialog.ShowDialog() == true)
             {
                 BitmapSource? bmpSource = null;
@@ -106,7 +122,7 @@ namespace SPRNetTool.View.Pages
                     l.Show(block: async () =>
                     {
                         await viewModel.OpenImageFromFileAsync(imagePath);
-                        bmpSource = viewModel.CurrentDisplayingBmpSrc;
+                        bmpSource = viewModel.CurrentlyDisplayedBitmapSource;
 
                         Debug.WriteLine($"WxH= {bmpSource?.PixelWidth * bmpSource?.PixelHeight}");
                     });
@@ -144,17 +160,15 @@ namespace SPRNetTool.View.Pages
             var backgroundForBlendColorDes = "Màu nền được dùng cho việc blend màu foreground với kênh alpha.\n" +
                 "https://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color";
 
-
-
-            var srcInput = builder.Add(colorCountKey
+            var srcInput = builder.AddTextInputOption(colorCountKey
                 , colorCountKey
                 , colorCountDef
                 , (cur, input) => input.Any(char.IsNumber) && Convert.ToInt32(cur + input) <= 256)
-                .Add(deltaKey
+                .AddTextInputOption(deltaKey
                 , deltaDes
                 , deltaDef
                 , (cur, input) => input.Any(char.IsNumber))
-                .Add(isUsingAlphaKey
+                .AddCheckBoxOption(isUsingAlphaKey
                 , isUsingAlphaKey
                 , isUsingAlphaDef
                 , () => true
@@ -163,11 +177,11 @@ namespace SPRNetTool.View.Pages
                     src[3].IsDisabled = !isChecked;
                     src[4].IsDisabled = !isChecked;
                 })
-                .Add(deltaForCompareRecalculateKey
+                .AddTextInputOption(deltaForCompareRecalculateKey
                 , deltaForCompareRecalculateDes
                 , deltaForCompareRecalculateDef
                 , (cur, input) => input.Any(char.IsNumber) && Convert.ToInt32(cur + input) <= 500)
-                .Add(backgroundForBlendColorKey
+                .AddComboBoxOption(backgroundForBlendColorKey
                 , backgroundForBlendColorDes
                 , new List<string> { "WHITE (255,255,255)", "BLACK (0,0,0)" }
                 , 0
@@ -204,121 +218,15 @@ namespace SPRNetTool.View.Pages
             l.Show(block: async () =>
             {
                 if (viewModel.OriginalColorSource.Count == 0) return;
-
-                await Task.Run(async () =>
+                await Task.Run(() =>
                 {
-                    var orderedList = viewModel.OrderByDescendingCount(isSetToDisplaySource: false).ToList();
-                    var selectedList = new ObservableCollection<OptimizedColorItemViewModel>();
-                    var selectedColorList = new List<Color>();
-
-
-                    // TODO: Dynamic this
-                    var selectedColorRecalculatedAlapha = new List<Color>();
-                    var expectedRGBList = new List<Color>();
-                    var deltaDistanceForNewARGBColor = 10;
-                    var deltaForAlphaAvarageDeviation = 3;
-
-                    // Calculate palette
-                    while (selectedList.Count < colorSize && orderedList.Count > 0 && delta >= 0)
-                    {
-                        for (int i = 0; i < orderedList.Count; i++)
-                        {
-                            var item = orderedList[i];
-                            var expectedColor = item.ItemColor;
-                            var shouldAdd = true;
-                            foreach (var item2 in selectedList)
-                            {
-                                var distance = expectedColor.CalculateEuclideanDistance(item2.ItemColor);
-                                if (distance < delta)
-                                {
-                                    if (isUsingAlpha && distance < deltaForCompareRecalculate)
-                                    {
-                                        var alpha = item2.ItemColor.FindAlphaColors(backgroundForBlendColor, expectedColor, out byte averageAbsoluteDeviation);
-                                        var newRGBColor = Color.FromArgb(alpha, item2.ItemColor.R, item2.ItemColor.G, item2.ItemColor.B).BlendColors(backgroundForBlendColor);
-                                        var distanceNewRGBColor = newRGBColor.CalculateEuclideanDistance(expectedColor);
-                                        if (averageAbsoluteDeviation <= deltaForAlphaAvarageDeviation && distanceNewRGBColor <= deltaDistanceForNewARGBColor)
-                                        {
-                                            expectedRGBList.Add(expectedColor);
-                                            selectedColorRecalculatedAlapha.Add(Color.FromArgb(alpha, item2.ItemColor.R, item2.ItemColor.G, item2.ItemColor.B));
-                                            orderedList.RemoveAt(i);
-                                            i--;
-                                        }
-                                    }
-                                    shouldAdd = false;
-                                    break;
-                                }
-                            }
-                            if (shouldAdd)
-                            {
-                                selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel()
-                                {
-                                    ItemColor = expectedColor
-                                });
-                                selectedColorList.Add(expectedColor);
-                                orderedList.RemoveAt(i);
-                                i--;
-                            }
-
-                            if (selectedList.Count >= colorSize) break;
-                        }
-                        delta -= 2;
-                    }
-
-                    //Combine RGB and ARGB color to selected list
-                    var optimizedRGBCount = selectedList.Count;
-                    int iii = 0;
-                    foreach (var item in selectedColorRecalculatedAlapha)
-                    {
-                        selectedList.Add<OptimizedColorItemViewModel>(new OptimizedColorItemViewModel(backgroundForBlendColor)
-                        {
-                            ItemColor = item,
-                            ExpectedColor = expectedRGBList[iii++]
-                        });
-                    }
-
-                    //reduce same combined color
-                    selectedList = selectedList.GroupBy(c => c.CombinedColor).Select(g => g.First()).ToIndexableObservableCollection();
-                    var combinedColorList = selectedList.Select(c => c.CombinedColor).ToList();
-
-                    viewModel.SetOptimizedColorSource(selectedList);
-
-                    //======================================================
-                    //Dithering
-                    BitmapSource? oldBmpSource = null;
-                    this.ViewElementDispatcher.Invoke(new Action(() =>
-                    {
-                        oldBmpSource = StaticImageView.Source as BitmapSource;
-
-                    }));
-                    if (optimizedRGBCount > 0 && optimizedRGBCount <= colorSize && oldBmpSource != null)
-                    {
-                        //var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, selectedColorList, isUsingAlpha, selectedColorRecalculatedAlapha, backgroundForBlendColor);
-                        var newBmpSrc = BitmapUtil.FloydSteinbergDithering(oldBmpSource, combinedColorList);
-                        newBmpSrc?.Freeze();
-                        this.ViewElementDispatcher.Invoke(new Action(() =>
-                        {
-                            StaticImageView2.Source = newBmpSrc;
-                        }));
-
-                        if (newBmpSrc != null)
-                        {
-                            var src = await BitmapUtil.CountColorsAsync(newBmpSrc);
-                            var newCountedSrc = new ObservableCollection<ColorItemViewModel>();
-                            await Task.Run(() =>
-                            {
-                                foreach (var color in src)
-                                {
-                                    var newColor = color.Key;
-                                    newCountedSrc.Add<ColorItemViewModel>(new ColorItemViewModel { ItemColor = newColor, Count = color.Value });
-                                }
-                            });
-
-                            viewModel.SetResultRGBColorSource(newCountedSrc);
-                        }
-                    }
+                    viewModel.OptimizeImageColor(colorSize: colorSize,
+                    colorDifferenceDelta: delta,
+                    isUsingAlpha: isUsingAlpha,
+                    colorDifferenceDeltaForCalculatingAlpha: deltaForCompareRecalculate,
+                    backgroundForBlendColor: backgroundForBlendColor);
                 });
             });
-
         }
 
         private int originalCountClick = 0;
@@ -461,8 +369,30 @@ namespace SPRNetTool.View.Pages
             return newCountedSrc;
         }
 
-        private void Run_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnRunLeftMouseUp(object sender, MouseButtonEventArgs e)
         {
+            (sender as TextBlock)?.Tag.IfIs<DebugPageTagID>((tag) =>
+            {
+                switch (tag)
+                {
+                    case DebugPageTagID.ImageInfo_ExportToSingleFrameSprFile:
+                        {
+                            SaveFileDialog saveFileDialog = new SaveFileDialog();
+                            if (saveFileDialog.ShowDialog() == true)
+                            {
+                                LoadingWindow l = new LoadingWindow(ownerWindow, "Saving to Spr file!");
+                                l.Show(block: async () =>
+                                {
+                                    await Task.Run(() =>
+                                    {
+                                        commandVM?.OnSaveCurrentDisplayedBitmapSourceToSpr(Path.ChangeExtension(saveFileDialog.FileName, "spr"));
+                                    });
+                                });
+                            }
+                            break;
+                        }
+                }
+            });
             (sender as Run)?.Tag.IfIs<DebugPageTagID>((tag) =>
             {
                 switch (tag)
@@ -472,38 +402,159 @@ namespace SPRNetTool.View.Pages
                             commandVM?.OnPlayPauseAnimationSprClicked();
                             break;
                         }
-                }
-            });
-        }
-
-        private void Run_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            var run = sender as Run;
-            if (run == null) return;
-            run.Tag.IfIs<DebugPageTagID>((tag) =>
-            {
-                switch (tag)
-                {
-                    case DebugPageTagID.SPRInfo_PlayButton:
+                    case DebugPageTagID.SPRInfo_FrameIndexMinusButton:
                         {
-                            //run.Foreground = new SolidColorBrush(Colors.Green);
+                            commandVM?.OnDecreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameIndexPlusButton:
+                        {
+                            commandVM?.OnIncreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetXButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetXButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetYButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetYButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_IntervalPlusButton:
+                        {
+                            commandVM?.OnIncreaseIntervalButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_IntervalMinusButton:
+                        {
+                            commandVM?.OnDecreaseIntervalButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameWidthMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameWidthButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameWidthPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameWidthButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameHeightMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameHeightButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameHeightPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameHeightButtonClicked();
                             break;
                         }
                 }
             });
         }
 
-        private void Run_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+
+        private void SaveCurrentSourceClick(object sender, RoutedEventArgs e)
         {
-            var run = sender as Run;
-            if (run == null) return;
-            run.Tag.IfIs<DebugPageTagID>((tag) =>
+            var builder = new InputBuilder();
+            var SavingTitle = "Lưu với định dạng";
+            var SavingDes = "Save";
+            List<string> SavingOptions = new List<string>() { "jpg", "png", "spr" };
+            var inputSrc = builder.AddRadioOptions(SavingTitle, SavingDes, SavingOptions).Build();
+            var checkedContent = "";
+            InputWindow inputWindow = new InputWindow(inputSrc, ownerWindow, (res) =>
+            {
+                if (res != null)
+                {
+                    foreach (var item in res)
+                    {
+                        if (item.Key != null) checkedContent = Convert.ToString(item.Value);
+                        break;
+                    }
+                }
+            });
+            Res res = inputWindow.Show();
+            if (res == Res.CANCEL) return;
+        }
+
+        private void OnRunMouseHold(object sender, MouseHoldEventArgs args)
+        {
+            (sender as Run)?.Tag.IfIs<DebugPageTagID>((tag) =>
             {
                 switch (tag)
                 {
-                    case DebugPageTagID.SPRInfo_PlayButton:
+
+                    case DebugPageTagID.SPRInfo_FrameIndexMinusButton:
                         {
-                            //run.Foreground = new SolidColorBrush(Colors.Black);
+                            commandVM?.OnDecreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameIndexPlusButton:
+                        {
+                            commandVM?.OnIncreaseCurrentlyDisplayedSprFrameIndex();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetXPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetXButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameOffsetYPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameOffsetYButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_IntervalPlusButton:
+                        {
+                            commandVM?.OnIncreaseIntervalButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_IntervalMinusButton:
+                        {
+                            commandVM?.OnDecreaseIntervalButtonClicked();
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameWidthMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameWidthButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameWidthPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameWidthButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameHeightMinusButton:
+                        {
+                            commandVM?.OnDecreaseFrameHeightButtonClicked((uint)(1 + args.HoldingCounter / 5));
+                            break;
+                        }
+                    case DebugPageTagID.SPRInfo_FrameHeightPlusButton:
+                        {
+                            commandVM?.OnIncreaseFrameHeightButtonClicked((uint)(1 + args.HoldingCounter / 5));
                             break;
                         }
                 }

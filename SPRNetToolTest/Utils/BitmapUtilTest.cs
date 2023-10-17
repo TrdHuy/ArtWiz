@@ -1,7 +1,9 @@
+using SPRNetTool.Domain;
+using SPRNetTool.Domain.Base;
+using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-
+using static SPRNetTool.Utils.BitmapUtil;
 namespace SPRNetToolTest.Utils
 {
     public class BitmapUtilTest
@@ -11,21 +13,83 @@ namespace SPRNetToolTest.Utils
         {
         }
 
+        struct MS
+        {
+            public int x;
+            public int y;
+        }
+
+        public enum Variable
+        {
+            NUM1 = 0b00000001,
+            NUM2 = 0b00000010,
+            NUM3 = 0b00000100,
+            NUM4 = 0b00001000,
+        }
+
+        [Test]
+        public void test_e()
+        {
+            string imagePath = "Resources\\test.png".FullPath();
+            var x1 = System.DateTime.Now;
+            var x2 = System.DateTime.Now;
+            var x3 = x2 - x1;
+
+        }
+
+        [Test]
+        public void test_SaveBitmapSourceToSprFile()
+        {
+            string imagePath = "Resources\\test.png".FullPath();
+            var bmpSource = LoadBitmapFromFile(imagePath);
+            Assert.NotNull(bmpSource);
+            ISprWorkManager swm = new SprWorkManager();
+            swm.SaveBitmapSourceToSprFile(bmpSource, "Resources\\test.spr");
+        }
+
+        [Test]
+        public void test_ConvertBitmapSourceToPaletteColorArray()
+        {
+            string imagePath = "Resources\\test.png".FullPath();
+            var bmpSource = LoadBitmapFromFile(imagePath);
+            var bdm = new BitmapDisplayManager();
+            Assert.NotNull(bmpSource);
+            var bytearray = bdm.ConvertBitmapSourceToByteArray(bmpSource);
+            var palarray = bdm.ConvertBitmapSourceToPaletteColorArray(bmpSource);
+            var palarrayToByte = bdm.ConvertPaletteColourArrayToByteArray(palarray);
+            Assert.That(bdm.AreByteArraysEqual(bytearray, palarrayToByte));
+        }
+
         [Test]
         public void test()
         {
-            BitmapSource?[] bmpSource = new BitmapSource?[10];
-            string imagePath = "Resources\\test.png".FullPath();
-            bmpSource[0] = bmpSource[0].IfNullThenLet(() => BitmapUtil.LoadBitmapFromFile(imagePath));
-            Assert.NotNull(bmpSource[0]);
-            Assert.That(bmpSource[0].PixelWidth * bmpSource[0].PixelHeight, Is.EqualTo(90000));
+            var n1 = Convert.ToInt64(Variable.NUM1);
+            Variable num = Variable.NUM1 | Variable.NUM2 | Variable.NUM3;
+            if (num.HasAllFlagsOf(Variable.NUM1, Variable.NUM2))
+            {
+                var x = 1;
+            }
+
+            if (num.HasFlag(Variable.NUM2 | Variable.NUM4))
+            {
+                var x = 1;
+            }
+
+            if (num.HasFlag(Variable.NUM3))
+            {
+                var x = 1;
+            }
+            if (num.HasFlag(Variable.NUM4))
+            {
+                var x = 1;
+            }
         }
 
         [Test]
         public void TestLoadBitmapSourceFromFile()
         {
             string imagePath = "Resources\\test.png".FullPath();
-            var bmpSource = BitmapUtil.LoadBitmapFromFile(imagePath);
+            var bmpSource = LoadBitmapFromFile(imagePath);
             Assert.NotNull(bmpSource);
             Assert.That(bmpSource.PixelWidth * bmpSource.PixelHeight, Is.EqualTo(90000));
         }
@@ -34,9 +98,9 @@ namespace SPRNetToolTest.Utils
         public async Task TestCountColors()
         {
             string imagePath = "Resources\\test.png".FullPath();
-            var bmpSource = BitmapUtil.LoadBitmapFromFile(imagePath);
+            var bmpSource = LoadBitmapFromFile(imagePath);
             Assert.NotNull(bmpSource);
-            var src = await BitmapUtil.CountColorsAsync(bmpSource);
+            var src = await CountColorsAsync(bmpSource);
             Assert.That(src.Count, Is.EqualTo(4));
 
             var redColor = Color.FromArgb(255, 237, 28, 36);

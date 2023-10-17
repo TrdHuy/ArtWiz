@@ -115,9 +115,9 @@ namespace SPRNetTool.Utils
             argbSrc = aRGBColorSet;
         }
 
-        public static byte[] ConvertPaletteColourArrayToByteArray(PaletteColour[] colors)
+        public static byte[] ConvertPaletteColourArrayToByteArray(PaletteColor[] colors)
         {
-            int colorSize = Marshal.SizeOf(typeof(PaletteColour));
+            int colorSize = Marshal.SizeOf(typeof(PaletteColor));
             byte[] byteArray = new byte[colors.Length * colorSize];
 
             for (int i = 0; i < colors.Length; i++)
@@ -402,7 +402,7 @@ namespace SPRNetTool.Utils
             return bitmapSource;
         }
 
-        public static string PaletteColourToString(PaletteColour color)
+        public static string PaletteColourToString(PaletteColor color)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(color.Red.ToString("D3"));
@@ -415,7 +415,7 @@ namespace SPRNetTool.Utils
             return sb.ToString();
         }
 
-        public static void Print2DArrayToFile(PaletteColour[] arr, int rows, int cols, string relativePath)
+        public static void Print2DArrayToFile(PaletteColor[] arr, int rows, int cols, string relativePath)
         {
             string outputPath = relativePath.FullPath();
             using (StreamWriter outputFile = new StreamWriter(outputPath))
