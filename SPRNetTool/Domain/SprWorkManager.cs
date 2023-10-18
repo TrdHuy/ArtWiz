@@ -555,17 +555,12 @@ namespace SPRNetTool.Domain
             {
                 for (long wi = frameOffX < 0 ? 0 : frameOffX; wi < sprFileHead.GlobalWidth && wi < frameOffX + frameWidth; wi++)
                 {
-                    try
-                    {
-                        globalData[hi * sprFileHead.GlobalWidth + wi].Red = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Red;
-                        globalData[hi * sprFileHead.GlobalWidth + wi].Green = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Green;
-                        globalData[hi * sprFileHead.GlobalWidth + wi].Blue = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Blue;
-                        globalData[hi * sprFileHead.GlobalWidth + wi].Alpha = decodedFrameData[(hi - frameOffY) * frameWidth + (wi - frameOffX)].Alpha;
-                    }
-                    catch (Exception e)
-                    {
-                        var x = 10;
-                    }
+                    var globIdx = hi * sprFileHead.GlobalWidth + wi;
+                    var frIdx = (hi - frameOffY) * frameWidth + (wi - frameOffX);
+                    globalData[globIdx].Red = decodedFrameData[frIdx].Red;
+                    globalData[globIdx].Green = decodedFrameData[frIdx].Green;
+                    globalData[globIdx].Blue = decodedFrameData[frIdx].Blue;
+                    globalData[globIdx].Alpha = decodedFrameData[frIdx].Alpha;
                 }
             }
             pf_logger.I($"init global frame data {sprFileHead.GlobalWidth}x{sprFileHead.GlobalHeight} in: {(DateTime.Now - startTime).TotalMilliseconds}ms");
