@@ -1,9 +1,7 @@
-using ManagedCuda;
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
-using System.Diagnostics;
 using System.Windows.Media;
 using static SPRNetTool.Utils.BitmapUtil;
 namespace SPRNetToolTest.Utils
@@ -32,86 +30,11 @@ namespace SPRNetToolTest.Utils
         [Test]
         public void test_e()
         {
-            (byte, byte, byte, byte) getPixel(byte[] imgData, int x, int y, int w, int h)
-            {
-                if (x < 0 || y < 0) throw new Exception();
-                if (x >= w || y >= h) throw new Exception();
+            string imagePath = "Resources\\test.png".FullPath();
+            var x1 = System.DateTime.Now;
+            var x2 = System.DateTime.Now;
+            var x3 = x2 - x1;
 
-                var index = (y * w + x) * 4;
-                return (imgData[index], imgData[index + 1], imgData[index + 2], imgData[index + 3]);
-            }
-
-            int times = 10;
-            Stopwatch stopwatch = new Stopwatch();
-            var height = 300;
-            var width = 300;
-            var dataSize = height * width * 4;
-
-            var intArrTt = 0l;
-            var convertArrTt = 0l;
-            var intLstTt = 0l;
-            var convertLstTt = 0l;
-            var intArrCuda = 0l;
-            var convertArrCuda = 0l;
-
-            //stopwatch.Restart();
-            //var test = stopwatch.ElapsedMilliseconds;
-            //stopwatch.Restart();
-            //var test2 = stopwatch.ElapsedMilliseconds;
-            for (int trial = 0; trial < times; trial++)
-            {
-                stopwatch.Restart();
-                byte[] imgData = new byte[dataSize];
-                for (int i = 0; i < dataSize; i++)
-                {
-                    imgData[i] = 0xFF;
-                }
-                Debug.WriteLine($"init array: {stopwatch.ElapsedMilliseconds}ms");
-                intArrTt += stopwatch.ElapsedMilliseconds;
-                var bitmapSource = SPRNetTool.Utils.BitmapUtil.GetBitmapFromRGBArray(imgData, width, height, PixelFormats.Bgra32);
-                Debug.WriteLine($"convert bmp src from array: {stopwatch.ElapsedMilliseconds}ms");
-                convertArrTt += stopwatch.ElapsedMilliseconds;
-
-
-                stopwatch.Restart();
-                List<byte> imgDataLst = new List<byte>();
-                for (int i = 0; i < dataSize; i++)
-                {
-                    imgDataLst.Insert(imgDataLst.Count / 2, 0xFF);
-                }
-                Debug.WriteLine($"init list: {stopwatch.ElapsedMilliseconds}ms");
-                intLstTt += stopwatch.ElapsedMilliseconds;
-
-                var bitmapSource2 = SPRNetTool.Utils.BitmapUtil.GetBitmapFromRGBArray(imgDataLst.ToArray(), width, height, PixelFormats.Bgra32);
-                Debug.WriteLine($"convert bmp src from list: {stopwatch.ElapsedMilliseconds}ms");
-                convertLstTt += stopwatch.ElapsedMilliseconds;
-
-                stopwatch.Restart();
-                byte[] imgData3 = new byte[dataSize];
-                using (CudaContext ctx = new CudaContext())
-                using (CudaDeviceVariable<byte> deviceArray = new CudaDeviceVariable<byte>(dataSize))
-                {
-                    for (int i = 0; i < dataSize; i++)
-                    {
-                        deviceArray[i] = 0xFF;
-                    }
-
-                    deviceArray.CopyToHost(imgData3);
-                    Debug.WriteLine($"init arr cuda: {stopwatch.ElapsedMilliseconds}ms");
-                    intArrCuda += stopwatch.ElapsedMilliseconds;
-                    var bitmapSource3 = SPRNetTool.Utils.BitmapUtil.GetBitmapFromRGBArray(imgData3, width, height, PixelFormats.Bgra32);
-                    Debug.WriteLine($"convert bmp src from arr cuda: {stopwatch.ElapsedMilliseconds}ms");
-                    convertArrCuda += stopwatch.ElapsedMilliseconds;
-                }
-
-            }
-
-            Debug.WriteLine($"average intArrTt: {(double)intArrTt / times}ms");
-            Debug.WriteLine($"average convertArrTt: {(double)convertArrTt / times}ms");
-            Debug.WriteLine($"average intLstTt: {(double)intLstTt / times}ms");
-            Debug.WriteLine($"average convertLstTt: {(double)convertLstTt / times}ms");
-            Debug.WriteLine($"average intArrCuda: {(double)intArrCuda / times}ms");
-            Debug.WriteLine($"average convertArrCuda: {(double)convertArrCuda / times}ms");
         }
 
         [Test]
