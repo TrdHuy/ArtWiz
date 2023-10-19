@@ -6,8 +6,10 @@
 					 xmlns:local="clr-namespace:SPRNetTool.View.Pages"
 					 xmlns:base="clr-namespace:SPRNetTool.View.Base"
 					 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
+					 xmlns:wg="clr-namespace:SPRNetTool.View.Widgets"
 					 mc:Ignorable="d"
 					 d:DesignWidth="800"
+					 MouseDown="BasePageViewer_MouseDown"
 					 xmlns:vm="clr-namespace:SPRNetTool.ViewModel">
 	<UserControl.DataContext>
 		<vm:DebugPageViewModel />
@@ -27,6 +29,8 @@
 
 		<Style x:Key="ClickableRunStyle"
 			   TargetType="Run">
+			<Setter Property="Focusable"
+					Value="True" />
 			<EventSetter Event="MouseLeftButtonUp"
 						 Handler="OnRunLeftMouseUp" />
 			<Style.Triggers>
@@ -255,7 +259,7 @@
 						</TextBlock>
 					</Viewbox>
 				</TextBlock>
-
+		
 				<TextBlock Margin="0,5,0,0"
 						   FontWeight="Bold"
 						   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">
@@ -270,7 +274,11 @@
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_GlobalWidthMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
-					<Run Text="{Binding SprFileHead.GlobalWidth}" />
+					<wg:BalloonBox TextContent="{Binding SprFileHead.GlobalWidth}"
+								   Tag="{x:Static local:DebugPageTagID.SPRInfo_GlobalWidthBalloonBox}"
+								   Maximum="0xFFFF"
+								   Minimum="0"
+								   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"

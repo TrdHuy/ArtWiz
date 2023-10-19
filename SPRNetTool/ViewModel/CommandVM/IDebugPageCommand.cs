@@ -34,5 +34,7 @@
         void OnDecreaseSprGlobalWidthButtonClicked(uint delta = 1);
         void OnIncreaseSprGlobalHeightButtonClicked(uint delta = 1);
         void OnDecreaseSprGlobalHeightButtonClicked(uint delta = 1);
+
+        void SetSprGlobalSize(ushort? width = null, ushort? height = null);
     }
 }
