@@ -626,6 +626,16 @@ namespace SPRNetTool.ViewModel
             SetGlobalSize(0, -(int)delta);
         }
 
+        void IDebugPageCommand.SetSprGlobalSize(ushort? width, ushort? height)
+        {
+            if (!IsSpr) return;
+
+            var nW = width ?? SprFileHead.GlobalWidth;
+            var nH = height ?? SprFileHead.GlobalHeight;
+
+            SetGlobalSize(nW - SprFileHead.GlobalWidth, nH - SprFileHead.GlobalHeight);
+        }
+
         private void SetFrameOffset(int deltaX, int deltaY)
         {
             var newOffX = (short)(SprFrameData.frameOffX + deltaX);

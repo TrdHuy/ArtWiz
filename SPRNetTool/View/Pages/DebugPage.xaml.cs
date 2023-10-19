@@ -4,12 +4,14 @@ using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
 using SPRNetTool.View.Utils;
+using SPRNetTool.View.Widgets;
 using SPRNetTool.ViewModel;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -53,6 +55,7 @@ namespace SPRNetTool.View.Pages
         SPRInfo_GlobalOffsetXMinusButton,
         SPRInfo_GlobalOffsetYPlusButton,
         SPRInfo_GlobalOffsetYMinusButton,
+        SPRInfo_GlobalWidthBalloonBox,
 
         ImageInfo_ExportToSingleFrameSprFile,
     }
@@ -301,7 +304,6 @@ namespace SPRNetTool.View.Pages
             var alphaChanel = foreGround.FindAlphaColors(background, combinedColor, out byte averageAbsoluteDeviation);
 
             colorDistance = Color.FromArgb(alphaChanel, 100, 179, 150).CalculateEuclideanDistance(combinedColor);
-
         }
 
         private async void ResizeImageClick(object sender, RoutedEventArgs e)
@@ -607,6 +609,29 @@ namespace SPRNetTool.View.Pages
                             commandVM?.OnIncreaseSprGlobalHeightButtonClicked((uint)(1 + args.HoldingCounter / 5));
                             break;
                         }
+                }
+            });
+        }
+
+        private void BasePageViewer_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.FocusedElement is TextBox)
+            {
+                Keyboard.ClearFocus();
+            }
+        }
+
+        private void OnBalloonBoxPreviewTextContentUpdated(object sender, TextContentUpdatedEventArgs e)
+        {
+            (sender as BalloonBox)?.Tag.IfIs<DebugPageTagID>(tag =>
+            {
+                switch (tag)
+                {
+                    case DebugPageTagID.SPRInfo_GlobalWidthBalloonBox:
+                        var newWidth = (ushort)Convert.ToUInt32(e.NewText);
+                        commandVM?.SetSprGlobalSize(width: newWidth);
+                        e.Handled = true;
+                        break;
                 }
             });
         }
