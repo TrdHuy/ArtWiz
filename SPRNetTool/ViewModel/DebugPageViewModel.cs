@@ -397,7 +397,11 @@ namespace SPRNetTool.ViewModel
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
                             IsSpr = castArgs.CurrentSprFileHead != null;
-                            SprFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
+                            if (!castArgs.Event.HasFlag(SPR_GLOBAL_OFFSET_CHANGED) &&
+                                !castArgs.Event.HasFlag(SPR_GLOBAL_SIZE_CHANGED))
+                            {
+                                SprFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
+                            }
                         }
 
                         if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED))
@@ -521,7 +525,7 @@ namespace SPRNetTool.ViewModel
         }
 
         #region Change frame offset command
-        private TaskPool ModifyFrameOffTaskPool = new TaskPool(cores: 1);
+        private TaskPool ModifySizeAndOffsetTaskPool = new TaskPool(cores: 1);
         void IDebugPageCommand.OnIncreaseFrameWidthButtonClicked(uint delta)
         {
             if (!IsSpr) return;
@@ -573,6 +577,54 @@ namespace SPRNetTool.ViewModel
 
             SetFrameOffset(0, -(int)delta);
         }
+        void IDebugPageCommand.OnIncreaseSprGlobalOffsetXButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalOffset((int)delta, 0);
+        }
+        void IDebugPageCommand.OnDecreaseSprGlobalOffsetXButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalOffset(-(int)delta, 0);
+        }
+        void IDebugPageCommand.OnIncreaseSprGlobalOffsetYButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalOffset(0, (int)delta);
+        }
+        void IDebugPageCommand.OnDecreaseSprGlobalOffsetYButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalOffset(0, -(int)delta);
+        }
+        void IDebugPageCommand.OnIncreaseSprGlobalWidthButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalSize((int)delta, 0);
+        }
+        void IDebugPageCommand.OnDecreaseSprGlobalWidthButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalSize(-(int)delta, 0);
+        }
+        void IDebugPageCommand.OnIncreaseSprGlobalHeightButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalSize(0, (int)delta);
+        }
+        void IDebugPageCommand.OnDecreaseSprGlobalHeightButtonClicked(uint delta)
+        {
+            if (!IsSpr) return;
+
+            SetGlobalSize(0, -(int)delta);
+        }
 
         private void SetFrameOffset(int deltaX, int deltaY)
         {
@@ -583,11 +635,45 @@ namespace SPRNetTool.ViewModel
                 BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(newOffX, newOffY);
                 Logger.Raw.D($"newOffX = {newOffX}, newOffY = {newOffY}");
             });
-            ModifyFrameOffTaskPool.AddTaskToSinglePool(changeTask);
+            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
 
             _sprFrameData.frameOffX = newOffX;
             _sprFrameData.frameOffY = newOffY;
             Invalidate(nameof(SprFrameData));
+        }
+
+        private void SetGlobalOffset(int deltaX, int deltaY)
+        {
+            var newOffX = (short)(SprFileHead.OffX + deltaX);
+            var newOffY = (short)(SprFileHead.OffY + deltaY);
+            Task changeTask = new Task(() =>
+            {
+                BitmapDisplayManager.SetSprGlobalOffset(newOffX, newOffY);
+                Logger.Raw.D($"newOffX = {newOffX}, newOffY = {newOffY}");
+            });
+            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
+
+            _sprFileHead.OffX = newOffX;
+            _sprFileHead.OffY = newOffY;
+            Invalidate(nameof(SprFileHead));
+        }
+
+        private void SetGlobalSize(int deltaWidth, int deltaHeight)
+        {
+            var tempWidth = SprFileHead.GlobalWidth + deltaWidth;
+            var tempHeight = SprFileHead.GlobalHeight + deltaHeight;
+            var newWidth = (ushort)(tempWidth < 0 ? 0 : tempWidth);
+            var newHeight = (ushort)(tempHeight < 0 ? 0 : tempHeight);
+            Task changeTask = new Task(() =>
+            {
+                BitmapDisplayManager.SetSprGlobalSize(newWidth, newHeight);
+                Logger.Raw.D($"newWidth = {newWidth}, newHeight = {newHeight}");
+            });
+            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
+
+            _sprFileHead.GlobalWidth = newWidth;
+            _sprFileHead.GlobalHeight = newHeight;
+            Invalidate(nameof(SprFileHead));
         }
 
         private void SetFrameSize(int deltaWidth, int deltaHeight)
@@ -601,7 +687,7 @@ namespace SPRNetTool.ViewModel
                 BitmapDisplayManager.SetCurrentlyDisplayedFrameSize(newWidth, newHeight);
                 Logger.Raw.D($"newWidth = {newWidth}, newHeight = {newHeight}");
             });
-            ModifyFrameOffTaskPool.AddTaskToSinglePool(changeTask);
+            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
 
             _sprFrameData.frameWidth = newWidth;
             _sprFrameData.frameHeight = newHeight;

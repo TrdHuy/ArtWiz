@@ -9,8 +9,8 @@ namespace SPRNetTool.Data
         fixed byte VersionInfo[4];
         public ushort GlobalWidth;
         public ushort GlobalHeight;
-        public ushort OffX;
-        public ushort OffY;
+        public short OffX;
+        public short OffY;
         public ushort FrameCounts;
         public ushort ColorCounts;
         public ushort DirectionCount;
@@ -78,19 +78,20 @@ namespace SPRNetTool.Data
         public byte[] VersionInfo { get; set; }
         public ushort GlobalWidth { get; set; }
         public ushort GlobalHeight { get; set; }
-        public ushort OffX { get; set; }
-        public ushort OffY { get; set; }
+        public short OffX { get; set; }
+        public short OffY { get; set; }
         public ushort FrameCounts { get; set; }
         public ushort ColorCounts { get; set; }
         public ushort DirectionCount { get; set; }
         public ushort Interval { get; set; }
         public byte[] Reserved { get; set; }
+        public SprFileHeadCache? modifiedSprFileHeadCache { get; set; } = null;
 
         public SprFileHead(byte[] versionInfo,
             ushort globalWidth,
             ushort globalHeight,
-            ushort offX,
-            ushort offY,
+            short offX,
+            short offY,
             ushort frameCounts,
             ushort colorCounts,
             ushort directionCount,
@@ -127,6 +128,76 @@ namespace SPRNetTool.Data
             unsafeSpr.SetReserved(reserved);
             unsafeSpr.SetVersionInfoStr(versionInfo);
             return unsafeSpr;
+        }
+
+        public class SprFileHeadCache
+        {
+            private SprFileHead sprFileHead;
+            public ushort globalWidth
+            {
+                get
+                {
+                    return sprFileHead.GlobalWidth;
+                }
+                set
+                {
+                    sprFileHead.GlobalWidth = value;
+                }
+            }
+            public ushort globalHeight
+            {
+                get
+                {
+                    return sprFileHead.GlobalHeight;
+                }
+                set
+                {
+                    sprFileHead.GlobalHeight = value;
+                }
+            }
+            public short offX
+            {
+                get
+                {
+                    return sprFileHead.OffX;
+                }
+                set
+                {
+                    sprFileHead.OffX = value;
+                }
+            }
+            public short offY
+            {
+                get
+                {
+                    return sprFileHead.OffY;
+                }
+                set
+                {
+                    sprFileHead.OffY = value;
+                }
+            }
+            public ushort Interval
+            {
+                get
+                {
+                    return sprFileHead.Interval;
+                }
+                set
+                {
+                    sprFileHead.Interval = value;
+                }
+            }
+
+            public SprFileHead toSprFileHead()
+            {
+                return sprFileHead;
+            }
+
+            public void InitFromSprFileHead(SprFileHead initData)
+            {
+                sprFileHead = initData;
+            }
         }
     }
 
@@ -278,6 +349,7 @@ namespace SPRNetTool.Data
             }
         }
 
+        public bool isNeedToRedrawGlobalFrameData { get; set; }
     }
 
 

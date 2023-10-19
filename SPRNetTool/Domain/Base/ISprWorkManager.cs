@@ -15,6 +15,21 @@ namespace SPRNetTool.Domain.Base
     {
 
         #region public API
+
+        /// <summary>
+        /// Thay đổi global size của file spr
+        /// </summary>
+        /// <param name="width">giá trị chiều rộng mới</param>
+        /// <param name="height">giá trị chiều cao mới</param>
+        void SetGlobalSize(ushort width, ushort height);
+
+        /// <summary>
+        /// Thay đổi global offset của file spr
+        /// </summary>
+        /// <param name="offsetY">giá trị offset Y mới</param>
+        /// <param name="offsetX">giá trị offset X mới</param>
+        void SetGlobalOffset(short offsetX, short offsetY);
+
         /// <summary>
         /// Thay đổi frame offset theo frame index 
         /// </summary>
@@ -71,6 +86,13 @@ namespace SPRNetTool.Domain.Base
         /// <param name="index"></param>
         /// <returns></returns>
         FrameRGBA? GetFrameData(uint index);
+
+        /// <summary>
+        /// Lấy dữ liệu global palette color theo frame index 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        PaletteColor[]? GetGlobalFrameColorData(uint index, out bool isFrameRedrawed);
 
         /// <summary>
         /// Lưu các giá trị hiện tại của work ra file SPR
@@ -159,6 +181,7 @@ namespace SPRNetTool.Domain.Base
             }
         }
         #endregion
+
         #region protected API
         protected bool IsCacheEmpty { get; }
         protected byte[]? GetByteArrayFromEncyptedFrameData(int i);
@@ -178,8 +201,8 @@ namespace SPRNetTool.Domain.Base
             PaletteColor[] paletteData,
             ushort globalWidth,
             ushort globalHeight,
-            ushort globalOffX,
-            ushort globalOffY,
+            short globalOffX,
+            short globalOffY,
             ushort direction,
             ushort interval,
             byte[] reserved);
