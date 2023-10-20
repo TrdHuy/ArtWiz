@@ -636,6 +636,36 @@ namespace SPRNetTool.ViewModel
             SetGlobalSize(nW - SprFileHead.GlobalWidth, nH - SprFileHead.GlobalHeight);
         }
 
+        void IDebugPageCommand.SetSprGlobalOffset(short? offX, short? offY)
+        {
+            if (!IsSpr) return;
+
+            var nOffX = offX ?? SprFileHead.OffX;
+            var nOffY = offY ?? SprFileHead.OffY;
+
+            SetGlobalOffset(nOffX - SprFileHead.OffX, nOffY - SprFileHead.OffY);
+        }
+
+        void IDebugPageCommand.SetSprFrameSize(ushort? width, ushort? height)
+        {
+            if (!IsSpr) return;
+
+            var nW = width ?? SprFrameData.frameWidth;
+            var nH = height ?? SprFrameData.frameHeight;
+
+            SetFrameSize(nW - SprFrameData.frameWidth, nH - SprFrameData.frameHeight);
+        }
+
+        void IDebugPageCommand.SetSprFrameOffset(short? offX, short? offY)
+        {
+            if (!IsSpr) return;
+
+            var nOffX = offX ?? SprFrameData.frameOffX;
+            var nOffY = offY ?? SprFrameData.frameOffY;
+
+            SetFrameOffset(nOffX - SprFrameData.frameOffX, nOffY - SprFrameData.frameOffY);
+        }
+
         private void SetFrameOffset(int deltaX, int deltaY)
         {
             var newOffX = (short)(SprFrameData.frameOffX + deltaX);
@@ -740,6 +770,14 @@ namespace SPRNetTool.ViewModel
                 BitmapDisplayManager.SetSprInterval((ushort)(SprFileHead.Interval - 1));
             }
         }
+
+        void IDebugPageCommand.SetSprInterval(ushort interval)
+        {
+            if (!IsSpr) return;
+
+            BitmapDisplayManager.SetSprInterval(interval);
+        }
+
 
         void IDebugPageCommand.OnIncreaseIntervalButtonClicked()
         {

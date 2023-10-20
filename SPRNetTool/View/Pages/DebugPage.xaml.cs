@@ -11,7 +11,6 @@ using SPRNetTool.ViewModel.CommandVM;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -56,6 +55,14 @@ namespace SPRNetTool.View.Pages
         SPRInfo_GlobalOffsetYPlusButton,
         SPRInfo_GlobalOffsetYMinusButton,
         SPRInfo_GlobalWidthBalloonBox,
+        SPRInfo_GlobalHeightBalloonBox,
+        SPRInfo_GlobalOffXBalloonBox,
+        SPRInfo_GlobalOffYBalloonBox,
+        SPRInfo_FrameWidthBalloonBox,
+        SPRInfo_FrameHeightBalloonBox,
+        SPRInfo_FrameOffXBalloonBox,
+        SPRInfo_FrameOffYBalloonBox,
+        SPRInfo_SprIntervalBalloonBox,
 
         ImageInfo_ExportToSingleFrameSprFile,
     }
@@ -628,11 +635,34 @@ namespace SPRNetTool.View.Pages
                 switch (tag)
                 {
                     case DebugPageTagID.SPRInfo_GlobalWidthBalloonBox:
-                        var newWidth = (ushort)Convert.ToUInt32(e.NewText);
-                        commandVM?.SetSprGlobalSize(width: newWidth);
-                        e.Handled = true;
+                        commandVM?.SetSprGlobalSize(width: (ushort)Convert.ToUInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_GlobalHeightBalloonBox:
+                        commandVM?.SetSprGlobalSize(height: (ushort)Convert.ToUInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_GlobalOffXBalloonBox:
+                        commandVM?.SetSprGlobalOffset(offX: (short)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_GlobalOffYBalloonBox:
+                        commandVM?.SetSprGlobalOffset(offY: (short)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_FrameHeightBalloonBox:
+                        commandVM?.SetSprFrameSize(height: (ushort)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_FrameWidthBalloonBox:
+                        commandVM?.SetSprFrameSize(width: (ushort)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_FrameOffYBalloonBox:
+                        commandVM?.SetSprFrameOffset(offY: (short)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_FrameOffXBalloonBox:
+                        commandVM?.SetSprFrameOffset(offX: (short)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_SprIntervalBalloonBox:
+                        commandVM?.SetSprInterval((ushort)Convert.ToInt32(e.NewText));
                         break;
                 }
+                e.Handled = true;
             });
         }
     }

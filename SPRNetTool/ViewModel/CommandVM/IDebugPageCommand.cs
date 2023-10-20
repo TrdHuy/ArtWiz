@@ -36,5 +36,11 @@
         void OnDecreaseSprGlobalHeightButtonClicked(uint delta = 1);
 
         void SetSprGlobalSize(ushort? width = null, ushort? height = null);
+        void SetSprGlobalOffset(short? offX = null, short? offY = null);
+
+        void SetSprFrameSize(ushort? width = null, ushort? height = null);
+        void SetSprFrameOffset(short? offX = null, short? offY = null);
+        void SetSprInterval(ushort interval);
+
     }
 }
