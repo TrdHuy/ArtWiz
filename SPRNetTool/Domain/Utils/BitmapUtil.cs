@@ -375,7 +375,7 @@ namespace SPRNetTool.Domain.Utils
 
             // Gán dữ liệu từ mảng imageData vào WriteableBitmap
             bitmap.Lock();
-            
+
             if (formats == PixelFormats.Bgra32 || formats == PixelFormats.Pbgra32 || formats == PixelFormats.Bgr32)
                 bitmap.WritePixels(new Int32Rect(0, 0, width, height), imageData, width * 4, 0);
             else if (formats == PixelFormats.Rgb24 || formats == PixelFormats.Bgr24)
