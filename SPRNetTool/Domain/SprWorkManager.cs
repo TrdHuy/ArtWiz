@@ -183,7 +183,7 @@ namespace SPRNetTool.Domain
 
         void ISprWorkManager.SetSprInterval(ushort interval)
         {
-            if (IsCacheEmpty) return;
+            if (IsCacheEmpty || FrameData?.Length == 1) return;
 
             var sprFileHeadCache = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
             {

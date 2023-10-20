@@ -294,7 +294,11 @@
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_GlobalHeightMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
-					<Run Text="{Binding SprFileHead.GlobalHeight}" />
+					<wg:BalloonBox TextContent="{Binding SprFileHead.GlobalHeight}"
+								   Tag="{x:Static local:DebugPageTagID.SPRInfo_GlobalHeightBalloonBox}"
+								   Maximum="0xFFFF"
+								   Minimum="0"
+								   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
@@ -309,7 +313,11 @@
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_GlobalOffsetXMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
-					<Run Text="{Binding SprFileHead.OffX}" />
+					<wg:BalloonBox TextContent="{Binding SprFileHead.OffX}"
+								   Tag="{x:Static local:DebugPageTagID.SPRInfo_GlobalOffXBalloonBox}"
+								   Maximum="10000"
+								   Minimum="-10000"
+								   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
@@ -324,7 +332,11 @@
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_GlobalOffsetYMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
-					<Run Text="{Binding SprFileHead.OffY}" />
+					<wg:BalloonBox TextContent="{Binding SprFileHead.OffY}"
+								   Tag="{x:Static local:DebugPageTagID.SPRInfo_GlobalOffYBalloonBox}"
+								   Maximum="10000"
+								   Minimum="-10000"
+								   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
@@ -416,7 +428,11 @@
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}">
 					</Run>
-					<Run Text="{Binding SprFrameData.frameWidth}" />
+					<wg:BalloonBox TextContent="{Binding SprFrameData.frameWidth}"
+								   Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameWidthBalloonBox}"
+								   Maximum="10000"
+								   Minimum="0"
+								   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameWidthPlusButton}"
@@ -433,7 +449,11 @@
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}">
 					</Run>
-					<Run Text="{Binding SprFrameData.frameHeight}" />
+					<wg:BalloonBox TextContent="{Binding SprFrameData.frameHeight}"
+								   Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameHeightBalloonBox}"
+								   Maximum="10000"
+								   Minimum="0"
+								   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
@@ -452,7 +472,11 @@
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}">
 					</Run>
-					<Run Text="{Binding SprFrameData.frameOffX}" />
+					<wg:BalloonBox TextContent="{Binding SprFrameData.frameOffX}"
+								   Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffXBalloonBox}"
+								   Maximum="10000"
+								   Minimum="-10000"
+								   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
@@ -468,7 +492,11 @@
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffsetYMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
-					<Run Text="{Binding SprFrameData.frameOffY}" />
+					<wg:BalloonBox TextContent="{Binding SprFrameData.frameOffY}"
+								   Tag="{x:Static local:DebugPageTagID.SPRInfo_FrameOffYBalloonBox}"
+								   Maximum="10000"
+								   Minimum="-10000"
+								   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
@@ -486,7 +514,11 @@
 						 Tag="{x:Static local:DebugPageTagID.SPRInfo_IntervalMinusButton}"
 						 FontFamily="{StaticResource FontAwsome}"
 						 Style="{StaticResource ClickableRunStyle}" />
-					<Run Text="{Binding SprFileHead.Interval}" />
+					<wg:BalloonBox TextContent="{Binding SprFileHead.Interval}"
+								   Tag="{x:Static local:DebugPageTagID.SPRInfo_SprIntervalBalloonBox}"
+								   Maximum="10000"
+								   Minimum="0"
+								   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated" />
 					<Run Text=" &#xf0fe; "
 						 FontSize="16"
 						 cvt:AttachedEvent.MouseHold="OnRunMouseHold"
