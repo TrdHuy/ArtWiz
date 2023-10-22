@@ -4,6 +4,7 @@ using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
 using SPRNetTool.View.Utils;
+using SPRNetTool.View.Widgets;
 using SPRNetTool.ViewModel;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
@@ -53,6 +54,15 @@ namespace SPRNetTool.View.Pages
         SPRInfo_GlobalOffsetXMinusButton,
         SPRInfo_GlobalOffsetYPlusButton,
         SPRInfo_GlobalOffsetYMinusButton,
+        SPRInfo_GlobalWidthBalloonBox,
+        SPRInfo_GlobalHeightBalloonBox,
+        SPRInfo_GlobalOffXBalloonBox,
+        SPRInfo_GlobalOffYBalloonBox,
+        SPRInfo_FrameWidthBalloonBox,
+        SPRInfo_FrameHeightBalloonBox,
+        SPRInfo_FrameOffXBalloonBox,
+        SPRInfo_FrameOffYBalloonBox,
+        SPRInfo_SprIntervalBalloonBox,
 
         ImageInfo_ExportToSingleFrameSprFile,
     }
@@ -301,7 +311,6 @@ namespace SPRNetTool.View.Pages
             var alphaChanel = foreGround.FindAlphaColors(background, combinedColor, out byte averageAbsoluteDeviation);
 
             colorDistance = Color.FromArgb(alphaChanel, 100, 179, 150).CalculateEuclideanDistance(combinedColor);
-
         }
 
         private async void ResizeImageClick(object sender, RoutedEventArgs e)
@@ -651,6 +660,52 @@ namespace SPRNetTool.View.Pages
                             break;
                         }
                 }
+            });
+        }
+
+        private void BasePageViewer_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.FocusedElement is TextBox)
+            {
+                Keyboard.ClearFocus();
+            }
+        }
+
+        private void OnBalloonBoxPreviewTextContentUpdated(object sender, TextContentUpdatedEventArgs e)
+        {
+            (sender as BalloonBox)?.Tag.IfIs<DebugPageTagID>(tag =>
+            {
+                switch (tag)
+                {
+                    case DebugPageTagID.SPRInfo_GlobalWidthBalloonBox:
+                        commandVM?.SetSprGlobalSize(width: (ushort)Convert.ToUInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_GlobalHeightBalloonBox:
+                        commandVM?.SetSprGlobalSize(height: (ushort)Convert.ToUInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_GlobalOffXBalloonBox:
+                        commandVM?.SetSprGlobalOffset(offX: (short)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_GlobalOffYBalloonBox:
+                        commandVM?.SetSprGlobalOffset(offY: (short)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_FrameHeightBalloonBox:
+                        commandVM?.SetSprFrameSize(height: (ushort)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_FrameWidthBalloonBox:
+                        commandVM?.SetSprFrameSize(width: (ushort)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_FrameOffYBalloonBox:
+                        commandVM?.SetSprFrameOffset(offY: (short)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_FrameOffXBalloonBox:
+                        commandVM?.SetSprFrameOffset(offX: (short)Convert.ToInt32(e.NewText));
+                        break;
+                    case DebugPageTagID.SPRInfo_SprIntervalBalloonBox:
+                        commandVM?.SetSprInterval((ushort)Convert.ToInt32(e.NewText));
+                        break;
+                }
+                e.Handled = true;
             });
         }
     }
