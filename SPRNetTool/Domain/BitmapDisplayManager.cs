@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;

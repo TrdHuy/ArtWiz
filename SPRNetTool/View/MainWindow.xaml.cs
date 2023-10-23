@@ -1,10 +1,7 @@
-﻿using SPRNetTool.Domain;
-using SPRNetTool.Utils;
+﻿using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
 using SPRNetTool.View.Pages;
-using SPRNetTool.ViewModel;
 using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.View
 {
@@ -15,7 +12,7 @@ namespace SPRNetTool.View
     public partial class MainWindow : BaseArtWizWindow
     {
         private DebugPage? debugPage = null;
-        
+
         public MainWindow()
         {
             InitializeComponent();

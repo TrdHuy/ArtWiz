@@ -507,20 +507,7 @@ namespace SPRNetTool.View.Pages
             });
             Res res = inputWindow.Show();
             if (res == Res.CANCEL) return;
-
-
-            BitmapEncoder? encoder = null;
-            switch (checkedContent)
-            {
-                case "jpg":
-                    encoder = new JpegBitmapEncoder();
-                    break;
-                case "png":
-                    encoder = new PngBitmapEncoder();
-                    break;
-                default:
-                    return;
-            }
+           
             SaveFileDialog saveFile = new SaveFileDialog();
             saveFile.AddExtension = true;
             saveFile.DefaultExt = checkedContent;
@@ -535,21 +522,24 @@ namespace SPRNetTool.View.Pages
                         if (viewModel.CurrentlyDisplayedBitmapSource == null) return;
                         await Task.Run(() =>
                         {
-                            SavingStream(stream, encoder);
+                            BitmapEncoder? encoder = null;
+                            switch (checkedContent)
+                            {
+                                case "jpg":
+                                    encoder = new JpegBitmapEncoder();
+                                    break;
+                                case "png":
+                                    encoder = new PngBitmapEncoder();
+                                    break;
+                                default:
+                                    return;
+                            }
+                            encoder.Frames.Add(BitmapFrame.Create(viewModel.CurrentlyDisplayedBitmapSource));
+                            encoder.Save(stream);
                         });
                     }
                 });
-
             }
-        }
-
-        private void SavingStream(Stream stream, BitmapEncoder encoder) 
-        {
-            Dispatcher.Invoke(() =>
-            {
-                encoder.Frames.Add(BitmapFrame.Create(viewModel.CurrentlyDisplayedBitmapSource));
-                encoder.Save(stream);
-            });
         }
 
         private void OnRunMouseHold(object sender, MouseHoldEventArgs args)
