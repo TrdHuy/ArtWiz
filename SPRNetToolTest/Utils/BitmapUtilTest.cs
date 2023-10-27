@@ -1,9 +1,16 @@
+using SPRNetTool.Data;
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
+using System.Collections;
+using System.Diagnostics;
+using System.Runtime.Intrinsics.Arm;
+using System.Text.RegularExpressions;
 using System.Windows.Media;
 using static SPRNetTool.Utils.BitmapUtil;
+using static SPRNetToolTest.Utils.BitmapUtilTest;
+
 namespace SPRNetToolTest.Utils
 {
     public class BitmapUtilTest
@@ -26,14 +33,167 @@ namespace SPRNetToolTest.Utils
             NUM3 = 0b00000100,
             NUM4 = 0b00001000,
         }
+        [Test]
+        public void test_StringFormula()
+        {
+            var input = new double[] { 1, 3, 5 };
+            var expression = "X1*X2-X3";
+            var pattern = @"(?<O>[\+\-\*\/]*)(?<N>X\d+)";
+            var matches = Regex.Matches(expression, pattern);
+            List<string> numbers = new List<string>();
+            List<string> operators = new List<string>();
+            foreach (Match match in matches)
+            {
+                if (match.Success)
+                {
+                    if (match.Groups["O"].Value != "")
+                    {
+                        operators.Add(match.Groups["O"].Value);
+                    }
+
+                    if (match.Groups["N"].Value != "")
+                    {
+                        numbers.Add(match.Groups["N"].Value);
+                    }
+                }
+            }
+            Assert.That(operators.Count == numbers.Count - 1);
+        }
 
         [Test]
-        public void test_e()
+        public void test_StringFormula2()
         {
-            string imagePath = "Resources\\test.png".FullPath();
-            var x1 = System.DateTime.Now;
-            var x2 = System.DateTime.Now;
-            var x3 = x2 - x1;
+            var input=  string.Format("( {0} - {1} ) * {2}", new object[] { 1, 3, 5 });
+            var expression = "( 1 - 2 ) * 3";
+            var in2Pos = InfixToPostfix(expression);
+            var x = EvaluatePostfixExpression(in2Pos);
+        }
+        static string InfixToPostfix(string infix)
+        {
+            Dictionary<string, int> precedence = new Dictionary<string, int>
+            {
+                { "+", 1 },
+                { "-", 1 },
+                { "*", 2 },
+                { "/", 2 },
+            };
+
+            Stack<string> operators = new Stack<string>();
+            List<string> output = new List<string>();
+
+            string[] tokens = infix.Split(' ');
+
+            foreach (string token in tokens)
+            {
+                if (double.TryParse(token, out double number))
+                {
+                    output.Add(token);
+                }
+                else if (token == "(")
+                {
+                    operators.Push(token);
+                }
+                else if (token == ")")
+                {
+                    while (operators.Count > 0 && operators.Peek() != "(")
+                    {
+                        output.Add(operators.Pop());
+                    }
+                    operators.Pop();
+                }
+                else if (operators.Count == 0 || operators.Peek() == "(" || precedence[token] > precedence[operators.Peek()])
+                {
+                    operators.Push(token);
+                }
+                else
+                {
+                    while (operators.Count > 0 && operators.Peek() != "(" && precedence[token] <= precedence[operators.Peek()])
+                    {
+                        output.Add(operators.Pop());
+                    }
+                    operators.Push(token);
+                }
+            }
+
+            while (operators.Count > 0)
+            {
+                output.Add(operators.Pop());
+            }
+
+            return string.Join(" ", output);
+        }
+
+
+        static double EvaluatePostfixExpression(string postfix)
+        {
+            Stack<double> stack = new Stack<double>();
+            string[] tokens = postfix.Split(' ');
+
+            foreach (string token in tokens)
+            {
+                if (double.TryParse(token, out double number))
+                {
+                    stack.Push(number);
+                }
+                else
+                {
+                    double operand2 = stack.Pop();
+                    double operand1 = stack.Pop();
+
+                    switch (token)
+                    {
+                        case "+":
+                            stack.Push(operand1 + operand2);
+                            break;
+                        case "-":
+                            stack.Push(operand1 - operand2);
+                            break;
+                        case "*":
+                            stack.Push(operand1 * operand2);
+                            break;
+                        case "/":
+                            stack.Push(operand1 / operand2);
+                            break;
+                        default:
+                            throw new InvalidOperationException("Unsupported operator: " + token);
+                    }
+                }
+            }
+
+            return stack.Pop();
+        }
+
+
+        [Test]
+        public void test_Performance()
+        {
+            var imgSize = 100000;
+
+            var time1 = new DateTime();
+            var time2 = time1.AddDays(1);
+            var time3 = time2 - time1;
+            var watch = Stopwatch.StartNew();
+
+            for (int i = 0; i < 100; i++)
+            {
+                watch.Restart();
+                var globalData = new PaletteColor[imgSize];
+                for (long datidx = 0; datidx < imgSize; datidx++)
+                {
+                    globalData[datidx].Red = 0xFF;
+                    globalData[datidx].Green = 0xFF;
+                    globalData[datidx].Blue = 0xFF;
+                    globalData[datidx].Alpha = 0xFF;
+                }
+                var initTime = watch.ElapsedMilliseconds;
+                Debug.WriteLine($"initTime={initTime}");
+                watch.Restart();
+                var newArray = new PaletteColor[imgSize];
+                Array.Copy(globalData, newArray, imgSize);
+                var CopyTime = watch.ElapsedMilliseconds;
+                Debug.WriteLine($"CopyTime={CopyTime}");
+            }
+            var x = 10;
 
         }
 

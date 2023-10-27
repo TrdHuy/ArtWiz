@@ -6,12 +6,16 @@
 					   xmlns:local="clr-namespace:SPRNetTool.View"
 					   xmlns:base="clr-namespace:SPRNetTool.View.Base"
 					   xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
+					   xmlns:wg="clr-namespace:SPRNetTool.View.Widgets"
 					   mc:Ignorable="d"
 					   Title="MainWindow"
 					   Height="900"
 					   Width="1000"
 					   xmlns:vm="clr-namespace:SPRNetTool.ViewModel">
 
+	<Window.Resources>
+		<cvt:FormulaConverter x:Key="FormulaConverter" />
+	</Window.Resources>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="20" />
@@ -32,8 +36,7 @@
 				<MenuItem IsCheckable="True"
 						  Header="Hiển thị danh sách màu" />
 				<Separator />
-				<MenuItem Header="Save"                           
-                          />
+				<MenuItem Header="Save" />
 				<MenuItem Header="Save As" />
 				<Separator />
 				<MenuItem Header="Exit" />
@@ -56,7 +59,166 @@
 				Background="#50808080"
 				Visibility="Collapsed" />
 
+		<!--<StackPanel Grid.Row="1"
+					Width="100">
+			<Button Content="Left"
+					Click="LeftButton_Click" />
+			<Button Content="Right"
+					Click="RightButton_Click" />
+		</StackPanel>-->
+		<!--<ScrollViewer x:Name="ScrView"
+					  Grid.Row="1"
+					  Width="500"
+					  Background="Black"
+					  Height="100"
+					  VerticalScrollBarVisibility="Auto"
+					  HorizontalScrollBarVisibility="Auto">
+			<Canvas x:Name="tempCanvas"
+					Height="80"
+					Background="Gray"
+					Width="900">
+				<Line X1="0"
+					  X2="{Binding RelativeSource={RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}, Path=ActualWidth}"
+					  Stroke="Black"
+					  StrokeThickness="5">
+					<Line.Y1>
+						<MultiBinding Converter="{StaticResource FormulaConverter}"
+									  ConverterParameter=" {0} * {1}">
+							<Binding Path="ActualHeight"
+									 FallbackValue="0.5" />
+							<Binding Path="ActualHeight"
+									 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+						</MultiBinding>
+					</Line.Y1>
+					<Line.Y2>
+						<MultiBinding Converter="{StaticResource FormulaConverter}"
+									  ConverterParameter="0.5 * {0}">
+							<Binding Path="ActualHeight"
+									 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+						</MultiBinding>
+					</Line.Y2>
+				</Line>
 
+				-->
+		<!--<Ellipse MinWidth="5"
+						 MinHeight="5"
+						 Width="20"
+						 Height="20"
+						 Stroke="#FF2BC8C8"
+						 StrokeThickness="0"
+						 Canvas.Left="0">
+					<Ellipse.Style>
+						<Style TargetType="Ellipse">
+							<Setter Property="Fill"
+									Value="Black" />
+
+							<Style.Triggers>
+
+								<Trigger Property="IsMouseOver"
+										 Value="True">
+									<Setter Property="Fill"
+											Value="Aqua" />
+								</Trigger>
+								<EventTrigger RoutedEvent="MouseEnter">
+									<BeginStoryboard>
+										<Storyboard>
+											<ColorAnimation Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"
+															To="#FF0D4447"
+															Duration="0:0:0.1" />
+											<DoubleAnimation Storyboard.TargetProperty="(Ellipse.StrokeThickness)"
+															 To="2"
+															 Duration="0:0:0.1" />
+											<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.Cursor)">
+												<DiscreteObjectKeyFrame KeyTime="0"
+																		Value="{x:Static Cursors.Hand}" />
+											</ObjectAnimationUsingKeyFrames>
+										</Storyboard>
+									</BeginStoryboard>
+								</EventTrigger>
+								<EventTrigger RoutedEvent="MouseLeave">
+									<BeginStoryboard>
+										<Storyboard>
+											<ColorAnimation Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"
+															To="Black"
+															Duration="0:0:0.1" />
+											<DoubleAnimation Storyboard.TargetProperty="(Ellipse.StrokeThickness)"
+															 To="0"
+															 Duration="0:0:0.1" />
+											<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.Cursor)">
+												<DiscreteObjectKeyFrame KeyTime="0"
+																		Value="{x:Static Cursors.Arrow}" />
+											</ObjectAnimationUsingKeyFrames>
+										</Storyboard>
+									</BeginStoryboard>
+								</EventTrigger>
+
+							</Style.Triggers>
+
+						</Style>
+					</Ellipse.Style>
+					<Canvas.Top>
+						<MultiBinding Converter="{StaticResource FormulaConverter}"
+									  ConverterParameter="0.5 * {0} - {1} / 2">
+							<Binding Path="ActualHeight"
+									 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+							<Binding Path="ActualHeight"
+									 RelativeSource="{RelativeSource Mode=Self}" />
+						</MultiBinding>
+					</Canvas.Top>
+				</Ellipse>
+
+				<Ellipse MinWidth="5"
+						 MinHeight="5"
+						 Width="20"
+						 Height="20"
+						 Stroke="#FF2BC8C8"
+						 StrokeThickness="0"
+						 Fill="Aqua"
+						 Canvas.Left="40">
+					<Canvas.Top>
+						<MultiBinding Converter="{StaticResource FormulaConverter}"
+									  ConverterParameter="0.5 * {0} - {1} / 2">
+							<Binding Path="ActualHeight"
+									 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+							<Binding Path="ActualHeight"
+									 RelativeSource="{RelativeSource Mode=Self}" />
+						</MultiBinding>
+					</Canvas.Top>
+				</Ellipse>
+
+				<Ellipse MinWidth="5"
+						 MinHeight="5"
+						 Width="20"
+						 Height="20"
+						 Stroke="#FF2BC8C8"
+						 StrokeThickness="0"
+						 Fill="Aqua"
+						 Canvas.Left="80">
+					<Canvas.Top>
+						<MultiBinding Converter="{StaticResource FormulaConverter}"
+									  ConverterParameter="0.5 * {0} - {1} / 2">
+							<Binding Path="ActualHeight"
+									 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+							<Binding Path="ActualHeight"
+									 RelativeSource="{RelativeSource Mode=Self}" />
+						</MultiBinding>
+					</Canvas.Top>
+				</Ellipse>-->
+		<!--
+			</Canvas>
+		</ScrollViewer>-->
+
+		<wg:FrameLineEditor Grid.Row="1" 
+							FrameCount="20"/>
+
+		<!--<ListView x:Name="LV"
+				  Grid.Row="1"
+				  Height="400"
+				  Width="200"
+				  HorizontalAlignment="Left"
+				  VerticalAlignment="Top">
+
+		</ListView>-->
 	</Grid>
 
 
