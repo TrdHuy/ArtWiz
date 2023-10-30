@@ -1,6 +1,7 @@
 ﻿using SPRNetTool.Utils;
 using System.Windows;
 using System.Windows.Controls;
+using static SPRNetTool.View.Widgets.FrameLineController;
 
 namespace SPRNetTool.View.Widgets
 {
@@ -9,6 +10,54 @@ namespace SPRNetTool.View.Widgets
     /// </summary>
     public partial class FrameLineEditor : UserControl
     {
+        public static void AddOnPreviewFrameIndexSwitchedHandler(DependencyObject element, FameLineHandler handler)
+        {
+            element.IfIs<FrameLineEditor>(it =>
+            {
+                it.Controller.OnPreviewFrameIndexSwitched += handler;
+            });
+        }
+
+        public static void RemoveOnPreviewFrameIndexSwitchedHandler(DependencyObject element, FameLineHandler handler)
+        {
+            element.IfIs<FrameLineEditor>(it =>
+            {
+                it.Controller.OnPreviewFrameIndexSwitched -= handler;
+            });
+        }
+
+        public static void AddOnPreviewAddingFrameHandler(DependencyObject element, FameLineHandler handler)
+        {
+            element.IfIs<FrameLineEditor>(it =>
+            {
+                it.Controller.OnPreviewAddingFrame += handler;
+            });
+        }
+
+        public static void RemoveOnPreviewAddingFrameHandler(DependencyObject element, FameLineHandler handler)
+        {
+            element.IfIs<FrameLineEditor>(it =>
+            {
+                it.Controller.OnPreviewAddingFrame -= handler;
+            });
+        }
+
+        public static void AddOnPreviewRemovingFrameHandler(DependencyObject element, FameLineHandler handler)
+        {
+            element.IfIs<FrameLineEditor>(it =>
+            {
+                it.Controller.OnPreviewRemovingFrame += handler;
+            });
+        }
+
+        public static void RemoveOnPreviewRemovingFrameHandler(DependencyObject element, FameLineHandler handler)
+        {
+            element.IfIs<FrameLineEditor>(it =>
+            {
+                it.Controller.OnPreviewRemovingFrame -= handler;
+            });
+        }
+
         public static readonly DependencyProperty FrameCountProperty =
             DependencyProperty.Register(
                 "FrameCount",
@@ -24,7 +73,7 @@ namespace SPRNetTool.View.Widgets
                 {
                     return;
                 }
-                it.frameLineController.SetTotalFrameCount((uint)e.NewValue);
+                it.Controller.SetTotalFrameCount((uint)e.NewValue);
             });
         }
 
@@ -34,40 +83,18 @@ namespace SPRNetTool.View.Widgets
             set { SetValue(FrameCountProperty, value); }
         }
 
-        private FrameLineController frameLineController;
+        private FrameLineController Controller;
 
         public FrameLineEditor()
         {
             InitializeComponent();
-            frameLineController = new FrameLineController(ScrView, MainCanvas, FrameCount);
+            Controller = new FrameLineController(ScrView, MainCanvas, FrameCount);
             this.Loaded += FrameLineEditor_Loaded;
         }
 
         private void FrameLineEditor_Loaded(object sender, RoutedEventArgs e)
         {
-            frameLineController.SetTotalFrameCount(FrameCount);
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            frameLineController.RemoveFrame(3);
-        }
-
-        private void Button_Click2(object sender, RoutedEventArgs e)
-        {
-            frameLineController.InsertFrame(3);
-        }
-
-        private void Button_Click3(object sender, RoutedEventArgs e)
-        {
-            frameLineController.SetTotalFrameCount(FrameCount);
-        }
-
-        bool isO = false;
-        private void Button_Click4(object sender, RoutedEventArgs e)
-        {
-            isO = !isO;
-            frameLineController.ChangeDisplayIndex(isO);
+            Controller.SetTotalFrameCount(FrameCount);
         }
     }
 }

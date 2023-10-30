@@ -421,26 +421,66 @@ namespace SPRNetTool.View.Widgets
         }
     }
 
+    public class FrameLineEventArgs
+    {
+        public static FrameLineEventArgs CreateSwitchEvent(int switchedFrame1Index, int switchedFrame2Index)
+        {
+            return new FrameLineEventArgs(switchedFrame1Index, switchedFrame2Index);
+        }
+
+        public static FrameLineEventArgs CreateAddingNewFrameEvent(int newFrameIndex)
+        {
+            var arg = new FrameLineEventArgs();
+            arg.NewFrameIndex = newFrameIndex;
+            return arg;
+        }
+
+        public static FrameLineEventArgs CreateRemovingOldFrameEvent(int oldFrameIndex)
+        {
+            var arg = new FrameLineEventArgs();
+            arg.OldFrameIndex = oldFrameIndex;
+            return arg;
+        }
+
+
+        private FrameLineEventArgs(int switchedFrame1Index, int switchedFrame2Index)
+        {
+            SwitchedFrame1Index = switchedFrame1Index;
+            SwitchedFrame2Index = switchedFrame2Index;
+        }
+
+        private FrameLineEventArgs()
+        {
+        }
+
+        public bool Handled { get; set; }
+        public int SwitchedFrame1Index { get; private set; } = -1;
+        public int SwitchedFrame2Index { get; private set; } = -1;
+        public int NewFrameIndex { get; private set; } = -1;
+        public int OldFrameIndex { get; private set; } = -1;
+
+    }
+
     // TODO: Implement virtualizing canvas to optimize view performance 
-    internal class FrameLineController : IDisposable
+    public class FrameLineController : IDisposable
     {
         public const double SIZE_PER_ELLIPSE = 20d;
         public const double MIN_ELLIPSE_DISTANCE = 5d;
         public const double HEAD_OFFSET = 20d;
 
-        public delegate void OnFrameIndexSwitchedHandler(uint frameIndex1, uint frameIndex2);
+        public delegate void FameLineHandler(object sender, FrameLineEventArgs args);
 
-        public event OnFrameIndexSwitchedHandler? OnFrameIndexSwitched;
+        public event FameLineHandler? OnPreviewFrameIndexSwitched;
+        public event FameLineHandler? OnPreviewAddingFrame;
+        public event FameLineHandler? OnPreviewRemovingFrame;
+
         private Rect leftScrollRect;
         private Rect rightScrollRect;
-
         private Canvas containerCanvas;
         private ScrollViewer containerScroll;
-
         private uint initFrameCount;
         private SemaphoreSlim autoScrollSemaphore = new SemaphoreSlim(1, 1);
         private double calculatedFrameLineMinimumWidth = 0;
-
         private List<EllipseController> ellipseControllersCache
             = new List<EllipseController>();
         private FrameLineContextMenuController contextMenuController;
@@ -512,6 +552,14 @@ namespace SPRNetTool.View.Widgets
             var oldIndex = (int)sender.CurrentIndex;
             var newIndex = (int)enteredEllipse.CurrentIndex;
 
+            var arg = FrameLineEventArgs.CreateSwitchEvent(oldIndex, newIndex);
+            OnPreviewFrameIndexSwitched?.Invoke(this, arg);
+
+            if (arg.Handled)
+            {
+                return;
+            }
+
             // No animation switch
             //sender.SwitchEllipsePos(enteredEllipse);
             //ellipseControllersCache[oldIndex] = enteredEllipse;
@@ -527,7 +575,6 @@ namespace SPRNetTool.View.Widgets
             {
                 ellipseControllersCache[oldIndex] = enteredEllipse;
                 ellipseControllersCache[newIndex] = sender;
-                OnFrameIndexSwitched?.Invoke(sender.CurrentIndex, enteredEllipse.CurrentIndex);
             };
             containerCanvas.BeginStoryboard(animationStoryboard);
         }
@@ -624,6 +671,13 @@ namespace SPRNetTool.View.Widgets
                 throw new Exception();
             }
 
+            var args = FrameLineEventArgs.CreateRemovingOldFrameEvent((int)frameIndex);
+            OnPreviewRemovingFrame?.Invoke(this, args);
+            if (args.Handled)
+            {
+                return;
+            }
+
             var controller = ellipseControllersCache[(int)frameIndex];
             containerCanvas.Children.Remove(controller.ContainerCanvas);
             ellipseControllersCache.Remove(controller);
@@ -659,6 +713,13 @@ namespace SPRNetTool.View.Widgets
             if (frameIndex > ellipseControllersCache.Count)
             {
                 throw new Exception();
+            }
+
+            var args = FrameLineEventArgs.CreateAddingNewFrameEvent((int)frameIndex);
+            OnPreviewAddingFrame?.Invoke(this, args);
+            if (args.Handled)
+            {
+                return;
             }
 
             var controller = CreateAndSetupController(frameIndex, (uint)ellipseControllersCache.Count + 1);
@@ -702,6 +763,13 @@ namespace SPRNetTool.View.Widgets
         public void AddNewFrame()
         {
             var frameIndex = ellipseControllersCache.Count;
+
+            var args = FrameLineEventArgs.CreateAddingNewFrameEvent((int)frameIndex);
+            OnPreviewAddingFrame?.Invoke(this, args);
+            if (args.Handled)
+            {
+                return;
+            }
 
             var controller = CreateAndSetupController((uint)frameIndex,
                 (uint)ellipseControllersCache.Count + 1);
