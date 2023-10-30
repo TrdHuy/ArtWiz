@@ -492,6 +492,7 @@ namespace SPRNetTool.View.Widgets
             this.containerCanvas = containerCanvas;
             this.initFrameCount = initFrameCount;
             this.calculatedFrameLineMinimumWidth = CaculateFrameLineMinimumWidth(initFrameCount);
+            containerScroll.IsVisibleChanged += ContainerScroll_IsVisibleChanged;
             containerScroll.SizeChanged += ContainerScroll_SizeChanged;
             containerCanvas.SizeChanged += ContainerCanvas_SizeChanged;
             containerCanvas.MouseWheel += ContainerCanvas_MouseWheel;
@@ -499,6 +500,19 @@ namespace SPRNetTool.View.Widgets
         }
 
         #region override callback
+        private void ContainerScroll_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (!Convert.ToBoolean(e.OldValue) && Convert.ToBoolean(e.NewValue))
+            {
+                void HandleFirstTimeSizeChangedWhenVisibilityChanged(object sender, SizeChangedEventArgs e)
+                {
+                    containerCanvas.Width = containerScroll.ActualWidth;
+                    containerScroll.SizeChanged -= HandleFirstTimeSizeChangedWhenVisibilityChanged;
+                }
+                containerScroll.SizeChanged += HandleFirstTimeSizeChangedWhenVisibilityChanged;
+            }
+        }
+
         private void ContextMenuController_PreviewAddingNewFrame(int newIndex, double cursorX, double cursorY)
         {
             InsertFrame((uint)newIndex);
@@ -874,6 +888,7 @@ namespace SPRNetTool.View.Widgets
             containerCanvas.MouseWheel -= ContainerCanvas_MouseWheel;
             containerScroll.SizeChanged -= ContainerScroll_SizeChanged;
             contextMenuController.PreviewAddingNewFrame -= ContextMenuController_PreviewAddingNewFrame;
+            containerScroll.IsVisibleChanged -= ContainerScroll_IsVisibleChanged;
 
         }
 
