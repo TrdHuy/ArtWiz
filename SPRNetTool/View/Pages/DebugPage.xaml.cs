@@ -698,5 +698,20 @@ namespace SPRNetTool.View.Pages
                 e.Handled = true;
             });
         }
+
+        private void OnPreviewFrameIndexSwitched(object sender, FrameLineEventArgs args)
+        {
+
+        }
+
+        private void OnPreviewRemovingFrame(object sender, FrameLineEventArgs args)
+        {
+
+        }
+
+        private void OnPreviewAddingFrame(object sender, FrameLineEventArgs args)
+        {
+
+        }
     }
 }

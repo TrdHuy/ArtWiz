@@ -6,12 +6,16 @@
 					   xmlns:local="clr-namespace:SPRNetTool.View"
 					   xmlns:base="clr-namespace:SPRNetTool.View.Base"
 					   xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
+					   xmlns:wg="clr-namespace:SPRNetTool.View.Widgets"
 					   mc:Ignorable="d"
 					   Title="MainWindow"
 					   Height="900"
 					   Width="1000"
 					   xmlns:vm="clr-namespace:SPRNetTool.ViewModel">
 
+	<Window.Resources>
+		<cvt:FormulaConverter x:Key="FormulaConverter" />
+	</Window.Resources>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="20" />
@@ -32,8 +36,7 @@
 				<MenuItem IsCheckable="True"
 						  Header="Hiển thị danh sách màu" />
 				<Separator />
-				<MenuItem Header="Save"                           
-                          />
+				<MenuItem Header="Save" />
 				<MenuItem Header="Save As" />
 				<Separator />
 				<MenuItem Header="Exit" />
@@ -55,8 +58,7 @@
 				Grid.RowSpan="2"
 				Background="#50808080"
 				Visibility="Collapsed" />
-
-
+		
 	</Grid>
 
 
