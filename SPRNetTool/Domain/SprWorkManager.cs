@@ -14,6 +14,7 @@ namespace SPRNetTool.Domain
 {
     public class SprWorkManager : BaseDomain, ISprWorkManager
     {
+        private Logger logger = new Logger("SprWorkManager");
         private Logger pf_logger = new Logger("SprWorkManager_PF");
         private SprFileHead FileHead;
         private Palette PaletteData = new Palette();
@@ -27,7 +28,7 @@ namespace SPRNetTool.Domain
         {
             get
             {
-                return FileHead.modifiedSprFileHeadCache?.toSprFileHead() ?? FileHead;
+                return FileHead.modifiedSprFileHeadCache?.ToSprFileHead() ?? FileHead;
             }
         }
 
@@ -38,6 +39,28 @@ namespace SPRNetTool.Domain
             FrameDataBegPos = -1;
             FileHead = new SprFileHead();
             PaletteData = new Palette();
+        }
+
+        bool ISprWorkManager.SwitchFrame(uint frameIndex1, uint frameIndex2)
+        {
+            if (FrameData == null)
+            {
+                logger.E("Failed to switch frame index, spr was not initialized!");
+                return false;
+            }
+
+            if (frameIndex1 == frameIndex2 || frameIndex1 >= FrameData.Length || frameIndex2 >= FrameData.Length)
+            {
+                logger.E($"Failed to switch: frameIndex1={frameIndex1}, frameIndex2={frameIndex2}, FrameData length:{FrameData.Length}");
+                return false;
+            }
+
+            var tempData = FrameData[frameIndex1];
+            FrameData[frameIndex1] = FrameData[frameIndex2];
+            FrameData[frameIndex2] = tempData;
+            FrameData[frameIndex1].isNeedToRedrawGlobalFrameData = true;
+            FrameData[frameIndex2].isNeedToRedrawGlobalFrameData = true;
+            return true;
         }
 
         void ISprWorkManager.SetFrameSize(ushort newFrameWidth, ushort newFrameHeight, uint frameIndex, Color? color)
@@ -120,7 +143,6 @@ namespace SPRNetTool.Domain
             }
         }
 
-
         void ISprWorkManager.SetGlobalOffset(short offsetX, short offsetY)
         {
             var sprFileHeadCache = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
@@ -140,9 +162,9 @@ namespace SPRNetTool.Domain
                         it[i].isNeedToRedrawGlobalFrameData = true;
                     }
                 });
-
             }
         }
+
         void ISprWorkManager.SetFrameOffset(short offsetY, short offsetX, uint frameIndex)
         {
             var startTime = DateTime.Now;
@@ -432,8 +454,12 @@ namespace SPRNetTool.Domain
             pf_logger.I($"init frame data total cost: {(DateTime.Now - startTime).TotalMilliseconds}ms");
         }
 
-        byte[]? ISprWorkManager.GetByteArrayFromHeader()
+        byte[]? ISprWorkManager.GetByteArrayFromHeader(bool isModifiedData)
         {
+            if (isModifiedData && FileHead.modifiedSprFileHeadCache != null)
+            {
+                return FileHead.modifiedSprFileHeadCache.ToUnsafe().ToByteArray();
+            }
             return FileHead.ToUnsafe().ToByteArray();
         }
 
@@ -459,9 +485,16 @@ namespace SPRNetTool.Domain
             return PaletteData.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
         }
 
-        byte[]? ISprWorkManager.GetByteArrayFromEncyptedFrameData(int i)
+        byte[]? ISprWorkManager.GetByteArrayFromEncryptedFrameData(int i, bool isModifiedData)
         {
-            return FrameData?[i].Let(it => EncryptFrameData(it.originDecodedFrameData
+            return FrameData?[i].Let(it => (isModifiedData && it.modifiedFrameRGBACache != null) ?
+                EncryptFrameData(it.modifiedFrameRGBACache.modifiedFrameData
+                    , PaletteData.Data // TODO: Get palette data from modified cache
+                    , it.modifiedFrameRGBACache.frameWidth
+                    , it.modifiedFrameRGBACache.frameHeight
+                    , (ushort)it.modifiedFrameRGBACache.frameOffX
+                    , (ushort)it.modifiedFrameRGBACache.frameOffY) :
+                EncryptFrameData(it.originDecodedFrameData
                     , PaletteData.Data
                     , it.frameWidth
                     , it.frameHeight
@@ -508,7 +541,7 @@ namespace SPRNetTool.Domain
                 var cache = FrameData[index].modifiedFrameRGBACache;
                 if (cache != null)
                 {
-                    var fileHead = FileHead.modifiedSprFileHeadCache?.toSprFileHead() ?? FileHead;
+                    var fileHead = FileHead.modifiedSprFileHeadCache?.ToSprFileHead() ?? FileHead;
                     return InitGlobalizedFrameData(fileHead, cache.toFrameRGBA());
                 }
             }
@@ -519,7 +552,7 @@ namespace SPRNetTool.Domain
         {
             if (FrameData != null)
             {
-                var fileHead = FileHead.modifiedSprFileHeadCache?.toSprFileHead() ?? FileHead;
+                var fileHead = FileHead.modifiedSprFileHeadCache?.ToSprFileHead() ?? FileHead;
                 return InitGlobalizedFrameData(fileHead, FrameData[index]);
             }
             return null;

@@ -42,5 +42,6 @@
         void SetSprFrameOffset(short? offX = null, short? offY = null);
         void SetSprInterval(ushort interval);
 
+        bool OnSwitchFrameIndex(uint frameIndex1, uint frameIndex2);
     }
 }

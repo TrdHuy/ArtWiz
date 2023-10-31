@@ -521,7 +521,7 @@ namespace SPRNetTool.ViewModel
         void IDebugPageCommand.OnSaveCurrentWorkManagerToFileSprClicked(string filePath)
         {
             if (!IsSpr) return;
-            SprWorkManager.SaveCurrentWorkToSpr(filePath);
+            SprWorkManager.SaveCurrentWorkToSpr(filePath, true);
         }
 
         #region Change frame offset command
@@ -799,6 +799,11 @@ namespace SPRNetTool.ViewModel
                     SprWorkManager.SaveBitmapSourceToSprFile(it, filePath);
                 });
             });
+        }
+
+        bool IDebugPageCommand.OnSwitchFrameIndex(uint frameIndex1, uint frameIndex2)
+        {
+            return BitmapDisplayManager.SwitchFrame(frameIndex1, frameIndex2);
         }
     }
 }

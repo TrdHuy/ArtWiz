@@ -6,18 +6,13 @@ using System.Windows;
 namespace SPRNetTool.View
 {
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : BaseArtWizWindow
     {
         private DebugPage? debugPage = null;
-
         public MainWindow()
         {
             InitializeComponent();
         }
-
 
         public override void DisableWindow(bool isDisabled)
         {
@@ -30,7 +25,6 @@ namespace SPRNetTool.View
                 DisableLayer.Visibility = Visibility.Collapsed;
             }
         }
-
 
         private void MenuItemDebugPageClick(object sender, RoutedEventArgs e)
         {

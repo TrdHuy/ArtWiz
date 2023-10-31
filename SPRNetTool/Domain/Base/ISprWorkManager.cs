@@ -16,6 +16,15 @@ namespace SPRNetTool.Domain.Base
 
         #region public API
 
+
+        /// <summary>
+        /// Đổi chỗ 2 frame cho nhau
+        /// </summary>
+        /// <param name="frameIndex1">ví trí của frame thứ nhất cần đổi</param>
+        /// <param name="frameIndex2">ví trí của frame thứ hai cần đổi</param>
+        /// <returns>true nếu đổi chỗ thành công</returns>
+        bool SwitchFrame(uint frameIndex1, uint frameIndex2);
+
         /// <summary>
         /// Thay đổi global size của file spr
         /// </summary>
@@ -98,7 +107,7 @@ namespace SPRNetTool.Domain.Base
         /// Lưu các giá trị hiện tại của work ra file SPR
         /// </summary>
         /// <param name="sprFilePath"></param>
-        void SaveCurrentWorkToSpr(string sprFilePath)
+        void SaveCurrentWorkToSpr(string sprFilePath, bool isModifiedData)
         {
             if (!IsCacheEmpty)
             {
@@ -106,15 +115,17 @@ namespace SPRNetTool.Domain.Base
                 {
                     try
                     {
-                        fs.Write(GetByteArrayFromHeader()
+                        fs.Write(GetByteArrayFromHeader(isModifiedData)
                             ?? throw new Exception("Failed to get byte array from header!"));
+
+                        // TODO: Get PaletteData from modified cache
                         fs.Write(GetByteArrayFromPaletteData()
                             ?? throw new Exception("Failed to get byte array from palette data!"));
 
                         byte[][] allFramesData = new byte[FileHead.FrameCounts][];
                         for (int i = 0; i < FileHead.FrameCounts; i++)
                         {
-                            allFramesData[i] = GetByteArrayFromEncyptedFrameData(i)
+                            allFramesData[i] = GetByteArrayFromEncryptedFrameData(i, isModifiedData)
                                 ?? throw new Exception($"Failed to get byte array from encrypted frame data: index={i}!");
                         }
 
@@ -184,8 +195,8 @@ namespace SPRNetTool.Domain.Base
 
         #region protected API
         protected bool IsCacheEmpty { get; }
-        protected byte[]? GetByteArrayFromEncyptedFrameData(int i);
-        protected byte[]? GetByteArrayFromHeader();
+        protected byte[]? GetByteArrayFromEncryptedFrameData(int i, bool isModifiedData);
+        protected byte[]? GetByteArrayFromHeader(bool isModifiedData);
         protected byte[]? GetByteArrayFromAllFramesOffsetInfo(byte[][] allEncryptedFramesData);
         protected byte[]? GetByteArrayFromPaletteData();
 

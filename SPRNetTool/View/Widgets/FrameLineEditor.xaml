@@ -1,0 +1,173 @@
+﻿<UserControl x:Class="SPRNetTool.View.Widgets.FrameLineEditor"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:local="clr-namespace:SPRNetTool.View.Widgets"
+			 mc:Ignorable="d"
+			 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
+			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
+			 d:DesignHeight="450"
+			 d:DesignWidth="800">
+
+	<UserControl.Resources>
+		<cvt:FormulaConverter x:Key="FormulaConverter" />
+	</UserControl.Resources>
+
+
+	<ScrollViewer x:Name="ScrView"
+				  Grid.Row="1"
+				  Width="auto"
+				  Background="Gray"
+				  Height="auto"
+				  VerticalScrollBarVisibility="Auto"
+				  HorizontalScrollBarVisibility="Auto">
+		<ScrollViewer.Resources>
+			<sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">10</sys:Double>
+		</ScrollViewer.Resources>
+		<Canvas x:Name="MainCanvas"
+				Height="auto"
+				Background="Gray"
+				Width="auto">
+			<Canvas.ContextMenu>
+				<ContextMenu Name="cm"
+							 StaysOpen="true">
+					<MenuItem Header="File" />
+					<MenuItem Header="Save" />
+					<MenuItem Header="SaveAs" />
+					<MenuItem Header="Recent Files">
+						<MenuItem Header="ReadMe.txt" />
+						<MenuItem Header="Schedule.xls" />
+					</MenuItem>
+				</ContextMenu>
+			</Canvas.ContextMenu>
+			<Line X1="0"
+				  X2="{Binding RelativeSource={RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}, Path=ActualWidth}"
+				  Stroke="Black"
+				  StrokeThickness="5">
+				<Line.Y1>
+					<MultiBinding Converter="{StaticResource FormulaConverter}"
+								  ConverterParameter=" {0} * {1}">
+						<Binding Path="ActualHeight"
+								 FallbackValue="0.5" />
+						<Binding Path="ActualHeight"
+								 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+					</MultiBinding>
+				</Line.Y1>
+				<Line.Y2>
+					<MultiBinding Converter="{StaticResource FormulaConverter}"
+								  ConverterParameter="0.5 * {0}">
+						<Binding Path="ActualHeight"
+								 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+					</MultiBinding>
+				</Line.Y2>
+			</Line>
+
+			<!--<Ellipse MinWidth="5"
+			 MinHeight="5"
+			 Width="20"
+			 Height="20"
+			 Stroke="#FF2BC8C8"
+			 StrokeThickness="0"
+			 Canvas.Left="0">
+		<Ellipse.Style>
+			<Style TargetType="Ellipse">
+				<Setter Property="Fill"
+						Value="Black" />
+
+				<Style.Triggers>
+
+					<Trigger Property="IsMouseOver"
+							 Value="True">
+						<Setter Property="Fill"
+								Value="Aqua" />
+					</Trigger>
+					<EventTrigger RoutedEvent="MouseEnter">
+						<BeginStoryboard>
+							<Storyboard>
+								<ColorAnimation Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"
+												To="#FF0D4447"
+												Duration="0:0:0.1" />
+								<DoubleAnimation Storyboard.TargetProperty="(Ellipse.StrokeThickness)"
+												 To="2"
+												 Duration="0:0:0.1" />
+								<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.Cursor)">
+									<DiscreteObjectKeyFrame KeyTime="0"
+															Value="{x:Static Cursors.Hand}" />
+								</ObjectAnimationUsingKeyFrames>
+							</Storyboard>
+						</BeginStoryboard>
+					</EventTrigger>
+					<EventTrigger RoutedEvent="MouseLeave">
+						<BeginStoryboard>
+							<Storyboard>
+								<ColorAnimation Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"
+												To="Black"
+												Duration="0:0:0.1" />
+								<DoubleAnimation Storyboard.TargetProperty="(Ellipse.StrokeThickness)"
+												 To="0"
+												 Duration="0:0:0.1" />
+								<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.Cursor)">
+									<DiscreteObjectKeyFrame KeyTime="0"
+															Value="{x:Static Cursors.Arrow}" />
+								</ObjectAnimationUsingKeyFrames>
+							</Storyboard>
+						</BeginStoryboard>
+					</EventTrigger>
+
+				</Style.Triggers>
+
+			</Style>
+		</Ellipse.Style>
+		<Canvas.Top>
+			<MultiBinding Converter="{StaticResource FormulaConverter}"
+						  ConverterParameter="0.5 * {0} - {1} / 2">
+				<Binding Path="ActualHeight"
+						 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+				<Binding Path="ActualHeight"
+						 RelativeSource="{RelativeSource Mode=Self}" />
+			</MultiBinding>
+		</Canvas.Top>
+	</Ellipse>
+
+	<Ellipse MinWidth="5"
+			 MinHeight="5"
+			 Width="20"
+			 Height="20"
+			 Stroke="#FF2BC8C8"
+			 StrokeThickness="0"
+			 Fill="Aqua"
+			 Canvas.Left="40">
+		<Canvas.Top>
+			<MultiBinding Converter="{StaticResource FormulaConverter}"
+						  ConverterParameter="0.5 * {0} - {1} / 2">
+				<Binding Path="ActualHeight"
+						 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+				<Binding Path="ActualHeight"
+						 RelativeSource="{RelativeSource Mode=Self}" />
+			</MultiBinding>
+		</Canvas.Top>
+	</Ellipse>
+
+	<Ellipse MinWidth="5"
+			 MinHeight="5"
+			 Width="20"
+			 Height="20"
+			 Stroke="#FF2BC8C8"
+			 StrokeThickness="0"
+			 Fill="Aqua"
+			 Canvas.Left="80">
+		<Canvas.Top>
+			<MultiBinding Converter="{StaticResource FormulaConverter}"
+						  ConverterParameter="0.5 * {0} - {1} / 2">
+				<Binding Path="ActualHeight"
+						 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+				<Binding Path="ActualHeight"
+						 RelativeSource="{RelativeSource Mode=Self}" />
+			</MultiBinding>
+		</Canvas.Top>
+	</Ellipse>-->
+		</Canvas>
+	</ScrollViewer>
+
+</UserControl>

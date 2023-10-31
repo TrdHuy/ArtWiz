@@ -507,7 +507,7 @@ namespace SPRNetTool.View.Pages
             });
             Res res = inputWindow.Show();
             if (res == Res.CANCEL) return;
-           
+
             SaveFileDialog saveFile = new SaveFileDialog();
             saveFile.AddExtension = true;
             saveFile.DefaultExt = checkedContent;
@@ -517,26 +517,33 @@ namespace SPRNetTool.View.Pages
                 LoadingWindow l = new LoadingWindow(ownerWindow, "Saving to " + checkedContent + " file!");
                 l.Show(block: async () =>
                 {
-                    using (FileStream stream = new FileStream(filePath, FileMode.Create))
+                    if (checkedContent == "jpg" || checkedContent == "png")
                     {
-                        if (viewModel.CurrentlyDisplayedBitmapSource == null) return;
-                        await Task.Run(() =>
+                        using (FileStream stream = new FileStream(filePath, FileMode.Create))
                         {
-                            BitmapEncoder? encoder = null;
-                            switch (checkedContent)
+                            if (viewModel.CurrentlyDisplayedBitmapSource == null) return;
+                            await Task.Run(() =>
                             {
-                                case "jpg":
-                                    encoder = new JpegBitmapEncoder();
-                                    break;
-                                case "png":
-                                    encoder = new PngBitmapEncoder();
-                                    break;
-                                default:
-                                    return;
-                            }
-                            encoder.Frames.Add(BitmapFrame.Create(viewModel.CurrentlyDisplayedBitmapSource));
-                            encoder.Save(stream);
-                        });
+                                BitmapEncoder? encoder = null;
+                                switch (checkedContent)
+                                {
+                                    case "jpg":
+                                        encoder = new JpegBitmapEncoder();
+                                        break;
+                                    case "png":
+                                        encoder = new PngBitmapEncoder();
+                                        break;
+                                    default:
+                                        return;
+                                }
+                                encoder.Frames.Add(BitmapFrame.Create(viewModel.CurrentlyDisplayedBitmapSource));
+                                encoder.Save(stream);
+                            });
+                        }
+                    }
+                    else if (checkedContent == "spr")
+                    {
+                        commandVM?.OnSaveCurrentWorkManagerToFileSprClicked(filePath);
                     }
                 });
             }
@@ -697,6 +704,24 @@ namespace SPRNetTool.View.Pages
                 }
                 e.Handled = true;
             });
+        }
+
+        private void OnPreviewFrameIndexSwitched(object sender, FrameLineEventArgs args)
+        {
+            if (args.SwitchedFrame1Index >= 0 && args.SwitchedFrame2Index >= 0)
+            {
+                args.Handled = !commandVM?.OnSwitchFrameIndex((uint)args.SwitchedFrame1Index, (uint)args.SwitchedFrame2Index) ?? true;
+            }
+        }
+
+        private void OnPreviewRemovingFrame(object sender, FrameLineEventArgs args)
+        {
+
+        }
+
+        private void OnPreviewAddingFrame(object sender, FrameLineEventArgs args)
+        {
+
         }
     }
 }
