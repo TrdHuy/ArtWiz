@@ -16,6 +16,15 @@ namespace SPRNetTool.Domain.Base
 
         #region public API
 
+
+        /// <summary>
+        /// Đổi chỗ 2 frame cho nhau
+        /// </summary>
+        /// <param name="frameIndex1">ví trí của frame thứ nhất cần đổi</param>
+        /// <param name="frameIndex2">ví trí của frame thứ hai cần đổi</param>
+        /// <returns>true nếu đổi chỗ thành công</returns>
+        bool SwitchFrame(uint frameIndex1, uint frameIndex2);
+
         /// <summary>
         /// Thay đổi global size của file spr
         /// </summary>

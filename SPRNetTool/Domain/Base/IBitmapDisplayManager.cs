@@ -29,6 +29,8 @@ namespace SPRNetTool.Domain.Base
 
         void SetSprInterval(ushort interval);
 
+        bool SwitchFrame(uint frameIndex1, uint frameIndex2);
+
         Dictionary<Color, long> CountBitmapColors(BitmapSource bitmap)
         {
             return this.CountColorsToDictionary(bitmap);

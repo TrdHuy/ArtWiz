@@ -800,5 +800,10 @@ namespace SPRNetTool.ViewModel
                 });
             });
         }
+
+        bool IDebugPageCommand.OnSwitchFrameIndex(uint frameIndex1, uint frameIndex2)
+        {
+            return BitmapDisplayManager.SwitchFrame(frameIndex1, frameIndex2);
+        }
     }
 }
