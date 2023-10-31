@@ -189,9 +189,29 @@ namespace SPRNetTool.Data
                 }
             }
 
-            public SprFileHead toSprFileHead()
+            public SprFileHead ToSprFileHead()
             {
                 return sprFileHead;
+            }
+
+            public US_SprFileHead ToUnsafe()
+            {
+                var reserved = sprFileHead.Reserved;
+                var versionInfo = sprFileHead.VersionInfo;
+                var unsafeSpr = new US_SprFileHead()
+                {
+                    GlobalHeight = sprFileHead.GlobalHeight,
+                    GlobalWidth = sprFileHead.GlobalWidth,
+                    OffX = sprFileHead.OffX,
+                    OffY = sprFileHead.OffY,
+                    FrameCounts = sprFileHead.FrameCounts,
+                    ColorCounts = sprFileHead.ColorCounts,
+                    DirectionCount = sprFileHead.DirectionCount,
+                    Interval = Interval
+                };
+                unsafeSpr.SetReserved(reserved);
+                unsafeSpr.SetVersionInfoStr(versionInfo);
+                return unsafeSpr;
             }
 
             public void InitFromSprFileHead(SprFileHead initData)

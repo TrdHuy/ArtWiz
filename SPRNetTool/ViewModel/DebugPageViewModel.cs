@@ -521,7 +521,7 @@ namespace SPRNetTool.ViewModel
         void IDebugPageCommand.OnSaveCurrentWorkManagerToFileSprClicked(string filePath)
         {
             if (!IsSpr) return;
-            SprWorkManager.SaveCurrentWorkToSpr(filePath);
+            SprWorkManager.SaveCurrentWorkToSpr(filePath, true);
         }
 
         #region Change frame offset command

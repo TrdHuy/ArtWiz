@@ -27,7 +27,7 @@ namespace SPRNetTool.Domain
         {
             get
             {
-                return FileHead.modifiedSprFileHeadCache?.toSprFileHead() ?? FileHead;
+                return FileHead.modifiedSprFileHeadCache?.ToSprFileHead() ?? FileHead;
             }
         }
 
@@ -120,7 +120,6 @@ namespace SPRNetTool.Domain
             }
         }
 
-
         void ISprWorkManager.SetGlobalOffset(short offsetX, short offsetY)
         {
             var sprFileHeadCache = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
@@ -140,9 +139,9 @@ namespace SPRNetTool.Domain
                         it[i].isNeedToRedrawGlobalFrameData = true;
                     }
                 });
-
             }
         }
+
         void ISprWorkManager.SetFrameOffset(short offsetY, short offsetX, uint frameIndex)
         {
             var startTime = DateTime.Now;
@@ -432,8 +431,12 @@ namespace SPRNetTool.Domain
             pf_logger.I($"init frame data total cost: {(DateTime.Now - startTime).TotalMilliseconds}ms");
         }
 
-        byte[]? ISprWorkManager.GetByteArrayFromHeader()
+        byte[]? ISprWorkManager.GetByteArrayFromHeader(bool isModifiedData)
         {
+            if (isModifiedData && FileHead.modifiedSprFileHeadCache != null)
+            {
+                return FileHead.modifiedSprFileHeadCache.ToUnsafe().ToByteArray();
+            }
             return FileHead.ToUnsafe().ToByteArray();
         }
 
@@ -459,9 +462,16 @@ namespace SPRNetTool.Domain
             return PaletteData.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
         }
 
-        byte[]? ISprWorkManager.GetByteArrayFromEncyptedFrameData(int i)
+        byte[]? ISprWorkManager.GetByteArrayFromEncryptedFrameData(int i, bool isModifiedData)
         {
-            return FrameData?[i].Let(it => EncryptFrameData(it.originDecodedFrameData
+            return FrameData?[i].Let(it => (isModifiedData && it.modifiedFrameRGBACache != null) ?
+                EncryptFrameData(it.modifiedFrameRGBACache.modifiedFrameData
+                    , PaletteData.Data // TODO: Get palette data from modified cache
+                    , it.modifiedFrameRGBACache.frameWidth
+                    , it.modifiedFrameRGBACache.frameHeight
+                    , (ushort)it.modifiedFrameRGBACache.frameOffX
+                    , (ushort)it.modifiedFrameRGBACache.frameOffY) : 
+                EncryptFrameData(it.originDecodedFrameData
                     , PaletteData.Data
                     , it.frameWidth
                     , it.frameHeight
@@ -508,7 +518,7 @@ namespace SPRNetTool.Domain
                 var cache = FrameData[index].modifiedFrameRGBACache;
                 if (cache != null)
                 {
-                    var fileHead = FileHead.modifiedSprFileHeadCache?.toSprFileHead() ?? FileHead;
+                    var fileHead = FileHead.modifiedSprFileHeadCache?.ToSprFileHead() ?? FileHead;
                     return InitGlobalizedFrameData(fileHead, cache.toFrameRGBA());
                 }
             }
@@ -519,7 +529,7 @@ namespace SPRNetTool.Domain
         {
             if (FrameData != null)
             {
-                var fileHead = FileHead.modifiedSprFileHeadCache?.toSprFileHead() ?? FileHead;
+                var fileHead = FileHead.modifiedSprFileHeadCache?.ToSprFileHead() ?? FileHead;
                 return InitGlobalizedFrameData(fileHead, FrameData[index]);
             }
             return null;
