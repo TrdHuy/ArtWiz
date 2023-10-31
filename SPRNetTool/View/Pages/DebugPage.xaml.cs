@@ -517,27 +517,35 @@ namespace SPRNetTool.View.Pages
                 LoadingWindow l = new LoadingWindow(ownerWindow, "Saving to " + checkedContent + " file!");
                 l.Show(block: async () =>
                 {
-                    using (FileStream stream = new FileStream(filePath, FileMode.Create))
+                    if(checkedContent == "jpg" || checkedContent == "png")
                     {
-                        if (viewModel.CurrentlyDisplayedBitmapSource == null) return;
-                        await Task.Run(() =>
+                        using (FileStream stream = new FileStream(filePath, FileMode.Create))
                         {
-                            BitmapEncoder? encoder = null;
-                            switch (checkedContent)
+                            if (viewModel.CurrentlyDisplayedBitmapSource == null) return;
+                            await Task.Run(() =>
                             {
-                                case "jpg":
-                                    encoder = new JpegBitmapEncoder();
-                                    break;
-                                case "png":
-                                    encoder = new PngBitmapEncoder();
-                                    break;
-                                default:
-                                    return;
-                            }
-                            encoder.Frames.Add(BitmapFrame.Create(viewModel.CurrentlyDisplayedBitmapSource));
-                            encoder.Save(stream);
-                        });
+                                BitmapEncoder? encoder = null;
+                                switch (checkedContent)
+                                {
+                                    case "jpg":
+                                        encoder = new JpegBitmapEncoder();
+                                        break;
+                                    case "png":
+                                        encoder = new PngBitmapEncoder();
+                                        break;
+                                    default:
+                                        return;
+                                }
+                                encoder.Frames.Add(BitmapFrame.Create(viewModel.CurrentlyDisplayedBitmapSource));
+                                encoder.Save(stream);
+                            });
+                        }
                     }
+                    else if(checkedContent == "spr")
+                    {
+                        commandVM?.OnSaveCurrentWorkManagerToFileSprClicked(filePath);
+                    }
+                    
                 });
             }
         }
