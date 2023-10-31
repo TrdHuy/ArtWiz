@@ -51,14 +51,16 @@
 
 		</Menu>
 
-		<ContentPresenter x:Name="PageContentPresenter"
-						  Grid.Row="1" />
+		<ScrollViewer Grid.Row="1"
+					  VerticalScrollBarVisibility="Auto">
+			<ContentPresenter x:Name="PageContentPresenter" />
+		</ScrollViewer>
 
 		<Border x:Name="DisableLayer"
 				Grid.RowSpan="2"
 				Background="#50808080"
 				Visibility="Collapsed" />
-		
+
 	</Grid>
 
 

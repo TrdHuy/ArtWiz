@@ -47,6 +47,33 @@ namespace SPRNetTool.Domain
         private BitmapSourceCache DisplayedBitmapSourceCache { get; } = new BitmapSourceCache();
 
         #region public interface
+
+        bool IBitmapDisplayManager.SwitchFrame(uint frameIndex1, uint frameIndex2)
+        {
+            if (!DisplayedBitmapSourceCache.IsSprImage) return false;
+
+            return SprWorkManager.SwitchFrame(frameIndex1, frameIndex2).Also(success =>
+            {
+                if (success)
+                {
+                    if (DisplayedBitmapSourceCache.CurrentFrameIndex == frameIndex1)
+                    {
+                        DisplayedBitmapSourceCache.CurrentFrameIndex = frameIndex2;
+                        NotifyChanged(new BitmapDisplayMangerChangedArg(
+                            changedEvent: SPR_FRAME_INDEX_CHANGED,
+                            sprFrameIndex: frameIndex2));
+                    }
+                    else if (DisplayedBitmapSourceCache.CurrentFrameIndex == frameIndex2)
+                    {
+                        DisplayedBitmapSourceCache.CurrentFrameIndex = frameIndex1;
+                        NotifyChanged(new BitmapDisplayMangerChangedArg(
+                            changedEvent: SPR_FRAME_INDEX_CHANGED,
+                            sprFrameIndex: frameIndex1));
+                    }
+                }
+            });
+        }
+
         void IBitmapDisplayManager.SetSprInterval(ushort interval)
         {
             SprWorkManager.SetSprInterval((ushort)interval);
@@ -231,7 +258,7 @@ namespace SPRNetTool.Domain
                 {
                     DisplayedBitmapSourceCache.AnimationSourceCaching = new BitmapSource?[SprWorkManager.FileHead.FrameCounts];
                     DisplayedBitmapSourceCache.ColorSourceCaching = new Dictionary<Color, long>?[SprWorkManager.FileHead.FrameCounts];
-
+                    DisplayedBitmapSourceCache.CurrentFrameIndex = 0;
                     DisplayedBitmapSourceCache.IsSprImage = true;
                     if (countPixelColor)
                     {

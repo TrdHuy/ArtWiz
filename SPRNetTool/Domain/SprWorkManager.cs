@@ -14,6 +14,7 @@ namespace SPRNetTool.Domain
 {
     public class SprWorkManager : BaseDomain, ISprWorkManager
     {
+        private Logger logger = new Logger("SprWorkManager");
         private Logger pf_logger = new Logger("SprWorkManager_PF");
         private SprFileHead FileHead;
         private Palette PaletteData = new Palette();
@@ -38,6 +39,28 @@ namespace SPRNetTool.Domain
             FrameDataBegPos = -1;
             FileHead = new SprFileHead();
             PaletteData = new Palette();
+        }
+
+        bool ISprWorkManager.SwitchFrame(uint frameIndex1, uint frameIndex2)
+        {
+            if (FrameData == null)
+            {
+                logger.E("Failed to switch frame index, spr was not initialized!");
+                return false;
+            }
+
+            if (frameIndex1 == frameIndex2 || frameIndex1 >= FrameData.Length || frameIndex2 >= FrameData.Length)
+            {
+                logger.E($"Failed to switch: frameIndex1={frameIndex1}, frameIndex2={frameIndex2}, FrameData length:{FrameData.Length}");
+                return false;
+            }
+
+            var tempData = FrameData[frameIndex1];
+            FrameData[frameIndex1] = FrameData[frameIndex2];
+            FrameData[frameIndex2] = tempData;
+            FrameData[frameIndex1].isNeedToRedrawGlobalFrameData = true;
+            FrameData[frameIndex2].isNeedToRedrawGlobalFrameData = true;
+            return true;
         }
 
         void ISprWorkManager.SetFrameSize(ushort newFrameWidth, ushort newFrameHeight, uint frameIndex, Color? color)
@@ -470,7 +493,7 @@ namespace SPRNetTool.Domain
                     , it.modifiedFrameRGBACache.frameWidth
                     , it.modifiedFrameRGBACache.frameHeight
                     , (ushort)it.modifiedFrameRGBACache.frameOffX
-                    , (ushort)it.modifiedFrameRGBACache.frameOffY) : 
+                    , (ushort)it.modifiedFrameRGBACache.frameOffY) :
                 EncryptFrameData(it.originDecodedFrameData
                     , PaletteData.Data
                     , it.frameWidth

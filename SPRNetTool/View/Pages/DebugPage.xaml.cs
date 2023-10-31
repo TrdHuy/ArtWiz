@@ -507,7 +507,7 @@ namespace SPRNetTool.View.Pages
             });
             Res res = inputWindow.Show();
             if (res == Res.CANCEL) return;
-           
+
             SaveFileDialog saveFile = new SaveFileDialog();
             saveFile.AddExtension = true;
             saveFile.DefaultExt = checkedContent;
@@ -517,7 +517,7 @@ namespace SPRNetTool.View.Pages
                 LoadingWindow l = new LoadingWindow(ownerWindow, "Saving to " + checkedContent + " file!");
                 l.Show(block: async () =>
                 {
-                    if(checkedContent == "jpg" || checkedContent == "png")
+                    if (checkedContent == "jpg" || checkedContent == "png")
                     {
                         using (FileStream stream = new FileStream(filePath, FileMode.Create))
                         {
@@ -541,11 +541,10 @@ namespace SPRNetTool.View.Pages
                             });
                         }
                     }
-                    else if(checkedContent == "spr")
+                    else if (checkedContent == "spr")
                     {
                         commandVM?.OnSaveCurrentWorkManagerToFileSprClicked(filePath);
                     }
-                    
                 });
             }
         }
@@ -709,7 +708,10 @@ namespace SPRNetTool.View.Pages
 
         private void OnPreviewFrameIndexSwitched(object sender, FrameLineEventArgs args)
         {
-
+            if (args.SwitchedFrame1Index >= 0 && args.SwitchedFrame2Index >= 0)
+            {
+                args.Handled = !commandVM?.OnSwitchFrameIndex((uint)args.SwitchedFrame1Index, (uint)args.SwitchedFrame2Index) ?? true;
+            }
         }
 
         private void OnPreviewRemovingFrame(object sender, FrameLineEventArgs args)
