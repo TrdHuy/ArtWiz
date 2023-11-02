@@ -595,7 +595,7 @@ namespace SPRNetTool.View.Widgets
 
         private void Controller_PreviewRemovingEllipse(EllipseController sender)
         {
-            RemoveFrame(sender.CurrentIndex);
+            RemoveFrameWithRoutedEvent(sender.CurrentIndex);
         }
 
         private void Controller_OnDraggingMouseEllipse(EllipseController sender, double X, double Y, MouseEventArgs e)
@@ -647,6 +647,7 @@ namespace SPRNetTool.View.Widgets
 
         #endregion
 
+        #region public API
         public int FrameCount => ellipseControllersCache.Count;
 
         public void ChangeDisplayIndex(bool isShowCurrentIndex)
@@ -678,6 +679,23 @@ namespace SPRNetTool.View.Widgets
             }
         }
 
+        public void SwitchFrame(int frameIndex1, int frameIndex2)
+        {
+            var fEll = ellipseControllersCache[frameIndex1];
+            var sEll = ellipseControllersCache[frameIndex2];
+            var animationStoryboard = new Storyboard();
+            var anim = fEll.SwitchEllipsePosWithAnimation(sEll);
+            animationStoryboard.Children.Add(anim[0]);
+            animationStoryboard.Children.Add(anim[1]);
+            animationStoryboard.FillBehavior = FillBehavior.Stop;
+            animationStoryboard.Completed += (s, e) =>
+            {
+                ellipseControllersCache[frameIndex1] = sEll;
+                ellipseControllersCache[frameIndex2] = fEll;
+            };
+            containerCanvas.BeginStoryboard(animationStoryboard);
+        }
+
         public void RemoveFrame(uint frameIndex)
         {
             if (frameIndex >= ellipseControllersCache.Count)
@@ -685,41 +703,7 @@ namespace SPRNetTool.View.Widgets
                 throw new Exception();
             }
 
-            var args = FrameLineEventArgs.CreateRemovingOldFrameEvent((int)frameIndex);
-            OnPreviewRemovingFrame?.Invoke(this, args);
-            if (args.Handled)
-            {
-                return;
-            }
-
-            var controller = ellipseControllersCache[(int)frameIndex];
-            containerCanvas.Children.Remove(controller.ContainerCanvas);
-            ellipseControllersCache.Remove(controller);
-            controller.Dispose();
-
-            var newCount = ellipseControllersCache.Count;
-
-            // Re-calculate frame line min with for resize canvas feature
-            calculatedFrameLineMinimumWidth = CaculateFrameLineMinimumWidth((uint)newCount);
-
-            var animationStoryboard = new Storyboard();
-            for (uint i = 0; i < newCount; i++)
-            {
-                if (i >= frameIndex)
-                {
-                    ellipseControllersCache[(int)i].SetNewIndex(ellipseControllersCache[(int)i].CurrentIndex - 1);
-                    ellipseControllersCache[(int)i].SetNewFrameCount((uint)newCount);
-                    animationStoryboard.Children.Add(ellipseControllersCache[(int)i].ReArrangeEllipseWithAnimation());
-                }
-                else
-                {
-                    ellipseControllersCache[(int)i].SetNewFrameCount((uint)newCount);
-                    animationStoryboard.Children.Add(ellipseControllersCache[(int)i].ReArrangeEllipseWithAnimation());
-                }
-            }
-
-            animationStoryboard.FillBehavior = FillBehavior.Stop;
-            containerCanvas.BeginStoryboard(animationStoryboard);
+            InternalRemoveFrame(frameIndex);
         }
 
         public void InsertFrame(uint frameIndex)
@@ -817,6 +801,8 @@ namespace SPRNetTool.View.Widgets
             containerCanvas.BeginStoryboard(animationStoryboard);
         }
 
+        #endregion
+
         private EllipseController CreateAndSetupController(uint index, uint frameCount)
         {
             var controller = EllipseController.CreateController(ownerCanvas: containerCanvas, index, frameCount);
@@ -824,6 +810,55 @@ namespace SPRNetTool.View.Widgets
             controller.OnDraggingMouseUpEnteredEllipse += Controller_OnDraggingMouseUpEnteredEllipse;
             controller.PreviewRemovingEllipse += Controller_PreviewRemovingEllipse; ;
             return controller;
+        }
+
+        private void RemoveFrameWithRoutedEvent(uint frameIndex)
+        {
+            if (frameIndex >= ellipseControllersCache.Count)
+            {
+                throw new Exception();
+            }
+
+            var args = FrameLineEventArgs.CreateRemovingOldFrameEvent((int)frameIndex);
+            OnPreviewRemovingFrame?.Invoke(this, args);
+            if (args.Handled)
+            {
+                return;
+            }
+
+            InternalRemoveFrame(frameIndex);
+        }
+
+        private void InternalRemoveFrame(uint frameIndex)
+        {
+            var controller = ellipseControllersCache[(int)frameIndex];
+            containerCanvas.Children.Remove(controller.ContainerCanvas);
+            ellipseControllersCache.Remove(controller);
+            controller.Dispose();
+
+            var newCount = ellipseControllersCache.Count;
+
+            // Re-calculate frame line min with for resize canvas feature
+            calculatedFrameLineMinimumWidth = CaculateFrameLineMinimumWidth((uint)newCount);
+
+            var animationStoryboard = new Storyboard();
+            for (uint i = 0; i < newCount; i++)
+            {
+                if (i >= frameIndex)
+                {
+                    ellipseControllersCache[(int)i].SetNewIndex(ellipseControllersCache[(int)i].CurrentIndex - 1);
+                    ellipseControllersCache[(int)i].SetNewFrameCount((uint)newCount);
+                    animationStoryboard.Children.Add(ellipseControllersCache[(int)i].ReArrangeEllipseWithAnimation());
+                }
+                else
+                {
+                    ellipseControllersCache[(int)i].SetNewFrameCount((uint)newCount);
+                    animationStoryboard.Children.Add(ellipseControllersCache[(int)i].ReArrangeEllipseWithAnimation());
+                }
+            }
+
+            animationStoryboard.FillBehavior = FillBehavior.Stop;
+            containerCanvas.BeginStoryboard(animationStoryboard);
         }
 
         private void ClearAllEllipse()

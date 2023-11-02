@@ -16,6 +16,13 @@ namespace SPRNetTool.Domain.Base
 
         #region public API
 
+        /// <summary>
+        /// Xóa frame theo index
+        /// </summary>
+        /// <param name="frameIndex">vị trí của frame cần xóa</param>
+        /// <returns>true nếu xóa frame thành công</returns>
+        bool RemoveFrame(uint frameIndex);
+
 
         /// <summary>
         /// Đổi chỗ 2 frame cho nhau

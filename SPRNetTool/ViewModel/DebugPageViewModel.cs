@@ -3,8 +3,10 @@ using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.LogUtil;
 using SPRNetTool.Utils;
+using SPRNetTool.View.Widgets;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
+using SPRNetTool.ViewModel.Widgets;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -15,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
+using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel
 {
@@ -29,6 +32,7 @@ namespace SPRNetTool.ViewModel
         private ObservableCollection<ColorItemViewModel> _orignalDisplayedColorSource = new ObservableCollection<ColorItemViewModel>();
         private ObservableCollection<OptimizedColorItemViewModel>? _optimizedDisplayedSource = null;
         private ObservableCollection<ColorItemViewModel>? _displayedRgbCompositeResultSource = null;
+        private CustomObservableCollection<IFrameViewModel>? _framesSource;
 
         private bool _isPlayingAnimation = false;
         private int _pixelWidth = 0;
@@ -37,6 +41,23 @@ namespace SPRNetTool.ViewModel
         private FrameRGBA _sprFrameData;
         private uint _currentFrameIndex = 0;
         private bool _isSpr = false;
+
+        [Bindable(true)]
+        public CustomObservableCollection<IFrameViewModel>? FramesSource
+        {
+            get
+            {
+                return _framesSource;
+            }
+            set
+            {
+                if (_framesSource != value)
+                {
+                    _framesSource = value;
+                    Invalidate();
+                }
+            }
+        }
 
         [Bindable(true)]
         public uint CurrentFrameIndex
@@ -376,13 +397,13 @@ namespace SPRNetTool.ViewModel
                             {
                                 IsPlayingAnimation = true;
                                 CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
-                                CurrentFrameIndex = castArgs.SprFrameIndex;
+                                CurrentFrameIndex = castArgs.CurrentDisplayingFrameIndex;
                             }, dispatcherPriority);
                         }
                         else if (castArgs.IsPlayingAnimation == false)
                         {
                             SprFrameData = castArgs.SprFrameData ?? SprFrameData;
-                            CurrentFrameIndex = castArgs.SprFrameIndex;
+                            CurrentFrameIndex = castArgs.CurrentDisplayingFrameIndex;
                             IsPlayingAnimation = false;
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
 
@@ -411,9 +432,9 @@ namespace SPRNetTool.ViewModel
                             PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
                         }
 
-                        if (castArgs.Event.HasFlag(SPR_FRAME_INDEX_CHANGED))
+                        if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_FRAME_INDEX_CHANGED))
                         {
-                            CurrentFrameIndex = castArgs.SprFrameIndex;
+                            CurrentFrameIndex = castArgs.CurrentDisplayingFrameIndex;
                         }
 
                         if (castArgs.Event.HasFlag(CURRENT_COLOR_SOURCE_CHANGED))
@@ -427,6 +448,35 @@ namespace SPRNetTool.ViewModel
                                 !castArgs.Event.HasFlag(SPR_FRAME_SIZE_CHANGED))
                             {
                                 SprFrameData = castArgs.SprFrameData?.modifiedFrameRGBACache?.toFrameRGBA() ?? new FrameRGBA();
+                            }
+                        }
+
+                        if (castArgs.Event.HasFlag(SPR_FRAME_COLLECTION_CHANGED))
+                        {
+                            var collectionChangedArg = castArgs.SprFrameCollectionChangedArg;
+                            if (collectionChangedArg == null)
+                            {
+                                break;
+                            }
+
+                            if (collectionChangedArg.Event.HasFlag(TOTAL_FRAME_COUNT_CHANGED))
+                            {
+                                var newSrc = new CustomObservableCollection<IFrameViewModel>();
+                                for (int i = 0; i < collectionChangedArg.FrameCount; i++)
+                                {
+                                    newSrc.Add(new FrameViewModel() { MyProperty = i });
+                                }
+                                FramesSource = newSrc;
+                            }
+
+                            if (collectionChangedArg.Event.HasFlag(FRAME_SWITCHED) && FramesSource != null)
+                            {
+                                FramesSource.SwitchItem((int)collectionChangedArg.FrameSwitched1Index, (int)collectionChangedArg.FrameSwitched2Index);
+                            }
+
+                            if (collectionChangedArg.Event.HasFlag(FRAME_REMOVED) && FramesSource != null)
+                            {
+                                FramesSource.RemoveAt(collectionChangedArg.OldFrameIndex);
                             }
                         }
                     }
@@ -805,5 +855,17 @@ namespace SPRNetTool.ViewModel
         {
             return BitmapDisplayManager.SwitchFrame(frameIndex1, frameIndex2);
         }
+
+        bool IDebugPageCommand.OnRemoveFrameIndex(uint frameIndex)
+        {
+            return BitmapDisplayManager.DeleteFrame(frameIndex);
+
+        }
+
+    }
+
+    public class FrameViewModel : IFrameViewModel
+    {
+        public int MyProperty { get; set; }
     }
 }
