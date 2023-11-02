@@ -41,6 +41,30 @@ namespace SPRNetTool.Domain
             PaletteData = new Palette();
         }
 
+        bool ISprWorkManager.RemoveFrame(uint frameIndex)
+        {
+            var fileHead = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
+            {
+                it.InitFromSprFileHead(FileHead);
+                FileHead.modifiedSprFileHeadCache = it;
+            });
+            if (frameIndex < fileHead.FrameCounts && FrameData != null)
+            {
+                var newFrameData = new FrameRGBA[fileHead.FrameCounts - 1];
+                for (int i = 0, j = 0; i < fileHead.FrameCounts; i++)
+                {
+                    if (i != frameIndex)
+                    {
+                        newFrameData[j++] = FrameData[i];
+                    }
+                }
+                FrameData = newFrameData;
+                fileHead.FrameCounts = (ushort)FrameData.Length;
+                return true;
+            }
+            return false;
+        }
+
         bool ISprWorkManager.SwitchFrame(uint frameIndex1, uint frameIndex2)
         {
             if (FrameData == null)

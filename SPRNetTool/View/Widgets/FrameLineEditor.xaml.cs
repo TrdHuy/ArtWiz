@@ -1,4 +1,9 @@
 ﻿using SPRNetTool.Utils;
+using SPRNetTool.ViewModel.Widgets;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using static SPRNetTool.View.Widgets.FrameLineController;
@@ -58,29 +63,28 @@ namespace SPRNetTool.View.Widgets
             });
         }
 
-        public static readonly DependencyProperty FrameCountProperty =
+        public static readonly DependencyProperty FrameSourceProperty =
             DependencyProperty.Register(
-                "FrameCount",
-                typeof(uint),
+                "FrameSource",
+                typeof(IEnumerable<IFrameViewModel>),
                 typeof(FrameLineEditor),
-                new PropertyMetadata(default(uint), OnFrameCountChanged));
+            new FrameworkPropertyMetadata(defaultValue: default(IEnumerable<IFrameViewModel>),
+                flags: FrameworkPropertyMetadataOptions.AffectsRender,
+                new PropertyChangedCallback(OnFrameSourceChangeCallback)));
 
-        private static void OnFrameCountChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnFrameSourceChangeCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             d.IfIs<FrameLineEditor>(it =>
             {
-                if (!it.IsLoaded)
-                {
-                    return;
-                }
-                it.Controller.SetTotalFrameCount((uint)e.NewValue);
+                e.NewValue.IfIs<IEnumerable<IFrameViewModel>>(source => it.SetUpFrameSource(source));
+                e.OldValue.IfIs<IEnumerable<IFrameViewModel>>(source => it.DisposeFrameSource(source));
             });
         }
 
-        public uint FrameCount
+        public IEnumerable FrameSource
         {
-            get { return (uint)GetValue(FrameCountProperty); }
-            set { SetValue(FrameCountProperty, value); }
+            get { return (IEnumerable)GetValue(FrameSourceProperty); }
+            set { SetValue(FrameSourceProperty, value); }
         }
 
         private FrameLineController Controller;
@@ -88,13 +92,53 @@ namespace SPRNetTool.View.Widgets
         public FrameLineEditor()
         {
             InitializeComponent();
-            Controller = new FrameLineController(ScrView, MainCanvas, FrameCount);
-            this.Loaded += FrameLineEditor_Loaded;
+            Controller = new FrameLineController(ScrView, MainCanvas, 0);
         }
 
-        private void FrameLineEditor_Loaded(object sender, RoutedEventArgs e)
+        private void SetUpFrameSource(IEnumerable<IFrameViewModel> frameSource)
         {
-            Controller.SetTotalFrameCount(FrameCount);
+            frameSource.IfIs<INotifyCollectionChanged>(it =>
+            {
+                it.CollectionChanged += FrameSourceCollectionChanged;
+            });
+
+            frameSource.IfIs<Collection<IFrameViewModel>>(it =>
+            {
+                Controller.SetTotalFrameCount((uint)it.Count);
+            });
         }
+
+        private void DisposeFrameSource(IEnumerable<IFrameViewModel> frameSource)
+        {
+            frameSource.IfIs<INotifyCollectionChanged>(it =>
+            {
+                it.CollectionChanged -= FrameSourceCollectionChanged;
+            });
+        }
+
+        private void FrameSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e)
+            {
+                case CustomNotifyCollectionChangedEventArgs cast:
+                    if (cast.IsSwitchAction)
+                    {
+                        Controller.SwitchFrame(cast.Switched1stIndex, cast.Switched2ndIndex);
+                    }
+                    return;
+                case NotifyCollectionChangedEventArgs:
+                    if (e.Action == NotifyCollectionChangedAction.Remove)
+                    {
+                        var sizeChanged = e.OldItems?.Count ?? 0;
+                        for (int i = e.OldStartingIndex; i < e.OldStartingIndex + sizeChanged; i++)
+                        {
+                            Controller.RemoveFrame((uint)i);
+                        }
+                    }
+                    return;
+            }
+
+        }
+
     }
 }
