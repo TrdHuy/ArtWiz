@@ -118,8 +118,7 @@ namespace SPRNetTool.Domain.Base
                         fs.Write(GetByteArrayFromHeader(isModifiedData)
                             ?? throw new Exception("Failed to get byte array from header!"));
 
-                        // TODO: Get PaletteData from modified cache
-                        fs.Write(GetByteArrayFromPaletteData()
+                        fs.Write(GetByteArrayFromPaletteData(isModifiedData)
                             ?? throw new Exception("Failed to get byte array from palette data!"));
 
                         byte[][] allFramesData = new byte[FileHead.FrameCounts][];
@@ -198,7 +197,7 @@ namespace SPRNetTool.Domain.Base
         protected byte[]? GetByteArrayFromEncryptedFrameData(int i, bool isModifiedData);
         protected byte[]? GetByteArrayFromHeader(bool isModifiedData);
         protected byte[]? GetByteArrayFromAllFramesOffsetInfo(byte[][] allEncryptedFramesData);
-        protected byte[]? GetByteArrayFromPaletteData();
+        protected byte[]? GetByteArrayFromPaletteData(bool isModifiedData);
 
         protected void InitCache();
         protected void InitFromFileHead(US_SprFileHead fileHead);

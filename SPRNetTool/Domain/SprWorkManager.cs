@@ -175,16 +175,8 @@ namespace SPRNetTool.Domain
                         .FrameRGBACache()
                         .Also((it) =>
                         {
-                            it.frameHeight = FrameData[frameIndex].frameHeight;
-                            it.frameWidth = FrameData[frameIndex].frameWidth;
-
-                            it.frameOffX = FrameData[frameIndex].frameOffX;
-                            it.frameOffY = FrameData[frameIndex].frameOffY;
-                            var copiedDecodedFrameData = new PaletteColor[FrameData[frameIndex].originDecodedFrameData.Length];
-                            Array.Copy(FrameData[frameIndex].originDecodedFrameData,
-                                copiedDecodedFrameData,
-                                FrameData[frameIndex].originDecodedFrameData.Length);
-                            it.modifiedFrameData = copiedDecodedFrameData;
+                            it.InitFrameRGBA(FrameData[frameIndex]);
+                            it.SetCopiedPaletteData(PaletteData);
                             FrameData[frameIndex].modifiedFrameRGBACache = it;
                         });
 
@@ -430,22 +422,21 @@ namespace SPRNetTool.Domain
             {
                 var decodedFrameData = InitDecodedFrameData(fs, i, out ushort frameWidth,
                         out ushort frameHeight, ColorMode.RGBA, out ushort frameOffX,
-                        out ushort frameOffY,
-                        out PaletteColor[]? paletteColorCache);
+                        out ushort frameOffY);
 
                 if (decodedFrameData == null) throw new Exception("Failed to init decoded frame data!");
-                if (paletteColorCache == null) throw new Exception("Failed to init decoded frame data!");
 
                 FrameData[i].frameHeight = frameHeight;
                 FrameData[i].frameWidth = frameWidth;
                 FrameData[i].frameOffY = (short)frameOffY;
                 FrameData[i].frameOffX = (short)frameOffX;
+                FrameData[i].originDecodedFrameData = decodedFrameData;
+
                 FrameData[i].modifiedFrameRGBACache = new FrameRGBA.FrameRGBACache().Also(it =>
                 {
                     it.InitFrameRGBA(FrameData[i]);
-                    it.modifiedFrameData = paletteColorCache;
+                    it.SetCopiedPaletteData(PaletteData);
                 });
-                FrameData[i].originDecodedFrameData = decodedFrameData;
                 var globalData = InitGlobalizedFrameDataFromOrigin(i);
                 if (globalData == null) throw new Exception("Failed to init global frame data!");
                 FrameData[i].globalFrameData = globalData;
@@ -480,8 +471,25 @@ namespace SPRNetTool.Domain
             return result;
         }
 
-        byte[]? ISprWorkManager.GetByteArrayFromPaletteData()
+        byte[]? ISprWorkManager.GetByteArrayFromPaletteData(bool isModifiedData)
         {
+            if (!isModifiedData)
+            {
+                return PaletteData.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
+            }
+            else if (FrameData != null && FrameData.Length > 0)
+            {
+                var firstPalette = FrameData[0].modifiedFrameRGBACache?.PaletteData ?? throw new Exception("Failed to get byte array from palette data!");
+                for (int i = 1; i < FrameData.Length; i++)
+                {
+                    var tempPalette = FrameData[i].modifiedFrameRGBACache?.PaletteData ?? throw new Exception("Failed to get byte array from palette data!");
+                    if (tempPalette != firstPalette)
+                    {
+                        throw new Exception("Failed to get byte array from palette data, palette data of each frame must be equal each other.");
+                    }
+                }
+                return firstPalette.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
+            }
             return PaletteData.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
         }
 
@@ -489,7 +497,7 @@ namespace SPRNetTool.Domain
         {
             return FrameData?[i].Let(it => (isModifiedData && it.modifiedFrameRGBACache != null) ?
                 EncryptFrameData(it.modifiedFrameRGBACache.modifiedFrameData
-                    , PaletteData.Data // TODO: Get palette data from modified cache
+                    , it.modifiedFrameRGBACache.PaletteData.Data
                     , it.modifiedFrameRGBACache.frameWidth
                     , it.modifiedFrameRGBACache.frameHeight
                     , (ushort)it.modifiedFrameRGBACache.frameOffX
@@ -606,14 +614,12 @@ namespace SPRNetTool.Domain
             out ushort frameHeight,
             ColorMode mod,
             out ushort frameOffX,
-            out ushort frameOffY,
-            out PaletteColor[]? paletteColorsCache)
+            out ushort frameOffY)
         {
             var startTime = DateTime.Now;
             frameWidth = frameHeight = frameOffX = frameOffY = 0;
             if (index > FileHead.FrameCounts || FrameDataBegPos == -1 || FrameData == null)
             {
-                paletteColorsCache = null;
                 return null;
             }
             switch (mod)
@@ -626,7 +632,6 @@ namespace SPRNetTool.Domain
                     }
                 default:
                     {
-                        paletteColorsCache = null;
                         return null;
                     }
 
@@ -640,7 +645,6 @@ namespace SPRNetTool.Domain
 
             if (datalength == 0)
             {
-                paletteColorsCache = null;
                 return null;
             }
 
@@ -652,7 +656,6 @@ namespace SPRNetTool.Domain
             frameOffY = frameInfo?.OffY ?? 0;
             if (decdatalength == 0)
             {
-                paletteColorsCache = null;
                 return null;
             }
 
@@ -660,7 +663,6 @@ namespace SPRNetTool.Domain
             frameInfo?.CopyStructToArray(encryptedData, 0);
 
             PaletteColor[] decData = new PaletteColor[decdatalength];
-            paletteColorsCache = new PaletteColor[decdatalength];
 
             var frameDataPos = frameBeginPos + Marshal.SizeOf(typeof(FrameInfo));
             fs.Position = frameDataPos;
@@ -669,7 +671,6 @@ namespace SPRNetTool.Domain
             {
                 if (curdecposition > decdatalength)
                 {
-                    paletteColorsCache = null;
                     return null;
                 }
                 int size = fs.ReadByte();
@@ -679,7 +680,6 @@ namespace SPRNetTool.Domain
 
                 if (size == -1 || alpha == -1)
                 {
-                    paletteColorsCache = null;
                     return null;
                 }
 
@@ -687,11 +687,6 @@ namespace SPRNetTool.Domain
                 {
                     for (int j = 0; j < size; j++)
                     {
-                        paletteColorsCache[curdecposition].Red = transcol.Red;
-                        paletteColorsCache[curdecposition].Blue = transcol.Blue;
-                        paletteColorsCache[curdecposition].Green = transcol.Green;
-                        paletteColorsCache[curdecposition].Alpha = transcol.Alpha;
-
                         decData[curdecposition].Red = transcol.Red;
                         decData[curdecposition].Blue = transcol.Blue;
                         decData[curdecposition].Green = transcol.Green;
@@ -707,14 +702,9 @@ namespace SPRNetTool.Domain
                         encryptedData[i + 10] = (byte)colorIndex;
                         if (colorIndex == -1)
                         {
-                            paletteColorsCache = null;
                             return null;
                         }
                         i++;
-                        paletteColorsCache[curdecposition].Red = PaletteData.Data[colorIndex].Red;
-                        paletteColorsCache[curdecposition].Blue = PaletteData.Data[colorIndex].Blue;
-                        paletteColorsCache[curdecposition].Green = PaletteData.Data[colorIndex].Green;
-                        paletteColorsCache[curdecposition].Alpha = (byte)alpha;
 
                         decData[curdecposition].Red = PaletteData.Data[colorIndex].Red;
                         decData[curdecposition].Blue = PaletteData.Data[colorIndex].Blue;

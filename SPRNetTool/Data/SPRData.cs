@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace SPRNetTool.Data
 {
@@ -246,8 +247,56 @@ namespace SPRNetTool.Data
             Size = size;
             Data = new PaletteColor[256];
         }
-    };
 
+        public static bool operator ==(Palette a, Palette b)
+        {
+            if (a.Size != b.Size) return false;
+            else
+            {
+
+                for (int i = 0; i < a.Size; i++)
+                {
+                    if (a.Data[i].Red != b.Data[i].Red
+                        && a.Data[i].Alpha != b.Data[i].Alpha
+                        && a.Data[i].Blue != b.Data[i].Blue
+                        && a.Data[i].Green != b.Data[i].Green)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public static bool operator !=(Palette a, Palette b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (obj is Palette)
+                {
+                    return this == (Palette)obj;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+    }
     public struct FrameOffsetInfo
     {
         public uint FrameOffset;
@@ -278,6 +327,15 @@ namespace SPRNetTool.Data
         public class FrameRGBACache
         {
             private FrameRGBA frameRGBA;
+            private Palette paletteData;
+
+            public Palette PaletteData
+            {
+                get
+                {
+                    return paletteData;
+                }
+            }
 
             public ushort frameWidth
             {
@@ -335,6 +393,7 @@ namespace SPRNetTool.Data
                     frameRGBA.encryptedFrameData = value;
                 }
             }
+
             public PaletteColor[] modifiedFrameData
             {
                 get
@@ -346,6 +405,7 @@ namespace SPRNetTool.Data
                     frameRGBA.originDecodedFrameData = value;
                 }
             }
+
             public PaletteColor[] globalFrameData
             {
                 get
@@ -366,6 +426,16 @@ namespace SPRNetTool.Data
             public void InitFrameRGBA(FrameRGBA initData)
             {
                 frameRGBA = initData;
+                var pixelData = initData.originDecodedFrameData;
+                var copiedDecodedFrameData = new PaletteColor[pixelData.Length];
+                Array.Copy(pixelData, copiedDecodedFrameData, pixelData.Length);
+                frameRGBA.originDecodedFrameData = copiedDecodedFrameData;
+            }
+
+            public void SetCopiedPaletteData(Palette paletteData)
+            {
+                this.paletteData = new Palette(paletteData.Size);
+                Array.Copy(paletteData.Data, this.paletteData.Data, paletteData.Size);
             }
         }
 
