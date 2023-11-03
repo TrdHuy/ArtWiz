@@ -4,12 +4,11 @@ using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Runtime.Intrinsics.Arm;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 using static SPRNetTool.Utils.BitmapUtil;
-using static SPRNetToolTest.Utils.BitmapUtilTest;
 
 namespace SPRNetToolTest.Utils
 {
@@ -33,6 +32,48 @@ namespace SPRNetToolTest.Utils
             NUM3 = 0b00000100,
             NUM4 = 0b00001000,
         }
+
+        [Test]
+        public void test_CountPerformance()
+        {
+            var srcObs = new ObservableCollection<string>();
+
+            for (int i = 0; i < 10000000; i++)
+            {
+                srcObs.Add("1");
+            }
+
+            var st6 = DateTime.Now;
+            var count6 = (srcObs as Collection<string>).Count;
+            var time6 = (DateTime.Now - st6).TotalMilliseconds;
+            Debug.WriteLine($"{count6}, time = {time6}ms");
+
+            var st5 = DateTime.Now;
+            var count5 = (srcObs as IList<string>).Count;
+            var time5 = (DateTime.Now - st5).TotalMilliseconds;
+            Debug.WriteLine($"{count5}, time = {time5}ms");
+
+            var st3 = DateTime.Now;
+            var count3 = srcObs.Count;
+            var time3 = (DateTime.Now - st3).TotalMilliseconds;
+            Debug.WriteLine($"{count3}, time = {time3}ms");
+
+            var st = DateTime.Now;
+            var count1 = srcObs.Count();
+            var time = (DateTime.Now - st).TotalMilliseconds;
+            Debug.WriteLine($"{count1}, time = {time}ms");
+
+            var st2 = DateTime.Now;
+            var count2 = (srcObs as ICollection).Count;
+            var time2 = (DateTime.Now - st2).TotalMilliseconds;
+            Debug.WriteLine($"{count2}, time = {time2}ms");
+
+            var st4 = DateTime.Now;
+            var count4 = (srcObs as ICollection<string>).Count;
+            var time4 = (DateTime.Now - st4).TotalMilliseconds;
+            Debug.WriteLine($"{count4}, time = {time4}ms");
+        }
+
         [Test]
         public void test_StringFormula()
         {
@@ -63,7 +104,7 @@ namespace SPRNetToolTest.Utils
         [Test]
         public void test_StringFormula2()
         {
-            var input=  string.Format("( {0} - {1} ) * {2}", new object[] { 1, 3, 5 });
+            var input = string.Format("( {0} - {1} ) * {2}", new object[] { 1, 3, 5 });
             var expression = "( 1 - 2 ) * 3";
             var in2Pos = InfixToPostfix(expression);
             var x = EvaluatePostfixExpression(in2Pos);

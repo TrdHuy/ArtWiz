@@ -189,6 +189,17 @@ namespace SPRNetTool.Data
                     sprFileHead.Interval = value;
                 }
             }
+            public ushort FrameCounts
+            {
+                get
+                {
+                    return sprFileHead.FrameCounts;
+                }
+                set
+                {
+                    sprFileHead.FrameCounts = value;
+                }
+            }
 
             public SprFileHead ToSprFileHead()
             {

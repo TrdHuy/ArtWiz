@@ -710,13 +710,18 @@ namespace SPRNetTool.View.Pages
         {
             if (args.SwitchedFrame1Index >= 0 && args.SwitchedFrame2Index >= 0)
             {
-                args.Handled = !commandVM?.OnSwitchFrameIndex((uint)args.SwitchedFrame1Index, (uint)args.SwitchedFrame2Index) ?? true;
+                commandVM?.OnSwitchFrameIndex((uint)args.SwitchedFrame1Index, (uint)args.SwitchedFrame2Index);
+                args.Handled = true;
             }
         }
 
         private void OnPreviewRemovingFrame(object sender, FrameLineEventArgs args)
         {
-
+            if (args.OldFrameIndex >= 0)
+            {
+                commandVM?.OnRemoveFrameIndex((uint)args.OldFrameIndex);
+                args.Handled = true;
+            }
         }
 
         private void OnPreviewAddingFrame(object sender, FrameLineEventArgs args)

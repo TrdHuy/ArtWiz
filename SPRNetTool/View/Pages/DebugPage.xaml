@@ -181,7 +181,7 @@
 								OnPreviewFrameIndexSwitched="OnPreviewFrameIndexSwitched"
 								OnPreviewAddingFrame="OnPreviewAddingFrame"
 								OnPreviewRemovingFrame="OnPreviewRemovingFrame"
-								FrameCount="{Binding SprFileHead.FrameCounts}"
+								FrameSource="{Binding FramesSource}"
 								Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}" />
 
 			<Grid Grid.Column="0"

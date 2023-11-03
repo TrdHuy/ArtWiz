@@ -43,5 +43,7 @@
         void SetSprInterval(ushort interval);
 
         bool OnSwitchFrameIndex(uint frameIndex1, uint frameIndex2);
+
+        bool OnRemoveFrameIndex(uint frameIndex);
     }
 }

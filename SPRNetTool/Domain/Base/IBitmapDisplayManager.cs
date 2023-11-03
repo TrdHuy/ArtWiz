@@ -31,6 +31,8 @@ namespace SPRNetTool.Domain.Base
 
         bool SwitchFrame(uint frameIndex1, uint frameIndex2);
 
+        bool DeleteFrame(uint frameIndex);
+
         Dictionary<Color, long> CountBitmapColors(BitmapSource bitmap)
         {
             return this.CountColorsToDictionary(bitmap);
