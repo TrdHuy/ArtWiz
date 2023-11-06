@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace SPRNetTool.Data
@@ -247,6 +248,39 @@ namespace SPRNetTool.Data
             Red = red;
             Alpha = alpha;
         }
+
+        public static bool operator ==(PaletteColor a, PaletteColor b)
+        {
+            return a.Blue == b.Blue && a.Green == b.Green && a.Red == b.Red && a.Alpha == b.Alpha;
+        }
+
+        public static bool operator !=(PaletteColor a, PaletteColor b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (obj is PaletteColor)
+                {
+                    return this == (PaletteColor)obj;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
     public struct Palette
     {
@@ -259,21 +293,23 @@ namespace SPRNetTool.Data
             Data = new PaletteColor[256];
         }
 
+        public bool IsContain(PaletteColor color)
+        {
+            foreach (var item in Data)
+            {
+                if (item == color) return true;
+            }
+            return false;
+        }
+
         public static bool operator ==(Palette a, Palette b)
         {
             if (a.Size != b.Size) return false;
             else
             {
-
                 for (int i = 0; i < a.Size; i++)
                 {
-                    if (a.Data[i].Red != b.Data[i].Red
-                        && a.Data[i].Alpha != b.Data[i].Alpha
-                        && a.Data[i].Blue != b.Data[i].Blue
-                        && a.Data[i].Green != b.Data[i].Green)
-                    {
-                        return false;
-                    }
+                    if (!b.IsContain(a.Data[i])) return false;
                 }
             }
             return true;
@@ -322,23 +358,56 @@ namespace SPRNetTool.Data
         public ushort OffY;
     }
 
-    public struct FrameRGBA
+    public class FrameRGBA
     {
+        public FrameRGBA() { }
+        public FrameRGBA(bool isInsertedFrame)
+        {
+            this.isInsertedFrame = isInsertedFrame;
+        }
+
+        private FrameRGBACache? _modifiedFrameRGBACache;
         public ushort frameWidth { get; set; }
         public ushort frameHeight { get; set; }
         public short frameOffX { get; set; }
         public short frameOffY { get; set; }
+        public bool isInsertedFrame { get; private set; }
+        public PaletteColor[] originDecodedFrameData { get; set; } = new PaletteColor[0];
+        public PaletteColor[] globalFrameData { get; set; } = new PaletteColor[0];
 
-        public byte[] encryptedFrameData { get; set; }
-        public PaletteColor[] originDecodedFrameData { get; set; }
-        public PaletteColor[] globalFrameData { get; set; }
+        public FrameRGBACache modifiedFrameRGBACache
+        {
+            get
+            {
+                if (_modifiedFrameRGBACache == null)
+                {
+                    _modifiedFrameRGBACache = new FrameRGBACache(this);
 
-        public FrameRGBACache? modifiedFrameRGBACache { get; set; }
+                    var modifiedData = new PaletteColor[originDecodedFrameData.Length];
+                    Array.Copy(originDecodedFrameData, modifiedData, originDecodedFrameData.Length);
+                    _modifiedFrameRGBACache.modifiedFrameData = modifiedData;
+                }
+                return _modifiedFrameRGBACache;
+            }
+        }
 
         public class FrameRGBACache
         {
             private FrameRGBA frameRGBA;
             private Palette paletteData;
+            private Dictionary<PaletteColor, int> countableColorSource = new Dictionary<PaletteColor, int>();
+
+            public FrameRGBACache(FrameRGBA originData)
+            {
+                frameRGBA = new FrameRGBA()
+                {
+                    isInsertedFrame = originData.isInsertedFrame,
+                    frameWidth = originData.frameWidth,
+                    frameHeight = originData.frameHeight,
+                    frameOffX = originData.frameOffX,
+                    frameOffY = originData.frameOffY,
+                };
+            }
 
             public Palette PaletteData
             {
@@ -393,18 +462,6 @@ namespace SPRNetTool.Data
                 }
             }
 
-            public byte[] encryptedFrameData
-            {
-                get
-                {
-                    return frameRGBA.encryptedFrameData;
-                }
-                set
-                {
-                    frameRGBA.encryptedFrameData = value;
-                }
-            }
-
             public PaletteColor[] modifiedFrameData
             {
                 get
@@ -417,31 +474,12 @@ namespace SPRNetTool.Data
                 }
             }
 
-            public PaletteColor[] globalFrameData
-            {
-                get
-                {
-                    return frameRGBA.globalFrameData;
-                }
-                set
-                {
-                    frameRGBA.globalFrameData = value;
-                }
-            }
 
             public FrameRGBA toFrameRGBA()
             {
                 return frameRGBA;
             }
 
-            public void InitFrameRGBA(FrameRGBA initData)
-            {
-                frameRGBA = initData;
-                var pixelData = initData.originDecodedFrameData;
-                var copiedDecodedFrameData = new PaletteColor[pixelData.Length];
-                Array.Copy(pixelData, copiedDecodedFrameData, pixelData.Length);
-                frameRGBA.originDecodedFrameData = copiedDecodedFrameData;
-            }
 
             public void SetCopiedPaletteData(Palette paletteData)
             {
