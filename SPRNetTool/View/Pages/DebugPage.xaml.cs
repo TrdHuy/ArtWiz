@@ -90,7 +90,7 @@ namespace SPRNetTool.View.Pages
         private void OpenImageClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Tệp ảnh |*.png;*.jpg;*.jpeg;*.gif;*.spr";
+            openFileDialog.Filter = "Tệp ảnh |*.png;*.jpg;*.jpeg;*.spr";
             if (openFileDialog.ShowDialog() == true)
             {
                 BitmapSource? bmpSource = null;
@@ -710,7 +710,7 @@ namespace SPRNetTool.View.Pages
         {
             if (args.SwitchedFrame1Index >= 0 && args.SwitchedFrame2Index >= 0)
             {
-                commandVM?.OnSwitchFrameIndex((uint)args.SwitchedFrame1Index, (uint)args.SwitchedFrame2Index);
+                commandVM?.OnSwitchFrameClicked((uint)args.SwitchedFrame1Index, (uint)args.SwitchedFrame2Index);
                 args.Handled = true;
             }
         }
@@ -719,14 +719,38 @@ namespace SPRNetTool.View.Pages
         {
             if (args.OldFrameIndex >= 0)
             {
-                commandVM?.OnRemoveFrameIndex((uint)args.OldFrameIndex);
+                commandVM?.OnRemoveFrameClicked((uint)args.OldFrameIndex);
                 args.Handled = true;
             }
         }
 
         private void OnPreviewAddingFrame(object sender, FrameLineEventArgs args)
         {
+            if (args.NewFrameIndex >= 0)
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "Tệp ảnh |*.png;*.jpg;*.jpeg;*.spr";
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    string imagePath = openFileDialog.FileName;
 
+                    string fileExtension = Path.GetExtension(imagePath).ToLower();
+                    if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png")
+                    {
+                        LoadingWindow l = new LoadingWindow(ownerWindow, tilte: "Inserting new frame");
+                        l.Show(block: async () =>
+                        {
+                            await Task.Run(() =>
+                            {
+                                commandVM?.OnInsertFrameClicked((uint)args.NewFrameIndex, imagePath);
+                            });
+                        });
+                    }
+                }
+
+                args.Handled = true;
+            }
         }
     }
 }
+

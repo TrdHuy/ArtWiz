@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Windows.Media;
 
 namespace SPRNetTool.Data
 {
@@ -87,7 +88,18 @@ namespace SPRNetTool.Data
         public ushort DirectionCount { get; set; }
         public ushort Interval { get; set; }
         public byte[] Reserved { get; set; }
-        public SprFileHeadCache? modifiedSprFileHeadCache { get; set; } = null;
+        private SprFileHeadCache? _modifiedSprFileHeadCache = null;
+        public SprFileHeadCache modifiedSprFileHeadCache
+        {
+            get
+            {
+                if (_modifiedSprFileHeadCache == null)
+                {
+                    _modifiedSprFileHeadCache = new SprFileHeadCache(this);
+                }
+                return _modifiedSprFileHeadCache;
+            }
+        }
 
         public SprFileHead(byte[] versionInfo,
             ushort globalWidth,
@@ -135,6 +147,26 @@ namespace SPRNetTool.Data
         public class SprFileHeadCache
         {
             private SprFileHead sprFileHead;
+            public SprFileHeadCache(SprFileHead initData)
+            {
+                var versionInfo = new byte[initData.VersionInfo.Length];
+                var reserved = new byte[initData.Reserved.Length];
+                Array.Copy(initData.VersionInfo, versionInfo, initData.VersionInfo.Length);
+                Array.Copy(initData.Reserved, reserved, initData.Reserved.Length);
+                sprFileHead = new SprFileHead(
+                     versionInfo,
+                     initData.GlobalWidth,
+                     initData.GlobalHeight,
+                     initData.OffX,
+                     initData.OffY,
+                     initData.FrameCounts,
+                     initData.ColorCounts,
+                     initData.DirectionCount,
+                     initData.Interval,
+                     reserved
+                );
+            }
+
             public ushort globalWidth
             {
                 get
@@ -290,7 +322,14 @@ namespace SPRNetTool.Data
         public Palette(int size)
         {
             Size = size;
+            Data = new PaletteColor[Size];
+        }
+
+        public Palette(PaletteColor[] data)
+        {
+            Size = data.Length;
             Data = new PaletteColor[256];
+            Array.Copy(data, Data, Size);
         }
 
         public bool IsContain(PaletteColor color)
@@ -395,7 +434,9 @@ namespace SPRNetTool.Data
         {
             private FrameRGBA frameRGBA;
             private Palette paletteData;
-            private Dictionary<PaletteColor, int> countableColorSource = new Dictionary<PaletteColor, int>();
+            private Palette recalculatedPaletteData;
+
+            public Dictionary<Color, long>? CountableSource { get; set; }
 
             public FrameRGBACache(FrameRGBA originData)
             {
@@ -407,6 +448,14 @@ namespace SPRNetTool.Data
                     frameOffX = originData.frameOffX,
                     frameOffY = originData.frameOffY,
                 };
+            }
+
+            public Palette RecalculatedPaletteData
+            {
+                get
+                {
+                    return recalculatedPaletteData;
+                }
             }
 
             public Palette PaletteData
@@ -485,6 +534,12 @@ namespace SPRNetTool.Data
             {
                 this.paletteData = new Palette(paletteData.Size);
                 Array.Copy(paletteData.Data, this.paletteData.Data, paletteData.Size);
+            }
+
+            public void SetCopiedRecalculatedPaletteData(PaletteColor[] paletteData)
+            {
+                this.recalculatedPaletteData = new Palette(paletteData.Length);
+                Array.Copy(paletteData, this.recalculatedPaletteData.Data, paletteData.Length);
             }
         }
 

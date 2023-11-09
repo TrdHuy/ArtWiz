@@ -30,6 +30,8 @@ namespace SPRNetTool.Domain.Base
 
         bool DeleteFrame(uint frameIndex);
 
+        bool InsertFrame(uint frameIndex, string filePath);
+
         Dictionary<Color, long> CountBitmapColors(BitmapSource bitmap)
         {
             return this.CountColorsToDictionary(bitmap);
@@ -37,7 +39,7 @@ namespace SPRNetTool.Domain.Base
 
         BitmapSource? OptimzeImageColorNA256(BitmapSource bmpSource)
         {
-            var optimizedBmp = OptimzeImageColor(countableColorSource: this.CountColorsTolist(bmpSource),
+            var optimizedBmp = OptimzeImageColor(countableColorSource: this.CountColorsToList(bmpSource),
                 bmpSource: bmpSource,
                 colorSize: 256,
                 colorDifferenceDelta: 100,

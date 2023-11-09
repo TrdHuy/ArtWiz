@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <None Remove="Resources\test.png" />
+    <None Remove="Resources\test.spr" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +31,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SPRNetTool\SPRNetTool.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\test.spr">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

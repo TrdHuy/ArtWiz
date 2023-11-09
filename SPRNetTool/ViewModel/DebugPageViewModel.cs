@@ -463,7 +463,7 @@ namespace SPRNetTool.ViewModel
                                 var newSrc = new CustomObservableCollection<IFrameViewModel>();
                                 for (int i = 0; i < collectionChangedArg.FrameCount; i++)
                                 {
-                                    newSrc.Add(new FrameViewModel() { MyProperty = i });
+                                    newSrc.Add(new FrameViewModel());
                                 }
                                 FramesSource = newSrc;
                             }
@@ -476,6 +476,14 @@ namespace SPRNetTool.ViewModel
                             if (collectionChangedArg.Event.HasFlag(FRAME_REMOVED) && FramesSource != null)
                             {
                                 FramesSource.RemoveAt(collectionChangedArg.OldFrameIndex);
+                            }
+
+                            if (collectionChangedArg.Event.HasFlag(FRAME_INSERTED) && FramesSource != null)
+                            {
+                                ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                                {
+                                    FramesSource.Insert(collectionChangedArg.NewFrameIndex, new FrameViewModel());
+                                });
                             }
                         }
                     }
@@ -850,21 +858,23 @@ namespace SPRNetTool.ViewModel
             });
         }
 
-        bool IDebugPageCommand.OnSwitchFrameIndex(uint frameIndex1, uint frameIndex2)
+        bool IDebugPageCommand.OnSwitchFrameClicked(uint frameIndex1, uint frameIndex2)
         {
             return BitmapDisplayManager.SwitchFrame(frameIndex1, frameIndex2);
         }
 
-        bool IDebugPageCommand.OnRemoveFrameIndex(uint frameIndex)
+        bool IDebugPageCommand.OnRemoveFrameClicked(uint frameIndex)
         {
             return BitmapDisplayManager.DeleteFrame(frameIndex);
-
         }
 
+        bool IDebugPageCommand.OnInsertFrameClicked(uint frameIndex, string filePath)
+        {
+            return BitmapDisplayManager.InsertFrame(frameIndex, filePath);
+        }
     }
 
     public class FrameViewModel : IFrameViewModel
     {
-        public int MyProperty { get; set; }
     }
 }
