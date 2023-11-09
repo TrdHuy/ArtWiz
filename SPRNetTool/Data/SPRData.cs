@@ -397,22 +397,16 @@ namespace SPRNetTool.Data
         public ushort OffY;
     }
 
-    public class FrameRGBA
+    public struct FrameRGBA
     {
-        public FrameRGBA() { }
-        public FrameRGBA(bool isInsertedFrame)
-        {
-            this.isInsertedFrame = isInsertedFrame;
-        }
-
         private FrameRGBACache? _modifiedFrameRGBACache;
         public ushort frameWidth { get; set; }
         public ushort frameHeight { get; set; }
         public short frameOffX { get; set; }
         public short frameOffY { get; set; }
-        public bool isInsertedFrame { get; private set; }
-        public PaletteColor[] originDecodedFrameData { get; set; } = new PaletteColor[0];
-        public PaletteColor[] globalFrameData { get; set; } = new PaletteColor[0];
+        public bool isInsertedFrame { get; set; }
+        public PaletteColor[] originDecodedFrameData { get; set; }
+        public PaletteColor[] globalFrameData { get; set; }
 
         public FrameRGBACache modifiedFrameRGBACache
         {
@@ -528,7 +522,6 @@ namespace SPRNetTool.Data
             {
                 return frameRGBA;
             }
-
 
             public void SetCopiedPaletteData(Palette paletteData)
             {
