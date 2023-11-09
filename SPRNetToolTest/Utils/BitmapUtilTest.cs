@@ -1,6 +1,5 @@
 ﻿using Moq;
 using SPRNetTool.Data;
-using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
@@ -30,6 +29,58 @@ namespace SPRNetToolTest.Utils
             NUM2 = 0b00000010,
             NUM3 = 0b00000100,
             NUM4 = 0b00001000,
+        }
+
+        [Test]
+        public void test_ConvertBitmapSourceToPaletteColorArray()
+        {
+            string imagePath = "Resources\\test.png".FullPath();
+            var bmpSource = mockDomainAdapter.LoadBitmapFromFile(imagePath);
+            Assert.NotNull(bmpSource);
+            var palarray = mockDomainAdapter.ConvertBitmapSourceToPaletteColorArray(bmpSource,
+                out Dictionary<Color, long> countableSource,
+                out Palette palette);
+
+            var redColor = Color.FromArgb(255, 237, 28, 36);
+            var yellowColor = Color.FromArgb(255, 255, 242, 0);
+            var greenColor = Color.FromArgb(255, 34, 177, 76);
+            var blueColor = Color.FromArgb(255, 0, 162, 232);
+
+            Assert.That(palarray.Length == countableSource.Sum(it => it.Value));
+            Assert.That(palette.Size == 4);
+            Assert.That(countableSource[redColor], Is.EqualTo(21456));
+            Assert.That(countableSource[yellowColor], Is.EqualTo(23999));
+            Assert.That(countableSource[greenColor], Is.EqualTo(22499));
+            Assert.That(countableSource[blueColor], Is.EqualTo(22046));
+
+            Assert.That(palette.Data[0] == new PaletteColor(36, 28, 237, 255));
+            Assert.That(palette.Data[1] == new PaletteColor(0, 242, 255, 255));
+            Assert.That(palette.Data[2] == new PaletteColor(76, 177, 34, 255));
+            Assert.That(palette.Data[3] == new PaletteColor(232, 162, 0, 255));
+
+            palarray = mockDomainAdapter.ConvertBitmapSourceToPaletteColorArray(bmpSource);
+            Assert.That(palarray.Length == countableSource.Sum(it => it.Value));
+        }
+
+        [Test]
+        public void test_ConvertBitmapSourceToByteArray()
+        {
+            string imagePath = "Resources\\test.png".FullPath();
+            var bmpSource = mockDomainAdapter.LoadBitmapFromFile(imagePath);
+            Assert.NotNull(bmpSource);
+            var bytearray = mockDomainAdapter.ConvertBitmapSourceToByteArray(bmpSource);
+        }
+
+        [Test]
+        public void test_ConvertBitmapSourceToPaletteColorArray_vs_ConvertBitmapSourceToByteArray()
+        {
+            string imagePath = "Resources\\test.png".FullPath();
+            var bmpSource = mockDomainAdapter.LoadBitmapFromFile(imagePath);
+            Assert.NotNull(bmpSource);
+            var bytearray = mockDomainAdapter.ConvertBitmapSourceToByteArray(bmpSource);
+            var palarray = mockDomainAdapter.ConvertBitmapSourceToPaletteColorArray(bmpSource);
+            var palarrayToByte = mockDomainAdapter.ConvertPaletteColorArrayToByteArray(palarray);
+            Assert.That(mockDomainAdapter.AreByteArraysEqual(bytearray, palarrayToByte));
         }
 
         [Test]
@@ -321,28 +372,8 @@ namespace SPRNetToolTest.Utils
 
         }
 
-        [Test]
-        public void test_SaveBitmapSourceToSprFile()
-        {
-            string imagePath = "Resources\\test.png".FullPath();
-            var bmpSource = LoadBitmapFromFile(imagePath);
-            Assert.NotNull(bmpSource);
-            ISprWorkManager swm = new SprWorkManager();
-            swm.SaveBitmapSourceToSprFile(bmpSource, "Resources\\test.spr");
-        }
 
-        [Test]
-        public void test_ConvertBitmapSourceToPaletteColorArray()
-        {
-            string imagePath = "Resources\\test.png".FullPath();
-            var bmpSource = LoadBitmapFromFile(imagePath);
-            var bdm = new BitmapDisplayManager();
-            Assert.NotNull(bmpSource);
-            var bytearray = bdm.ConvertBitmapSourceToByteArray(bmpSource);
-            var palarray = bdm.ConvertBitmapSourceToPaletteColorArray(bmpSource);
-            var palarrayToByte = bdm.ConvertPaletteColourArrayToByteArray(palarray);
-            Assert.That(bdm.AreByteArraysEqual(bytearray, palarrayToByte));
-        }
+
 
         [Test]
         public void test()

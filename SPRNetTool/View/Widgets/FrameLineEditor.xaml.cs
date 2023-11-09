@@ -135,6 +135,14 @@ namespace SPRNetTool.View.Widgets
                             Controller.RemoveFrame((uint)i);
                         }
                     }
+                    else if(e.Action == NotifyCollectionChangedAction.Add)  
+                    {
+                        var sizeChanged = e.NewItems?.Count ?? 0;
+                        for (int i = e.NewStartingIndex; i < e.NewStartingIndex + sizeChanged; i++)
+                        {
+                            Controller.InsertFrame((uint)i);
+                        }
+                    }
                     return;
             }
 

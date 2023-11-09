@@ -29,10 +29,15 @@ namespace SPRNetTool.Domain
             ushort frameWidth,
             ushort frameHeight,
             PaletteColor[] pixelData,
-            Palette paletteData)
+            Palette paletteData,
+            Dictionary<Color, long>? countableSource)
         {
 #if DEBUG
             var countableColorSource = this.CountColors(pixelData);
+            if (countableSource != null && !this.AreCountableSourcesEqual(countableSource, countableColorSource))
+            {
+                throw new Exception("failed to count color source!");
+            }
             if (countableColorSource.Count > 256) throw new Exception("Number of color from pixel data must be smaller or equal 256.");
             foreach (var color in pixelData)
             {
@@ -69,9 +74,16 @@ namespace SPRNetTool.Domain
                     newFramesData[i] = FrameData?[i - 1] ?? new FrameRGBA();
                 }
             }
+            FileHead.modifiedSprFileHeadCache.FrameCounts++;
+            FrameData = newFramesData;
             newFramesData[frameIndex].modifiedFrameRGBACache.SetCopiedPaletteData(paletteData);
             newFramesData[frameIndex].globalFrameData = InitGlobalizedFrameDataFromOrigin(frameIndex)
                 ?? throw new Exception("Failed to insert frame");
+            newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = countableSource;
+#if DEBUG
+            if (countableSource == null)
+                newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = countableColorSource;
+#endif
             return true;
         }
 
@@ -94,11 +106,7 @@ namespace SPRNetTool.Domain
 
         bool ISprWorkManager.RemoveFrame(uint frameIndex)
         {
-            var fileHead = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
-            {
-                it.InitFromSprFileHead(FileHead);
-                FileHead.modifiedSprFileHeadCache = it;
-            });
+            var fileHead = FileHead.modifiedSprFileHeadCache;
             if (frameIndex < fileHead.FrameCounts && FrameData != null)
             {
                 var newFrameData = new FrameRGBA[fileHead.FrameCounts - 1];
@@ -189,11 +197,7 @@ namespace SPRNetTool.Domain
 
         void ISprWorkManager.SetGlobalSize(ushort width, ushort height)
         {
-            var sprFileHeadCache = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
-            {
-                it.InitFromSprFileHead(FileHead);
-                FileHead.modifiedSprFileHeadCache = it;
-            });
+            var sprFileHeadCache = FileHead.modifiedSprFileHeadCache;
             if (width != sprFileHeadCache.globalWidth || height != sprFileHeadCache.globalHeight)
             {
                 sprFileHeadCache.globalWidth = width;
@@ -212,11 +216,7 @@ namespace SPRNetTool.Domain
 
         void ISprWorkManager.SetGlobalOffset(short offsetX, short offsetY)
         {
-            var sprFileHeadCache = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
-            {
-                it.InitFromSprFileHead(FileHead);
-                FileHead.modifiedSprFileHeadCache = it;
-            });
+            var sprFileHeadCache = FileHead.modifiedSprFileHeadCache;
             if (offsetX != sprFileHeadCache.offX || offsetY != sprFileHeadCache.offY)
             {
                 sprFileHeadCache.offX = offsetX;
@@ -258,18 +258,14 @@ namespace SPRNetTool.Domain
         {
             if (IsCacheEmpty || FrameData?.Length == 1) return;
 
-            var sprFileHeadCache = FileHead.modifiedSprFileHeadCache ?? new SprFileHead.SprFileHeadCache().Also(it =>
-            {
-                it.InitFromSprFileHead(FileHead);
-                FileHead.modifiedSprFileHeadCache = it;
-            });
+            var sprFileHeadCache = FileHead.modifiedSprFileHeadCache;
             sprFileHeadCache.Interval = interval;
         }
 
 
         FrameRGBA? ISprWorkManager.GetFrameData(uint index)
         {
-            if (index < FileHead.FrameCounts)
+            if (index < FileHead.modifiedSprFileHeadCache.FrameCounts)
             {
                 return FrameData?[index];
             }
@@ -279,7 +275,7 @@ namespace SPRNetTool.Domain
         PaletteColor[]? ISprWorkManager.GetGlobalFrameColorData(uint index, out bool isFrameRedrawed)
         {
             var isRedrawed = false;
-            if (index < FileHead.FrameCounts)
+            if (index < FileHead.modifiedSprFileHeadCache.FrameCounts)
             {
                 FrameData?.Apply(it =>
                 {
@@ -448,7 +444,7 @@ namespace SPRNetTool.Domain
         bool ISprWorkManager.IsPossibleToSaveFile()
         {
 #if DEBUG
-            if (IsContainInsertedFrame())
+            if (IsContainInsertedFrameInternal())
             {
                 FrameData?
                     .Where(it => it.isInsertedFrame)
@@ -550,8 +546,18 @@ namespace SPRNetTool.Domain
             return result;
         }
 
-        byte[]? ISprWorkManager.GetByteArrayFromPaletteData(bool isModifiedData)
+        byte[]? ISprWorkManager.GetByteArrayFromPaletteData(bool isModifiedData, bool isUseRecalculateData)
         {
+            if (isUseRecalculateData)
+            {
+                if (FrameData == null) throw new Exception("Failed to get byte array from palette data");
+                if (FrameData[0].modifiedFrameRGBACache.RecalculatedPaletteData.Size == 0) throw new Exception("Failed to get byte array from palette data");
+                return FrameData[0]
+                    .modifiedFrameRGBACache
+                    .RecalculatedPaletteData
+                    .Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
+            }
+
             if (!isModifiedData)
             {
                 return PaletteData.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
@@ -572,8 +578,21 @@ namespace SPRNetTool.Domain
             return PaletteData.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
         }
 
-        byte[]? ISprWorkManager.GetByteArrayFromEncryptedFrameData(int i, bool isModifiedData)
+        byte[]? ISprWorkManager.GetByteArrayFromEncryptedFrameData(int i
+            , bool isModifiedData
+            , bool isUseRecalculateData
+            , Palette? recalculatedPaletteData)
         {
+            if (isUseRecalculateData && recalculatedPaletteData != null)
+            {
+                return FrameData?[i].Let(it =>
+                    EncryptFrameData(it.modifiedFrameRGBACache.modifiedFrameData
+                       , recalculatedPaletteData?.Data!
+                       , it.modifiedFrameRGBACache.frameWidth
+                       , it.modifiedFrameRGBACache.frameHeight
+                       , (ushort)it.modifiedFrameRGBACache.frameOffX
+                       , (ushort)it.modifiedFrameRGBACache.frameOffY));
+            }
             return FrameData?[i].Let(it => (isModifiedData && it.modifiedFrameRGBACache != null) ?
                 EncryptFrameData(it.modifiedFrameRGBACache.modifiedFrameData
                     , it.modifiedFrameRGBACache.PaletteData.Data
@@ -619,9 +638,38 @@ namespace SPRNetTool.Domain
                 interval,
                 reserved);
         }
+
+        bool ISprWorkManager.IsContainInsertedFrame()
+        {
+            return IsContainInsertedFrameInternal();
+        }
+
+        bool ISprWorkManager.RecalculatePaletteColorForAllInsertedFrame(out Palette? newPalettData)
+        {
+            if (FrameData == null)
+            {
+                newPalettData = null;
+                return false;
+            }
+
+            // Tính lại toàn bộ lượng màu sử dụng trên từng frame
+            // kể cả frame ban đầu và frame được insert mới
+            var countableSource = FrameData
+                .Select(it => it.modifiedFrameRGBACache.CountableSource
+                    ?? this.CountColors(it.modifiedFrameRGBACache.modifiedFrameData)
+                        .Also(it2 => it.modifiedFrameRGBACache.CountableSource = it2))
+                .ToArray();
+            var newPaletteSource = this.SelectMostUsePaletteColorFromCountableColorSource(
+                colorDifferenceDelta: 100,
+                amount: 256,
+                countableSource);
+
+            newPalettData = new Palette(newPaletteSource);
+            return true;
+        }
         #endregion
 
-        private bool IsContainInsertedFrame()
+        private bool IsContainInsertedFrameInternal()
         {
             return FrameData?.Any(it => it.isInsertedFrame) ?? false;
         }
@@ -633,7 +681,7 @@ namespace SPRNetTool.Domain
                 var cache = FrameData[index].modifiedFrameRGBACache;
                 if (cache != null)
                 {
-                    var fileHead = FileHead.modifiedSprFileHeadCache?.ToSprFileHead() ?? FileHead;
+                    var fileHead = FileHead.modifiedSprFileHeadCache.ToSprFileHead();
                     return InitGlobalizedFrameData(fileHead, cache.toFrameRGBA());
                 }
             }
@@ -644,7 +692,7 @@ namespace SPRNetTool.Domain
         {
             if (FrameData != null)
             {
-                var fileHead = FileHead.modifiedSprFileHeadCache?.ToSprFileHead() ?? FileHead;
+                var fileHead = FileHead.modifiedSprFileHeadCache.ToSprFileHead();
                 return InitGlobalizedFrameData(fileHead, FrameData[index]);
             }
             return null;
