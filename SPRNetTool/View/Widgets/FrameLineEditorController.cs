@@ -515,7 +515,7 @@ namespace SPRNetTool.View.Widgets
 
         private void ContextMenuController_PreviewAddingNewFrame(int newIndex, double cursorX, double cursorY)
         {
-            InsertFrame((uint)newIndex);
+            InsertFrameWithRoutedEvent((uint)newIndex);
         }
 
         private void ContainerScroll_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -713,6 +713,16 @@ namespace SPRNetTool.View.Widgets
                 throw new Exception();
             }
 
+            InternalInsertFrame(frameIndex);
+        }
+
+        public void InsertFrameWithRoutedEvent(uint frameIndex)
+        {
+            if (frameIndex > ellipseControllersCache.Count)
+            {
+                throw new Exception();
+            }
+
             var args = FrameLineEventArgs.CreateAddingNewFrameEvent((int)frameIndex);
             OnPreviewAddingFrame?.Invoke(this, args);
             if (args.Handled)
@@ -720,44 +730,9 @@ namespace SPRNetTool.View.Widgets
                 return;
             }
 
-            var controller = CreateAndSetupController(frameIndex, (uint)ellipseControllersCache.Count + 1);
-
-            containerCanvas.Children.Add(controller.ContainerCanvas);
-            ellipseControllersCache.Insert((int)frameIndex, controller);
-
-            var newCount = ellipseControllersCache.Count;
-            // Re-calculate frame line min with for resize canvas feature
-            calculatedFrameLineMinimumWidth = CaculateFrameLineMinimumWidth((uint)newCount);
-
-            var animationStoryboard = new Storyboard();
-            for (uint i = 0; i < newCount; i++)
-            {
-
-                if (i > frameIndex)
-                {
-                    ellipseControllersCache[(int)i].SetNewIndex(ellipseControllersCache[(int)i].CurrentIndex + 1);
-                    ellipseControllersCache[(int)i].SetNewFrameCount((uint)newCount);
-                    animationStoryboard.Children.Add(ellipseControllersCache[(int)i].ReArrangeEllipseWithAnimation());
-                }
-                else if (i < frameIndex)
-                {
-                    ellipseControllersCache[(int)i].SetNewFrameCount((uint)newCount);
-                    ellipseControllersCache[(int)i].ArrangeEllipse();
-                    animationStoryboard.Children.Add(ellipseControllersCache[(int)i].ReArrangeEllipseWithAnimation());
-                }
-            }
-
-            animationStoryboard.FillBehavior = FillBehavior.Stop;
-            animationStoryboard.Completed += (s, e) =>
-            {
-                if (containerCanvas.ActualWidth < calculatedFrameLineMinimumWidth)
-                {
-                    containerCanvas.Width = calculatedFrameLineMinimumWidth;
-                }
-            };
-            containerCanvas.BeginStoryboard(animationStoryboard);
+            InternalInsertFrame(frameIndex);
         }
-
+  
         public void AddNewFrame()
         {
             var frameIndex = ellipseControllersCache.Count;
@@ -827,6 +802,46 @@ namespace SPRNetTool.View.Widgets
             }
 
             InternalRemoveFrame(frameIndex);
+        }
+
+        private void InternalInsertFrame(uint frameIndex)
+        {
+            var controller = CreateAndSetupController(frameIndex, (uint)ellipseControllersCache.Count + 1);
+
+            containerCanvas.Children.Add(controller.ContainerCanvas);
+            ellipseControllersCache.Insert((int)frameIndex, controller);
+
+            var newCount = ellipseControllersCache.Count;
+            // Re-calculate frame line min with for resize canvas feature
+            calculatedFrameLineMinimumWidth = CaculateFrameLineMinimumWidth((uint)newCount);
+
+            var animationStoryboard = new Storyboard();
+            for (uint i = 0; i < newCount; i++)
+            {
+
+                if (i > frameIndex)
+                {
+                    ellipseControllersCache[(int)i].SetNewIndex(ellipseControllersCache[(int)i].CurrentIndex + 1);
+                    ellipseControllersCache[(int)i].SetNewFrameCount((uint)newCount);
+                    animationStoryboard.Children.Add(ellipseControllersCache[(int)i].ReArrangeEllipseWithAnimation());
+                }
+                else if (i < frameIndex)
+                {
+                    ellipseControllersCache[(int)i].SetNewFrameCount((uint)newCount);
+                    ellipseControllersCache[(int)i].ArrangeEllipse();
+                    animationStoryboard.Children.Add(ellipseControllersCache[(int)i].ReArrangeEllipseWithAnimation());
+                }
+            }
+
+            animationStoryboard.FillBehavior = FillBehavior.Stop;
+            animationStoryboard.Completed += (s, e) =>
+            {
+                if (containerCanvas.ActualWidth < calculatedFrameLineMinimumWidth)
+                {
+                    containerCanvas.Width = calculatedFrameLineMinimumWidth;
+                }
+            };
+            containerCanvas.BeginStoryboard(animationStoryboard);
         }
 
         private void InternalRemoveFrame(uint frameIndex)

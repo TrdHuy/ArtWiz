@@ -42,8 +42,9 @@
         void SetSprFrameOffset(short? offX = null, short? offY = null);
         void SetSprInterval(ushort interval);
 
-        bool OnSwitchFrameIndex(uint frameIndex1, uint frameIndex2);
+        bool OnSwitchFrameClicked(uint frameIndex1, uint frameIndex2);
 
-        bool OnRemoveFrameIndex(uint frameIndex);
+        bool OnRemoveFrameClicked(uint frameIndex);
+        bool OnInsertFrameClicked(uint frameIndex, string filePath);
     }
 }

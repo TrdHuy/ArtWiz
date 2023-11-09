@@ -16,14 +16,14 @@ namespace SPRNetTool.Domain.Base
 
         #region public API
 
-        // TODO: Not ready to use, implement later
         /// <summary>
         /// </summary>
         bool InsertFrame(uint frameIndex
             , ushort frameWidth
             , ushort frameHeight
             , PaletteColor[] pixelData
-            , Palette paletteData);
+            , Palette paletteData
+            , Dictionary<Color, long>? countableSource = null);
 
         /// <summary>
         /// Xóa frame theo index
@@ -130,16 +130,30 @@ namespace SPRNetTool.Domain.Base
                 {
                     try
                     {
+                        var isRecalculatePaletteColorSuccess = false;
+                        Palette? newPalettData = null;
+                        if (IsContainInsertedFrame())
+                        {
+                            isRecalculatePaletteColorSuccess = RecalculatePaletteColorForAllInsertedFrame(out newPalettData);
+                            if (!isRecalculatePaletteColorSuccess)
+                            {
+                                throw new Exception("Can not calculate new palette colors for inserted frame!");
+                            }
+                        }
+
                         fs.Write(GetByteArrayFromHeader(isModifiedData)
                             ?? throw new Exception("Failed to get byte array from header!"));
 
-                        fs.Write(GetByteArrayFromPaletteData(isModifiedData)
+                        fs.Write(GetByteArrayFromPaletteData(isModifiedData, isRecalculatePaletteColorSuccess)
                             ?? throw new Exception("Failed to get byte array from palette data!"));
 
                         byte[][] allFramesData = new byte[FileHead.FrameCounts][];
                         for (int i = 0; i < FileHead.FrameCounts; i++)
                         {
-                            allFramesData[i] = GetByteArrayFromEncryptedFrameData(i, isModifiedData)
+                            allFramesData[i] = GetByteArrayFromEncryptedFrameData(i,
+                                isModifiedData,
+                                isRecalculatePaletteColorSuccess,
+                                newPalettData)
                                 ?? throw new Exception($"Failed to get byte array from encrypted frame data: index={i}!");
                         }
 
@@ -167,7 +181,7 @@ namespace SPRNetTool.Domain.Base
         public void SaveBitmapSourceToSprFile(BitmapSource bitmapSource, string filePath)
         {
             var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource);
-            var countablePaletteColors = this.CountColorsTolist(bitmapSource);
+            var countablePaletteColors = this.CountColorsToList(bitmapSource);
 
             if (countablePaletteColors.Count > 256)
             {
@@ -209,11 +223,16 @@ namespace SPRNetTool.Domain.Base
 
         #region protected API
         protected bool IsPossibleToSaveFile();
+        protected bool IsContainInsertedFrame();
+        protected bool RecalculatePaletteColorForAllInsertedFrame(out Palette? newPaletteData);
         protected bool IsCacheEmpty { get; }
-        protected byte[]? GetByteArrayFromEncryptedFrameData(int i, bool isModifiedData);
+        protected byte[]? GetByteArrayFromEncryptedFrameData(int i,
+            bool isModifiedData,
+            bool isUseRecalculateData,
+            Palette? recalculatedPaletteData = null);
         protected byte[]? GetByteArrayFromHeader(bool isModifiedData);
         protected byte[]? GetByteArrayFromAllFramesOffsetInfo(byte[][] allEncryptedFramesData);
-        protected byte[]? GetByteArrayFromPaletteData(bool isModifiedData);
+        protected byte[]? GetByteArrayFromPaletteData(bool isModifiedData, bool isUseRecalculateData);
 
         protected void InitCache();
         protected void InitFromFileHead(US_SprFileHead fileHead);

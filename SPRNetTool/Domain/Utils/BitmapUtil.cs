@@ -19,13 +19,14 @@ namespace SPRNetTool.Domain.Utils
     public static class BitmapUtil
     {
         /// <summary>
-        /// CalculateNewPaletteData
+        /// Chọn ra 1 list các màu được sử dụng nhiều nhất từ các source màu cho trước.
         /// </summary>
         /// <param name="colorDifferenceDelta">
         /// Độ chênh lệch giữa màu đã chọn và màu được đưa vào để đánh giá có nên chọn hay không. 
         /// Nếu màu đang được đánh giá có độ lệch màu với các màu đã chọn lớn hơn giá trị colorDifferenceDelta, 
         /// thì màu đó sẽ được cân nhắc để đưa vào bảng màu đầu ra.</param>
-        /// <param name="amount"></param>
+        /// <param name="amount"> Số lượng màu chọn cho output đầu ra.</param>
+        /// <param name="countableSources"> Tập các source màu cho trước.</param>
         public static List<Color> SelectMostUseColorFromCountableColorSource(
             this IDomainAdapter adapter,
             int colorDifferenceDelta,
@@ -64,6 +65,19 @@ namespace SPRNetTool.Domain.Utils
                         out _,
                         out _,
                         out _);
+        }
+
+        public static PaletteColor[] SelectMostUsePaletteColorFromCountableColorSource(
+            this IDomainAdapter adapter,
+            int colorDifferenceDelta,
+            uint amount = 256,
+            params Dictionary<Color, long>[] countableSources)
+        {
+            return adapter.SelectMostUseColorFromCountableColorSource(colorDifferenceDelta,
+                amount,
+                countableSources)
+                .Select(it => new PaletteColor(it.B, it.G, it.R, it.A))
+                .ToArray();
         }
 
         public static List<Color> SelectMostUseColorFromCountableColorSource(
@@ -336,7 +350,7 @@ namespace SPRNetTool.Domain.Utils
             return combinedColorList;
         }
 
-        public static List<(Color, long)> CountColorsTolist(this IDomainAdapter adapter, BitmapSource bitmap)
+        public static List<(Color, long)> CountColorsToList(this IDomainAdapter adapter, BitmapSource bitmap)
         {
             adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc);
             return argbSrc.Select(kp => (kp.Key, kp.Value)).ToList();
@@ -365,18 +379,19 @@ namespace SPRNetTool.Domain.Utils
             return argbSrc;
         }
 
-        public static Dictionary<PaletteColor, int> CountColors(this IDomainAdapter adapter, PaletteColor[] pixelArray)
+        public static Dictionary<Color, long> CountColors(this IDomainAdapter adapter, PaletteColor[] pixelArray)
         {
-            Dictionary<PaletteColor, int> countSource = new Dictionary<PaletteColor, int>();
+            Dictionary<Color, long> countSource = new Dictionary<Color, long>();
             for (int i = 0; i < pixelArray.Length; i++)
             {
-                if (countSource.ContainsKey(pixelArray[i]))
+                var color = Color.FromArgb(pixelArray[i].Alpha, pixelArray[i].Red, pixelArray[i].Green, pixelArray[i].Blue);
+                if (countSource.ContainsKey(color))
                 {
-                    countSource[pixelArray[i]]++;
+                    countSource[color]++;
                 }
                 else
                 {
-                    countSource.Add(pixelArray[i], 1);
+                    countSource.Add(color, 1);
                 }
             }
             return countSource;
@@ -432,7 +447,9 @@ namespace SPRNetTool.Domain.Utils
             return pixelData;
         }
 
-        public static PaletteColor[] ConvertBitmapSourceToPaletteColorArray(this IDomainAdapter adapter, BitmapSource bitmapSource)
+        #region ConvertBitmapSourceToPaletteColorArray
+        public static PaletteColor[] ConvertBitmapSourceToPaletteColorArray(this IDomainAdapter adapter,
+            BitmapSource bitmapSource)
         {
             int width = bitmapSource.PixelWidth;
             int height = bitmapSource.PixelHeight;
@@ -465,7 +482,66 @@ namespace SPRNetTool.Domain.Utils
             return paletteColors;
         }
 
-        public static byte[] ConvertPaletteColourArrayToByteArray(this IDomainAdapter adapter, PaletteColor[] colors)
+        public static PaletteColor[] ConvertBitmapSourceToPaletteColorArray(this IDomainAdapter adapter,
+            BitmapSource bitmapSource,
+            out Dictionary<Color, long> countableSource,
+            out Palette palette)
+        {
+            int width = bitmapSource.PixelWidth;
+            int height = bitmapSource.PixelHeight;
+            int stride = (width * bitmapSource.Format.BitsPerPixel + 7) / 8;
+            byte[] pixelData = new byte[height * stride];
+            bitmapSource.CopyPixels(pixelData, stride, 0);
+
+            PaletteColor[] paletteColors = new PaletteColor[width * height];
+            countableSource = new Dictionary<Color, long>();
+            for (int i = 0; i < width * height; i++)
+            {
+                var color = Colors.Transparent;
+                if (bitmapSource.Format == PixelFormats.Bgr32)
+                {
+                    int offset = i * 4;
+                    paletteColors[i] = new PaletteColor(blue: pixelData[offset],
+                        green: pixelData[offset + 1],
+                        red: pixelData[offset + 2],
+                        alpha: pixelData[offset + 3]);
+                    color = Color.FromArgb(pixelData[offset + 3],
+                        pixelData[offset + 2],
+                        pixelData[offset + 1],
+                        pixelData[offset]);
+                }
+                else if (bitmapSource.Format == PixelFormats.Rgb24)
+                {
+                    int offset = i * 3;
+                    paletteColors[i] = new PaletteColor(blue: pixelData[offset + 2],
+                        green: pixelData[offset + 1],
+                        red: pixelData[offset],
+                        alpha: 255);
+                    color = Color.FromArgb(255,
+                        pixelData[offset],
+                        pixelData[offset + 1],
+                        pixelData[offset + 2]);
+                }
+                if (countableSource.ContainsKey(color))
+                {
+                    countableSource[color] += 1;
+                }
+                else
+                {
+                    countableSource.Add(color, 1);
+                }
+            }
+            palette = new Palette(countableSource.Count);
+            int j = 0;
+            foreach (var color in countableSource.Keys)
+            {
+                palette.Data[j++] = new PaletteColor(color.B, color.G, color.R, color.A);
+            }
+            return paletteColors;
+        }
+        #endregion
+
+        public static byte[] ConvertPaletteColorArrayToByteArray(this IDomainAdapter adapter, PaletteColor[] colors)
         {
             int colorSize = Marshal.SizeOf(typeof(PaletteColor));
             byte[] byteArray = new byte[colors.Length * colorSize];
@@ -491,7 +567,7 @@ namespace SPRNetTool.Domain.Utils
             return byteArray;
         }
 
-
+        #region FloydSteinbergDithering
         public static BitmapSource? FloydSteinbergDithering(this IDomainAdapter adapter, BitmapSource sourceImage
             , List<Color> rgbPalette)
         {
@@ -617,7 +693,8 @@ namespace SPRNetTool.Domain.Utils
 
             return bitmap;
         }
-
+        #endregion
+        
         public static bool AreByteArraysEqual(this IDomainAdapter adapter, byte[] array1, byte[] array2)
         {
             // Nếu mảng có chiều dài khác nhau, chúng không giống nhau
@@ -636,6 +713,32 @@ namespace SPRNetTool.Domain.Utils
             }
 
             // Nếu không có phần tử nào khác nhau, chúng giống nhau
+            return true;
+        }
+
+        public static bool AreCountableSourcesEqual(this IDomainAdapter adapter
+            , Dictionary<Color,long> sourceA
+            , Dictionary<Color, long> sourceB)
+        {
+            if (sourceA.Count != sourceB.Count)
+            {
+                return false;
+            }
+
+            foreach(var kp in sourceA)
+            {
+                try
+                {
+                    if(sourceB[kp.Key] != kp.Value)
+                    {
+                        return false;
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
+            }
             return true;
         }
 
