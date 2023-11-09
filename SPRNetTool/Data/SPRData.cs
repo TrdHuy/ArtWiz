@@ -397,7 +397,7 @@ namespace SPRNetTool.Data
         public ushort OffY;
     }
 
-    public struct FrameRGBA
+    public class FrameRGBA
     {
         private FrameRGBACache? _modifiedFrameRGBACache;
         public ushort frameWidth { get; set; }
@@ -415,6 +415,7 @@ namespace SPRNetTool.Data
                 if (_modifiedFrameRGBACache == null)
                 {
                     _modifiedFrameRGBACache = new FrameRGBACache(this);
+
 
                     var modifiedData = new PaletteColor[originDecodedFrameData.Length];
                     Array.Copy(originDecodedFrameData, modifiedData, originDecodedFrameData.Length);
