@@ -24,6 +24,57 @@ namespace SPRNetTool.Domain
         private bool IsCacheEmpty => FrameDataBegPos == -1;
 
         #region public interface
+
+        public bool InsertFrame(uint frameIndex,
+            ushort frameWidth,
+            ushort frameHeight,
+            PaletteColor[] pixelData,
+            Palette paletteData)
+        {
+#if DEBUG
+            var countableColorSource = this.CountColors(pixelData);
+            if (countableColorSource.Count > 256) throw new Exception("Number of color from pixel data must be smaller or equal 256.");
+            foreach (var color in pixelData)
+            {
+                if (!paletteData.IsContain(color))
+                {
+                    throw new Exception("Palette data must include color from pixel data");
+                }
+            }
+#endif
+
+            var frameData = new FrameRGBA(isInsertedFrame: true)
+            {
+                frameHeight = frameHeight,
+                frameWidth = frameWidth,
+                frameOffX = 0,
+                frameOffY = 0
+            };
+            frameData.originDecodedFrameData = pixelData;
+            var newLen = (FrameData?.Length + 1) ?? 1;
+            var newFramesData = new FrameRGBA[newLen];
+
+            for (int i = 0; i < newLen; i++)
+            {
+                if (i < frameIndex)
+                {
+                    newFramesData[i] = FrameData?[i] ?? new FrameRGBA();
+                }
+                else if (i == frameIndex)
+                {
+                    newFramesData[i] = frameData;
+                }
+                else if (i > frameIndex)
+                {
+                    newFramesData[i] = FrameData?[i - 1] ?? new FrameRGBA();
+                }
+            }
+            newFramesData[frameIndex].modifiedFrameRGBACache.SetCopiedPaletteData(paletteData);
+            newFramesData[frameIndex].globalFrameData = InitGlobalizedFrameDataFromOrigin(frameIndex)
+                ?? throw new Exception("Failed to insert frame");
+            return true;
+        }
+
         SprFileHead ISprWorkManager.FileHead
         {
             get
@@ -122,15 +173,7 @@ namespace SPRNetTool.Domain
                         }
                     }
 
-                    var modifiedFrameRGBACache = FrameData[frameIndex]
-                        .modifiedFrameRGBACache ?? new FrameRGBA
-                            .FrameRGBACache()
-                            .Also((it) =>
-                            {
-                                it.frameOffX = FrameData[frameIndex].frameOffX;
-                                it.frameOffY = FrameData[frameIndex].frameOffY;
-                                FrameData[frameIndex].modifiedFrameRGBACache = it;
-                            });
+                    var modifiedFrameRGBACache = FrameData[frameIndex].modifiedFrameRGBACache;
 
                     var oldWidth = modifiedFrameRGBACache.frameWidth;
                     var oldHeight = modifiedFrameRGBACache.frameHeight;
@@ -194,15 +237,7 @@ namespace SPRNetTool.Domain
             var startTime = DateTime.Now;
             if (frameIndex >= 0 && frameIndex < FileHead.FrameCounts && FrameData != null)
             {
-                var modifiedFrameRGBACache = FrameData[frameIndex]
-                    .modifiedFrameRGBACache ?? new FrameRGBA
-                        .FrameRGBACache()
-                        .Also((it) =>
-                        {
-                            it.InitFrameRGBA(FrameData[frameIndex]);
-                            it.SetCopiedPaletteData(PaletteData);
-                            FrameData[frameIndex].modifiedFrameRGBACache = it;
-                        });
+                var modifiedFrameRGBACache = FrameData[frameIndex].modifiedFrameRGBACache;
 
                 if (offsetY != modifiedFrameRGBACache.frameOffY
                     || offsetX != modifiedFrameRGBACache.frameOffX)
@@ -285,7 +320,6 @@ namespace SPRNetTool.Domain
         private byte[]? EncryptFrameData(PaletteColor[] pixelArray, PaletteColor[] paletteData
                    , ushort frameWidth, ushort frameHeight, ushort frameOffX, ushort frameOffY)
         {
-
             var encryptedFrameDataList = new List<byte>();
 
             var frameInfo = new FrameInfo();
@@ -410,6 +444,26 @@ namespace SPRNetTool.Domain
         #endregion
 
         #region protected interface
+
+        bool ISprWorkManager.IsPossibleToSaveFile()
+        {
+#if DEBUG
+            if (IsContainInsertedFrame())
+            {
+                FrameData?
+                    .Where(it => it.isInsertedFrame)
+                    .FoEach(it =>
+                    {
+                        if (it.modifiedFrameRGBACache.PaletteData != PaletteData)
+                        {
+                            throw new Exception("Can not save spr file, palette data of inserted frame must be same with origin palette data.");
+                        }
+                    });
+            }
+#endif
+            return true;
+        }
+
         void ISprWorkManager.InitFromFileHead(US_SprFileHead us_fileHead)
         {
             FileHead = new SprFileHead(us_fileHead.GetVersionInfo(),
@@ -450,17 +504,18 @@ namespace SPRNetTool.Domain
 
                 if (decodedFrameData == null) throw new Exception("Failed to init decoded frame data!");
 
+                FrameData[i] = new FrameRGBA();
                 FrameData[i].frameHeight = frameHeight;
                 FrameData[i].frameWidth = frameWidth;
                 FrameData[i].frameOffY = (short)frameOffY;
                 FrameData[i].frameOffX = (short)frameOffX;
                 FrameData[i].originDecodedFrameData = decodedFrameData;
 
-                FrameData[i].modifiedFrameRGBACache = new FrameRGBA.FrameRGBACache().Also(it =>
+                FrameData[i].modifiedFrameRGBACache.Apply(it =>
                 {
-                    it.InitFrameRGBA(FrameData[i]);
                     it.SetCopiedPaletteData(PaletteData);
                 });
+
                 var globalData = InitGlobalizedFrameDataFromOrigin(i);
                 if (globalData == null) throw new Exception("Failed to init global frame data!");
                 FrameData[i].globalFrameData = globalData;
@@ -565,6 +620,11 @@ namespace SPRNetTool.Domain
                 reserved);
         }
         #endregion
+
+        private bool IsContainInsertedFrame()
+        {
+            return FrameData?.Any(it => it.isInsertedFrame) ?? false;
+        }
 
         private PaletteColor[]? InitGlobalizedFrameDataFromModifiedCache(uint index)
         {

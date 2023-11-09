@@ -16,13 +16,21 @@ namespace SPRNetTool.Domain.Base
 
         #region public API
 
+        // TODO: Not ready to use, implement later
+        /// <summary>
+        /// </summary>
+        bool InsertFrame(uint frameIndex
+            , ushort frameWidth
+            , ushort frameHeight
+            , PaletteColor[] pixelData
+            , Palette paletteData);
+
         /// <summary>
         /// Xóa frame theo index
         /// </summary>
         /// <param name="frameIndex">vị trí của frame cần xóa</param>
         /// <returns>true nếu xóa frame thành công</returns>
         bool RemoveFrame(uint frameIndex);
-
 
         /// <summary>
         /// Đổi chỗ 2 frame cho nhau
@@ -116,7 +124,7 @@ namespace SPRNetTool.Domain.Base
         /// <param name="sprFilePath"></param>
         void SaveCurrentWorkToSpr(string sprFilePath, bool isModifiedData)
         {
-            if (!IsCacheEmpty)
+            if (!IsCacheEmpty && IsPossibleToSaveFile())
             {
                 using (FileStream fs = new FileStream(sprFilePath, FileMode.Create))
                 {
@@ -200,6 +208,7 @@ namespace SPRNetTool.Domain.Base
         #endregion
 
         #region protected API
+        protected bool IsPossibleToSaveFile();
         protected bool IsCacheEmpty { get; }
         protected byte[]? GetByteArrayFromEncryptedFrameData(int i, bool isModifiedData);
         protected byte[]? GetByteArrayFromHeader(bool isModifiedData);

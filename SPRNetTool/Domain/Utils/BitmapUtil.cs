@@ -3,6 +3,7 @@ using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -17,6 +18,324 @@ namespace SPRNetTool.Domain.Utils
 {
     public static class BitmapUtil
     {
+        /// <summary>
+        /// CalculateNewPaletteData
+        /// </summary>
+        /// <param name="colorDifferenceDelta">
+        /// Độ chênh lệch giữa màu đã chọn và màu được đưa vào để đánh giá có nên chọn hay không. 
+        /// Nếu màu đang được đánh giá có độ lệch màu với các màu đã chọn lớn hơn giá trị colorDifferenceDelta, 
+        /// thì màu đó sẽ được cân nhắc để đưa vào bảng màu đầu ra.</param>
+        /// <param name="amount"></param>
+        public static List<Color> SelectMostUseColorFromCountableColorSource(
+            this IDomainAdapter adapter,
+            int colorDifferenceDelta,
+            uint amount = 256,
+            params Dictionary<Color, long>[] countableSources)
+        {
+            // Hợp 2 bộ màu vào làm 1
+            var combinedSource = new Dictionary<Color, int>();
+            var combinedSource2 = new List<(Color, long)>();
+
+            int i = 0;
+
+            foreach (var source in countableSources)
+            {
+                foreach (var kp in source)
+                {
+                    if (combinedSource.ContainsKey(kp.Key))
+                    {
+                        var index = combinedSource[kp.Key];
+                        var item = combinedSource2[index];
+                        item.Item2 += kp.Value;
+                        combinedSource2[index] = item;
+                    }
+                    else
+                    {
+                        combinedSource.Add(kp.Key, i++);
+                        combinedSource2.Add((kp.Key, kp.Value));
+                    }
+                }
+            }
+
+            return adapter.SelectMostUseColorFromCountableColorSource(combinedSource2,
+                        colorDifferenceDelta,
+                        amount,
+                        out _,
+                        out _,
+                        out _,
+                        out _);
+        }
+
+        public static List<Color> SelectMostUseColorFromCountableColorSource(
+            this IDomainAdapter adapter,
+            List<(Color, long)> countableSource,
+            int colorDifferenceDelta,
+            uint colorSize,
+            out int rgbPaletteColorCount,
+            out List<Color> selectedColors,
+            out List<Color> selectedAlphaColors,
+            out List<Color> expectedRGBColors,
+            bool isUsingAlpha = false,
+            Color? backgroundForBlendColor = null,
+            int colorDifferenceDeltaForCalculatingAlpha = 10,
+            int deltaDistanceForNewARGBColor = 10,
+            int deltaForAlphaAverageDeviation = 3)
+        {
+            // Sắp xếp theo số lượng sử dụng nhiều nhất
+            var orderedSource = countableSource
+                .OrderByDescending(kp => kp.Item2)
+                .ToList();
+
+            return SelectMostUseColorFromOrderedDescendingColorSource(adapter,
+                orderedSource,
+                colorDifferenceDelta,
+                colorSize,
+                out rgbPaletteColorCount,
+                out selectedColors,
+                out selectedAlphaColors,
+                out expectedRGBColors,
+                isUsingAlpha,
+                backgroundForBlendColor,
+                colorDifferenceDeltaForCalculatingAlpha,
+                deltaDistanceForNewARGBColor,
+                deltaForAlphaAverageDeviation);
+        }
+
+        private static List<Color> SelectMostUseColorFromOrderedDescendingColorSource2(IDomainAdapter adapter,
+            List<(Color, long)> orderedSource,
+            int colorDifferenceDelta,
+            uint colorSize,
+            out int rgbPaletteColorCount,
+            out List<Color> selectedColors,
+            out List<Color> selectedAlphaColors,
+            out List<Color> expectedRGBColors,
+            bool isUsingAlpha,
+            Color? backgroundForBlendColor,
+            int colorDifferenceDeltaForCalculatingAlpha,
+            int deltaDistanceForNewARGBColor,
+            int deltaForAlphaAvarageDeviation)
+        {
+            var start = DateTime.Now;
+
+            var combinedRGBList = new List<Color>();
+            var selectedAlphaColorsList = new List<Color>();
+            var expectedRGBList = new List<Color>();
+
+            bool IsOk(List<Color> colors,
+                Color targetColor,
+                int delta,
+                out double biggestDistance,
+                out Color? alphaColor,
+                out Color? combinedColor)
+            {
+                alphaColor = null; combinedColor = null;
+                biggestDistance = Double.MinValue;
+                var isOk = true;
+                var alphaColorSmallestDistance = Double.MaxValue;
+                foreach (var color in colors)
+                {
+                    var newDistance = targetColor.CalculateEuclideanDistance(color);
+
+                    if (newDistance < delta)
+                    {
+                        isOk = false;
+                        if (newDistance > biggestDistance)
+                        {
+                            biggestDistance = newDistance;
+                        }
+                        if (isUsingAlpha && newDistance < colorDifferenceDeltaForCalculatingAlpha)
+                        {
+                            var backgroundColor = backgroundForBlendColor ?? Colors.White;
+                            var alpha = adapter.FindAlphaColors(color, backgroundColor, targetColor, out byte averageAbsoluteDeviation);
+                            var newRGBColor = adapter.BlendColors(Color.FromArgb(alpha, color.R, color.G, color.B), backgroundColor);
+                            var distanceNewRGBColor = adapter.CalculateEuclideanDistance(newRGBColor, targetColor);
+                            if (averageAbsoluteDeviation <= deltaForAlphaAvarageDeviation
+                                && distanceNewRGBColor <= deltaDistanceForNewARGBColor
+                                && distanceNewRGBColor < alphaColorSmallestDistance)
+                            {
+                                combinedColor = newRGBColor;
+                                alphaColor = Color.FromArgb(alpha, color.R, color.G, color.B);
+                                distanceNewRGBColor = alphaColorSmallestDistance;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return isOk;
+            }
+
+
+            // Chọn item cho bảng màu đầu ra, sao cho thỏa mãn:
+            // + Màu được sử dụng nhiều nhất.
+            // + Màu có độ chênh lệch với các màu đã chọn > colorDifferenceDelta.
+            // + Sau khi duyệt toàn bộ màu từ 2 source mà vẫn chưa đủ số lượng màu cho palette đầu
+            // ra, giảm chỉ colorDifferenceDelta và lặp lại việc chọn màu.
+            var newPaletteSource = new List<Color>();
+            List<(Color, long)> tempSource;
+            while (newPaletteSource.Count < colorSize
+                && colorDifferenceDelta > 0
+                && orderedSource.Count > 0)
+            {
+                tempSource = new List<(Color, long)>();
+                var biggestDistance = 0;
+                foreach (var color in orderedSource)
+                {
+                    if (IsOk(newPaletteSource,
+                        color.Item1,
+                        colorDifferenceDelta,
+                        out double newBiggestdistance,
+                        out Color? alphaColor,
+                        out Color? combinedColor))
+                    {
+                        newPaletteSource.Add(color.Item1);
+                    }
+                    else
+                    {
+                        if (alphaColor == null && combinedColor == null)
+                        {
+                            biggestDistance = (int)(newBiggestdistance > biggestDistance ? newBiggestdistance : biggestDistance);
+                            tempSource.Add(color);
+                        }
+                        else if (alphaColor != null && combinedColor != null)
+                        {
+                            combinedRGBList.Add((Color)combinedColor);
+                            expectedRGBList.Add(color.Item1);
+                            selectedAlphaColorsList.Add((Color)alphaColor);
+                        }
+
+                    }
+                    if (newPaletteSource.Count >= colorSize) break;
+                }
+
+                //var newDelta = (int)((colorDifferenceDelta * newPaletteSource.Count) / amount);
+                //colorDifferenceDelta = newDelta == colorDifferenceDelta ? newDelta - 2 : newDelta;
+                colorDifferenceDelta = biggestDistance == colorDifferenceDelta ? biggestDistance - 2 : biggestDistance;
+                orderedSource = tempSource;
+            }
+
+            //Combine RGB and ARGB color to selected list
+            rgbPaletteColorCount = newPaletteSource.Count;
+            var combinedColorList = newPaletteSource.ToList().Also((it) => it.AddRange(combinedRGBList));
+
+            //reduce same combined color
+            combinedColorList = combinedColorList.ReduceSameItem().ToList();
+
+            selectedColors = combinedColorList;
+            selectedAlphaColors = selectedAlphaColorsList;
+            expectedRGBColors = expectedRGBList;
+
+#if DEBUG
+            // Bởi vì combinedRGBList và selectedAlphaColors chỉ được tính gần đúng
+            // nên sẽ khác nhau về độ chênh lệch màu
+            // Điều kiện assert dưới chỉ đúng khi 2 màu phải bằng nhau tuyệt đối
+            // hay không có độ chênh lệch khi tính màu dựa trên kênh alpha
+            if (colorDifferenceDeltaForCalculatingAlpha <= 1)
+            {
+                Debug.Assert(selectedColors.Count == selectedAlphaColors.Count + colorSize);
+                Debug.Assert(expectedRGBColors.Count == selectedAlphaColors.Count);
+            }
+#endif
+
+            Debug.WriteLine($"SelectMostUseColorFromOrderedDescendingColorSource: {(DateTime.Now - start).TotalMilliseconds}ms");
+            return combinedColorList;
+        }
+
+        private static List<Color> SelectMostUseColorFromOrderedDescendingColorSource(IDomainAdapter adapter,
+            List<(Color, long)> orderedSource,
+            int colorDifferenceDelta,
+            uint colorSize,
+            out int rgbPaletteColorCount,
+            out List<Color> selectedColors,
+            out List<Color> selectedAlphaColors,
+            out List<Color> expectedRGBColors,
+            bool isUsingAlpha,
+            Color? backgroundForBlendColor,
+            int colorDifferenceDeltaForCalculatingAlpha,
+            int deltaDistanceForNewARGBColor,
+            int deltaForAlphaAvarageDeviation)
+        {
+            var start = DateTime.Now;
+            var selectedColorList = new List<Color>();
+
+            // TODO: Dynamic this
+            var selectedAlphaColorsList = new List<Color>();
+            var combinedRGBList = new List<Color>();
+            var expectedRGBList = new List<Color>();
+
+            // Optimize color palette
+            while (selectedColorList.Count < colorSize && orderedSource.Count > 0 && colorDifferenceDelta >= 0)
+            {
+                for (int i = 0; i < orderedSource.Count; i++)
+                {
+                    // For performance issue, do not use ElementAt to access the value with index
+                    // use indexer instead
+                    var expectedColor = orderedSource[i].Item1;
+                    var shouldAdd = true;
+                    foreach (var selectedColor in selectedColorList)
+                    {
+                        var distance = adapter.CalculateEuclideanDistance(expectedColor, selectedColor);
+                        if (distance < colorDifferenceDelta)
+                        {
+                            if (isUsingAlpha && distance < colorDifferenceDeltaForCalculatingAlpha)
+                            {
+                                var bg = backgroundForBlendColor ?? Colors.White;
+                                var alpha = adapter.FindAlphaColors(selectedColor, bg, expectedColor, out byte averageAbsoluteDeviation);
+                                var newRGBColor = adapter.BlendColors(Color.FromArgb(alpha, selectedColor.R, selectedColor.G, selectedColor.B), bg);
+                                var distanceNewRGBColor = adapter.CalculateEuclideanDistance(newRGBColor, expectedColor);
+                                if (averageAbsoluteDeviation <= deltaForAlphaAvarageDeviation && distanceNewRGBColor <= deltaDistanceForNewARGBColor)
+                                {
+                                    expectedRGBList.Add(expectedColor);
+                                    combinedRGBList.Add(newRGBColor);
+                                    selectedAlphaColorsList.Add(Color.FromArgb(alpha, selectedColor.R, selectedColor.G, selectedColor.B));
+                                    orderedSource.RemoveAt(i);
+                                    i--;
+                                }
+                            }
+                            shouldAdd = false;
+                            break;
+                        }
+                    }
+                    if (shouldAdd)
+                    {
+                        selectedColorList.Add(expectedColor);
+                        orderedSource.RemoveAt(i);
+                        i--;
+                    }
+
+                    if (selectedColorList.Count >= colorSize) break;
+                }
+                colorDifferenceDelta -= 2;
+                //var newDelta = (int)((colorDifferenceDelta * selectedColorList.Count) / colorSize);
+                //colorDifferenceDelta = newDelta == colorDifferenceDelta ? newDelta - 2 : newDelta;
+            }
+
+            //Combine RGB and ARGB color to selected list
+            rgbPaletteColorCount = selectedColorList.Count;
+            var combinedColorList = selectedColorList.ToList().Also((it) => it.AddRange(combinedRGBList));
+
+            //reduce same combined color
+            combinedColorList = combinedColorList.ReduceSameItem().ToList();
+
+            selectedColors = combinedColorList;
+            selectedAlphaColors = selectedAlphaColorsList;
+            expectedRGBColors = expectedRGBList;
+
+#if DEBUG
+            // Bởi vì combinedRGBList và selectedAlphaColors chỉ được tính gần đúng
+            // nên sẽ khác nhau về độ chênh lệch màu
+            // Điều kiện assert dưới chỉ đúng khi 2 màu phải bằng nhau tuyệt đối
+            // hay không có độ chênh lệch khi tính màu dựa trên kênh alpha
+            if (colorDifferenceDeltaForCalculatingAlpha <= 1)
+            {
+                Debug.Assert(selectedColors.Count == selectedAlphaColors.Count + colorSize);
+                Debug.Assert(expectedRGBColors.Count == selectedAlphaColors.Count);
+            }
+#endif
+
+            Debug.WriteLine($"SelectMostUseColorFromOrderedDescendingColorSource: {(DateTime.Now - start).TotalMilliseconds}ms");
+            return combinedColorList;
+        }
+
         public static List<(Color, long)> CountColorsTolist(this IDomainAdapter adapter, BitmapSource bitmap)
         {
             adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc);
@@ -44,6 +363,23 @@ namespace SPRNetTool.Domain.Utils
                 adapter.CountColors(inputBitmap, out long argbCount, out long rgbCount, out argbSrc);
             });
             return argbSrc;
+        }
+
+        public static Dictionary<PaletteColor, int> CountColors(this IDomainAdapter adapter, PaletteColor[] pixelArray)
+        {
+            Dictionary<PaletteColor, int> countSource = new Dictionary<PaletteColor, int>();
+            for (int i = 0; i < pixelArray.Length; i++)
+            {
+                if (countSource.ContainsKey(pixelArray[i]))
+                {
+                    countSource[pixelArray[i]]++;
+                }
+                else
+                {
+                    countSource.Add(pixelArray[i], 1);
+                }
+            }
+            return countSource;
         }
 
         public static void CountColors(this IDomainAdapter adapter, BitmapSource bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc)

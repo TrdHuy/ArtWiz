@@ -10,7 +10,7 @@ namespace SPRNetTool.Domain.Base
         {
             public static DomainContext ApplicationDomainContext = new DomainContext();
 
-            public Dictionary<Type, object?[]> domainsList;
+            private Dictionary<Type, object?[]> domainsList;
 
             DomainContext()
             {

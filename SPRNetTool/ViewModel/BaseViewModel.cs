@@ -1,4 +1,5 @@
 ﻿using SPRNetTool.Domain.Base;
+using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
 using System;
 using System.ComponentModel;
@@ -10,11 +11,31 @@ namespace SPRNetTool.ViewModel
     public abstract class BaseViewModel : INotifyPropertyChanged, IDomainObserver, IDomainAccessors, IArtWizViewModel
     {
         #region Modules
+        private IBitmapDisplayManager? bitmapDisplayManager;
+        private ISprWorkManager? sprWorkManager;
+
         protected IBitmapDisplayManager BitmapDisplayManager
-        { get { return IDomainAccessors.DomainContext.GetDomain<IBitmapDisplayManager>(); } }
+        {
+            get
+            {
+                return bitmapDisplayManager ?? IDomainAccessors
+                    .DomainContext
+                    .GetDomain<IBitmapDisplayManager>()
+                    .Also(it => bitmapDisplayManager = it);
+            }
+        }
 
         protected ISprWorkManager SprWorkManager
-        { get { return IDomainAccessors.DomainContext.GetDomain<ISprWorkManager>(); } }
+        {
+            get
+            {
+                return sprWorkManager ??
+                    IDomainAccessors
+                    .DomainContext
+                    .GetDomain<ISprWorkManager>()
+                    .Also(it => sprWorkManager = it);
+            }
+        }
 
         #endregion
 

@@ -1,3 +1,4 @@
+﻿using Moq;
 using SPRNetTool.Data;
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
@@ -14,15 +15,13 @@ namespace SPRNetToolTest.Utils
 {
     public class BitmapUtilTest
     {
+
+        private IDomainAdapter mockDomainAdapter;
+
         [SetUp]
         public void Setup()
         {
-        }
-
-        struct MS
-        {
-            public int x;
-            public int y;
+            mockDomainAdapter = new Mock<IDomainAdapter>().Object;
         }
 
         public enum Variable
@@ -31,6 +30,90 @@ namespace SPRNetToolTest.Utils
             NUM2 = 0b00000010,
             NUM3 = 0b00000100,
             NUM4 = 0b00001000,
+        }
+
+        [Test]
+        public void test_CalculateNewPaletteData()
+        {
+            var countableSourceA = new Dictionary<Color, long>() {
+                {Colors.Aqua,50 },
+                {Colors.AntiqueWhite,10 },
+                {Colors.AliceBlue,10 },
+            };
+
+            var countableSourceB = new Dictionary<Color, long>() {
+                {Colors.Gray,30 },
+                {Colors.Green,10 },
+                {Colors.GreenYellow,20 },
+            };
+
+            var start = DateTime.Now;
+            var newPalette = mockDomainAdapter.SelectMostUseColorFromCountableColorSource(100, 6, countableSourceA, countableSourceB);
+            Console.WriteLine($"SelectMostUseColorFromOrderedDescendingColorSource: {(DateTime.Now - start).TotalMilliseconds}ms");
+
+            Assert.That(newPalette.Count == 6);
+
+            start = DateTime.Now;
+            newPalette = mockDomainAdapter.SelectMostUseColorFromCountableColorSource(100, 3, countableSourceA, countableSourceB);
+            Console.WriteLine($"SelectMostUseColorFromOrderedDescendingColorSource: {(DateTime.Now - start).TotalMilliseconds}ms");
+
+            Assert.That(newPalette.Count == 3);
+            Assert.That(newPalette[0] == Colors.Aqua);
+            Assert.That(newPalette[1] == Colors.Gray);
+            Assert.That(newPalette[2] == Colors.GreenYellow);
+
+            countableSourceA = new Dictionary<Color, long>() {
+                {Color.FromRgb(1,1,1),50 },
+                {Color.FromRgb(1,1,2),60 },
+                {Color.FromRgb(1,1,3),10 },
+            };
+
+            countableSourceB = new Dictionary<Color, long>() {
+                {Color.FromRgb(1,1,4),60 },
+                {Color.FromRgb(1,1,5),10 },
+                {Color.FromRgb(1,1,1),50 },
+            };
+
+            start = DateTime.Now;
+            newPalette = mockDomainAdapter.SelectMostUseColorFromCountableColorSource(100, 10, countableSourceA, countableSourceB);
+            Console.WriteLine($"SelectMostUseColorFromOrderedDescendingColorSource: {(DateTime.Now - start).TotalMilliseconds}ms");
+            Assert.That(newPalette.Count == 5);
+            Assert.That(newPalette[0] == Color.FromRgb(1, 1, 1));
+
+            // Ưu tiên có độ chênh lệch cao nhất
+            // 1,1,5 có độ chênh lêch = 4 so với 1,1,1
+            Assert.That(newPalette[1] == Color.FromRgb(1, 1, 5));
+
+            // Ưu tiên có độ chênh lệch cao nhất
+            // 1,1,3 có độ chênh lêch = 2 so với 1,1,1 và 1,1,5
+            Assert.That(newPalette[2] == Color.FromRgb(1, 1, 3));
+
+            // Ưu tiên có số lượng pixel nhiều hơn khi độ chênh lệch bằng nhau
+            // 1,1,2 có độ chênh lệch lớn nhất là 3 so với 1,1,1 và 1,1,5 và 1,1,3
+            // 1,1,4 có độ chênh lệch lớn nhất là 3 so với 1,1,1 và 1,1,5 và 1,1,3
+            Assert.That(newPalette[3] == Color.FromRgb(1, 1, 2));
+            Assert.That(newPalette[4] == Color.FromRgb(1, 1, 4));
+        }
+
+        [Test]
+        public void test_CountColors()
+        {
+            var data = new PaletteColor[] {
+                new PaletteColor(1,1,1,1),
+                new PaletteColor(1,1,1,2),
+                new PaletteColor(1,1,1,1),
+            };
+            mockDomainAdapter.CountColors(data);
+        }
+
+        [Test]
+        public async Task test_DateTime()
+        {
+            var st = DateTime.Now;
+            await Task.Delay(1000);
+            var stop = DateTime.Now - st;
+            var mil = stop.TotalMilliseconds;
+            var sec = stop.TotalSeconds;
         }
 
         [Test]
@@ -83,7 +166,7 @@ namespace SPRNetToolTest.Utils
             var matches = Regex.Matches(expression, pattern);
             List<string> numbers = new List<string>();
             List<string> operators = new List<string>();
-            foreach (Match match in matches)
+            foreach (System.Text.RegularExpressions.Match match in matches)
             {
                 if (match.Success)
                 {
