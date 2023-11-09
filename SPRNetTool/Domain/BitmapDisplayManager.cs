@@ -524,17 +524,25 @@ namespace SPRNetTool.Domain
                         }
                     }
                 }
+
+                if (frameIndex > 0)
+                {
+                    DisplayedBitmapSourceCache.CurrentFrameIndex--;
+                    frameIndex--;
+                }
+                else if (frameIndex == 0)
+                {
+                    frameIndex = (uint)(SprWorkManager.FileHead.FrameCounts - 1);
+                    DisplayedBitmapSourceCache.CurrentFrameIndex = frameIndex;
+                }
+
                 DisplayedBitmapSourceCache.ColorSourceCaching?
                            .Apply(it => it[frameIndex] = it[frameIndex]
                            .IfNullThenLet(() => DisplayedBitmapSourceCache.DisplayedBitmapSource?
                            .Let(it => this.CountColorsToDictionary(it))));
                 DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.ColorSourceCaching?[frameIndex];
                 DisplayedBitmapSourceCache.AnimationTokenSource = null;
-                if (frameIndex > 0)
-                {
-                    DisplayedBitmapSourceCache.CurrentFrameIndex--;
-                    frameIndex--;
-                }
+
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                         changedEvent: IS_PLAYING_ANIMATION_CHANGED
                             | CURRENT_DISPLAYING_SOURCE_CHANGED

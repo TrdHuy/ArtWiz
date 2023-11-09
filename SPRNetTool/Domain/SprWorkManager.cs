@@ -48,12 +48,13 @@ namespace SPRNetTool.Domain
             }
 #endif
 
-            var frameData = new FrameRGBA(isInsertedFrame: true)
+            var frameData = new FrameRGBA()
             {
                 frameHeight = frameHeight,
                 frameWidth = frameWidth,
                 frameOffX = 0,
-                frameOffY = 0
+                frameOffY = 0,
+                isInsertedFrame = true
             };
             frameData.originDecodedFrameData = pixelData;
             var newLen = (FrameData?.Length + 1) ?? 1;
@@ -152,8 +153,9 @@ namespace SPRNetTool.Domain
             if (frameIndex >= 0 && frameIndex < FileHead.FrameCounts && FrameData != null)
             {
                 var extendingColor = color ?? Colors.White;
-                if (newFrameWidth != FrameData[frameIndex].frameWidth
-                    || newFrameHeight != FrameData[frameIndex].frameHeight)
+                var modifiedFrameRGBACache = FrameData[frameIndex].modifiedFrameRGBACache;
+                if (newFrameWidth != modifiedFrameRGBACache.frameWidth
+                    || newFrameHeight != modifiedFrameRGBACache.frameHeight)
                 {
                     PaletteColor getPaletteColorInRef(uint newX, uint newY, ushort refFrameHeight, ushort refFrameWidth, PaletteColor[] refFrameData)
                     {
@@ -180,8 +182,6 @@ namespace SPRNetTool.Domain
                                     refFrameData: FrameData[frameIndex].originDecodedFrameData);
                         }
                     }
-
-                    var modifiedFrameRGBACache = FrameData[frameIndex].modifiedFrameRGBACache;
 
                     var oldWidth = modifiedFrameRGBACache.frameWidth;
                     var oldHeight = modifiedFrameRGBACache.frameHeight;
