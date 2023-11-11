@@ -460,7 +460,8 @@ namespace SPRNetTool.Domain.Utils
             PaletteColor[] paletteColors = new PaletteColor[width * height];
             for (int i = 0; i < width * height; i++)
             {
-                if (bitmapSource.Format == PixelFormats.Bgr32)
+                if (bitmapSource.Format == PixelFormats.Bgr32 ||
+                    bitmapSource.Format == PixelFormats.Bgra32)
                 {
                     int offset = i * 4;
                     paletteColors[i] = new PaletteColor(blue: pixelData[offset],
@@ -475,6 +476,10 @@ namespace SPRNetTool.Domain.Utils
                         green: pixelData[offset + 1],
                         red: pixelData[offset],
                         alpha: 255);
+                }
+                else
+                {
+                    throw new Exception("ConvertBitmapSourceToPaletteColorArray: Invaild format!");
                 }
 
             }
@@ -498,7 +503,8 @@ namespace SPRNetTool.Domain.Utils
             for (int i = 0; i < width * height; i++)
             {
                 var color = Colors.Transparent;
-                if (bitmapSource.Format == PixelFormats.Bgr32)
+                if (bitmapSource.Format == PixelFormats.Bgr32 ||
+                    bitmapSource.Format == PixelFormats.Bgra32)
                 {
                     int offset = i * 4;
                     paletteColors[i] = new PaletteColor(blue: pixelData[offset],
@@ -522,6 +528,11 @@ namespace SPRNetTool.Domain.Utils
                         pixelData[offset + 1],
                         pixelData[offset + 2]);
                 }
+                else
+                {
+                    throw new Exception("ConvertBitmapSourceToPaletteColorArray: Invaild format!");
+                }
+
                 if (countableSource.ContainsKey(color))
                 {
                     countableSource[color] += 1;
@@ -694,7 +705,7 @@ namespace SPRNetTool.Domain.Utils
             return bitmap;
         }
         #endregion
-        
+
         public static bool AreByteArraysEqual(this IDomainAdapter adapter, byte[] array1, byte[] array2)
         {
             // Nếu mảng có chiều dài khác nhau, chúng không giống nhau
@@ -717,7 +728,7 @@ namespace SPRNetTool.Domain.Utils
         }
 
         public static bool AreCountableSourcesEqual(this IDomainAdapter adapter
-            , Dictionary<Color,long> sourceA
+            , Dictionary<Color, long> sourceA
             , Dictionary<Color, long> sourceB)
         {
             if (sourceA.Count != sourceB.Count)
@@ -725,11 +736,11 @@ namespace SPRNetTool.Domain.Utils
                 return false;
             }
 
-            foreach(var kp in sourceA)
+            foreach (var kp in sourceA)
             {
                 try
                 {
-                    if(sourceB[kp.Key] != kp.Value)
+                    if (sourceB[kp.Key] != kp.Value)
                     {
                         return false;
                     }
