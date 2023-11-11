@@ -124,7 +124,7 @@ namespace SPRNetTool.Domain.Base
         /// <param name="sprFilePath"></param>
         void SaveCurrentWorkToSpr(string sprFilePath, bool isModifiedData)
         {
-            if (!IsCacheEmpty && IsPossibleToSaveFile())
+            if (!IsCacheEmpty)
             {
                 using (FileStream fs = new FileStream(sprFilePath, FileMode.Create))
                 {
@@ -144,8 +144,17 @@ namespace SPRNetTool.Domain.Base
                         fs.Write(GetByteArrayFromHeader(isModifiedData)
                             ?? throw new Exception("Failed to get byte array from header!"));
 
-                        fs.Write(GetByteArrayFromPaletteData(isModifiedData, isRecalculatePaletteColorSuccess)
-                            ?? throw new Exception("Failed to get byte array from palette data!"));
+                        if (newPalettData != null)
+                        {
+                            newPalettData?.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue })
+                                .ToArray()
+                                .Also(it => fs.Write(it));
+                        }
+                        else
+                        {
+                            fs.Write(GetByteArrayFromPaletteData(isModifiedData, isRecalculatePaletteColorSuccess)
+                                ?? throw new Exception("Failed to get byte array from palette data!"));
+                        }
 
                         byte[][] allFramesData = new byte[FileHead.FrameCounts][];
                         for (int i = 0; i < FileHead.FrameCounts; i++)
