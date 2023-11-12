@@ -1,4 +1,5 @@
-﻿using SPRNetTool.Domain.Base;
+﻿using SPRNetTool.Data;
+using SPRNetTool.Domain.Base;
 using System;
 using System.Windows.Media;
 
@@ -11,6 +12,14 @@ namespace SPRNetTool.Domain.Utils
             int deltaRed = thisColor.R - otherColor.R;
             int deltaGreen = thisColor.G - otherColor.G;
             int deltaBlue = thisColor.B - otherColor.B;
+            return Math.Sqrt(deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue);
+        }
+
+        public static double CalculateEuclideanDistance(this IDomainAdapter adapter, PaletteColor thisColor, PaletteColor otherColor)
+        {
+            int deltaRed = thisColor.Red - otherColor.Red;
+            int deltaGreen = thisColor.Green - otherColor.Green;
+            int deltaBlue = thisColor.Blue - otherColor.Blue;
             return Math.Sqrt(deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue);
         }
 
