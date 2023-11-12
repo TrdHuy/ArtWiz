@@ -298,6 +298,38 @@ namespace SPRNetTool.Domain
         #endregion
 
         #region standalone api
+        private void ApplyPaletteToFrame(Palette newPalettData, FrameRGBA it)
+        {
+            var dataSize = it.modifiedFrameRGBACache.modifiedFrameData.Length;
+            var newPixelData = new PaletteColor[dataSize];
+            for (int i = 0; i < dataSize; i++)
+            {
+                newPixelData[i] = FindClosetColorInPalette(
+                    it.modifiedFrameRGBACache.modifiedFrameData[i], newPalettData);
+            }
+            it.modifiedFrameRGBACache.modifiedFrameData = newPixelData;
+        }
+
+        private PaletteColor FindClosetColorInPalette(PaletteColor targetColor, Palette palette)
+        {
+            var distance = double.MaxValue;
+            var outColor = new PaletteColor();
+            for (int i = 0; i < palette.Size; i++)
+            {
+                var newDistance = this.CalculateEuclideanDistance(targetColor, palette.Data[i]);
+                if (newDistance < distance)
+                {
+                    distance = newDistance;
+                    outColor = palette.Data[i];
+                }
+                if (distance == 0)
+                {
+                    break;
+                }
+            }
+            return outColor;
+        }
+
         private byte FindPaletteIndex(PaletteColor targetColor, PaletteColor[] paletteData)
         {
             for (int i = 0; i < paletteData.Length; i++)
@@ -310,7 +342,7 @@ namespace SPRNetTool.Domain
                 }
             }
 
-            return 0;
+            throw new Exception("Color not found in paletteD");
         }
 
         private byte[]? EncryptFrameData(PaletteColor[] pixelArray, PaletteColor[] paletteData
@@ -440,6 +472,32 @@ namespace SPRNetTool.Domain
         #endregion
 
         #region protected interface
+        void ISprWorkManager.ApplyNewPalleteToOldFrames(Palette newPalettData)
+        {
+            FrameData?.FoEach(it =>
+            {
+                if (!it.isInsertedFrame)
+                {
+                    ApplyPaletteToFrame(newPalettData, it);
+                }
+            });
+        }
+
+        void ISprWorkManager.ApplyNewPalleteToInsertedFrames(Palette newPalettData)
+        {
+            FrameData?.FoEach(it =>
+            {
+                if (it.isInsertedFrame)
+                {
+                    ApplyPaletteToFrame(newPalettData, it);
+                }
+            });
+        }
+
+        bool ISprWorkManager.IsNeedToApplyNewPaletteToOldFrames(Palette newPalettData)
+        {
+            return !newPalettData.IsSame(PaletteData);
+        }
 
         bool ISprWorkManager.IsPossibleToSaveFile()
         {
@@ -482,6 +540,7 @@ namespace SPRNetTool.Domain
             fs.Position = Marshal.SizeOf(typeof(US_SprFileHead));
             for (int i = 0; i < fileHead.ColorCounts; i++)
             {
+                PaletteData.Data[i].Alpha = byte.MaxValue;
                 PaletteData.Data[i].Red = (byte)fs.ReadByte();
                 PaletteData.Data[i].Green = (byte)fs.ReadByte();
                 PaletteData.Data[i].Blue = (byte)fs.ReadByte();
