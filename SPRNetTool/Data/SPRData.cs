@@ -341,6 +341,16 @@ namespace SPRNetTool.Data
             return false;
         }
 
+
+        public bool IsSame(Palette palette)
+        {
+            foreach (var item in palette.Data)
+            {
+                if(!IsContain(item)) return false;
+            }
+            return true;
+        }
+
         public static bool operator ==(Palette a, Palette b)
         {
             if (a.Size != b.Size) return false;

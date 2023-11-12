@@ -128,62 +128,65 @@ namespace SPRNetTool.Domain.Base
             {
                 using (FileStream fs = new FileStream(sprFilePath, FileMode.Create))
                 {
-                    try
+                    var isRecalculatePaletteColorSuccess = false;
+                    Palette? newPalettData = null;
+                    if (IsContainInsertedFrame())
                     {
-                        var isRecalculatePaletteColorSuccess = false;
-                        Palette? newPalettData = null;
-                        if (IsContainInsertedFrame())
+                        isRecalculatePaletteColorSuccess = RecalculatePaletteColorForAllInsertedFrame(out newPalettData);
+                        if (!isRecalculatePaletteColorSuccess)
                         {
-                            isRecalculatePaletteColorSuccess = RecalculatePaletteColorForAllInsertedFrame(out newPalettData);
-                            if (!isRecalculatePaletteColorSuccess)
+                            throw new Exception("Can not calculate new palette colors for inserted frame!");
+                        }
+
+                        newPalettData?.Apply(it =>
+                        {
+                            ApplyNewPalleteToInsertedFrames(it);
+
+                            if (IsNeedToApplyNewPaletteToOldFrames(it))
                             {
-                                throw new Exception("Can not calculate new palette colors for inserted frame!");
+                                ApplyNewPalleteToOldFrames(it);
                             }
-                        }
-
-                        fs.Write(GetByteArrayFromHeader(isModifiedData)
-                            ?? throw new Exception("Failed to get byte array from header!"));
-
-                        if (newPalettData != null)
-                        {
-                            newPalettData?.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue })
-                                .ToArray()
-                                .Also(it => fs.Write(it));
-                        }
-                        else
-                        {
-                            fs.Write(GetByteArrayFromPaletteData(isModifiedData, isRecalculatePaletteColorSuccess)
-                                ?? throw new Exception("Failed to get byte array from palette data!"));
-                        }
-
-                        byte[][] allFramesData = new byte[FileHead.FrameCounts][];
-                        for (int i = 0; i < FileHead.FrameCounts; i++)
-                        {
-                            allFramesData[i] = GetByteArrayFromEncryptedFrameData(i,
-                                isModifiedData,
-                                isRecalculatePaletteColorSuccess,
-                                newPalettData)
-                                ?? throw new Exception($"Failed to get byte array from encrypted frame data: index={i}!");
-                        }
-
-                        fs.Write(GetByteArrayFromAllFramesOffsetInfo(allFramesData)
-                           ?? throw new Exception("Failed to get byte array from frame offset info!"));
-
-                        for (int i = 0; i < FileHead.FrameCounts; i++)
-                        {
-                            fs.Write(allFramesData[i]);
-                        }
-
-                        Logger.Raw.D($"Save current work to spr file successfully: frameCount={FileHead.FrameCounts}");
-
+                        });
                     }
-                    catch (Exception ex)
+
+                    fs.Write(GetByteArrayFromHeader(isModifiedData)
+                        ?? throw new Exception("Failed to get byte array from header!"));
+
+                    if (newPalettData != null)
                     {
-                        Logger.Raw.E(ex.Message);
+                        newPalettData?.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue })
+                            .ToArray()
+                            .Also(it => fs.Write(it));
                     }
+                    else
+                    {
+                        fs.Write(GetByteArrayFromPaletteData(isModifiedData, isRecalculatePaletteColorSuccess)
+                            ?? throw new Exception("Failed to get byte array from palette data!"));
+                    }
+
+                    byte[][] allFramesData = new byte[FileHead.FrameCounts][];
+                    for (int i = 0; i < FileHead.FrameCounts; i++)
+                    {
+                        allFramesData[i] = GetByteArrayFromEncryptedFrameData(i,
+                            isModifiedData,
+                            isRecalculatePaletteColorSuccess,
+                            newPalettData)
+                            ?? throw new Exception($"Failed to get byte array from encrypted frame data: index={i}!");
+                    }
+
+                    fs.Write(GetByteArrayFromAllFramesOffsetInfo(allFramesData)
+                       ?? throw new Exception("Failed to get byte array from frame offset info!"));
+
+                    for (int i = 0; i < FileHead.FrameCounts; i++)
+                    {
+                        fs.Write(allFramesData[i]);
+                    }
+
+                    Logger.Raw.D($"Save current work to spr file successfully: frameCount={FileHead.FrameCounts}");
                 }
             }
         }
+
         #endregion
 
         #region public standalone API
@@ -231,6 +234,9 @@ namespace SPRNetTool.Domain.Base
         #endregion
 
         #region protected API
+        protected void ApplyNewPalleteToOldFrames(Palette newPalettData);
+        protected void ApplyNewPalleteToInsertedFrames(Palette newPalettData);
+        protected bool IsNeedToApplyNewPaletteToOldFrames(Palette newPalettData);
         protected bool IsPossibleToSaveFile();
         protected bool IsContainInsertedFrame();
         protected bool RecalculatePaletteColorForAllInsertedFrame(out Palette? newPaletteData);
