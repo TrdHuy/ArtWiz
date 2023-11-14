@@ -181,6 +181,7 @@
 								OnPreviewFrameIndexSwitched="OnPreviewFrameIndexSwitched"
 								OnPreviewAddingFrame="OnPreviewAddingFrame"
 								OnPreviewRemovingFrame="OnPreviewRemovingFrame"
+								OnEllipseMouseClick="OnEllipseMouseClick"
 								FrameSource="{Binding FramesSource}"
 								Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}" />
 

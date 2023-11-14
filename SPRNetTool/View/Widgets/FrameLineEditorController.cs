@@ -18,6 +18,7 @@ namespace SPRNetTool.View.Widgets
         public delegate void EllipseHandler(EllipseController sender);
         public delegate void OnDraggingMouseEllipseHandler(EllipseController sender, double X, double Y, MouseEventArgs e);
         public delegate void OnDraggingMouseUpEnteredEllipseHandler(EllipseController sender, EllipseController enteredEllipse);
+        public delegate void EllipseMouseEventHandler(EllipseController sender, MouseButtonEventArgs e);
         private bool isEllipseDraggedEnter;
         private Size currentSize;
         public Point currentPost = new Point(-1, -1);
@@ -33,7 +34,9 @@ namespace SPRNetTool.View.Widgets
         public event EllipseHandler? PreviewRemovingEllipse;
         public event OnDraggingMouseEllipseHandler? OnDraggingMouseEllipse;
         public event OnDraggingMouseUpEnteredEllipseHandler? OnDraggingMouseUpEnteredEllipse;
+        public event EllipseMouseEventHandler? OnEllipseMouseClick;
         private Canvas ownerCanvas;
+        private bool isMouseHolded = false;
         private bool isMousePressed = false;
         private EllipseController? dragEnteredEllipse;
         private TextBlock contentView;
@@ -65,6 +68,8 @@ namespace SPRNetTool.View.Widgets
             ContainerCanvas.MouseLeftButtonDown += ContainerCanvas_MouseLeftButtonDown;
             ContainerCanvas.MouseLeave += ContainerCanvas_MouseLeave;
             ContainerCanvas.MouseEnter += ContainerCanvas_MouseEnter;
+            ContainerCanvas.MouseMove += ContainerCanvas_MouseMove;
+            ContainerCanvas.MouseUp += ContainerCanvas_MouseUp;
             ContainerCanvas.Loaded += ContainerCanvas_Loaded;
             ContainerCanvas.ContextMenu = new ContextMenu();
 
@@ -79,7 +84,6 @@ namespace SPRNetTool.View.Widgets
             ContainerCanvas.ContextMenu.Items.Add(removeFrameMenuItem);
         }
 
-
         public void Dispose()
         {
             ContainerCanvas.Children.Remove(MainEllipse);
@@ -88,6 +92,8 @@ namespace SPRNetTool.View.Widgets
             ContainerCanvas.MouseLeave -= ContainerCanvas_MouseLeave;
             ContainerCanvas.MouseEnter -= ContainerCanvas_MouseEnter;
             ContainerCanvas.Loaded -= ContainerCanvas_Loaded;
+            ContainerCanvas.MouseUp -= ContainerCanvas_MouseUp;
+            ContainerCanvas.MouseMove -= ContainerCanvas_MouseMove;
         }
 
         public static EllipseController CreateController(Canvas ownerCanvas, uint index, uint frameCount)
@@ -198,6 +204,26 @@ namespace SPRNetTool.View.Widgets
             this.frameCount = frameCount;
         }
 
+        private void ContainerCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isMousePressed)
+            {
+                isMouseHolded = true;
+                CreateTempEllipseWhenMouseDown(MainEllipse, ownerCanvas, e);
+                isMousePressed = false;
+            }
+        }
+
+        private void ContainerCanvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var shouldInvokeClickEvent = isMousePressed;
+            isMousePressed = false;
+            if (shouldInvokeClickEvent)
+            {
+                OnEllipseMouseClick?.Invoke(this, e);
+            }
+        }
+
         private void ContainerCanvas_Loaded(object sender, RoutedEventArgs e)
         {
             ArrangeEllipse();
@@ -211,7 +237,7 @@ namespace SPRNetTool.View.Widgets
 
         private void ContainerCanvas_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (!isMousePressed)
+            if (!isMouseHolded)
             {
                 BeginAnimation(Colors.Black, 0);
                 MainEllipse.Cursor = Cursors.Arrow;
@@ -221,7 +247,6 @@ namespace SPRNetTool.View.Widgets
         private void ContainerCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             isMousePressed = true;
-            CreateTempEllipseWhenMouseDown(MainEllipse, ownerCanvas, e);
         }
 
 
@@ -247,7 +272,7 @@ namespace SPRNetTool.View.Widgets
             MainEllipse.BeginStoryboard(animationStoryboard);
         }
 
-        private void CreateTempEllipseWhenMouseDown(Ellipse referEllipse, Canvas referCanvasContainer, MouseButtonEventArgs e)
+        private void CreateTempEllipseWhenMouseDown(Ellipse referEllipse, Canvas referCanvasContainer, MouseEventArgs e)
         {
             Point mousePosition = e.GetPosition(referCanvasContainer);
 
@@ -277,7 +302,7 @@ namespace SPRNetTool.View.Widgets
                 }
 
                 tempEllipse.Cursor = Cursors.Arrow;
-                isMousePressed = false;
+                isMouseHolded = false;
                 tempEllipse.ReleaseMouseCapture();
                 referCanvasContainer.Children.Remove(tempEllipse);
                 ContainerCanvas_MouseLeave(referEllipse, e);
@@ -288,7 +313,7 @@ namespace SPRNetTool.View.Widgets
 
             void MouseMove(object sender, MouseEventArgs e)
             {
-                if (isMousePressed)
+                if (isMouseHolded)
                 {
                     Point newPosition = e.GetPosition(referCanvasContainer);
                     double deltaX = newPosition.X - mousePosition.X;
@@ -469,10 +494,12 @@ namespace SPRNetTool.View.Widgets
         public const double HEAD_OFFSET = 20d;
 
         public delegate void FameLineHandler(object sender, FrameLineEventArgs args);
+        public delegate void FameLineMouseEventHandler(object sender, MouseButtonEventArgs args);
 
         public event FameLineHandler? OnPreviewFrameIndexSwitched;
         public event FameLineHandler? OnPreviewAddingFrame;
         public event FameLineHandler? OnPreviewRemovingFrame;
+        public event FameLineMouseEventHandler? OnEllipseMouseClick;
 
         private Rect leftScrollRect;
         private Rect rightScrollRect;
@@ -596,6 +623,11 @@ namespace SPRNetTool.View.Widgets
         private void Controller_PreviewRemovingEllipse(EllipseController sender)
         {
             RemoveFrameWithRoutedEvent(sender.CurrentIndex);
+        }
+
+        private void Controller_OnEllipseMouseClick(EllipseController sender, MouseButtonEventArgs e)
+        {
+            OnEllipseMouseClick?.Invoke(sender, e);
         }
 
         private void Controller_OnDraggingMouseEllipse(EllipseController sender, double X, double Y, MouseEventArgs e)
@@ -732,7 +764,7 @@ namespace SPRNetTool.View.Widgets
 
             InternalInsertFrame(frameIndex);
         }
-  
+
         public void AddNewFrame()
         {
             var frameIndex = ellipseControllersCache.Count;
@@ -783,7 +815,8 @@ namespace SPRNetTool.View.Widgets
             var controller = EllipseController.CreateController(ownerCanvas: containerCanvas, index, frameCount);
             controller.OnDraggingMouseEllipse += Controller_OnDraggingMouseEllipse;
             controller.OnDraggingMouseUpEnteredEllipse += Controller_OnDraggingMouseUpEnteredEllipse;
-            controller.PreviewRemovingEllipse += Controller_PreviewRemovingEllipse; ;
+            controller.PreviewRemovingEllipse += Controller_PreviewRemovingEllipse;
+            controller.OnEllipseMouseClick += Controller_OnEllipseMouseClick;
             return controller;
         }
 
@@ -885,6 +918,7 @@ namespace SPRNetTool.View.Widgets
                 kp.OnDraggingMouseEllipse -= Controller_OnDraggingMouseEllipse;
                 kp.OnDraggingMouseUpEnteredEllipse -= Controller_OnDraggingMouseUpEnteredEllipse;
                 kp.PreviewRemovingEllipse -= Controller_PreviewRemovingEllipse;
+                kp.OnEllipseMouseClick -= Controller_OnEllipseMouseClick;
             }
             ellipseControllersCache.Clear();
         }

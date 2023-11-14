@@ -751,6 +751,14 @@ namespace SPRNetTool.View.Pages
                 args.Handled = true;
             }
         }
+
+        private void OnEllipseMouseClick(object sender, MouseButtonEventArgs args)
+        {
+            sender.IfIs<EllipseController>(it =>
+            {
+                commandVM?.OnFramePointerClick(it.CurrentIndex);
+            });
+        }
     }
 }
 

@@ -872,6 +872,17 @@ namespace SPRNetTool.ViewModel
         {
             return BitmapDisplayManager.InsertFrame(frameIndex, filePath);
         }
+
+        void IDebugPageCommand.OnFramePointerClick(uint frameIndex)
+        {
+            if (!IsSpr) return;
+
+            if (CurrentFrameIndex != frameIndex && frameIndex < SprFileHead.FrameCounts)
+            {
+                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(frameIndex);
+            }
+        }
+
     }
 
     public class FrameViewModel : IFrameViewModel
