@@ -63,6 +63,22 @@ namespace SPRNetTool.View.Widgets
             });
         }
 
+        public static void AddOnEllipseMouseClickHandler(DependencyObject element, FameLineMouseEventHandler handler)
+        {
+            element.IfIs<FrameLineEditor>(it =>
+            {
+                it.Controller.OnEllipseMouseClick += handler;
+            });
+        }
+
+        public static void RemoveOnEllipseMouseClickHandler(DependencyObject element, FameLineMouseEventHandler handler)
+        {
+            element.IfIs<FrameLineEditor>(it =>
+            {
+                it.Controller.OnEllipseMouseClick -= handler;
+            });
+        }
+
         public static readonly DependencyProperty FrameSourceProperty =
             DependencyProperty.Register(
                 "FrameSource",

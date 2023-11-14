@@ -46,5 +46,8 @@
 
         bool OnRemoveFrameClicked(uint frameIndex);
         bool OnInsertFrameClicked(uint frameIndex, string filePath);
+
+        void OnFramePointerClick(uint frameIndex);
+
     }
 }
