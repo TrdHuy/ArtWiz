@@ -24,6 +24,7 @@
         void OnIncreaseIntervalButtonClicked();
 
         void OnSaveCurrentDisplayedBitmapSourceToSpr(string filePath);
+        void OnImportCurrentDisplaySourceToNextFrameOfSprWorkSpace();
 
         void OnIncreaseSprGlobalOffsetXButtonClicked(uint delta = 1);
         void OnDecreaseSprGlobalOffsetXButtonClicked(uint delta = 1);

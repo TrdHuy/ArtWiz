@@ -65,6 +65,7 @@ namespace SPRNetTool.View.Pages
         SPRInfo_SprIntervalBalloonBox,
 
         ImageInfo_ExportToSingleFrameSprFile,
+        ImageInfo_ImportToNextFrameOfSprWorkSpace,
     }
 
     public partial class DebugPage : BasePageViewer
@@ -371,6 +372,12 @@ namespace SPRNetTool.View.Pages
                             }
                             break;
                         }
+                    case DebugPageTagID.ImageInfo_ImportToNextFrameOfSprWorkSpace:
+                        {
+                            commandVM?.OnImportCurrentDisplaySourceToNextFrameOfSprWorkSpace();
+                            break;
+                        }
+
                 }
             });
             (sender as Run)?.Tag.IfIs<DebugPageTagID>((tag) =>

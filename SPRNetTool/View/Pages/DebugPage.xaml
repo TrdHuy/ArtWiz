@@ -258,7 +258,8 @@
 							<Run Text="&#x9;" />
 							<Viewbox Height="20"
 									 Stretch="None">
-								<TextBlock Style="{StaticResource ClickableTextBlockStyle}">
+								<TextBlock Tag="{x:Static local:DebugPageTagID.ImageInfo_ImportToNextFrameOfSprWorkSpace}"
+										   Style="{StaticResource ClickableTextBlockStyle}">
 									<Viewbox Height="14"
 											 Margin="0,0,5,0">
 										<TextBlock Text="&#xf56f;"
