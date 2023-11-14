@@ -144,6 +144,24 @@ namespace SPRNetTool.Data
             return unsafeSpr;
         }
 
+        public bool IsNotEmpty()
+        {
+            return VersionInfo != null && VersionInfo.Length != 0;
+        }
+
+        public static SprFileHead CreateSprFileHead()
+        {
+            return new SprFileHead(versionInfo: new byte[] { (byte)'S', (byte)'P', (byte)'R', (byte)'\0' },
+                globalWidth: 0,
+                globalHeight:0,
+                offX:0,
+                offY:0,
+                frameCounts:0,
+                colorCounts:0,
+                directionCount:0,
+                interval:0,
+                reserved: new byte[12]);
+        }
         public class SprFileHeadCache
         {
             private SprFileHead sprFileHead;
@@ -341,12 +359,11 @@ namespace SPRNetTool.Data
             return false;
         }
 
-
         public bool IsSame(Palette palette)
         {
             foreach (var item in palette.Data)
             {
-                if(!IsContain(item)) return false;
+                if (!IsContain(item)) return false;
             }
             return true;
         }

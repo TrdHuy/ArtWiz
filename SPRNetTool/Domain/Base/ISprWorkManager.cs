@@ -16,6 +16,8 @@ namespace SPRNetTool.Domain.Base
 
         #region public API
 
+        bool IsWorkSpaceEmpty => IsCacheEmpty;
+
         /// <summary>
         /// </summary>
         bool InsertFrame(uint frameIndex
@@ -149,7 +151,11 @@ namespace SPRNetTool.Domain.Base
                         });
                     }
 
-                    fs.Write(GetByteArrayFromHeader(isModifiedData)
+                    // vì sau khi tính lại bảng palette nên cần check chỉ số color count của 
+                    // file head có tương đương với palette mới không
+                    fs.Write(GetByteArrayFromHeader(isModifiedData: isModifiedData,
+                        isApplyNewPalette: newPalettData != null,
+                        colorCount: (ushort)(newPalettData?.Size ?? 0))
                         ?? throw new Exception("Failed to get byte array from header!"));
 
                     if (newPalettData != null)
@@ -245,7 +251,7 @@ namespace SPRNetTool.Domain.Base
             bool isModifiedData,
             bool isUseRecalculateData,
             Palette? recalculatedPaletteData = null);
-        protected byte[]? GetByteArrayFromHeader(bool isModifiedData);
+        protected byte[]? GetByteArrayFromHeader(bool isModifiedData, bool isApplyNewPalette, ushort colorCount);
         protected byte[]? GetByteArrayFromAllFramesOffsetInfo(byte[][] allEncryptedFramesData);
         protected byte[]? GetByteArrayFromPaletteData(bool isModifiedData, bool isUseRecalculateData);
 

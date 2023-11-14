@@ -420,7 +420,7 @@ namespace SPRNetTool.ViewModel
                             if (!castArgs.Event.HasFlag(SPR_GLOBAL_OFFSET_CHANGED) &&
                                 !castArgs.Event.HasFlag(SPR_GLOBAL_SIZE_CHANGED))
                             {
-                                SprFileHead = castArgs.CurrentSprFileHead ?? new SprFileHead();
+                                castArgs.CurrentSprFileHead?.Apply(it => SprFileHead = it);
                             }
                         }
 
@@ -856,6 +856,15 @@ namespace SPRNetTool.ViewModel
                     SprWorkManager.SaveBitmapSourceToSprFile(it, filePath);
                 });
             });
+        }
+
+        void IDebugPageCommand.OnImportCurrentDisplaySourceToNextFrameOfSprWorkSpace()
+        {
+            if (CurrentlyDisplayedBitmapSource != null)
+            {
+                BitmapDisplayManager.InsertFrame(SprFileHead.FrameCounts, CurrentlyDisplayedBitmapSource);
+                BitmapDisplayManager.ChangeCurrentDisplayMode(isSpr: true);
+            }
         }
 
         bool IDebugPageCommand.OnSwitchFrameClicked(uint frameIndex1, uint frameIndex2)

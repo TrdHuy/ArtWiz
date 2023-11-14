@@ -16,10 +16,13 @@ namespace SPRNetTool.Domain
     {
         private Logger logger = new Logger("SprWorkManager");
         private Logger pf_logger = new Logger("SprWorkManager_PF");
+
+        #region caching variables
         private SprFileHead FileHead;
         private Palette PaletteData = new Palette();
         private long FrameDataBegPos = -1;
         private FrameRGBA[]? FrameData;
+        #endregion
 
         private bool IsCacheEmpty => FrameDataBegPos == -1;
 
@@ -75,6 +78,18 @@ namespace SPRNetTool.Domain
                     newFramesData[i] = FrameData?[i - 1] ?? new FrameRGBA();
                 }
             }
+
+            if (IsCacheEmpty)
+            {
+                FileHead = SprFileHead.CreateSprFileHead();
+                FileHead.ColorCounts = (ushort)paletteData.Size;
+                FileHead.GlobalHeight = frameHeight;
+                FileHead.GlobalWidth = frameWidth;
+                PaletteData = new Palette(paletteData.Size);
+                Array.Copy(paletteData.Data, PaletteData.Data, paletteData.Size);
+                FrameDataBegPos = Marshal.SizeOf(typeof(US_SprFileHead)) + FileHead.ColorCounts * 3;
+            }
+
             FileHead.modifiedSprFileHeadCache.FrameCounts++;
             FrameData = newFramesData;
             newFramesData[frameIndex].modifiedFrameRGBACache.SetCopiedPaletteData(paletteData);
@@ -579,10 +594,16 @@ namespace SPRNetTool.Domain
             pf_logger.I($"init frame data total cost: {(DateTime.Now - startTime).TotalMilliseconds}ms");
         }
 
-        byte[]? ISprWorkManager.GetByteArrayFromHeader(bool isModifiedData)
+        byte[]? ISprWorkManager.GetByteArrayFromHeader(bool isModifiedData, bool isApplyNewPalette, ushort colorCount)
         {
             if (isModifiedData && FileHead.modifiedSprFileHeadCache != null)
             {
+                if (isApplyNewPalette)
+                {
+                    var fileHead = FileHead.modifiedSprFileHeadCache.ToUnsafe();
+                    fileHead.ColorCounts = colorCount;
+                    return fileHead.ToByteArray();
+                }
                 return FileHead.modifiedSprFileHeadCache.ToUnsafe().ToByteArray();
             }
             return FileHead.ToUnsafe().ToByteArray();

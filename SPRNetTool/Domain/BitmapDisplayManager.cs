@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -49,104 +50,55 @@ namespace SPRNetTool.Domain
 
         #region public interface
 
+        void IBitmapDisplayManager.ChangeCurrentDisplayMode(bool isSpr)
+        {
+            if (isSpr && !SprWorkManager.IsWorkSpaceEmpty)
+            {
+                var frameIndex = DisplayedBitmapSourceCache.CurrentFrameIndex ?? 0;
+                DisplayedBitmapSourceCache.IsSprImage = true;
+                DisplayedBitmapSourceCache.AnimationSourceCaching?[frameIndex].IfNullThenLet(() =>
+                    SprWorkManager.GetGlobalFrameColorData(frameIndex, out _)?
+                        .Let((it) => this.GetBitmapFromRGBArray(
+                            this.ConvertPaletteColorArrayToByteArray(it)
+                            , SprWorkManager.FileHead.GlobalWidth
+                            , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
+                        .Also((it) => it.Freeze()));
+                DisplayedBitmapSourceCache.DisplayedBitmapSource =
+                    DisplayedBitmapSourceCache.AnimationSourceCaching?[frameIndex];
+                DisplayedBitmapSourceCache.ColorSourceCaching?[frameIndex].IfNullThenLet(() =>
+                    DisplayedBitmapSourceCache.DisplayedBitmapSource?.Let(it => this.CountColorsToDictionary(it)));
+                DisplayedBitmapSourceCache.DisplayedColorSource =
+                    DisplayedBitmapSourceCache.ColorSourceCaching?[frameIndex];
+
+                NotifyChanged(new BitmapDisplayMangerChangedArg(
+                   changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
+                       | CURRENT_COLOR_SOURCE_CHANGED
+                       | SPR_FILE_HEAD_CHANGED
+                       | SPR_FRAME_DATA_CHANGED
+                       | SPR_FRAME_COLLECTION_CHANGED,
+                   currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
+                   colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
+                   sprFileHead: SprWorkManager.FileHead,
+                   sprFrameData: SprWorkManager.GetFrameData(frameIndex),
+                   sprFrameCollectionChangedArg: new SprFrameCollectionChangedArg(changedEvent: TOTAL_FRAME_COUNT_CHANGED,
+                       frameCount: (uint)(DisplayedBitmapSourceCache.AnimationSourceCaching?.Length ?? 0))));
+            }
+            else if (!isSpr)
+            {
+                // TODO: Implement change jpg here
+            }
+        }
+
+        bool IBitmapDisplayManager.InsertFrame(uint frameIndex, BitmapSource bmpSource)
+        {
+            return InsertBimapSourceToSprWorkSpace(frameIndex, bmpSource);
+        }
+
         bool IBitmapDisplayManager.InsertFrame(uint frameIndex, string filePath)
         {
             var bitmapSource = this.LoadBitmapFromFile(filePath, isFreeze: true)
                 ?? throw new Exception($"Failed to load bitmap from path {filePath}.");
-            var countSource = this.CountColorsToDictionary(bitmapSource);
-            if (countSource.Count > 256)
-            {
-                bitmapSource = (this as IBitmapDisplayManager).OptimzeImageColorNA256(bitmapSource)
-                    ?? throw new Exception($"Failed to optimize image colors.");
-            }
-
-            var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource,
-                out Dictionary<Color, long> countableSource,
-                out Palette palette)
-                ?? throw new Exception($"Failed to load bitmap from path {filePath}");
-
-
-            if (SprWorkManager.InsertFrame(frameIndex
-                , (ushort)bitmapSource.PixelWidth
-                , (ushort)bitmapSource.PixelHeight
-                , palettePixelArray
-                , palette
-                , countableSource))
-            {
-                // Update current displaying bitmap
-                var bmpSrc = new BitmapSource?[SprWorkManager.FileHead.FrameCounts];
-                for (int i = 0, j = 0; i < SprWorkManager.FileHead.FrameCounts; i++)
-                {
-                    if (i < frameIndex)
-                    {
-                        bmpSrc[j++] = DisplayedBitmapSourceCache.AnimationSourceCaching?[i];
-                    }
-                    else if (i == frameIndex)
-                    {
-                        bmpSrc[j++] = null;
-                    }
-                    else if (i > frameIndex)
-                    {
-                        bmpSrc[j++] = DisplayedBitmapSourceCache.AnimationSourceCaching?[i - 1];
-                    }
-                }
-                DisplayedBitmapSourceCache.AnimationSourceCaching = bmpSrc;
-                DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex]
-                    = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex].IfNullThenLet(() =>
-                           SprWorkManager.GetGlobalFrameColorData(frameIndex, out _)?
-                               .Let((it) => this.GetBitmapFromRGBArray(
-                                   this.ConvertPaletteColorArrayToByteArray(it)
-                                   , SprWorkManager.FileHead.GlobalWidth
-                                   , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
-                               .Also((it) => it.Freeze()));
-                DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex];
-                DisplayedBitmapSourceCache.CurrentFrameIndex = frameIndex;
-
-                // Update current displaying color source
-                var colorSrc = new Dictionary<Color, long>?[SprWorkManager.FileHead.FrameCounts];
-                for (int i = 0, j = 0; i < SprWorkManager.FileHead.FrameCounts; i++)
-                {
-                    if (i < frameIndex)
-                    {
-                        colorSrc[j++] = DisplayedBitmapSourceCache.ColorSourceCaching?[i];
-                    }
-                    else if (i == frameIndex)
-                    {
-                        colorSrc[j++] = null;
-                    }
-                    else if (i > frameIndex)
-                    {
-                        colorSrc[j++] = DisplayedBitmapSourceCache.ColorSourceCaching?[i - 1];
-                    }
-                }
-                DisplayedBitmapSourceCache.ColorSourceCaching = colorSrc;
-                DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex]
-                    = DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex].IfNullThenLet(() =>
-                        this.CountColorsToDictionary(DisplayedBitmapSourceCache
-                            .DisplayedBitmapSource ?? throw new Exception("DisplayedBitmapSource must not be null here")));
-                DisplayedBitmapSourceCache.DisplayedColorSource
-                    = DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex];
-
-                NotifyChanged(new BitmapDisplayMangerChangedArg(
-                            changedEvent: CURRENT_DISPLAYING_FRAME_INDEX_CHANGED
-                            | CURRENT_DISPLAYING_SOURCE_CHANGED
-                            | CURRENT_COLOR_SOURCE_CHANGED
-                            | SPR_FILE_HEAD_CHANGED
-                            | SPR_FRAME_COLLECTION_CHANGED,
-                            sprFileHead: SprWorkManager.FileHead,
-                            currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
-                            currentDisplayFrameIndex: frameIndex,
-                            colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
-                            sprFrameCollectionChangedArg: new SprFrameCollectionChangedArg(
-                                changedEvent: FRAME_INSERTED,
-                                newFrameIndex: (int)frameIndex
-                        )));
-
-
-                return true;
-            }
-
-            return false;
+            return InsertBimapSourceToSprWorkSpace(frameIndex, bitmapSource, filePath);
         }
 
         bool IBitmapDisplayManager.DeleteFrame(uint frameIndex)
@@ -555,6 +507,106 @@ namespace SPRNetTool.Domain
                         currentDisplayFrameIndex: frameIndex,
                         sprFrameData: SprWorkManager.GetFrameData(frameIndex)));
             });
+        }
+
+        private bool InsertBimapSourceToSprWorkSpace(uint frameIndex, BitmapSource bitmapSource, string? filePath = null)
+        {
+            var countSource = this.CountColorsToDictionary(bitmapSource);
+            if (countSource.Count > 256)
+            {
+                bitmapSource = (this as IBitmapDisplayManager).OptimzeImageColorNA256(bitmapSource)
+                    ?? throw new Exception($"Failed to optimize image colors.");
+            }
+
+            var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource,
+                out Dictionary<Color, long> countableSource,
+                out Palette palette)
+                ?? (filePath != null ?
+                    throw new Exception($"Failed to load bitmap from path {filePath}") :
+                    throw new Exception($"Failed to load bitmap"));
+
+
+            if (SprWorkManager.InsertFrame(frameIndex
+                , (ushort)bitmapSource.PixelWidth
+                , (ushort)bitmapSource.PixelHeight
+                , palettePixelArray
+                , palette
+                , countableSource))
+            {
+                // Update current displaying bitmap
+                var bmpSrc = new BitmapSource?[SprWorkManager.FileHead.FrameCounts];
+                for (int i = 0, j = 0; i < SprWorkManager.FileHead.FrameCounts; i++)
+                {
+                    if (i < frameIndex)
+                    {
+                        bmpSrc[j++] = DisplayedBitmapSourceCache.AnimationSourceCaching?[i];
+                    }
+                    else if (i == frameIndex)
+                    {
+                        bmpSrc[j++] = null;
+                    }
+                    else if (i > frameIndex)
+                    {
+                        bmpSrc[j++] = DisplayedBitmapSourceCache.AnimationSourceCaching?[i - 1];
+                    }
+                }
+                DisplayedBitmapSourceCache.AnimationSourceCaching = bmpSrc;
+                DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex]
+                    = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex].IfNullThenLet(() =>
+                           SprWorkManager.GetGlobalFrameColorData(frameIndex, out _)?
+                               .Let((it) => this.GetBitmapFromRGBArray(
+                                   this.ConvertPaletteColorArrayToByteArray(it)
+                                   , SprWorkManager.FileHead.GlobalWidth
+                                   , SprWorkManager.FileHead.GlobalHeight, PixelFormats.Bgra32))
+                               .Also((it) => it.Freeze()));
+                DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex];
+                DisplayedBitmapSourceCache.CurrentFrameIndex = frameIndex;
+
+                // Update current displaying color source
+                var colorSrc = new Dictionary<Color, long>?[SprWorkManager.FileHead.FrameCounts];
+                for (int i = 0, j = 0; i < SprWorkManager.FileHead.FrameCounts; i++)
+                {
+                    if (i < frameIndex)
+                    {
+                        colorSrc[j++] = DisplayedBitmapSourceCache.ColorSourceCaching?[i];
+                    }
+                    else if (i == frameIndex)
+                    {
+                        colorSrc[j++] = null;
+                    }
+                    else if (i > frameIndex)
+                    {
+                        colorSrc[j++] = DisplayedBitmapSourceCache.ColorSourceCaching?[i - 1];
+                    }
+                }
+                DisplayedBitmapSourceCache.ColorSourceCaching = colorSrc;
+                DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex]
+                    = DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex].IfNullThenLet(() =>
+                        this.CountColorsToDictionary(DisplayedBitmapSourceCache
+                            .DisplayedBitmapSource ?? throw new Exception("DisplayedBitmapSource must not be null here")));
+                DisplayedBitmapSourceCache.DisplayedColorSource
+                    = DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex];
+
+                NotifyChanged(new BitmapDisplayMangerChangedArg(
+                            changedEvent: CURRENT_DISPLAYING_FRAME_INDEX_CHANGED
+                            | CURRENT_DISPLAYING_SOURCE_CHANGED
+                            | CURRENT_COLOR_SOURCE_CHANGED
+                            | SPR_FILE_HEAD_CHANGED
+                            | SPR_FRAME_COLLECTION_CHANGED,
+                            sprFileHead: SprWorkManager.FileHead,
+                            currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
+                            currentDisplayFrameIndex: frameIndex,
+                            colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
+                            sprFrameCollectionChangedArg: new SprFrameCollectionChangedArg(
+                                changedEvent: FRAME_INSERTED,
+                                newFrameIndex: (int)frameIndex
+                        )));
+
+
+                return true;
+            }
+
+            return false;
         }
 
         private bool InvalidateDisplayBitmapSourceCache(uint index)

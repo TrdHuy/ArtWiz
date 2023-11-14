@@ -13,6 +13,7 @@ namespace SPRNetTool.Domain.Base
 
         void SetCurrentlyDisplayedFrameSize(ushort frameWidth, ushort frameHeight);
 
+        void ChangeCurrentDisplayMode(bool isSpr);
 
         void StartSprAnimation();
 
@@ -31,6 +32,7 @@ namespace SPRNetTool.Domain.Base
         bool DeleteFrame(uint frameIndex);
 
         bool InsertFrame(uint frameIndex, string filePath);
+        bool InsertFrame(uint frameIndex, BitmapSource bmpSrc);
 
         Dictionary<Color, long> CountBitmapColors(BitmapSource bitmap)
         {
