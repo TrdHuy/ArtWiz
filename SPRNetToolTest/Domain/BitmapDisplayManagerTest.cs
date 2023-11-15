@@ -1,6 +1,5 @@
 ﻿using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
-using System.Windows.Media;
 
 namespace SPRNetToolTest.Domain
 {
@@ -35,9 +34,7 @@ namespace SPRNetToolTest.Domain
         [Test, NeedToOpenSprFile]
         public void test_InsertFrame()
         {
-            Color s = Colors.LawnGreen;
-            var st = s.ToString();
-            Console.Write(st);
+
         }
     }
 
