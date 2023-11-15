@@ -85,6 +85,11 @@ namespace SPRNetTool.Domain.Base
         SprFileHead FileHead { get; }
 
         /// <summary>
+        /// Palette của spr đang được load trong work manager hiện tại
+        /// </summary>
+        Palette PaletteData { get; }
+
+        /// <summary>
         /// Khởi tạo work manager từ file stream của file SPR
         /// </summary>
         /// <param name="fs"></param>
@@ -166,7 +171,7 @@ namespace SPRNetTool.Domain.Base
                     }
                     else
                     {
-                        fs.Write(GetByteArrayFromPaletteData(isModifiedData, isRecalculatePaletteColorSuccess)
+                        fs.Write(GetByteArrayFromPaletteData(isModifiedData)
                             ?? throw new Exception("Failed to get byte array from palette data!"));
                     }
 
@@ -253,7 +258,7 @@ namespace SPRNetTool.Domain.Base
             Palette? recalculatedPaletteData = null);
         protected byte[]? GetByteArrayFromHeader(bool isModifiedData, bool isApplyNewPalette, ushort colorCount);
         protected byte[]? GetByteArrayFromAllFramesOffsetInfo(byte[][] allEncryptedFramesData);
-        protected byte[]? GetByteArrayFromPaletteData(bool isModifiedData, bool isUseRecalculateData);
+        protected byte[]? GetByteArrayFromPaletteData(bool isModifiedData);
 
         protected void InitCache();
         protected void InitFromFileHead(US_SprFileHead fileHead);

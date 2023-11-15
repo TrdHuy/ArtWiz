@@ -220,11 +220,17 @@
 
 			<StackPanel Grid.Row="2"
 						Margin="10">
-				<Rectangle Height="2"
-						   Fill="Black" />
-				<TextBlock Margin="0,5,0,0"
+				<TextBlock x:Name="ImageInfoBlock"
+						   Margin="0,5,0,0"
 						   FontWeight="Bold"
 						   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}">
+					<Viewbox Stretch="None">
+						<Rectangle Height="2"
+								   Margin="0,5,0,5"
+								   Width="{Binding ElementName=ImageInfoBlock, Path=ActualWidth}"
+								   Fill="Black" />
+					</Viewbox>
+					<LineBreak />
 					<Run Text="IMAGE INFO"
 						 FontSize="15" />
 					<LineBreak />
@@ -272,7 +278,7 @@
 						</TextBlock>
 					</Viewbox>
 				</TextBlock>
-		
+				
 				<TextBlock Margin="0,5,0,0"
 						   FontWeight="Bold"
 						   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">
@@ -545,6 +551,32 @@
 					<LineBreak />
 
 				</TextBlock>
+				
+				<TextBlock x:Name="PaletteInfoBlock"
+						   Margin="0,5,0,0"
+						   FontWeight="Bold"
+						   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">
+					<Viewbox Stretch="None">
+						<Rectangle Height="2"
+								   Margin="0,5,0,5"
+								   Width="{Binding ElementName=PaletteInfoBlock, Path=ActualWidth}"
+								   Fill="Black" />
+					</Viewbox>
+					<LineBreak />
+					<Run Text="SPR PALETTE INFO"
+						 FontSize="15" />
+					<LineBreak />
+				
+					<ContentControl>
+						<wg:PaletteEditor Grid.Row="1"
+										  Height="300"
+										  ColorItemSource="{Binding PaletteColorItemSource}"
+										  x:Name="mPaletteEditor">
+						</wg:PaletteEditor>
+					</ContentControl>
+				
+				</TextBlock>
+				
 				<Rectangle Margin="0,10,0,0"
 						   Height="2"
 						   Fill="Black" />

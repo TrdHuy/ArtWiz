@@ -1,7 +1,5 @@
-﻿using SPRNetTool.Domain.Base;
-using SPRNetTool.Domain;
-using System.Reflection;
-using Moq;
+﻿using SPRNetTool.Domain;
+using SPRNetTool.Domain.Base;
 
 namespace SPRNetToolTest.Domain
 {

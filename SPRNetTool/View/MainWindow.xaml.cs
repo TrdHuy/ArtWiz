@@ -5,7 +5,6 @@ using System.Windows;
 
 namespace SPRNetTool.View
 {
-
     public partial class MainWindow : BaseArtWizWindow
     {
         private DebugPage? debugPage = null;

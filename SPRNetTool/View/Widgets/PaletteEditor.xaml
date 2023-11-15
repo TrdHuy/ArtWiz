@@ -1,0 +1,307 @@
+﻿<UserControl x:Class="SPRNetTool.View.Widgets.PaletteEditor"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:local="clr-namespace:SPRNetTool.View.Widgets"
+			 xmlns:vmw="clr-namespace:SPRNetTool.ViewModel.Widgets"
+			 mc:Ignorable="d"
+			 d:DesignHeight="450"
+			 d:DesignWidth="800"
+			 x:Name="UC_container">
+	<UserControl.Resources>
+
+		<Style x:Key="SliderRepeatButton"
+			   TargetType="RepeatButton">
+			<Setter Property="SnapsToDevicePixels"
+					Value="true" />
+			<Setter Property="OverridesDefaultStyle"
+					Value="true" />
+			<Setter Property="IsTabStop"
+					Value="false" />
+			<Setter Property="Focusable"
+					Value="false" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="RepeatButton">
+						<Border Background="White"
+								BorderThickness="1"
+								BorderBrush="Black"
+								CornerRadius="0,2.5,2.5,0"
+								Height="7" />
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<Style x:Key="SliderRepeatButton1"
+			   TargetType="RepeatButton">
+			<Setter Property="SnapsToDevicePixels"
+					Value="true" />
+			<Setter Property="OverridesDefaultStyle"
+					Value="true" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="RepeatButton">
+						<Border SnapsToDevicePixels="True"
+								BorderThickness="1"
+								BorderBrush="Black"
+								Background="{Binding RelativeSource={RelativeSource AncestorType=Slider, Mode=FindAncestor}, Path=Background}"
+								CornerRadius="2.5,0,0,2.5"
+								Height="7" />
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<Style x:Key="SliderThumb"
+			   TargetType="Thumb">
+			<Setter Property="SnapsToDevicePixels"
+					Value="true" />
+			<Setter Property="OverridesDefaultStyle"
+					Value="true" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Thumb">
+						<Border  Height="15"
+								 Width="15"
+								 BorderThickness="1"
+								 BorderBrush="Black"
+								 CornerRadius="10"
+								 Background="{Binding RelativeSource={RelativeSource AncestorType=Slider, Mode=FindAncestor}, Path=Background}">
+							<Ellipse x:Name="EfEll"
+									 Height="15"
+									 Width="15"
+									 Margin="-2"
+									 Visibility="Hidden"
+									 Fill="#66FFFFFF" />
+						</Border>
+
+
+
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver"
+									 Value="True">
+								<Setter Property="Cursor"
+										Value="Hand" />
+								<Setter TargetName="EfEll"
+										Property="Visibility"
+										Value="Visible" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<ControlTemplate x:Key="Slider"
+						 TargetType="Slider">
+
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto"
+								   MinHeight="{TemplateBinding MinHeight}" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<Track Grid.Row="1"
+					   x:Name="PART_Track">
+					<Track.DecreaseRepeatButton>
+						<RepeatButton Style="{StaticResource SliderRepeatButton1}"
+									  Margin="5,0,-4,0"
+									  Command="Slider.DecreaseLarge" />
+					</Track.DecreaseRepeatButton>
+					<Track.IncreaseRepeatButton>
+						<RepeatButton Style="{StaticResource SliderRepeatButton}"
+									  Margin="-4,0,5,0"
+									  Command="Slider.IncreaseLarge" />
+					</Track.IncreaseRepeatButton>
+					<Track.Thumb>
+						<Thumb Style="{StaticResource SliderThumb}" />
+					</Track.Thumb>
+				</Track>
+			</Grid>
+
+		</ControlTemplate>
+
+		<Style x:Key="Horizontal_Slider"
+			   TargetType="Slider">
+			<Setter Property="Maximum"
+					Value="255" />
+			<Setter Property="IsSnapToTickEnabled"
+					Value="True" />
+			<Setter Property="TickFrequency"
+					Value="1" />
+			<Setter Property="Focusable"
+					Value="False" />
+			<Setter Property="Margin"
+					Value="2" />
+			<Setter Property="SnapsToDevicePixels"
+					Value="true" />
+			<Setter Property="OverridesDefaultStyle"
+					Value="true" />
+			<Style.Triggers>
+				<Trigger Property="Orientation"
+						 Value="Horizontal">
+					<Setter Property="MinHeight"
+							Value="21" />
+					<Setter Property="MinWidth"
+							Value="104" />
+					<Setter Property="Template"
+							Value="{StaticResource Slider}" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+	</UserControl.Resources>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition MinHeight="100"
+						   MaxHeight="300"/>
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<ListBox x:Name="ColorsList"
+				 Background="Transparent"
+				 BorderThickness="1"
+				 BorderBrush="Black"
+				 SelectionChanged="ColorsList_SelectionChanged">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<local:VirtualizingWrapPanel IsItemsHost="True"
+												 Orientation="Horizontal" />
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate DataType="vmw:IPaletteEditorColorItemViewModel">
+					<Border Background="{Binding ColorBrush}"
+							BorderBrush="Black"
+							BorderThickness="2"
+							Height="30"
+							Width="30" />
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ListBox>
+
+		<Viewbox Grid.Row="1"
+				 Margin="10">
+			<StackPanel Grid.Row="1"
+						Orientation="Horizontal">
+				<Grid HorizontalAlignment="Left"
+					  Height="80">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition MinWidth="40" />
+						<ColumnDefinition Width="4*"
+										  MinWidth="150" />
+						<ColumnDefinition MinWidth="40" />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+					</Grid.RowDefinitions>
+					<TextBlock Text="Red"
+							   Grid.Row="0"
+							   Margin="0,0,10,0"
+							   HorizontalAlignment="Right"
+							   VerticalAlignment="Center"
+							   FontWeight="Bold" />
+					<Slider x:Name="RedSlider"
+							Style="{StaticResource Horizontal_Slider}"
+							Grid.Row="0"
+							Background="Red"
+							VerticalAlignment="Center"
+							Grid.Column="1" />
+					<local:BalloonBox x:Name="RedValueText"
+									  TextContent="{Binding ElementName=RedSlider, Path=Value, Mode=TwoWay}"
+									  Grid.Row="0"
+									  Maximum="255"
+									  Grid.Column="2"
+									  Margin="5,0"
+									  VerticalAlignment="Center"
+									  FontWeight="Bold" />
+					<TextBlock Text="Green"
+							   VerticalAlignment="Center"
+							   HorizontalAlignment="Right"
+							   Margin="0,0,10,0"
+							   Grid.Row="1"
+							   FontWeight="Bold" />
+					<Slider  x:Name="GreenSlider"
+							 Style="{StaticResource Horizontal_Slider}"
+							 Grid.Row="1"
+							 Background="Lime"
+							 VerticalAlignment="Center"
+							 Grid.Column="1" />
+					<local:BalloonBox  x:Name="GreenValueText"
+									   TextContent="{Binding ElementName=GreenSlider, Path=Value, Mode=TwoWay}"
+									   Margin="5,0"
+									   Grid.Row="1"
+									   Maximum="255"
+									   Grid.Column="2"
+									   VerticalAlignment="Center"
+									   FontWeight="Bold" />
+					<TextBlock Text="Blue"
+							   VerticalAlignment="Center"
+							   HorizontalAlignment="Right"
+							   Margin="0,0,10,0"
+							   Grid.Row="2"
+							   FontWeight="Bold" />
+					<Slider x:Name="BlueSlider"
+							Style="{StaticResource Horizontal_Slider}"
+							Grid.Row="2"
+							Background="Blue"
+							VerticalAlignment="Center"
+							Grid.Column="1" />
+					<local:BalloonBox x:Name="BlueValueText"
+									  TextContent="{Binding ElementName=BlueSlider, Path=Value, Mode=TwoWay}"
+									  Grid.Row="2"
+									  Margin="5,0"
+									  Maximum="255"
+									  Grid.Column="2"
+									  VerticalAlignment="Center"
+									  FontWeight="Bold" />
+				</Grid>
+
+				<Grid Height="80"
+					  Width="150">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="auto" />
+						<RowDefinition />
+						<RowDefinition Height="auto" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition />
+						<ColumnDefinition Width="auto" />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+					<Border x:Name="SelectedColorView"
+							BorderBrush="Black"
+							BorderThickness="1"
+							Background="#000000"
+							Height="20"
+							CornerRadius="5"
+							VerticalAlignment="Bottom"
+							Grid.Row="1"
+							Width="80"
+							Grid.Column="1" />
+
+					<local:OutlineTextBlock x:Name="SelectedColorHexTextView"
+											HorizontalAlignment="Center"
+											VerticalAlignment="Top"
+											Fill="#000000"
+											Stroke="Black"
+											StrokeThickness="1"
+											FontSize="30"
+											Grid.Row="2"
+											Grid.Column="1"
+											FontFamily="Calibri"
+											FontWeight="Bold"
+											Text="#000000" />
+				</Grid>
+			</StackPanel>
+		</Viewbox>
+
+
+	</Grid>
+
+</UserControl>

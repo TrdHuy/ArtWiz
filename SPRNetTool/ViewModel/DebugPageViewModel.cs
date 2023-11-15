@@ -32,6 +32,7 @@ namespace SPRNetTool.ViewModel
         private ObservableCollection<OptimizedColorItemViewModel>? _optimizedDisplayedSource = null;
         private ObservableCollection<ColorItemViewModel>? _displayedRgbCompositeResultSource = null;
         private CustomObservableCollection<IFrameViewModel>? _framesSource;
+        private ObservableCollection<IPaletteEditorColorItemViewModel>? _paletteColorItemSource;
 
         private bool _isPlayingAnimation = false;
         private int _pixelWidth = 0;
@@ -53,6 +54,23 @@ namespace SPRNetTool.ViewModel
                 if (_framesSource != value)
                 {
                     _framesSource = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Bindable(true)]
+        public ObservableCollection<IPaletteEditorColorItemViewModel>? PaletteColorItemSource
+        {
+            get
+            {
+                return _paletteColorItemSource;
+            }
+            set
+            {
+                if (_paletteColorItemSource != value)
+                {
+                    _paletteColorItemSource = value;
                     Invalidate();
                 }
             }
@@ -414,6 +432,24 @@ namespace SPRNetTool.ViewModel
                     }
                     else
                     {
+                        if (castArgs.Event.HasFlag(SPR_FILE_PALETTE_CHANGED))
+                        {
+                            castArgs.PaletteData?.Apply(it =>
+                            {
+                                ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                                {
+                                    PaletteColorItemSource = new ObservableCollection<IPaletteEditorColorItemViewModel>();
+                                    foreach (var pColor in it.Data)
+                                    {
+                                        PaletteColorItemSource.Add(new PaletteEditorColorItemViewModel(
+                                           new SolidColorBrush(Color.FromRgb(pColor.Red,
+                                           pColor.Green, pColor.Blue))));
+                                    }
+                                });
+
+                            });
+                        }
+
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
                             IsSpr = castArgs.CurrentSprFileHead != null;
@@ -896,5 +932,24 @@ namespace SPRNetTool.ViewModel
 
     public class FrameViewModel : IFrameViewModel
     {
+    }
+
+    public class PaletteEditorColorItemViewModel : BaseViewModel, IPaletteEditorColorItemViewModel
+    {
+        private SolidColorBrush mBrush;
+        public PaletteEditorColorItemViewModel(SolidColorBrush brush)
+        {
+            mBrush = brush;
+        }
+
+        public SolidColorBrush ColorBrush
+        {
+            get => mBrush;
+            set
+            {
+                mBrush = value;
+                Invalidate();
+            }
+        }
     }
 }

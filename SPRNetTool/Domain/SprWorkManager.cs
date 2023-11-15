@@ -111,6 +111,14 @@ namespace SPRNetTool.Domain
             }
         }
 
+        Palette ISprWorkManager.PaletteData
+        {
+            get
+            {
+                return PaletteData;
+            }
+        }
+
         bool ISprWorkManager.IsCacheEmpty => IsCacheEmpty;
         void ISprWorkManager.InitCache()
         {
@@ -626,18 +634,8 @@ namespace SPRNetTool.Domain
             return result;
         }
 
-        byte[]? ISprWorkManager.GetByteArrayFromPaletteData(bool isModifiedData, bool isUseRecalculateData)
+        byte[]? ISprWorkManager.GetByteArrayFromPaletteData(bool isModifiedData)
         {
-            if (isUseRecalculateData)
-            {
-                if (FrameData == null) throw new Exception("Failed to get byte array from palette data");
-                if (FrameData[0].modifiedFrameRGBACache.RecalculatedPaletteData.Size == 0) throw new Exception("Failed to get byte array from palette data");
-                return FrameData[0]
-                    .modifiedFrameRGBACache
-                    .RecalculatedPaletteData
-                    .Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
-            }
-
             if (!isModifiedData)
             {
                 return PaletteData.Data.SelectMany(it => new byte[] { it.Red, it.Green, it.Blue }).ToArray();
