@@ -1,9 +1,7 @@
-﻿using Moq;
-using SPRNetTool.Domain;
+﻿using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
-using System.Windows.Media;
 
 namespace SPRNetToolTest.Domain
 {

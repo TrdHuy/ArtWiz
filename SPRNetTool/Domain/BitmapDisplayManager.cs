@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -379,11 +378,13 @@ namespace SPRNetTool.Domain
                         | CURRENT_COLOR_SOURCE_CHANGED
                         | SPR_FILE_HEAD_CHANGED
                         | SPR_FRAME_DATA_CHANGED
-                        | SPR_FRAME_COLLECTION_CHANGED,
+                        | SPR_FRAME_COLLECTION_CHANGED
+                        | SPR_FILE_PALETTE_CHANGED,
                     currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                     colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                     sprFileHead: SprWorkManager.FileHead,
                     sprFrameData: SprWorkManager.GetFrameData(0),
+                    paletteData: SprWorkManager.PaletteData,
                     sprFrameCollectionChangedArg: new SprFrameCollectionChangedArg(changedEvent: TOTAL_FRAME_COUNT_CHANGED,
                         frameCount: (uint)(DisplayedBitmapSourceCache.AnimationSourceCaching?.Length ?? 0))));
                 return;
@@ -663,6 +664,7 @@ namespace SPRNetTool.Domain
             SPR_GLOBAL_OFFSET_CHANGED = 0b100000000,
             SPR_GLOBAL_SIZE_CHANGED = 0b1000000000,
             SPR_FRAME_COLLECTION_CHANGED = 0b10000000000,
+            SPR_FILE_PALETTE_CHANGED = 0b100000000000,
         }
 
         public ChangedEvent Event { get; private set; }
@@ -673,6 +675,7 @@ namespace SPRNetTool.Domain
         public uint CurrentDisplayingFrameIndex { get; private set; }
         public FrameRGBA? SprFrameData { get; private set; }
         public uint SprFrameCount { get; private set; }
+        public Palette? PaletteData { get; private set; }
         public SprFrameCollectionChangedArg? SprFrameCollectionChangedArg { get; private set; }
 
         public BitmapDisplayMangerChangedArg(ChangedEvent changedEvent, BitmapSource? currentDisplayingSource = null,
@@ -681,7 +684,8 @@ namespace SPRNetTool.Domain
             bool? isPlayingAnimation = null,
             uint currentDisplayFrameIndex = 0,
             SprFrameCollectionChangedArg? sprFrameCollectionChangedArg = null,
-            FrameRGBA? sprFrameData = null)
+            FrameRGBA? sprFrameData = null,
+            Palette? paletteData = null)
         {
             CurrentDisplayingSource = currentDisplayingSource;
             CurrentColorSource = colorSource;
@@ -690,6 +694,7 @@ namespace SPRNetTool.Domain
             CurrentDisplayingFrameIndex = currentDisplayFrameIndex;
             SprFrameData = sprFrameData;
             SprFrameCollectionChangedArg = sprFrameCollectionChangedArg;
+            PaletteData = paletteData;
             Event = changedEvent;
         }
     }

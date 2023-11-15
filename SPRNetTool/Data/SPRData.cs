@@ -153,13 +153,13 @@ namespace SPRNetTool.Data
         {
             return new SprFileHead(versionInfo: new byte[] { (byte)'S', (byte)'P', (byte)'R', (byte)'\0' },
                 globalWidth: 0,
-                globalHeight:0,
-                offX:0,
-                offY:0,
-                frameCounts:0,
-                colorCounts:0,
-                directionCount:0,
-                interval:0,
+                globalHeight: 0,
+                offX: 0,
+                offY: 0,
+                frameCounts: 0,
+                colorCounts: 0,
+                directionCount: 0,
+                interval: 0,
                 reserved: new byte[12]);
         }
         public class SprFileHeadCache
