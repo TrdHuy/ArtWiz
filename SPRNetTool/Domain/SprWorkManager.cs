@@ -20,8 +20,8 @@ namespace SPRNetTool.Domain
         #region caching variables
         private SprFileHead FileHead;
         private Palette PaletteData = new Palette();
-        private long FrameDataBegPos = -1;
-        private FrameRGBA[]? FrameData;
+        protected long FrameDataBegPos = -1;
+        protected FrameRGBA[]? FrameData;
         #endregion
 
         private bool IsCacheEmpty => FrameDataBegPos == -1;
