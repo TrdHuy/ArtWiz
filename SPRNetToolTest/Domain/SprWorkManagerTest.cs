@@ -9,7 +9,7 @@ namespace SPRNetToolTest.Domain
 {
     internal class SprWorkManagerTest
     {
-        private class SprWorkManagerTestObject : SprWorkManager
+        private class SprWorkManagerTestObject : SprWorkManagerCore
         {
             public long GetFrameDataBegPosCache()
             {
@@ -32,7 +32,7 @@ namespace SPRNetToolTest.Domain
         private string _3binFilePath = "Resources\\3.bin";
         private string _4binFilePath = "Resources\\4.bin";
         private string _5binFilePath = "Resources\\5.bin";
-        private ISprWorkManager sprWorkManager;
+        private ISprWorkManagerCore sprWorkManager;
         private SprWorkManagerTestObject sprWorkManagerTestObject;
 
         [SetUp]
