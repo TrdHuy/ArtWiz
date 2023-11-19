@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
+using static SPRNetTool.Data.FrameRGBA;
 
 namespace SPRNetTool.Data
 {
@@ -286,7 +287,7 @@ namespace SPRNetTool.Data
 
     public struct PaletteColor
     {
-        public byte Blue = 0x00;
+        public byte Blue { get; set; } = 0x00;
         public byte Green = 0x00;
         public byte Red = 0x00;
         public byte Alpha = 0x00;
@@ -334,8 +335,60 @@ namespace SPRNetTool.Data
     }
     public struct Palette
     {
+        private PaletteCache? _modifiedCache = null;
+        public class PaletteCache
+        {
+            private Palette modifiedPalette;
+            public PaletteCache(Palette originPalette)
+            {
+                this.modifiedPalette = new Palette(originPalette.Size);
+                Array.Copy(originPalette.Data, modifiedPalette.Data, originPalette.Size);
+            }
+
+            public PaletteColor this[int index]
+            {
+                get
+                {
+                    if ((uint)index >= (uint)modifiedPalette.Size)
+                    {
+                        throw new IndexOutOfRangeException();
+                    }
+                    return modifiedPalette.Data[index];
+                }
+
+                set
+                {
+                    if ((uint)index >= (uint)modifiedPalette.Size)
+                    {
+                        throw new IndexOutOfRangeException();
+                    }
+                    modifiedPalette.Data[index] = value;
+                }
+            }
+
+            public PaletteColor[] Data
+            {
+                get
+                {
+                    return modifiedPalette.Data;
+                }
+            }
+
+        }
+
         public int Size;//Palette_Colour counts, must less than 257
-        public PaletteColor[] Data;
+        public PaletteColor[] Data { get; }
+        public PaletteCache modifiedPalette
+        {
+            get
+            {
+                if (_modifiedCache == null)
+                {
+                    _modifiedCache = new PaletteCache(this);
+                }
+                return _modifiedCache;
+            }
+        }
 
         public Palette(int size)
         {
@@ -432,6 +485,7 @@ namespace SPRNetTool.Data
         public short frameOffX { get; set; }
         public short frameOffY { get; set; }
         public bool isInsertedFrame { get; set; }
+        public byte[] originDecodedFrameByteData { get; set; }
         public PaletteColor[] originDecodedFrameData { get; set; }
         public PaletteColor[] globalFrameData { get; set; }
 
@@ -458,6 +512,7 @@ namespace SPRNetTool.Data
             private Palette recalculatedPaletteData;
 
             public Dictionary<Color, long>? CountableSource { get; set; }
+            public Dictionary<int, List<long>>? PaletteIndexToPixelIndexMap { get; set; }
 
             public FrameRGBACache(FrameRGBA originData)
             {
@@ -476,14 +531,6 @@ namespace SPRNetTool.Data
                 get
                 {
                     return recalculatedPaletteData;
-                }
-            }
-
-            public Palette PaletteData
-            {
-                get
-                {
-                    return paletteData;
                 }
             }
 
@@ -550,12 +597,6 @@ namespace SPRNetTool.Data
                 return frameRGBA;
             }
 
-            public void SetCopiedPaletteData(Palette paletteData)
-            {
-                this.paletteData = new Palette(paletteData.Size);
-                Array.Copy(paletteData.Data, this.paletteData.Data, paletteData.Size);
-            }
-
             public void SetCopiedRecalculatedPaletteData(PaletteColor[] paletteData)
             {
                 this.recalculatedPaletteData = new Palette(paletteData.Length);
@@ -564,6 +605,7 @@ namespace SPRNetTool.Data
         }
 
         public bool isNeedToRedrawGlobalFrameData { get; set; }
+        public bool isNeedToRedrawByPaletteDataChanged { get; set; }
     }
 
 

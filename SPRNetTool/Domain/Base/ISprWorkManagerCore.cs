@@ -18,6 +18,9 @@ namespace SPRNetTool.Domain.Base
 
         bool IsWorkSpaceEmpty => IsCacheEmpty;
 
+        void SetNewColorToPalette(int colorIndex, 
+            byte R, byte G, byte B);
+
         /// <summary>
         /// file head của spr đang được load trong work manager hiện tại
         /// </summary>
@@ -72,11 +75,11 @@ namespace SPRNetTool.Domain.Base
 
                         newPalettData?.Apply(it =>
                         {
-                            ApplyNewPalleteToInsertedFrames(it);
+                            ApplyNewPaletteToInsertedFrames(it);
 
                             if (IsNeedToApplyNewPaletteToOldFrames(it))
                             {
-                                ApplyNewPalleteToOldFrames(it);
+                                ApplyNewPaletteToOldFrames(it);
                             }
                         });
                     }
@@ -103,6 +106,8 @@ namespace SPRNetTool.Domain.Base
                     byte[][] allFramesData = new byte[FileHead.FrameCounts][];
                     for (int i = 0; i < FileHead.FrameCounts; i++)
                     {
+                        // TODO: cần kiểm tra có frame nào đã thay đổi kích thước hoặc offset hay
+                        // không
                         allFramesData[i] = GetByteArrayFromEncryptedFrameData(i,
                             isModifiedData,
                             isRecalculatePaletteColorSuccess,
@@ -170,9 +175,9 @@ namespace SPRNetTool.Domain.Base
         #endregion
 
         #region protected API
-        protected void ApplyNewPalleteToOldFrames(Palette newPalettData);
-        protected void ApplyNewPalleteToInsertedFrames(Palette newPalettData);
-        protected bool IsNeedToApplyNewPaletteToOldFrames(Palette newPalettData);
+        protected void ApplyNewPaletteToOldFrames(Palette newPaletteData);
+        protected void ApplyNewPaletteToInsertedFrames(Palette newPaletteData);
+        protected bool IsNeedToApplyNewPaletteToOldFrames(Palette newPaletteData);
         protected bool IsPossibleToSaveFile();
         protected bool IsContainInsertedFrame();
         protected bool RecalculatePaletteColorForAllInsertedFrame(out Palette? newPaletteData);

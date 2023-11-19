@@ -19,9 +19,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using static SPRNetTool.View.InputWindow;
+using static System.Windows.Forms.DataFormats;
 
 namespace SPRNetTool.View.Pages
 {
@@ -91,7 +94,7 @@ namespace SPRNetTool.View.Pages
         private void OpenImageClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Tệp ảnh |*.png;*.jpg;*.jpeg;*.spr";
+            openFileDialog.Filter = "Tệp ảnh |*.png;*.jpg;*.jpeg;*.spr;*.bin";
             if (openFileDialog.ShowDialog() == true)
             {
                 BitmapSource? bmpSource = null;
@@ -108,6 +111,26 @@ namespace SPRNetTool.View.Pages
 
                         Debug.WriteLine($"WxH= {bmpSource?.PixelWidth * bmpSource?.PixelHeight}");
                     });
+                }
+                else if (fileExtension == ".bin")
+                {
+                    using (FileStream fs = new FileStream(imagePath, FileMode.Open))
+                    {
+                        // Tạo một mảng byte với kích thước bằng kích thước của file
+                        byte[] data = new byte[fs.Length];
+
+                        // Đọc dữ liệu từ FileStream vào mảng byte
+                        fs.Read(data, 0, data.Length);
+
+                        WriteableBitmap bitmap = new WriteableBitmap(300, 300, 96, 96, PixelFormats.Bgra32, null);
+
+                        // Gán dữ liệu từ mảng imageData vào WriteableBitmap
+                        bitmap.Lock();
+                        bitmap.WritePixels(new Int32Rect(0, 0, 300, 300), data, 300 * 4, 0);
+                        bitmap.Unlock();
+                        bitmap.Freeze();
+                        viewModel.CurrentlyDisplayedBitmapSource = bitmap;
+                    }
                 }
             }
         }
@@ -498,7 +521,7 @@ namespace SPRNetTool.View.Pages
             var builder = new InputBuilder();
             var SavingTitle = "Lưu với định dạng";
             var SavingDes = "Save";
-            List<string> SavingOptions = new List<string>() { "jpg", "png", "spr" };
+            List<string> SavingOptions = new List<string>() { "jpg", "png", "spr", "bin" };
             var inputSrc = builder.AddRadioOptions(SavingTitle, SavingDes, SavingOptions).Build();
             var checkedContent = "";
             InputWindow inputWindow = new InputWindow(inputSrc, ownerWindow, (res) =>
@@ -551,6 +574,24 @@ namespace SPRNetTool.View.Pages
                     else if (checkedContent == "spr")
                     {
                         commandVM?.OnSaveCurrentWorkManagerToFileSprClicked(filePath);
+                    }
+                    else if (checkedContent == "bin")
+                    {
+                        using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                        {
+                            var bmp = viewModel.CurrentlyDisplayedBitmapSource;
+                            bmp?.Apply(it =>
+                            {
+                                int width = bmp.PixelWidth;
+                                int height = bmp.PixelHeight;
+                                int stride = (width * bmp.Format.BitsPerPixel + 7) / 8;
+                                byte[] pixelData = new byte[stride * height];
+                                bmp.CopyPixels(pixelData, stride, 0);
+
+                                fs.Write(pixelData, 0, pixelData.Length);
+                            });
+
+                        }
                     }
                 });
             }

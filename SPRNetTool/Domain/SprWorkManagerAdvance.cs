@@ -79,7 +79,6 @@ namespace SPRNetTool.Domain
 
             FileHead.modifiedSprFileHeadCache.FrameCounts++;
             FrameData = newFramesData;
-            newFramesData[frameIndex].modifiedFrameRGBACache.SetCopiedPaletteData(paletteData);
             newFramesData[frameIndex].globalFrameData = InitGlobalizedFrameDataFromOrigin(frameIndex)
                 ?? throw new Exception("Failed to insert frame");
             newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = countableSource;

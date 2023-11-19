@@ -266,7 +266,7 @@ namespace SPRNetTool.Domain
                 DisplayedBitmapSourceCache.ColorSourceCaching = new Dictionary<Color, long>?[SprWorkManager.FileHead.FrameCounts];
             }
             uint index = DisplayedBitmapSourceCache.CurrentFrameIndex ?? 0;
-            SprWorkManager.SetFrameSize(frameWidth, frameHeight, index, Colors.Aqua);
+            SprWorkManager.SetFrameSize(frameWidth, frameHeight, index);
 
             if (InvalidateDisplayBitmapSourceCache(index))
             {

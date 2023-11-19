@@ -228,7 +228,7 @@ namespace SPRNetTool.ViewModel
         {
 
             get { return _currentDisplayedBitmapSource; }
-            private set
+            set
             {
                 _currentDisplayedBitmapSource = value;
                 Invalidate();

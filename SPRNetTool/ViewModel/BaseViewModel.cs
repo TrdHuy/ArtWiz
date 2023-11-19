@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace SPRNetTool.ViewModel
 {
-    public abstract class BaseViewModel : INotifyPropertyChanged, IDomainObserver, IDomainAccessors, IArtWizViewModel
+    public abstract class BaseViewModel : BaseNotifier, IDomainObserver, IDomainAccessors, IArtWizViewModel
     {
         #region Modules
         private IBitmapDisplayManager? bitmapDisplayManager;
@@ -39,19 +39,12 @@ namespace SPRNetTool.ViewModel
 
         #endregion
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
         protected IArtWizViewModelOwner? ViewModelOwner { get; private set; }
         protected bool IsViewModelDestroyed { get; private set; } = false;
 
         protected void Invalidate([CallerMemberName] string caller = "")
         {
             OnPropertyChanged(caller);
-        }
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected void InvalidateAll()
@@ -83,7 +76,7 @@ namespace SPRNetTool.ViewModel
             ViewModelOwner = owner;
         }
 
-        void IArtWizViewModel.OnDestroy()
+        public virtual void OnDestroy()
         {
             IsViewModelDestroyed = true;
         }
