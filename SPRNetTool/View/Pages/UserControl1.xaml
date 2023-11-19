@@ -7,14 +7,13 @@
 					 xmlns:wg="clr-namespace:SPRNetTool.View.Widgets"
 					 xmlns:local="clr-namespace:SPRNetTool.View.Pages"
 					 xmlns:vm="clr-namespace:SPRNetTool.ViewModel.Widgets"
-					 xmlns:vm2="clr-namespace:SPRNetTool.ViewModel"
 					 mc:Ignorable="d"
 					 d:DesignHeight="450"
 					 d:DesignWidth="800">
 
 	<Grid x:Name="MainGrid">
 		<Grid.DataContext>
-			<vm2:BitmapViewerViewModel2 />
+			<vm:BitmapViewerViewModel2 x:Name="BVVM"/>
 		</Grid.DataContext>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="auto" />
@@ -26,10 +25,7 @@
 				 x:Name="MainViewBox"
 				 Height="200"
 				 Stretch="Uniform">
-			<!--<wg:BitmapViewer Grid.Column="1"
-							 Width="300"
-							 Height="300"
-							 x:Name="frameViewer" />-->
+			<Image x:Name="TestImg" />
 		</Viewbox>
 		<wg:BitmapViewer Grid.Column="1"
 						 Width="500"
@@ -42,11 +38,48 @@
 					Width="auto"
 					Content="Move left"
 					Click="Button_Click" />
+			<Button Height="40"
+					Width="auto"
+					Content="Set source"
+					Click="Button_Click2" />
+			<Button Height="40"
+					Width="auto"
+					Content="Set source async"
+					Click="Button_Click3" />
+			<TextBlock Text="Change color"/>
 			<Slider Width="100"
 					Maximum="255"
 					IsSnapToTickEnabled="True"
 					TickFrequency="1"
 					ValueChanged="Slider_ValueChanged" />
+			<TextBlock Text="Frame offx" />
+			<Slider Width="100"
+					Maximum="255"
+					IsSnapToTickEnabled="True"
+					TickFrequency="1"
+					ValueChanged="Slider_ValueChanged2" />
+
+			<TextBlock Text="Frame offy" />
+			<Slider Width="100"
+					Maximum="255"
+					IsSnapToTickEnabled="True"
+					TickFrequency="1"
+					ValueChanged="Slider_ValueChanged3" />
+
+			<TextBlock Text="Global offx" />
+			<Slider Width="100"
+					Maximum="255"
+					IsSnapToTickEnabled="True"
+					TickFrequency="1"
+					ValueChanged="Slider_ValueChanged4" />
+
+			<TextBlock Text="Global offy" />
+			<Slider Width="100"
+					Maximum="255"
+					IsSnapToTickEnabled="True"
+					TickFrequency="1"
+					ValueChanged="Slider_ValueChanged5" />
+
 		</WrapPanel>
 
 	</Grid>

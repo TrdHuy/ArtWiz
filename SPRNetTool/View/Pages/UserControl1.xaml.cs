@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,7 +33,17 @@ namespace SPRNetTool.View.Pages
         public UserControl1(IWindowViewer ownerWindow) : base(ownerWindow)
         {
             InitializeComponent();
-            //testSrc = CreateBackgroundBitmap();
+
+            Task.Run(() =>
+            {
+                testSrc = CreateBackgroundBitmap();
+                testSrc.Freeze();
+                Dispatcher.Invoke(() =>
+                {
+                    TestImg.Source = testSrc;
+                });
+            });
+
             //frameViewer.Width = testSrc.PixelWidth;
             //frameViewer.Height = testSrc.PixelHeight;
             //ForegroundImage.Source = testSrc;
@@ -40,8 +51,8 @@ namespace SPRNetTool.View.Pages
 
         private WriteableBitmap CreateBackgroundBitmap()
         {
-            int width = 800;
-            int height = 800;
+            int width = 200;
+            int height = 200;
             int squareSize = 10;
 
             // Tạo WriteableBitmap với nền trong suốt
@@ -76,49 +87,116 @@ namespace SPRNetTool.View.Pages
             return bitmap;
         }
 
-        private void EditBitmap(WriteableBitmap bitmap, byte newR)
+        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
+        private async Task<WriteableBitmap> EditBitmap(WriteableBitmap bitmap, byte newR)
         {
-            int width = bitmap.PixelWidth;
-            int height = bitmap.PixelHeight;
-            int bytesPerPixel = (bitmap.Format.BitsPerPixel + 7) / 8;
+            await semaphoreSlim.WaitAsync();
 
-            // Tạo mảng pixel
-            if(testSrcPixel == null)
-            {
-                testSrcPixel = new byte[width * height * bytesPerPixel];
-                bitmap.CopyPixels(testSrcPixel, width * bytesPerPixel, 0);
-            }
+            var newSource = await Task<WriteableBitmap>.Run(() =>
+             {
 
-            // Chỉnh sửa pixel: các pixel ở vị trí chiều ngang chia hết cho 2 có màu xanh lá
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    int index = (y * width + x) * bytesPerPixel;
+                 var newBitmap = bitmap;
+                 if (bitmap.IsFrozen)
+                 {
+                     newBitmap = bitmap.Clone();
+                 }
+                 int width = bitmap.PixelWidth;
+                 int height = bitmap.PixelHeight;
+                 int bytesPerPixel = (bitmap.Format.BitsPerPixel + 7) / 8;
 
-                    // Nếu là pixel ở vị trí chiều ngang chia hết cho 2
-                    if (x % 2 == 0)
-                    {
-                        // Gán màu xanh lá cho pixel
-                        testSrcPixel[index + 2] = newR;   // Red
-                    }
-                }
-            }
+                 // Tạo mảng pixel
+                 if (testSrcPixel == null)
+                 {
+                     testSrcPixel = new byte[width * height * bytesPerPixel];
+                     bitmap.CopyPixels(testSrcPixel, width * bytesPerPixel, 0);
+                 }
 
-            // Ghi lại pixel đã được chỉnh sửa vào bitmap
-            bitmap.WritePixels(new Int32Rect(0, 0, width, height), testSrcPixel, width * bytesPerPixel, 0);
+                 // Chỉnh sửa pixel: các pixel ở vị trí chiều ngang chia hết cho 2 có màu xanh lá
+                 for (int y = 0; y < height; y++)
+                 {
+                     for (int x = 0; x < width; x++)
+                     {
+                         int index = (y * width + x) * bytesPerPixel;
+
+                         // Nếu là pixel ở vị trí chiều ngang chia hết cho 2
+                         if (x % 2 == 0)
+                         {
+                             // Gán màu xanh lá cho pixel
+                             testSrcPixel[index + 2] = newR;   // Red
+                         }
+                     }
+                 }
+
+                 // Ghi lại pixel đã được chỉnh sửa vào bitmap
+                 newBitmap.WritePixels(new Int32Rect(0, 0, width, height), testSrcPixel, width * bytesPerPixel, 0);
+                 newBitmap.Freeze();
+                 return newBitmap;
+             });
+            semaphoreSlim.Release();
+            return newSource;
+
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            (frameViewer2.ViewModel as IBitmapViewerViewModel)!.GlobalHeight += 1;
-            (frameViewer2.ViewModel as IBitmapViewerViewModel)!.GlobalWidth += 1;
+            BVVM.BitmapViewerVM.GlobalHeight += 1;
+            BVVM.BitmapViewerVM.GlobalWidth += 1;
         }
 
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Button_Click2(object sender, RoutedEventArgs e)
         {
-            EditBitmap(testSrc, (byte)e.NewValue);
+            BVVM.BitmapViewerVM.GlobalHeight = (uint)testSrc.PixelHeight + 50;
+            BVVM.BitmapViewerVM.GlobalWidth = (uint)testSrc.PixelWidth + 50;
+            BVVM.BitmapViewerVM.FrameWidth = (uint)testSrc.PixelWidth;
+            BVVM.BitmapViewerVM.FrameHeight = (uint)testSrc.PixelHeight;
+            BVVM.BitmapViewerVM.FrameSource = testSrc;
+        }
 
+        private void Button_Click3(object sender, RoutedEventArgs e)
+        {
+            Task.Run(() =>
+            {
+                testSrc = CreateBackgroundBitmap();
+                testSrc.Freeze();
+                BVVM.BitmapViewerVM.GlobalHeight = (uint)testSrc.PixelHeight;
+                BVVM.BitmapViewerVM.GlobalWidth = (uint)testSrc.PixelWidth;
+                BVVM.BitmapViewerVM.FrameWidth = (uint)testSrc.PixelWidth;
+                BVVM.BitmapViewerVM.FrameHeight = (uint)testSrc.PixelHeight;
+                BVVM.BitmapViewerVM.FrameSource = testSrc;
+            });
+        }
+
+        private async void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (testSrc.IsFrozen)
+            {
+                testSrc = await EditBitmap(testSrc, (byte)e.NewValue);
+                BVVM.BitmapViewerVM.FrameSource = testSrc;
+            }
+            else
+            {
+                await EditBitmap(testSrc, (byte)e.NewValue);
+            }
+        }
+
+        private void Slider_ValueChanged2(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            BVVM.BitmapViewerVM.FrameOffX += (uint)(e.NewValue - e.OldValue);
+        }
+
+        private void Slider_ValueChanged3(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            BVVM.BitmapViewerVM.FrameOffY += (uint)(e.NewValue - e.OldValue);
+        }
+
+        private void Slider_ValueChanged4(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            BVVM.BitmapViewerVM.GlobalOffX += (uint)(e.NewValue - e.OldValue);
+        }
+
+        private void Slider_ValueChanged5(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            BVVM.BitmapViewerVM.GlobalOffY += (uint)(e.NewValue - e.OldValue);
         }
     }
 }

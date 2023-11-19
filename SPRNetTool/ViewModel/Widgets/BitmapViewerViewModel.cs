@@ -1,13 +1,10 @@
 ﻿using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain;
 using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Widgets;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
-using System.ComponentModel;
-using SPRNetTool.View.Widgets;
 
-namespace SPRNetTool.ViewModel
+namespace SPRNetTool.ViewModel.Widgets
 {
     public class BitmapViewerViewModel : BaseViewModel, IBitmapViewerViewModel
     {

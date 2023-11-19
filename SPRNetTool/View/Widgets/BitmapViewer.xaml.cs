@@ -41,12 +41,10 @@ namespace SPRNetTool.View.Widgets
     {
         public static readonly DependencyProperty GlobalOffXProperty =
            DependencyProperty.Register(
-               "GlobalOffX",
-               typeof(uint),
-               typeof(BitmapViewerInternal),
-               new FrameworkPropertyMetadata(0u,
-                   FrameworkPropertyMetadataOptions.AffectsMeasure,
-                   new PropertyChangedCallback(OnSizePropertyChanged)));
+                "GlobalOffX",
+                typeof(uint),
+                typeof(BitmapViewerInternal),
+                new PropertyMetadata(0u, OnSizePropertyChanged));
 
         public uint GlobalOffX
         {
@@ -171,10 +169,7 @@ namespace SPRNetTool.View.Widgets
 
         private static void OnFrameSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            d.IfIs<BitmapViewer>(it =>
-            {
-                it.SprFrameImage.Source = e.NewValue as ImageSource;
-            });
+           
         }
     }
 }
