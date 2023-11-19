@@ -10,11 +10,47 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\1.bin" />
+    <None Remove="Resources\1.png" />
+    <None Remove="Resources\1.spr" />
+    <None Remove="Resources\12345.spr" />
+    <None Remove="Resources\2.bin" />
+    <None Remove="Resources\3.bin" />
+    <None Remove="Resources\4.bin" />
+    <None Remove="Resources\5.bin" />
+    <None Remove="Resources\test.bin" />
     <None Remove="Resources\test.png" />
     <None Remove="Resources\test.spr" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Resources\1.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\1.spr">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\12345.spr">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\2.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\3.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\4.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\5.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\test.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\test.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

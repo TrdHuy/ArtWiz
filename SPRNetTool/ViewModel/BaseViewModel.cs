@@ -12,7 +12,7 @@ namespace SPRNetTool.ViewModel
     {
         #region Modules
         private IBitmapDisplayManager? bitmapDisplayManager;
-        private ISprWorkManager? sprWorkManager;
+        private ISprWorkManagerCore? sprWorkManager;
 
         protected IBitmapDisplayManager BitmapDisplayManager
         {
@@ -25,14 +25,14 @@ namespace SPRNetTool.ViewModel
             }
         }
 
-        protected ISprWorkManager SprWorkManager
+        protected ISprWorkManagerCore SprWorkManager
         {
             get
             {
                 return sprWorkManager ??
                     IDomainAccessors
                     .DomainContext
-                    .GetDomain<ISprWorkManager>()
+                    .GetDomain<ISprWorkManagerCore>()
                     .Also(it => sprWorkManager = it);
             }
         }

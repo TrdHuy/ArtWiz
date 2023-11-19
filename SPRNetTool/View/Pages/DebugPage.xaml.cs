@@ -75,7 +75,7 @@ namespace SPRNetTool.View.Pages
         public override object ViewModel => DataContext;
 
         //TODO: remove this because it belong to domain layer
-        private ISprWorkManager workManager = new SprWorkManager();
+        private ISprWorkManagerCore workManager = new SprWorkManagerCore();
         private DebugPageViewModel viewModel;
         private IDebugPageCommand? commandVM;
 
