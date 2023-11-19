@@ -19,15 +19,15 @@ namespace SPRNetTool.Domain
     public class BitmapDisplayManager : BaseDomain, IBitmapDisplayManager
     {
         private static Logger logger = new Logger("BitmapDisplayManager");
-        private ISprWorkManager? sprWorkManagerInstance;
-        protected ISprWorkManager SprWorkManager
+        private ISprWorkManagerAdvance? sprWorkManagerInstance;
+        protected ISprWorkManagerAdvance SprWorkManager
         {
             get
             {
                 return sprWorkManagerInstance ??
                     IDomainAccessors
                     .DomainContext
-                    .GetDomain<ISprWorkManager>()
+                    .GetDomain<ISprWorkManagerAdvance>()
                     .Also(it => sprWorkManagerInstance = it);
             }
         }
