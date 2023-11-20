@@ -103,8 +103,8 @@ namespace SPRNetTool.Domain.Base
                             ?? throw new Exception("Failed to get byte array from palette data!"));
                     }
 
-                    byte[][] allFramesData = new byte[FileHead.FrameCounts][];
-                    for (int i = 0; i < FileHead.FrameCounts; i++)
+                    byte[][] allFramesData = new byte[FileHead.modifiedSprFileHeadCache.FrameCounts][];
+                    for (int i = 0; i < FileHead.modifiedSprFileHeadCache.FrameCounts; i++)
                     {
                         // TODO: cần kiểm tra có frame nào đã thay đổi kích thước hoặc offset hay
                         // không
@@ -118,7 +118,7 @@ namespace SPRNetTool.Domain.Base
                     fs.Write(GetByteArrayFromAllFramesOffsetInfo(allFramesData)
                        ?? throw new Exception("Failed to get byte array from frame offset info!"));
 
-                    for (int i = 0; i < FileHead.FrameCounts; i++)
+                    for (int i = 0; i < FileHead.modifiedSprFileHeadCache.FrameCounts; i++)
                     {
                         fs.Write(allFramesData[i]);
                     }
