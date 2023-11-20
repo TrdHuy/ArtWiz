@@ -1,4 +1,5 @@
-﻿using SPRNetTool.Domain;
+﻿using SPRNetTool.Data;
+using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 
 namespace SPRNetToolTest.Domain
@@ -34,7 +35,11 @@ namespace SPRNetToolTest.Domain
         [Test, NeedToOpenSprFile]
         public void test_InsertFrame()
         {
+            var spr1 = new SprFileHead();
+            var spr2 = spr1;
 
+            var spr3 = new SprFileHead();
+            spr1.Interval = 100;
         }
     }
 

@@ -41,6 +41,13 @@ namespace SPRNetTool.ViewModel
         private FrameRGBA _sprFrameData;
         private uint _currentFrameIndex = 0;
         private bool _isSpr = false;
+        private IBitmapViewerViewModel bitmapViewerVM;
+
+        [Bindable(true)]
+        public IBitmapViewerViewModel BitmapViewerVM
+        {
+            get => bitmapViewerVM;
+        }
 
         [Bindable(true)]
         public CustomObservableCollection<IFrameViewModel>? FramesSource
@@ -251,6 +258,7 @@ namespace SPRNetTool.ViewModel
 
         public DebugPageViewModel()
         {
+            bitmapViewerVM = new BitmapViewerViewModel();
             BindingOperations.EnableCollectionSynchronization(_rawOriginalSource, new object());
             BitmapDisplayManager.RegisterObserver(this);
         }
@@ -453,11 +461,7 @@ namespace SPRNetTool.ViewModel
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
                             IsSpr = castArgs.CurrentSprFileHead != null;
-                            if (!castArgs.Event.HasFlag(SPR_GLOBAL_OFFSET_CHANGED) &&
-                                !castArgs.Event.HasFlag(SPR_GLOBAL_SIZE_CHANGED))
-                            {
-                                castArgs.CurrentSprFileHead?.Apply(it => SprFileHead = it);
-                            }
+                            castArgs.CurrentSprFileHead?.Apply(it => SprFileHead = it);
                         }
 
                         if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED))
@@ -479,11 +483,7 @@ namespace SPRNetTool.ViewModel
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))
                         {
-                            if (!castArgs.Event.HasFlag(SPR_FRAME_OFFSET_CHANGED) &&
-                                !castArgs.Event.HasFlag(SPR_FRAME_SIZE_CHANGED))
-                            {
-                                SprFrameData = castArgs.SprFrameData?.modifiedFrameRGBACache?.toFrameRGBA() ?? new FrameRGBA();
-                            }
+                            SprFrameData = castArgs.SprFrameData?.modifiedFrameRGBACache?.toFrameRGBA() ?? new FrameRGBA();
                         }
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_COLLECTION_CHANGED))
@@ -597,6 +597,8 @@ namespace SPRNetTool.ViewModel
             });
         }
 
+
+        #region Command region
         void IDebugPageCommand.OnPlayPauseAnimationSprClicked()
         {
             if (!IsSpr) return;
@@ -832,7 +834,7 @@ namespace SPRNetTool.ViewModel
         {
             if (!IsSpr) return;
 
-            if (CurrentFrameIndex < SprFileHead.FrameCounts - 1)
+            if (CurrentFrameIndex < SprFileHead.modifiedSprFileHeadCache.FrameCounts - 1)
             {
                 BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(CurrentFrameIndex + 1);
             }
@@ -871,7 +873,6 @@ namespace SPRNetTool.ViewModel
             BitmapDisplayManager.SetSprInterval(interval);
         }
 
-
         void IDebugPageCommand.OnIncreaseIntervalButtonClicked()
         {
             if (!IsSpr) return;
@@ -898,7 +899,14 @@ namespace SPRNetTool.ViewModel
         {
             if (CurrentlyDisplayedBitmapSource != null)
             {
-                BitmapDisplayManager.InsertFrame(SprFileHead.FrameCounts, CurrentlyDisplayedBitmapSource);
+                if (SprFileHead.VersionInfo == null)
+                {
+                    BitmapDisplayManager.InsertFrame(0, CurrentlyDisplayedBitmapSource);
+                }
+                else
+                {
+                    BitmapDisplayManager.InsertFrame(SprFileHead.modifiedSprFileHeadCache.FrameCounts, CurrentlyDisplayedBitmapSource);
+                }
                 BitmapDisplayManager.ChangeCurrentDisplayMode(isSpr: true);
             }
         }
@@ -927,7 +935,14 @@ namespace SPRNetTool.ViewModel
                 BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(frameIndex);
             }
         }
+        #endregion
 
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            bitmapViewerVM.OnDestroy();
+        }
     }
 
     public class FrameViewModel : IFrameViewModel

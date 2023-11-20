@@ -11,12 +11,12 @@ namespace SPRNetTool.ViewModel.Widgets
         private BitmapSource? _frameSource;
         public uint _globalWidth = 0;
         public uint _globalHeight = 0;
-        public uint _globalOffX = 0;
-        public uint _globalOffY = 0;
+        public int _globalOffX = 0;
+        public int _globalOffY = 0;
         public uint _frameHeight = 0;
         public uint _frameWidth = 0;
-        public uint _frameOffX = 0;
-        public uint _frameOffY = 0;
+        public int _frameOffX = 0;
+        public int _frameOffY = 0;
         public bool _isSpr;
 
         public BitmapSource? FrameSource
@@ -44,7 +44,7 @@ namespace SPRNetTool.ViewModel.Widgets
                 Invalidate();
             }
         }
-        public uint GlobalOffX
+        public int GlobalOffX
         {
             get => _globalOffX; set
             {
@@ -52,7 +52,7 @@ namespace SPRNetTool.ViewModel.Widgets
                 Invalidate();
             }
         }
-        public uint GlobalOffY
+        public int GlobalOffY
         {
             get => _globalOffY; set
             {
@@ -76,7 +76,7 @@ namespace SPRNetTool.ViewModel.Widgets
                 Invalidate();
             }
         }
-        public uint FrameOffX
+        public int FrameOffX
         {
             get => _frameOffX; set
             {
@@ -84,7 +84,7 @@ namespace SPRNetTool.ViewModel.Widgets
                 Invalidate();
             }
         }
-        public uint FrameOffY
+        public int FrameOffY
         {
             get => _frameOffY; set
             {
@@ -139,8 +139,8 @@ namespace SPRNetTool.ViewModel.Widgets
                         {
                             castArgs.CurrentSprFileHead?.Apply(it =>
                             {
-                                GlobalOffX = (uint)it.OffX;
-                                GlobalOffY = (uint)it.OffY;
+                                GlobalOffX = it.modifiedSprFileHeadCache.offX;
+                                GlobalOffY = it.modifiedSprFileHeadCache.offY;
                             });
                         }
 
@@ -148,8 +148,8 @@ namespace SPRNetTool.ViewModel.Widgets
                         {
                             castArgs.CurrentSprFileHead?.Apply(it =>
                             {
-                                GlobalHeight = (uint)it.GlobalHeight;
-                                GlobalWidth = (uint)it.GlobalWidth;
+                                GlobalHeight = it.modifiedSprFileHeadCache.globalHeight;
+                                GlobalWidth = it.modifiedSprFileHeadCache.globalWidth;
                             });
                         }
 
@@ -158,8 +158,10 @@ namespace SPRNetTool.ViewModel.Widgets
                             FrameSource = castArgs.CurrentDisplayingSource;
                             if (!IsSpr)
                             {
-                                GlobalHeight = (uint)(castArgs.CurrentDisplayingSource?.PixelWidth ?? 0);
-                                GlobalWidth = (uint)(castArgs.CurrentDisplayingSource?.PixelHeight ?? 0);
+                                GlobalHeight = (uint)(castArgs.CurrentDisplayingSource?.PixelHeight ?? 0);
+                                GlobalWidth = (uint)(castArgs.CurrentDisplayingSource?.PixelWidth ?? 0);
+                                FrameHeight = (uint)(castArgs.CurrentDisplayingSource?.PixelHeight ?? 0);
+                                FrameWidth = (uint)(castArgs.CurrentDisplayingSource?.PixelWidth ?? 0);
                             }
 
                         }
@@ -168,8 +170,8 @@ namespace SPRNetTool.ViewModel.Widgets
                         {
                             castArgs.SprFrameData?.Apply(it =>
                             {
-                                FrameOffX = (uint)it.frameOffX;
-                                FrameOffY = (uint)it.frameOffY;
+                                FrameOffX = it.modifiedFrameRGBACache.frameOffX;
+                                FrameOffY = it.modifiedFrameRGBACache.frameOffY;
                             });
                         }
 
@@ -177,8 +179,8 @@ namespace SPRNetTool.ViewModel.Widgets
                         {
                             castArgs.SprFrameData?.Apply(it =>
                             {
-                                FrameHeight = (uint)it.frameHeight;
-                                FrameWidth = (uint)it.frameWidth;
+                                FrameHeight = it.modifiedFrameRGBACache.frameHeight;
+                                FrameWidth = it.modifiedFrameRGBACache.frameWidth;
                             });
                         }
                     }

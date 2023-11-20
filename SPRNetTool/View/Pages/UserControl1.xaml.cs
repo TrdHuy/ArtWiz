@@ -168,6 +168,7 @@ namespace SPRNetTool.View.Pages
 
         private async void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if (!IsLoaded) return;
             if (testSrc.IsFrozen)
             {
                 testSrc = await EditBitmap(testSrc, (byte)e.NewValue);
@@ -181,22 +182,50 @@ namespace SPRNetTool.View.Pages
 
         private void Slider_ValueChanged2(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            BVVM.BitmapViewerVM.FrameOffX += (uint)(e.NewValue - e.OldValue);
+            if (!IsLoaded) return;
+            BVVM.BitmapViewerVM.FrameOffX += (int)(e.NewValue - e.OldValue);
         }
 
         private void Slider_ValueChanged3(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            BVVM.BitmapViewerVM.FrameOffY += (uint)(e.NewValue - e.OldValue);
+            if (!IsLoaded) return;
+            BVVM.BitmapViewerVM.FrameOffY += (int)(e.NewValue - e.OldValue);
         }
 
         private void Slider_ValueChanged4(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            BVVM.BitmapViewerVM.GlobalOffX += (uint)(e.NewValue - e.OldValue);
+            if (!IsLoaded) return;
+            BVVM.BitmapViewerVM.GlobalOffX += (int)(e.NewValue - e.OldValue);
         }
 
         private void Slider_ValueChanged5(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            BVVM.BitmapViewerVM.GlobalOffY += (uint)(e.NewValue - e.OldValue);
+            if (!IsLoaded) return;
+            BVVM.BitmapViewerVM.GlobalOffY += (int)(e.NewValue - e.OldValue);
+        }
+
+        private void Slider_ValueChanged6(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!IsLoaded) return;
+            BVVM.BitmapViewerVM.GlobalWidth += (uint)(e.NewValue - e.OldValue);
+        }
+
+        private void Slider_ValueChanged7(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!IsLoaded) return;
+            BVVM.BitmapViewerVM.GlobalHeight += (uint)(e.NewValue - e.OldValue);
+        }
+
+        private void Slider_ValueChanged8(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!IsLoaded) return;
+            BVVM.BitmapViewerVM.FrameWidth += (uint)(e.NewValue - e.OldValue);
+        }
+
+        private void Slider_ValueChanged9(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!IsLoaded) return;
+            BVVM.BitmapViewerVM.FrameHeight += (uint)(e.NewValue - e.OldValue);
         }
     }
 }

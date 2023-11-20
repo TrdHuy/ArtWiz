@@ -11,14 +11,15 @@
 					 d:DesignHeight="450"
 					 d:DesignWidth="800">
 
-	<Grid x:Name="MainGrid">
+	<Grid x:Name="MainGrid"
+		  Background="Gray">
 		<Grid.DataContext>
-			<vm:BitmapViewerViewModel2 x:Name="BVVM"/>
+			<vm:BitmapViewerViewModel2 x:Name="BVVM" />
 		</Grid.DataContext>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="auto" />
 			<ColumnDefinition Width="auto" />
-			<ColumnDefinition />
+			<ColumnDefinition Width="auto" />
 		</Grid.ColumnDefinitions>
 
 		<Viewbox Width="200"
@@ -29,11 +30,12 @@
 		</Viewbox>
 		<wg:BitmapViewer Grid.Column="1"
 						 Width="500"
-						 Height="500"
+						 Height="300"
 						 ViewModel="{Binding BitmapViewerVM}"
 						 x:Name="frameViewer2" />
 
-		<WrapPanel Grid.Column="2">
+		<WrapPanel Grid.Column="2"
+				   Width="100">
 			<Button Height="40"
 					Width="auto"
 					Content="Move left"
@@ -46,7 +48,7 @@
 					Width="auto"
 					Content="Set source async"
 					Click="Button_Click3" />
-			<TextBlock Text="Change color"/>
+			<TextBlock Text="Change color" />
 			<Slider Width="100"
 					Maximum="255"
 					IsSnapToTickEnabled="True"
@@ -55,6 +57,7 @@
 			<TextBlock Text="Frame offx" />
 			<Slider Width="100"
 					Maximum="255"
+					Value="125"
 					IsSnapToTickEnabled="True"
 					TickFrequency="1"
 					ValueChanged="Slider_ValueChanged2" />
@@ -62,6 +65,7 @@
 			<TextBlock Text="Frame offy" />
 			<Slider Width="100"
 					Maximum="255"
+					Value="125"
 					IsSnapToTickEnabled="True"
 					TickFrequency="1"
 					ValueChanged="Slider_ValueChanged3" />
@@ -69,6 +73,7 @@
 			<TextBlock Text="Global offx" />
 			<Slider Width="100"
 					Maximum="255"
+					Value="125"
 					IsSnapToTickEnabled="True"
 					TickFrequency="1"
 					ValueChanged="Slider_ValueChanged4" />
@@ -76,10 +81,42 @@
 			<TextBlock Text="Global offy" />
 			<Slider Width="100"
 					Maximum="255"
+					Value="125"
 					IsSnapToTickEnabled="True"
 					TickFrequency="1"
 					ValueChanged="Slider_ValueChanged5" />
 
+			<TextBlock Text="Global width" />
+			<Slider Width="100"
+					Maximum="255"
+					Value="125"
+					IsSnapToTickEnabled="True"
+					TickFrequency="1"
+					ValueChanged="Slider_ValueChanged6" />
+
+			<TextBlock Text="Global height" />
+			<Slider Width="100"
+					Maximum="255"
+					Value="125"
+					IsSnapToTickEnabled="True"
+					TickFrequency="1"
+					ValueChanged="Slider_ValueChanged7" />
+
+			<TextBlock Text="frame width" />
+			<Slider Width="100"
+					Maximum="255"
+					Value="125"
+					IsSnapToTickEnabled="True"
+					TickFrequency="1"
+					ValueChanged="Slider_ValueChanged8" />
+
+			<TextBlock Text="frame height" />
+			<Slider Width="100"
+					Maximum="255"
+					Value="125"
+					IsSnapToTickEnabled="True"
+					TickFrequency="1"
+					ValueChanged="Slider_ValueChanged9" />
 		</WrapPanel>
 
 	</Grid>

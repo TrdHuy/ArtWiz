@@ -603,9 +603,6 @@ namespace SPRNetTool.Data
                 Array.Copy(paletteData, this.recalculatedPaletteData.Data, paletteData.Length);
             }
         }
-
-        public bool isNeedToRedrawGlobalFrameData { get; set; }
-        public bool isNeedToRedrawByPaletteDataChanged { get; set; }
     }
 
 

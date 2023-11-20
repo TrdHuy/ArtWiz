@@ -22,7 +22,7 @@ namespace SPRNetTool.Domain.Base
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        PaletteColor[]? GetGlobalFrameColorData(uint index, out bool isFrameRedrawed);
+        PaletteColor[]? GetDecodedFrameColorData(uint index);
 
         bool InsertFrame(uint frameIndex
             , ushort frameWidth

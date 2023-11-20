@@ -318,7 +318,6 @@ namespace SPRNetTool.View.Pages
         private void ClearClick(object sender, RoutedEventArgs e)
         {
             viewModel.ResetViewModel();
-            StaticImageView.Source = null;
             StaticImageView2.Source = null;
         }
 
@@ -339,8 +338,8 @@ namespace SPRNetTool.View.Pages
 
         private async void ResizeImageClick(object sender, RoutedEventArgs e)
         {
-            if (StaticImageView.Source == null) return;
-            var image = StaticImageView.Source as BitmapSource;
+            if (viewModel.BitmapViewerVM.FrameSource == null) return;
+            var image = viewModel.BitmapViewerVM.FrameSource as BitmapSource;
             if (image == null) return;
 
             var oldBytes = image.ToRawByteArray();

@@ -32,7 +32,7 @@ namespace SPRNetTool.Domain
         {
             get
             {
-                return FileHead.modifiedSprFileHeadCache?.ToSprFileHead() ?? FileHead;
+                return FileHead;
             }
         }
         void ISprWorkManagerCore.SetNewColorToPalette(int colorIndex,
@@ -43,14 +43,6 @@ namespace SPRNetTool.Domain
                 green: G,
                 red: R,
                 alpha: oldColor.Alpha);
-            int count = FrameData?.Length ?? 0;
-            FrameData?.Apply(it =>
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    it[i].isNeedToRedrawByPaletteDataChanged = true;
-                }
-            });
         }
         Palette ISprWorkManagerCore.PaletteData
         {

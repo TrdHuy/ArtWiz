@@ -35,6 +35,19 @@ namespace SPRNetTool.View.Widgets
             InitializeComponent();
         }
 
+        private void FitToScreenButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (FitToScreenButton.IsChecked == true)
+            {
+                StretchContainer.Visibility = Visibility.Visible;
+                NoStretchContainer.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                StretchContainer.Visibility = Visibility.Collapsed;
+                NoStretchContainer.Visibility = Visibility.Visible;
+            }
+        }
     }
 
     public class BitmapViewerInternal : UserControl
@@ -42,9 +55,9 @@ namespace SPRNetTool.View.Widgets
         public static readonly DependencyProperty GlobalOffXProperty =
            DependencyProperty.Register(
                 "GlobalOffX",
-                typeof(uint),
+                typeof(int),
                 typeof(BitmapViewerInternal),
-                new PropertyMetadata(0u, OnSizePropertyChanged));
+                new PropertyMetadata(0, OnSizePropertyChanged));
 
         public uint GlobalOffX
         {
@@ -55,9 +68,9 @@ namespace SPRNetTool.View.Widgets
         public static readonly DependencyProperty GlobalOffYProperty =
             DependencyProperty.Register(
                 "GlobalOffY",
-                typeof(uint),
+                typeof(int),
                 typeof(BitmapViewerInternal),
-                new PropertyMetadata(0u, OnSizePropertyChanged));
+                new PropertyMetadata(0, OnSizePropertyChanged));
 
         public uint GlobalOffY
         {
@@ -70,9 +83,7 @@ namespace SPRNetTool.View.Widgets
                 "GlobalWidth",
                 typeof(uint),
                 typeof(BitmapViewerInternal),
-                new FrameworkPropertyMetadata(300u,
-                    FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    new PropertyChangedCallback(OnSizePropertyChanged)));
+                new PropertyMetadata(0u, OnSizePropertyChanged));
 
         public uint GlobalWidth
         {
@@ -85,7 +96,7 @@ namespace SPRNetTool.View.Widgets
                 "GlobalHeight",
                 typeof(uint),
                 typeof(BitmapViewerInternal),
-                new PropertyMetadata(200u, OnSizePropertyChanged));
+                new PropertyMetadata(0u, OnSizePropertyChanged));
 
         public uint GlobalHeight
         {
@@ -122,9 +133,9 @@ namespace SPRNetTool.View.Widgets
         public static readonly DependencyProperty FrameOffXProperty =
             DependencyProperty.Register(
                 "FrameOffX",
-                typeof(uint),
+                typeof(int),
                 typeof(BitmapViewerInternal),
-                new PropertyMetadata(0u, OnSizePropertyChanged));
+                new PropertyMetadata(0, OnSizePropertyChanged));
 
         public uint FrameOffX
         {
@@ -135,9 +146,9 @@ namespace SPRNetTool.View.Widgets
         public static readonly DependencyProperty FrameOffYProperty =
             DependencyProperty.Register(
                 "FrameOffY",
-                typeof(uint),
+                typeof(int),
                 typeof(BitmapViewerInternal),
-                new PropertyMetadata(0u, OnSizePropertyChanged));
+                new PropertyMetadata(0, OnSizePropertyChanged));
 
         public uint FrameOffY
         {

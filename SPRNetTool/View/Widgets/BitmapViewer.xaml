@@ -17,65 +17,167 @@
 		<ImageBrush Stretch="None"
 					ImageSource="/SPRNetTool;component/resources/spr_viewer_background.png" />
 	</UserControl.Background>
-	<local:BitmapViewerInternal x:Name="BitmapViewerContainerInternal"
-								DataContext="{Binding ElementName=BitmapViewerContainer, Path=ViewModel}"
-								GlobalHeight="{Binding GlobalHeight}"
-								GlobalWidth="{Binding GlobalWidth}"
-								GlobalOffX="{Binding GlobalOffX}"
-								GlobalOffY="{Binding GlobalOffY}"
-								FrameHeight="{Binding FrameHeight}"
-								FrameWidth="{Binding FrameWidth}"
-								FrameOffX="{Binding FrameOffX}"
-								FrameOffY="{Binding FrameOffY}"
-								FrameSource="{Binding FrameSource}">
-		<Canvas x:Name="ContainerCanvas"
-				Width="{Binding ElementName=BitmapViewerContainerInternal,Path=ActualWidth}"
-				ClipToBounds="True"
-				Height="{Binding ElementName=BitmapViewerContainerInternal,Path=ActualHeight}">
-			<Canvas ClipToBounds="True"
-					Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth}"
-					Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight}">
-				<Canvas.Left>
-				<MultiBinding Converter="{StaticResource FormulaConverter}"
-							  ConverterParameter=" 0.5 * {0} - {1} * 0.5 + {2}">
-					<Binding Path="ActualWidth"
-							 ElementName="ContainerCanvas" />
-					<Binding Path="GlobalWidth"
-							 FallbackValue="500"
-							 ElementName="BitmapViewerContainerInternal" />
-					<Binding Path="GlobalOffX"
-							 FallbackValue="10"
-							 ElementName="BitmapViewerContainerInternal" />
-				</MultiBinding>
-			</Canvas.Left>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition x:Name="ContentColumn" />
+			<ColumnDefinition Width="60" />
+		</Grid.ColumnDefinitions>
+		<local:BitmapViewerInternal x:Name="BitmapViewerContainerInternal"
+									DataContext="{Binding ElementName=BitmapViewerContainer, Path=ViewModel}"
+									GlobalHeight="{Binding GlobalHeight}"
+									GlobalWidth="{Binding GlobalWidth}"
+									GlobalOffX="{Binding GlobalOffX}"
+									GlobalOffY="{Binding GlobalOffY}"
+									FrameHeight="{Binding FrameHeight}"
+									FrameWidth="{Binding FrameWidth}"
+									FrameOffX="{Binding FrameOffX}"
+									FrameOffY="{Binding FrameOffY}"
+									FrameSource="{Binding FrameSource}">
+			<Canvas x:Name="ContainerCanvas"
+					Width="{Binding ElementName=BitmapViewerContainerInternal,Path=ActualWidth}"
+					ClipToBounds="True"
+					Height="{Binding ElementName=BitmapViewerContainerInternal,Path=ActualHeight}">
+				<Canvas ClipToBounds="True"
+						x:Name="NoStretchContainer"
+						Visibility="Visible"
+						Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth}"
+						Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight}">
+					<Canvas.Left>
+						<MultiBinding Converter="{StaticResource FormulaConverter}"
+									  ConverterParameter=" 0.5 * {0} - {1} * 0.5 + {2}">
+							<Binding Path="ActualWidth"
+									 ElementName="ContainerCanvas" />
+							<Binding Path="GlobalWidth"
+									 FallbackValue="500"
+									 ElementName="BitmapViewerContainerInternal" />
+							<Binding Path="GlobalOffX"
+									 FallbackValue="10"
+									 ElementName="BitmapViewerContainerInternal" />
+						</MultiBinding>
+					</Canvas.Left>
 
-			<Canvas.Top>
-				<MultiBinding Converter="{StaticResource FormulaConverter}"
-							  ConverterParameter=" 0.5 * {0} - {1} * 0.5 + {2}">
-					<Binding Path="ActualHeight"
-							 ElementName="ContainerCanvas" />
-					<Binding Path="GlobalHeight"
-							 FallbackValue="200"
-							 ElementName="BitmapViewerContainerInternal" />
-					<Binding Path="GlobalOffY"
-							 FallbackValue="10"
-							 ElementName="BitmapViewerContainerInternal" />
-				</MultiBinding>
-			</Canvas.Top>
-				<Image x:Name="SprGlobalBackgroundImage"
-					   Stretch="Fill"
-					   Source="../../Resources/spr_global_background.png"
-					   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth, FallbackValue=500}"
-					   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight, FallbackValue=200}" />
-				<Image x:Name="SprFrameImage"
-					   Stretch="None"
-					   Source="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameSource}"
-					   Canvas.Left="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffX,FallbackValue=60}"
-					   Canvas.Top="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffY,FallbackValue=60}"
-					   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
-					   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}" />
+					<Canvas.Top>
+						<MultiBinding Converter="{StaticResource FormulaConverter}"
+									  ConverterParameter=" 0.5 * {0} - {1} * 0.5 + {2}">
+							<Binding Path="ActualHeight"
+									 ElementName="ContainerCanvas" />
+							<Binding Path="GlobalHeight"
+									 FallbackValue="200"
+									 ElementName="BitmapViewerContainerInternal" />
+							<Binding Path="GlobalOffY"
+									 FallbackValue="10"
+									 ElementName="BitmapViewerContainerInternal" />
+						</MultiBinding>
+					</Canvas.Top>
+
+					<Image x:Name="SprGlobalBackgroundImage"
+						   Stretch="Fill"
+						   Source="../../Resources/spr_global_background.png"
+						   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth, FallbackValue=500}"
+						   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight, FallbackValue=200}" />
+					<Canvas ClipToBounds="True"
+							SnapsToDevicePixels="True"
+							Canvas.Left="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffX,FallbackValue=60}"
+							Canvas.Top="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffY,FallbackValue=60}"
+							Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
+							Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}">
+
+						<Rectangle SnapsToDevicePixels="True"
+								   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
+								   Canvas.Left="0"
+								   Canvas.Top="0"
+								   Fill="Aqua"
+								   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}" />
+
+						<Image x:Name="SprFrameImage"
+							   Stretch="None"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Top"
+							   SnapsToDevicePixels="True"
+							   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
+							   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}"
+							   Source="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameSource}" />
+					</Canvas>
+
+				</Canvas>
+
+				<Viewbox Width="{Binding ElementName=ContainerCanvas,Path=ActualWidth}"
+						 Visibility="Collapsed"
+						 x:Name="StretchContainer"
+						 Height="{Binding ElementName=ContainerCanvas,Path=ActualHeight}">
+
+					<Canvas ClipToBounds="True"
+							Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth}"
+							Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight}">
+						<Canvas.Left>
+							<MultiBinding Converter="{StaticResource FormulaConverter}"
+										  ConverterParameter=" 0.5 * {0} - {1} * 0.5 + {2}">
+								<Binding Path="ActualWidth"
+										 ElementName="ContainerCanvas" />
+								<Binding Path="GlobalWidth"
+										 FallbackValue="500"
+										 ElementName="BitmapViewerContainerInternal" />
+								<Binding Path="GlobalOffX"
+										 FallbackValue="10"
+										 ElementName="BitmapViewerContainerInternal" />
+							</MultiBinding>
+						</Canvas.Left>
+
+						<Canvas.Top>
+							<MultiBinding Converter="{StaticResource FormulaConverter}"
+										  ConverterParameter=" 0.5 * {0} - {1} * 0.5 + {2}">
+								<Binding Path="ActualHeight"
+										 ElementName="ContainerCanvas" />
+								<Binding Path="GlobalHeight"
+										 FallbackValue="200"
+										 ElementName="BitmapViewerContainerInternal" />
+								<Binding Path="GlobalOffY"
+										 FallbackValue="10"
+										 ElementName="BitmapViewerContainerInternal" />
+							</MultiBinding>
+						</Canvas.Top>
+
+						<Image x:Name="SprGlobalBackgroundImage2"
+							   Stretch="Fill"
+							   Source="../../Resources/spr_global_background.png"
+							   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth, FallbackValue=500}"
+							   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight, FallbackValue=200}" />
+						<Canvas ClipToBounds="True"
+								SnapsToDevicePixels="True"
+								Canvas.Left="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffX,FallbackValue=60}"
+								Canvas.Top="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffY,FallbackValue=60}"
+								Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
+								Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}">
+
+							<Rectangle SnapsToDevicePixels="True"
+									   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
+									   Canvas.Left="0"
+									   Canvas.Top="0"
+									   Fill="Aqua"
+									   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}" />
+
+							<Image x:Name="SprFrameImage2"
+								   Stretch="None"
+								   HorizontalAlignment="Left"
+								   VerticalAlignment="Top"
+								   SnapsToDevicePixels="True"
+								   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
+								   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}"
+								   Source="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameSource}" />
+						</Canvas>
+
+					</Canvas>
+
+				</Viewbox>
 			</Canvas>
-		</Canvas>
+		</local:BitmapViewerInternal>
 
-	</local:BitmapViewerInternal>
+		<StackPanel Grid.Column="1"
+					Orientation="Vertical">
+			<ToggleButton Content="Fit"
+						  x:Name="FitToScreenButton"
+						  Click="FitToScreenButtonClick"/>
+		</StackPanel>
+	</Grid>
+
 </UserControl>
