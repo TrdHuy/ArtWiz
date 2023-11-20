@@ -461,7 +461,7 @@ namespace SPRNetTool.ViewModel
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
                             IsSpr = castArgs.CurrentSprFileHead != null;
-                            castArgs.CurrentSprFileHead?.Apply(it => SprFileHead = it);
+                            castArgs.CurrentSprFileHead?.Apply(it => SprFileHead = it.modifiedSprFileHeadCache.ToSprFileHead());
                         }
 
                         if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED))
@@ -763,70 +763,34 @@ namespace SPRNetTool.ViewModel
 
         private void SetFrameOffset(int deltaX, int deltaY)
         {
-            var newOffX = (short)(SprFrameData.frameOffX + deltaX);
-            var newOffY = (short)(SprFrameData.frameOffY + deltaY);
-            Task changeTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(newOffX, newOffY);
-                Logger.Raw.D($"newOffX = {newOffX}, newOffY = {newOffY}");
-            });
-            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
-
-            _sprFrameData.frameOffX = newOffX;
-            _sprFrameData.frameOffY = newOffY;
-            Invalidate(nameof(SprFrameData));
+            var newOffX = (short)(SprFrameData.modifiedFrameRGBACache.frameOffX + deltaX);
+            var newOffY = (short)(SprFrameData.modifiedFrameRGBACache.frameOffY + deltaY);
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(newOffX, newOffY);
         }
 
         private void SetGlobalOffset(int deltaX, int deltaY)
         {
-            var newOffX = (short)(SprFileHead.OffX + deltaX);
-            var newOffY = (short)(SprFileHead.OffY + deltaY);
-            Task changeTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetSprGlobalOffset(newOffX, newOffY);
-                Logger.Raw.D($"newOffX = {newOffX}, newOffY = {newOffY}");
-            });
-            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
-
-            _sprFileHead.OffX = newOffX;
-            _sprFileHead.OffY = newOffY;
-            Invalidate(nameof(SprFileHead));
+            var newOffX = (short)(SprFileHead.modifiedSprFileHeadCache.offX + deltaX);
+            var newOffY = (short)(SprFileHead.modifiedSprFileHeadCache.offY + deltaY);
+            BitmapDisplayManager.SetSprGlobalOffset(newOffX, newOffY);
         }
 
         private void SetGlobalSize(int deltaWidth, int deltaHeight)
         {
-            var tempWidth = SprFileHead.GlobalWidth + deltaWidth;
-            var tempHeight = SprFileHead.GlobalHeight + deltaHeight;
+            var tempWidth = SprFileHead.modifiedSprFileHeadCache.globalWidth + deltaWidth;
+            var tempHeight = SprFileHead.modifiedSprFileHeadCache.globalHeight + deltaHeight;
             var newWidth = (ushort)(tempWidth < 0 ? 0 : tempWidth);
             var newHeight = (ushort)(tempHeight < 0 ? 0 : tempHeight);
-            Task changeTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetSprGlobalSize(newWidth, newHeight);
-                Logger.Raw.D($"newWidth = {newWidth}, newHeight = {newHeight}");
-            });
-            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
-
-            _sprFileHead.GlobalWidth = newWidth;
-            _sprFileHead.GlobalHeight = newHeight;
-            Invalidate(nameof(SprFileHead));
+            BitmapDisplayManager.SetSprGlobalSize(newWidth, newHeight);
         }
 
         private void SetFrameSize(int deltaWidth, int deltaHeight)
         {
-            var tempWidth = SprFrameData.frameWidth + deltaWidth;
-            var tempHeight = SprFrameData.frameHeight + deltaHeight;
+            var tempWidth = SprFrameData.modifiedFrameRGBACache.frameWidth + deltaWidth;
+            var tempHeight = SprFrameData.modifiedFrameRGBACache.frameHeight + deltaHeight;
             var newWidth = (ushort)(tempWidth < 0 ? 0 : tempWidth);
             var newHeight = (ushort)(tempHeight < 0 ? 0 : tempHeight);
-            Task changeTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetCurrentlyDisplayedFrameSize(newWidth, newHeight);
-                Logger.Raw.D($"newWidth = {newWidth}, newHeight = {newHeight}");
-            });
-            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
-
-            _sprFrameData.frameWidth = newWidth;
-            _sprFrameData.frameHeight = newHeight;
-            Invalidate(nameof(SprFrameData));
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameSize(newWidth, newHeight);
         }
         #endregion
 

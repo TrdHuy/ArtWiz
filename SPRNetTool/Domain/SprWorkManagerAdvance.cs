@@ -131,7 +131,7 @@ namespace SPRNetTool.Domain
 
         void ISprWorkManagerAdvance.SetFrameSize(ushort newFrameWidth, ushort newFrameHeight, uint frameIndex, Color? color)
         {
-            if (frameIndex >= 0 && frameIndex < FileHead.FrameCounts && FrameData != null)
+            if (frameIndex >= 0 && frameIndex < FileHead.modifiedSprFileHeadCache.FrameCounts && FrameData != null)
             {
                 var modifiedFrameRGBACache = FrameData[frameIndex].modifiedFrameRGBACache;
                 if (newFrameWidth != modifiedFrameRGBACache.frameWidth
@@ -165,7 +165,7 @@ namespace SPRNetTool.Domain
 
         void ISprWorkManagerAdvance.SetFrameOffset(short offsetY, short offsetX, uint frameIndex)
         {
-            if (frameIndex >= 0 && frameIndex < FileHead.FrameCounts && FrameData != null)
+            if (frameIndex >= 0 && frameIndex < FileHead.modifiedSprFileHeadCache.FrameCounts && FrameData != null)
             {
                 var modifiedFrameRGBACache = FrameData[frameIndex].modifiedFrameRGBACache;
 

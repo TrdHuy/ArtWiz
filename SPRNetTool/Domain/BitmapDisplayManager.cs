@@ -69,7 +69,11 @@ namespace SPRNetTool.Domain
                        | CURRENT_COLOR_SOURCE_CHANGED
                        | SPR_FILE_HEAD_CHANGED
                        | SPR_FRAME_DATA_CHANGED
-                       | SPR_FRAME_COLLECTION_CHANGED,
+                       | SPR_FRAME_COLLECTION_CHANGED
+                       | SPR_FRAME_SIZE_CHANGED
+                       | SPR_FRAME_OFFSET_CHANGED
+                       | SPR_GLOBAL_SIZE_CHANGED
+                       | SPR_GLOBAL_OFFSET_CHANGED,
                    currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                    colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                    sprFileHead: SprWorkManager.FileHead,
@@ -202,12 +206,10 @@ namespace SPRNetTool.Domain
             if (InvalidateDisplayBitmapSourceCache(index))
             {
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
-                    changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
-                        | SPR_FILE_HEAD_CHANGED
+                    changedEvent: SPR_FILE_HEAD_CHANGED
                         | CURRENT_COLOR_SOURCE_CHANGED
                         | SPR_GLOBAL_SIZE_CHANGED,
                     sprFileHead: SprWorkManager.FileHead,
-                    currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                     colorSource: DisplayedBitmapSourceCache.DisplayedColorSource));
             }
         }
@@ -223,12 +225,10 @@ namespace SPRNetTool.Domain
             if (InvalidateDisplayBitmapSourceCache(index))
             {
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
-                    changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
-                        | SPR_FILE_HEAD_CHANGED
+                    changedEvent: SPR_FILE_HEAD_CHANGED
                         | CURRENT_COLOR_SOURCE_CHANGED
                         | SPR_GLOBAL_OFFSET_CHANGED,
                     sprFileHead: SprWorkManager.FileHead,
-                    currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                     colorSource: DisplayedBitmapSourceCache.DisplayedColorSource));
             }
         }
@@ -243,7 +243,9 @@ namespace SPRNetTool.Domain
                     changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
                      | CURRENT_COLOR_SOURCE_CHANGED
                      | CURRENT_DISPLAYING_FRAME_INDEX_CHANGED
-                     | SPR_FRAME_DATA_CHANGED,
+                     | SPR_FRAME_DATA_CHANGED
+                     | SPR_FRAME_SIZE_CHANGED
+                     | SPR_FRAME_OFFSET_CHANGED,
                      currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                      colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                      currentDisplayFrameIndex: index,
@@ -261,11 +263,9 @@ namespace SPRNetTool.Domain
             if (InvalidateDisplayBitmapSourceCache(index))
             {
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
-                    changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
-                        | CURRENT_COLOR_SOURCE_CHANGED
+                    changedEvent: CURRENT_COLOR_SOURCE_CHANGED
                         | SPR_FRAME_DATA_CHANGED
                         | SPR_FRAME_SIZE_CHANGED,
-                    currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                     colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                     sprFrameData: SprWorkManager.GetFrameData(index)));
             }
@@ -280,11 +280,9 @@ namespace SPRNetTool.Domain
             if (InvalidateDisplayBitmapSourceCache(index))
             {
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
-                    changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
-                        | CURRENT_COLOR_SOURCE_CHANGED
+                    changedEvent: CURRENT_COLOR_SOURCE_CHANGED
                         | SPR_FRAME_DATA_CHANGED
                         | SPR_FRAME_OFFSET_CHANGED,
-                    currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                     colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                     sprFrameData: SprWorkManager.GetFrameData(index)));
             }
