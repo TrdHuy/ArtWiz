@@ -92,7 +92,7 @@
 				</Canvas>
 
 				<Rectangle Stroke="Red"
-						   StrokeThickness="2"
+						   StrokeThickness="0"
 						   SnapsToDevicePixels="True"
 						   x:Name="LayoutBoundRect"
 						   Visibility="{Binding ElementName=LayoutBoundButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}">
