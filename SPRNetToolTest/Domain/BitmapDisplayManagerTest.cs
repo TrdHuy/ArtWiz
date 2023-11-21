@@ -35,7 +35,6 @@ namespace SPRNetToolTest.Domain
         public void test_InsertFrame()
         {
         }
-        []
     }
 
     internal class NeedToOpenSprFileAttribute : Attribute { }
