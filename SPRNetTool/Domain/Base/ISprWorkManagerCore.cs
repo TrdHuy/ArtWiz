@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain.Base
@@ -17,6 +16,9 @@ namespace SPRNetTool.Domain.Base
         #region public API
 
         bool IsWorkSpaceEmpty => IsCacheEmpty;
+
+        void SetNewColorToPalette(int colorIndex,
+            byte R, byte G, byte B);
 
         /// <summary>
         /// file head của spr đang được load trong work manager hiện tại
@@ -72,11 +74,11 @@ namespace SPRNetTool.Domain.Base
 
                         newPalettData?.Apply(it =>
                         {
-                            ApplyNewPalleteToInsertedFrames(it);
+                            ApplyNewPaletteToInsertedFrames(it);
 
                             if (IsNeedToApplyNewPaletteToOldFrames(it))
                             {
-                                ApplyNewPalleteToOldFrames(it);
+                                ApplyNewPaletteToOldFrames(it);
                             }
                         });
                     }
@@ -100,9 +102,11 @@ namespace SPRNetTool.Domain.Base
                             ?? throw new Exception("Failed to get byte array from palette data!"));
                     }
 
-                    byte[][] allFramesData = new byte[FileHead.FrameCounts][];
-                    for (int i = 0; i < FileHead.FrameCounts; i++)
+                    byte[][] allFramesData = new byte[FileHead.modifiedSprFileHeadCache.FrameCounts][];
+                    for (int i = 0; i < FileHead.modifiedSprFileHeadCache.FrameCounts; i++)
                     {
+                        // TODO: cần kiểm tra có frame nào đã thay đổi kích thước hoặc offset hay
+                        // không
                         allFramesData[i] = GetByteArrayFromEncryptedFrameData(i,
                             isModifiedData,
                             isRecalculatePaletteColorSuccess,
@@ -113,7 +117,7 @@ namespace SPRNetTool.Domain.Base
                     fs.Write(GetByteArrayFromAllFramesOffsetInfo(allFramesData)
                        ?? throw new Exception("Failed to get byte array from frame offset info!"));
 
-                    for (int i = 0; i < FileHead.FrameCounts; i++)
+                    for (int i = 0; i < FileHead.modifiedSprFileHeadCache.FrameCounts; i++)
                     {
                         fs.Write(allFramesData[i]);
                     }
@@ -170,9 +174,9 @@ namespace SPRNetTool.Domain.Base
         #endregion
 
         #region protected API
-        protected void ApplyNewPalleteToOldFrames(Palette newPalettData);
-        protected void ApplyNewPalleteToInsertedFrames(Palette newPalettData);
-        protected bool IsNeedToApplyNewPaletteToOldFrames(Palette newPalettData);
+        protected void ApplyNewPaletteToOldFrames(Palette newPaletteData);
+        protected void ApplyNewPaletteToInsertedFrames(Palette newPaletteData);
+        protected bool IsNeedToApplyNewPaletteToOldFrames(Palette newPaletteData);
         protected bool IsPossibleToSaveFile();
         protected bool IsContainInsertedFrame();
         protected bool RecalculatePaletteColorForAllInsertedFrame(out Palette? newPaletteData);

@@ -187,8 +187,7 @@
 
 			<Grid Grid.Column="0"
 				  Background="Black">
-				<Image x:Name="StaticImageView"
-					   Source="{Binding CurrentlyDisplayedBitmapSource}" />
+				<wg:BitmapViewer ViewModel="{Binding BitmapViewerVM}" />
 				<!--<ItemsControl>
 					<ItemsControl.ItemsPanel>
 						<ItemsPanelTemplate>

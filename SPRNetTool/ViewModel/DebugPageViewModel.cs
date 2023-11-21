@@ -1,7 +1,6 @@
 ﻿using SPRNetTool.Data;
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
-using SPRNetTool.LogUtil;
 using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
@@ -20,7 +19,7 @@ using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel
 {
-    public class DebugPageViewModel : BaseViewModel, IDebugPageCommand
+    public class DebugPageViewModel : BaseParentsViewModel, IDebugPageCommand
     {
         private BitmapSource? _currentDisplayedBitmapSource;
         private BitmapSource? _currentDisplayedOptimizedBitmapSource;
@@ -41,6 +40,13 @@ namespace SPRNetTool.ViewModel
         private FrameRGBA _sprFrameData;
         private uint _currentFrameIndex = 0;
         private bool _isSpr = false;
+        private IBitmapViewerViewModel bitmapViewerVM;
+
+        [Bindable(true)]
+        public IBitmapViewerViewModel BitmapViewerVM
+        {
+            get => bitmapViewerVM;
+        }
 
         [Bindable(true)]
         public CustomObservableCollection<IFrameViewModel>? FramesSource
@@ -228,7 +234,7 @@ namespace SPRNetTool.ViewModel
         {
 
             get { return _currentDisplayedBitmapSource; }
-            private set
+            set
             {
                 _currentDisplayedBitmapSource = value;
                 Invalidate();
@@ -251,6 +257,7 @@ namespace SPRNetTool.ViewModel
 
         public DebugPageViewModel()
         {
+            bitmapViewerVM = new BitmapViewerViewModel(this);
             BindingOperations.EnableCollectionSynchronization(_rawOriginalSource, new object());
             BitmapDisplayManager.RegisterObserver(this);
         }
@@ -453,11 +460,7 @@ namespace SPRNetTool.ViewModel
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
                             IsSpr = castArgs.CurrentSprFileHead != null;
-                            if (!castArgs.Event.HasFlag(SPR_GLOBAL_OFFSET_CHANGED) &&
-                                !castArgs.Event.HasFlag(SPR_GLOBAL_SIZE_CHANGED))
-                            {
-                                castArgs.CurrentSprFileHead?.Apply(it => SprFileHead = it);
-                            }
+                            castArgs.CurrentSprFileHead?.Apply(it => SprFileHead = it.modifiedSprFileHeadCache.ToSprFileHead());
                         }
 
                         if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED))
@@ -479,11 +482,7 @@ namespace SPRNetTool.ViewModel
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))
                         {
-                            if (!castArgs.Event.HasFlag(SPR_FRAME_OFFSET_CHANGED) &&
-                                !castArgs.Event.HasFlag(SPR_FRAME_SIZE_CHANGED))
-                            {
-                                SprFrameData = castArgs.SprFrameData?.modifiedFrameRGBACache?.toFrameRGBA() ?? new FrameRGBA();
-                            }
+                            SprFrameData = castArgs.SprFrameData?.modifiedFrameRGBACache?.toFrameRGBA() ?? new FrameRGBA();
                         }
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_COLLECTION_CHANGED))
@@ -597,6 +596,8 @@ namespace SPRNetTool.ViewModel
             });
         }
 
+
+        #region Command region
         void IDebugPageCommand.OnPlayPauseAnimationSprClicked()
         {
             if (!IsSpr) return;
@@ -761,70 +762,34 @@ namespace SPRNetTool.ViewModel
 
         private void SetFrameOffset(int deltaX, int deltaY)
         {
-            var newOffX = (short)(SprFrameData.frameOffX + deltaX);
-            var newOffY = (short)(SprFrameData.frameOffY + deltaY);
-            Task changeTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(newOffX, newOffY);
-                Logger.Raw.D($"newOffX = {newOffX}, newOffY = {newOffY}");
-            });
-            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
-
-            _sprFrameData.frameOffX = newOffX;
-            _sprFrameData.frameOffY = newOffY;
-            Invalidate(nameof(SprFrameData));
+            var newOffX = (short)(SprFrameData.modifiedFrameRGBACache.frameOffX + deltaX);
+            var newOffY = (short)(SprFrameData.modifiedFrameRGBACache.frameOffY + deltaY);
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(newOffX, newOffY);
         }
 
         private void SetGlobalOffset(int deltaX, int deltaY)
         {
-            var newOffX = (short)(SprFileHead.OffX + deltaX);
-            var newOffY = (short)(SprFileHead.OffY + deltaY);
-            Task changeTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetSprGlobalOffset(newOffX, newOffY);
-                Logger.Raw.D($"newOffX = {newOffX}, newOffY = {newOffY}");
-            });
-            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
-
-            _sprFileHead.OffX = newOffX;
-            _sprFileHead.OffY = newOffY;
-            Invalidate(nameof(SprFileHead));
+            var newOffX = (short)(SprFileHead.modifiedSprFileHeadCache.offX + deltaX);
+            var newOffY = (short)(SprFileHead.modifiedSprFileHeadCache.offY + deltaY);
+            BitmapDisplayManager.SetSprGlobalOffset(newOffX, newOffY);
         }
 
         private void SetGlobalSize(int deltaWidth, int deltaHeight)
         {
-            var tempWidth = SprFileHead.GlobalWidth + deltaWidth;
-            var tempHeight = SprFileHead.GlobalHeight + deltaHeight;
+            var tempWidth = SprFileHead.modifiedSprFileHeadCache.globalWidth + deltaWidth;
+            var tempHeight = SprFileHead.modifiedSprFileHeadCache.globalHeight + deltaHeight;
             var newWidth = (ushort)(tempWidth < 0 ? 0 : tempWidth);
             var newHeight = (ushort)(tempHeight < 0 ? 0 : tempHeight);
-            Task changeTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetSprGlobalSize(newWidth, newHeight);
-                Logger.Raw.D($"newWidth = {newWidth}, newHeight = {newHeight}");
-            });
-            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
-
-            _sprFileHead.GlobalWidth = newWidth;
-            _sprFileHead.GlobalHeight = newHeight;
-            Invalidate(nameof(SprFileHead));
+            BitmapDisplayManager.SetSprGlobalSize(newWidth, newHeight);
         }
 
         private void SetFrameSize(int deltaWidth, int deltaHeight)
         {
-            var tempWidth = SprFrameData.frameWidth + deltaWidth;
-            var tempHeight = SprFrameData.frameHeight + deltaHeight;
+            var tempWidth = SprFrameData.modifiedFrameRGBACache.frameWidth + deltaWidth;
+            var tempHeight = SprFrameData.modifiedFrameRGBACache.frameHeight + deltaHeight;
             var newWidth = (ushort)(tempWidth < 0 ? 0 : tempWidth);
             var newHeight = (ushort)(tempHeight < 0 ? 0 : tempHeight);
-            Task changeTask = new Task(() =>
-            {
-                BitmapDisplayManager.SetCurrentlyDisplayedFrameSize(newWidth, newHeight);
-                Logger.Raw.D($"newWidth = {newWidth}, newHeight = {newHeight}");
-            });
-            ModifySizeAndOffsetTaskPool.AddTaskToSinglePool(changeTask);
-
-            _sprFrameData.frameWidth = newWidth;
-            _sprFrameData.frameHeight = newHeight;
-            Invalidate(nameof(SprFrameData));
+            BitmapDisplayManager.SetCurrentlyDisplayedFrameSize(newWidth, newHeight);
         }
         #endregion
 
@@ -832,7 +797,7 @@ namespace SPRNetTool.ViewModel
         {
             if (!IsSpr) return;
 
-            if (CurrentFrameIndex < SprFileHead.FrameCounts - 1)
+            if (CurrentFrameIndex < SprFileHead.modifiedSprFileHeadCache.FrameCounts - 1)
             {
                 BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(CurrentFrameIndex + 1);
             }
@@ -871,7 +836,6 @@ namespace SPRNetTool.ViewModel
             BitmapDisplayManager.SetSprInterval(interval);
         }
 
-
         void IDebugPageCommand.OnIncreaseIntervalButtonClicked()
         {
             if (!IsSpr) return;
@@ -898,7 +862,14 @@ namespace SPRNetTool.ViewModel
         {
             if (CurrentlyDisplayedBitmapSource != null)
             {
-                BitmapDisplayManager.InsertFrame(SprFileHead.FrameCounts, CurrentlyDisplayedBitmapSource);
+                if (SprFileHead.VersionInfo == null)
+                {
+                    BitmapDisplayManager.InsertFrame(0, CurrentlyDisplayedBitmapSource);
+                }
+                else
+                {
+                    BitmapDisplayManager.InsertFrame(SprFileHead.modifiedSprFileHeadCache.FrameCounts, CurrentlyDisplayedBitmapSource);
+                }
                 BitmapDisplayManager.ChangeCurrentDisplayMode(isSpr: true);
             }
         }
@@ -927,7 +898,7 @@ namespace SPRNetTool.ViewModel
                 BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(frameIndex);
             }
         }
-
+        #endregion
     }
 
     public class FrameViewModel : IFrameViewModel

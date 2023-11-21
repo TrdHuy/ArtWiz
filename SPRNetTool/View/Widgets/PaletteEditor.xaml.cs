@@ -18,7 +18,7 @@ namespace SPRNetTool.View.Widgets
             public IPaletteEditorColorItemViewModel? Item { get; private set; }
             public Color OldColor { get; private set; }
             public Color NewColor { get; private set; }
-
+            public bool Handled { get; set; }
             public PaletteEditorEventChangedArgs(IPaletteEditorColorItemViewModel? item,
                 Color oldColor,
                 Color newColor)
@@ -30,19 +30,19 @@ namespace SPRNetTool.View.Widgets
         }
 
         public delegate void PaletteEditorHandler(object sender, PaletteEditorEventChangedArgs arg);
-        public static void AddColorItemChangedHandler(DependencyObject element, PaletteEditorHandler handler)
+        public static void AddPreviewColorItemChangeHandler(DependencyObject element, PaletteEditorHandler handler)
         {
             element.IfIs<PaletteEditor>(it =>
             {
-                it.mColorItemChanged += handler;
+                it.mPreviewColorItemChange += handler;
             });
         }
 
-        public static void RemoveColorItemChangedHandler(DependencyObject element, PaletteEditorHandler handler)
+        public static void RemovePreviewColorItemChangeHandler(DependencyObject element, PaletteEditorHandler handler)
         {
             element.IfIs<PaletteEditor>(it =>
             {
-                it.mColorItemChanged -= handler;
+                it.mPreviewColorItemChange -= handler;
             });
         }
 
@@ -63,7 +63,7 @@ namespace SPRNetTool.View.Widgets
             });
         }
 
-        private event PaletteEditorHandler? mColorItemChanged;
+        private event PaletteEditorHandler? mPreviewColorItemChange;
         private IPaletteEditorColorItemViewModel? mSelectedItem;
         public IEnumerable ColorItemSource
         {
@@ -107,28 +107,32 @@ namespace SPRNetTool.View.Widgets
             mSelectedItem?.Apply(it =>
             {
                 var oldColor = it.ColorBrush.Color;
+                var newColor = it.ColorBrush.Color;
                 if (sender == RedSlider)
                 {
-                    it.ColorBrush.Color = Color.FromRgb((byte)e.NewValue,
+                    newColor = Color.FromRgb((byte)e.NewValue,
                         it.ColorBrush.Color.G,
                         it.ColorBrush.Color.B);
                 }
                 else if (sender == GreenSlider)
                 {
-                    it.ColorBrush.Color = Color.FromRgb(it.ColorBrush.Color.R,
+                    newColor = Color.FromRgb(it.ColorBrush.Color.R,
                         (byte)e.NewValue,
                         it.ColorBrush.Color.B);
                 }
                 else if (sender == BlueSlider)
                 {
-                    it.ColorBrush.Color = Color.FromRgb(it.ColorBrush.Color.R,
+                    newColor = Color.FromRgb(it.ColorBrush.Color.R,
                         it.ColorBrush.Color.G,
                         (byte)e.NewValue);
                 }
-                SelectedColorHexTextView.Text = it.ColorBrush.Color.ToString();
-                mColorItemChanged?.Invoke(this, new PaletteEditorEventChangedArgs(it,
-                    oldColor,
-                    it.ColorBrush.Color));
+                var arg = new PaletteEditorEventChangedArgs(it, oldColor, newColor);
+                mPreviewColorItemChange?.Invoke(this, arg);
+                if (!arg.Handled)
+                {
+                    it.ColorBrush.Color = newColor;
+                    SelectedColorHexTextView.Text = it.ColorBrush.Color.ToString();
+                }
             });
 
 
