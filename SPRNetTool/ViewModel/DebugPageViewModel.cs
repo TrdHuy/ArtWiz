@@ -20,7 +20,7 @@ using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel
 {
-    public class DebugPageViewModel : BaseViewModel, IDebugPageCommand
+    public class DebugPageViewModel : BaseParentsViewModel, IDebugPageCommand
     {
         private BitmapSource? _currentDisplayedBitmapSource;
         private BitmapSource? _currentDisplayedOptimizedBitmapSource;
@@ -258,7 +258,7 @@ namespace SPRNetTool.ViewModel
 
         public DebugPageViewModel()
         {
-            bitmapViewerVM = new BitmapViewerViewModel();
+            bitmapViewerVM = new BitmapViewerViewModel(this);
             BindingOperations.EnableCollectionSynchronization(_rawOriginalSource, new object());
             BitmapDisplayManager.RegisterObserver(this);
         }
@@ -900,13 +900,6 @@ namespace SPRNetTool.ViewModel
             }
         }
         #endregion
-
-
-        public override void OnDestroy()
-        {
-            base.OnDestroy();
-            bitmapViewerVM.OnDestroy();
-        }
     }
 
     public class FrameViewModel : IFrameViewModel

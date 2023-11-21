@@ -447,15 +447,16 @@ namespace SPRNetTool.Domain
                         currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                         isPlayingAnimation: true,
                         currentDisplayFrameIndex: frameIndex,
+                        animationInterval: SprWorkManager.FileHead.modifiedSprFileHeadCache.Interval,
                         sprFrameData: SprWorkManager.GetFrameData(frameIndex)));
                     DisplayedBitmapSourceCache.CurrentFrameIndex++;
                     frameIndex++;
-                    if (frameIndex == SprWorkManager.FileHead.FrameCounts)
+                    if (frameIndex == SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts)
                     {
                         frameIndex = 0;
                         DisplayedBitmapSourceCache.CurrentFrameIndex = 0;
                     }
-                    int delayTime = SprWorkManager.FileHead.Interval - (int)stopwatch.ElapsedMilliseconds;
+                    int delayTime = SprWorkManager.FileHead.modifiedSprFileHeadCache.Interval - (int)stopwatch.ElapsedMilliseconds;
                     if (delayTime > 0)
                     {
                         try
@@ -477,7 +478,7 @@ namespace SPRNetTool.Domain
                 }
                 else if (frameIndex == 0)
                 {
-                    frameIndex = (uint)(SprWorkManager.FileHead.FrameCounts - 1);
+                    frameIndex = (uint)(SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts - 1);
                     DisplayedBitmapSourceCache.CurrentFrameIndex = frameIndex;
                 }
 
@@ -656,6 +657,7 @@ namespace SPRNetTool.Domain
         public uint CurrentDisplayingFrameIndex { get; private set; }
         public FrameRGBA? SprFrameData { get; private set; }
         public uint SprFrameCount { get; private set; }
+        public uint AnimationInterval { get; private set; }
         public Palette? PaletteData { get; private set; }
         public SprFrameCollectionChangedArg? SprFrameCollectionChangedArg { get; private set; }
 
@@ -666,6 +668,7 @@ namespace SPRNetTool.Domain
             uint currentDisplayFrameIndex = 0,
             SprFrameCollectionChangedArg? sprFrameCollectionChangedArg = null,
             FrameRGBA? sprFrameData = null,
+            uint animationInterval = 0,
             Palette? paletteData = null)
         {
             CurrentDisplayingSource = currentDisplayingSource;
@@ -676,6 +679,7 @@ namespace SPRNetTool.Domain
             SprFrameData = sprFrameData;
             SprFrameCollectionChangedArg = sprFrameCollectionChangedArg;
             PaletteData = paletteData;
+            AnimationInterval = animationInterval;
             Event = changedEvent;
         }
     }

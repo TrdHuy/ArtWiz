@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace SPRNetTool.ViewModel.Base
 {
@@ -19,6 +17,27 @@ namespace SPRNetTool.ViewModel.Base
         public virtual void OnPropertyChanged(object sender, string propertyName)
         {
             PropertyChanged?.Invoke(sender, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected void Invalidate([CallerMemberName] string caller = "")
+        {
+            OnPropertyChanged(caller);
+        }
+
+        protected void InvalidateAll()
+        {
+            Type type = GetType();
+            PropertyInfo[] properties = type.GetProperties();
+
+            foreach (PropertyInfo property in properties)
+            {
+                BindableAttribute? attribute = Attribute.GetCustomAttribute(property, typeof(BindableAttribute)) as BindableAttribute;
+
+                if (attribute != null && attribute.Bindable)
+                {
+                    OnPropertyChanged(property.Name);
+                }
+            }
         }
     }
 }

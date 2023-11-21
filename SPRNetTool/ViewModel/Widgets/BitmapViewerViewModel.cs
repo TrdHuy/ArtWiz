@@ -3,10 +3,13 @@ using SPRNetTool.Domain;
 using SPRNetTool.Utils;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
+using SPRNetTool.Data;
+using System.Windows.Threading;
+using SPRNetTool.ViewModel.Base;
 
 namespace SPRNetTool.ViewModel.Widgets
 {
-    public class BitmapViewerViewModel : BaseViewModel, IBitmapViewerViewModel
+    public class BitmapViewerViewModel : BaseSubViewModel, IBitmapViewerViewModel
     {
         private BitmapSource? _frameSource;
         public uint _globalWidth = 0;
@@ -102,7 +105,7 @@ namespace SPRNetTool.ViewModel.Widgets
             }
         }
 
-        public BitmapViewerViewModel()
+        public BitmapViewerViewModel(BaseParentsViewModel parents) : base(parents)
         {
             BitmapDisplayManager.RegisterObserver(this);
         }
@@ -119,9 +122,44 @@ namespace SPRNetTool.ViewModel.Widgets
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
-                    if (castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED))
+                    if (castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED) && IsSpr)
                     {
+                        if (castArgs.Event.HasFlag(SPR_FRAME_OFFSET_CHANGED))
+                        {
+                            castArgs.SprFrameData?.Apply(it =>
+                            {
+                                FrameOffX = it.modifiedFrameRGBACache.frameOffX;
+                                FrameOffY = it.modifiedFrameRGBACache.frameOffY;
+                            });
+                        }
 
+                        if (castArgs.Event.HasFlag(SPR_FRAME_SIZE_CHANGED))
+                        {
+                            castArgs.SprFrameData?.Apply(it =>
+                            {
+                                FrameHeight = it.modifiedFrameRGBACache.frameHeight;
+                                FrameWidth = it.modifiedFrameRGBACache.frameWidth;
+                            });
+                        }
+
+
+                        if (castArgs.IsPlayingAnimation == true)
+                        {
+                            var dispatcherPriority = DispatcherPriority.Background;
+                            if (castArgs.AnimationInterval > 20)
+                            {
+                                dispatcherPriority = DispatcherPriority.Render;
+                            }
+                            if (IsViewModelDestroyed) return;
+                            ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                            {
+                                FrameSource = castArgs.CurrentDisplayingSource;
+                            }, dispatcherPriority);
+                        }
+                        else if (castArgs.IsPlayingAnimation == false)
+                        {
+                            FrameSource = castArgs.CurrentDisplayingSource;
+                        }
                     }
                     else
                     {
@@ -188,7 +226,7 @@ namespace SPRNetTool.ViewModel.Widgets
             }
         }
 
-        public override void OnDestroy()
+        protected override void OnDestroy()
         {
             base.OnDestroy();
             BitmapDisplayManager.UnregisterObserver(this);
@@ -196,14 +234,14 @@ namespace SPRNetTool.ViewModel.Widgets
     }
 
 
-    public class BitmapViewerViewModel2 : BaseViewModel
+    public class BitmapViewerViewModel2 : BaseParentsViewModel
     {
         private IBitmapViewerViewModel bitmapViewerVM;
         public IBitmapViewerViewModel BitmapViewerVM { get => bitmapViewerVM; }
 
         public BitmapViewerViewModel2()
         {
-            bitmapViewerVM = new BitmapViewerViewModel();
+            bitmapViewerVM = new BitmapViewerViewModel(this);
         }
 
     }

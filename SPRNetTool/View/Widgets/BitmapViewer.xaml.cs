@@ -4,6 +4,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.View.Widgets
 {
@@ -12,6 +13,11 @@ namespace SPRNetTool.View.Widgets
     /// </summary>
     public partial class BitmapViewer : UserControl
     {
+        private ImageSource BlackBagroundImage { get; } 
+            = new BitmapImage(new Uri(@"/Resources/spr_global_background.png", UriKind.Relative));
+        private ImageSource TransparentBagroundImage { get; }
+           = new BitmapImage(new Uri(@"/Resources/spr_global_transparent_background.png", UriKind.Relative));
+
         public static readonly DependencyProperty ViewModelProperty =
            DependencyProperty.Register(
                "ViewModel",
@@ -33,6 +39,17 @@ namespace SPRNetTool.View.Widgets
         public BitmapViewer()
         {
             InitializeComponent();
+            BitmapViewerContainerInternal.GlobalBackgroundSource = BlackBagroundImage;
+            if (TransparenDecodedFrameBackgroundButton.IsChecked == true)
+            {
+                DecodedFrameBackground.Fill = new SolidColorBrush(Colors.Transparent);
+                DecodedFrameBackground2.Fill = new SolidColorBrush(Colors.Transparent);
+            }
+            else
+            {
+                DecodedFrameBackground.Fill = new SolidColorBrush(Colors.White);
+                DecodedFrameBackground2.Fill = new SolidColorBrush(Colors.White);
+            }
         }
 
         private void FitToScreenButtonClick(object sender, RoutedEventArgs e)
@@ -46,6 +63,56 @@ namespace SPRNetTool.View.Widgets
             {
                 StretchContainer.Visibility = Visibility.Collapsed;
                 NoStretchContainer.Visibility = Visibility.Visible;
+                LayoutBoundButton.IsChecked = false;
+                StretchContainer.Margin = new Thickness(0);
+                LayoutBoundRect.StrokeThickness = 0;
+            }
+        }
+
+        private void TransparentBackgroundButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (TransparentBackgroundButton.IsChecked == true)
+            {
+                BitmapViewerContainerInternal.GlobalBackgroundSource
+                  = TransparentBagroundImage;
+            }
+            else
+            {
+                BitmapViewerContainerInternal.GlobalBackgroundSource
+                    = BlackBagroundImage;
+            }
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            BitmapViewerContainerInternal.ViewBoxZoomDelta = e.NewValue;
+        }
+
+        private void ShowLayoutBoundButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (LayoutBoundButton.IsChecked == true)
+            {
+                StretchContainer.Margin = new Thickness(2);
+                LayoutBoundRect.StrokeThickness = 2;
+            }
+            else
+            {
+                StretchContainer.Margin = new Thickness(0);
+                LayoutBoundRect.StrokeThickness = 0;
+            }
+        }
+
+        private void TransparenDecodedFrameBackgroundButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (TransparenDecodedFrameBackgroundButton.IsChecked == true)
+            {
+                DecodedFrameBackground.Fill = new SolidColorBrush(Colors.Transparent);
+                DecodedFrameBackground2.Fill = new SolidColorBrush(Colors.Transparent);
+            }
+            else
+            {
+                DecodedFrameBackground.Fill = new SolidColorBrush(Colors.White);
+                DecodedFrameBackground2.Fill = new SolidColorBrush(Colors.White);
             }
         }
     }
@@ -168,7 +235,7 @@ namespace SPRNetTool.View.Widgets
                         new FrameworkPropertyMetadata(
                                 null,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
-                                new PropertyChangedCallback(OnFrameSourceChanged),
+                                new PropertyChangedCallback(OnImageSourceChanged),
                                 null),
                         null);
 
@@ -178,9 +245,40 @@ namespace SPRNetTool.View.Widgets
             set { SetValue(FrameSourceProperty, value); }
         }
 
-        private static void OnFrameSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public static readonly DependencyProperty GlobalBackgroundSourceProperty =
+                DependencyProperty.Register(
+                        "GlobalBackgroundSource",
+                        typeof(ImageSource),
+                        typeof(BitmapViewerInternal),
+                        new FrameworkPropertyMetadata(
+                                new BitmapImage(new Uri(@"/Resources/spr_global_background.png", UriKind.Relative)),
+                                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
+                                new PropertyChangedCallback(OnImageSourceChanged),
+                                null),
+                        null);
+
+        public ImageSource GlobalBackgroundSource
         {
-           
+            get { return (ImageSource)GetValue(GlobalBackgroundSourceProperty); }
+            set { SetValue(GlobalBackgroundSourceProperty, value); }
+        }
+
+        private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+
+        }
+
+        public static readonly DependencyProperty ViewBoxZoomDeltaProperty =
+            DependencyProperty.Register(
+                "ViewBoxZoomDelta",
+                typeof(double),
+                typeof(BitmapViewerInternal),
+                new PropertyMetadata(1d));
+
+        public double ViewBoxZoomDelta
+        {
+            get { return Convert.ToDouble(GetValue(ViewBoxZoomDeltaProperty)); }
+            set { SetValue(ViewBoxZoomDeltaProperty, value); }
         }
     }
 }
