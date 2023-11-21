@@ -196,7 +196,7 @@ namespace SPRNetTool.Domain
             return null;
         }
 
-        PaletteColor[]? ISprWorkManagerAdvance.GetDecodedFrameColorData(uint index)
+        PaletteColor[]? ISprWorkManagerAdvance.GetOriginalDecodedFrameColorData(uint index)
         {
             if (index < FileHead.modifiedSprFileHeadCache.FrameCounts)
             {

@@ -91,11 +91,11 @@ namespace SPRNetTool.Domain
         {
             var frameInfo = SprWorkManager.GetFrameData(frameIndex) ?? throw new Exception();
 
-            return SprWorkManager.GetDecodedFrameColorData(frameIndex)?
+            return SprWorkManager.GetOriginalDecodedFrameColorData(frameIndex)?
                 .Let((it) => this.GetBitmapFromRGBArray(
                     this.ConvertPaletteColorArrayToByteArray(it)
-                    , frameInfo.modifiedFrameRGBACache.frameWidth
-                    , frameInfo.modifiedFrameRGBACache.frameHeight, PixelFormats.Bgra32))
+                    , frameInfo.frameWidth
+                    , frameInfo.frameHeight, PixelFormats.Bgra32))
                 .Also((it) => it.Freeze());
         }
 
@@ -354,6 +354,8 @@ namespace SPRNetTool.Domain
                 {
                     InitAnimationSourceCacheIfAsynchronous();
                     Debug.Assert(DisplayedBitmapSourceCache.ColorSourceCaching != null);
+                    Debug.Assert(DisplayedBitmapSourceCache.AnimationSourceCaching != null);
+                    DisplayedBitmapSourceCache.AnimationSourceCaching[0] = it;
 
                     DisplayedBitmapSourceCache.CurrentFrameIndex = 0;
                     DisplayedBitmapSourceCache.IsSprImage = true;
