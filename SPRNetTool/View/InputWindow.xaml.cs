@@ -1,7 +1,7 @@
 ﻿using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
 using SPRNetTool.View.Utils;
-using SPRNetTool.ViewModel;
+using SPRNetTool.ViewModel.Base;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

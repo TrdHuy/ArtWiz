@@ -14,6 +14,7 @@
     <None Remove="Resources\1.png" />
     <None Remove="Resources\1.spr" />
     <None Remove="Resources\12345.spr" />
+    <None Remove="Resources\1_319x319.bin" />
     <None Remove="Resources\2.bin" />
     <None Remove="Resources\3.bin" />
     <None Remove="Resources\4.bin" />
@@ -34,6 +35,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\12345.spr">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\1_319x319.bin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\2.bin">

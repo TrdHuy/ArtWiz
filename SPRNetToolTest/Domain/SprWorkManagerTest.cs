@@ -28,6 +28,7 @@ namespace SPRNetToolTest.Domain
         private string _pngFilePath = "Resources\\test.png";
         private string _12345sprFilePath = "Resources\\12345.spr";
         private string _1binFilePath = "Resources\\1.bin";
+        private string _1_319x319binFilePath = "Resources\\1_319x319.bin";
         private string _2binFilePath = "Resources\\2.bin";
         private string _3binFilePath = "Resources\\3.bin";
         private string _4binFilePath = "Resources\\4.bin";
@@ -46,6 +47,36 @@ namespace SPRNetToolTest.Domain
         public void TearDown()
         {
 
+        }
+
+        [Test]
+        public void test_SaveCurrentWorkToSpr()
+        {
+            using (FileStream fs = new FileStream(_12345sprFilePath, FileMode.Open, FileAccess.Read))
+            {
+                var initResult = sprWorkManager.InitWorkManagerFromSprFile(fs);
+                Assert.That(initResult);
+                var frameRGBAs = sprWorkManagerTestObject.GetFrameDataCache();
+                Assert.NotNull(frameRGBAs);
+                Assert.That(frameRGBAs[0].modifiedFrameRGBACache.frameWidth == 300);
+                Assert.That(frameRGBAs[0].modifiedFrameRGBACache.frameHeight == 300);
+                // Change frameSize 
+                frameRGBAs[0].modifiedFrameRGBACache.frameWidth = 319;
+                frameRGBAs[0].modifiedFrameRGBACache.frameHeight = 319;
+
+                sprWorkManager.SaveCurrentWorkToSpr("Resources\\test_SaveCurrentWorkToSpr.spr", true);
+            }
+
+            using (FileStream fs = new FileStream("Resources\\test_SaveCurrentWorkToSpr.spr", FileMode.Open, FileAccess.Read))
+            {
+                var initResult = sprWorkManager.InitWorkManagerFromSprFile(fs);
+                Assert.That(initResult);
+
+                var frameData1Byte = TestUtil.ConvertPaletteColorArrayToByteArray(
+                    sprWorkManagerTestObject.GetFrameDataCache()![0].originDecodedFrameData);
+                var frameData1FromFile = TestUtil.ReadBytesFromFile(_1_319x319binFilePath);
+                Assert.That(TestUtil.AreByteArraysEqual(frameData1Byte, frameData1FromFile!));
+            }
         }
 
         [Test]

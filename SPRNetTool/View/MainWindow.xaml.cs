@@ -29,7 +29,6 @@ namespace SPRNetTool.View
         {
             PageContentPresenter.Content = debugPage ?? new DebugPage((IWindowViewer)this).Also((it) => debugPage = it);
         }
-
     }
 
 

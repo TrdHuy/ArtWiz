@@ -1,9 +1,5 @@
 ﻿using SPRNetTool.Data;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace SPRNetTool.Domain.Base
@@ -22,7 +18,7 @@ namespace SPRNetTool.Domain.Base
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        PaletteColor[]? GetGlobalFrameColorData(uint index, out bool isFrameRedrawed);
+        PaletteColor[]? GetOriginalDecodedFrameColorData(uint index);
 
         bool InsertFrame(uint frameIndex
             , ushort frameWidth

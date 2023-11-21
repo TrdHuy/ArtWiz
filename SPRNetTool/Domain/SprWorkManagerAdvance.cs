@@ -2,7 +2,6 @@
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.LogUtil;
-using SPRNetTool.Utils;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -79,7 +78,6 @@ namespace SPRNetTool.Domain
 
             FileHead.modifiedSprFileHeadCache.FrameCounts++;
             FrameData = newFramesData;
-            newFramesData[frameIndex].modifiedFrameRGBACache.SetCopiedPaletteData(paletteData);
             newFramesData[frameIndex].globalFrameData = InitGlobalizedFrameDataFromOrigin(frameIndex)
                 ?? throw new Exception("Failed to insert frame");
             newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = countableSource;
@@ -127,55 +125,19 @@ namespace SPRNetTool.Domain
             var tempData = FrameData[frameIndex1];
             FrameData[frameIndex1] = FrameData[frameIndex2];
             FrameData[frameIndex2] = tempData;
-            FrameData[frameIndex1].isNeedToRedrawGlobalFrameData = true;
-            FrameData[frameIndex2].isNeedToRedrawGlobalFrameData = true;
             return true;
         }
 
         void ISprWorkManagerAdvance.SetFrameSize(ushort newFrameWidth, ushort newFrameHeight, uint frameIndex, Color? color)
         {
-            var startTime = DateTime.Now;
-            if (frameIndex >= 0 && frameIndex < FileHead.FrameCounts && FrameData != null)
+            if (frameIndex >= 0 && frameIndex < FileHead.modifiedSprFileHeadCache.FrameCounts && FrameData != null)
             {
-                var extendingColor = color ?? Colors.White;
                 var modifiedFrameRGBACache = FrameData[frameIndex].modifiedFrameRGBACache;
                 if (newFrameWidth != modifiedFrameRGBACache.frameWidth
                     || newFrameHeight != modifiedFrameRGBACache.frameHeight)
                 {
-                    PaletteColor getPaletteColorInRef(uint newX, uint newY, ushort refFrameHeight, ushort refFrameWidth, PaletteColor[] refFrameData)
-                    {
-                        if (newX >= refFrameWidth || newY >= refFrameHeight)
-                        {
-                            return new PaletteColor(blue: extendingColor.B,
-                                green: extendingColor.G,
-                                red: extendingColor.R,
-                                alpha: extendingColor.A);
-                        }
-                        return refFrameData[newY * refFrameWidth + newX];
-                    }
-
-                    var newDecodedFrameData = new PaletteColor[newFrameWidth * newFrameHeight];
-                    for (ushort newY = 0; newY < newFrameHeight; newY++)
-                    {
-                        for (ushort newX = 0; newX < newFrameWidth; newX++)
-                        {
-                            newDecodedFrameData[newY * newFrameWidth + newX]
-                                = getPaletteColorInRef(newX,
-                                    newY,
-                                    refFrameHeight: FrameData[frameIndex].frameHeight,
-                                    refFrameWidth: FrameData[frameIndex].frameWidth,
-                                    refFrameData: FrameData[frameIndex].originDecodedFrameData);
-                        }
-                    }
-
-                    var oldWidth = modifiedFrameRGBACache.frameWidth;
-                    var oldHeight = modifiedFrameRGBACache.frameHeight;
                     modifiedFrameRGBACache.frameWidth = newFrameWidth;
                     modifiedFrameRGBACache.frameHeight = newFrameHeight;
-                    modifiedFrameRGBACache.modifiedFrameData = newDecodedFrameData;
-                    FrameData[frameIndex].isNeedToRedrawGlobalFrameData = true;
-
-                    pf_logger.I($"set frame size from {oldWidth}x{oldHeight} to {newFrameWidth}x{newFrameHeight} in: {(DateTime.Now - startTime).TotalMilliseconds}ms");
                 }
             }
         }
@@ -187,15 +149,6 @@ namespace SPRNetTool.Domain
             {
                 sprFileHeadCache.globalWidth = width;
                 sprFileHeadCache.globalHeight = height;
-                int count = FrameData?.Length ?? 0;
-                FrameData?.Apply(it =>
-                {
-                    for (int i = 0; i < count; i++)
-                    {
-                        it[i].isNeedToRedrawGlobalFrameData = true;
-                    }
-                });
-
             }
         }
 
@@ -206,34 +159,20 @@ namespace SPRNetTool.Domain
             {
                 sprFileHeadCache.offX = offsetX;
                 sprFileHeadCache.offY = offsetY;
-                int count = FrameData?.Length ?? 0;
-                FrameData?.Apply(it =>
-                {
-                    for (int i = 0; i < count; i++)
-                    {
-                        it[i].isNeedToRedrawGlobalFrameData = true;
-                    }
-                });
             }
         }
 
         void ISprWorkManagerAdvance.SetFrameOffset(short offsetY, short offsetX, uint frameIndex)
         {
-            var startTime = DateTime.Now;
-            if (frameIndex >= 0 && frameIndex < FileHead.FrameCounts && FrameData != null)
+            if (frameIndex >= 0 && frameIndex < FileHead.modifiedSprFileHeadCache.FrameCounts && FrameData != null)
             {
                 var modifiedFrameRGBACache = FrameData[frameIndex].modifiedFrameRGBACache;
 
                 if (offsetY != modifiedFrameRGBACache.frameOffY
                     || offsetX != modifiedFrameRGBACache.frameOffX)
                 {
-                    var oldOffsetY = modifiedFrameRGBACache.frameOffY;
-                    var oldOffsetX = modifiedFrameRGBACache.frameOffX;
                     modifiedFrameRGBACache.frameOffY = offsetY;
                     modifiedFrameRGBACache.frameOffX = offsetX;
-                    FrameData[frameIndex].isNeedToRedrawGlobalFrameData = true;
-
-                    pf_logger.I($"set frame offset from {oldOffsetX}-{oldOffsetY} to {offsetX}-{offsetY} in: {(DateTime.Now - startTime).TotalMilliseconds}ms");
                 }
             }
 
@@ -247,7 +186,6 @@ namespace SPRNetTool.Domain
             sprFileHeadCache.Interval = interval;
         }
 
-
         FrameRGBA? ISprWorkManagerAdvance.GetFrameData(uint index)
         {
             if (index < FileHead.modifiedSprFileHeadCache.FrameCounts)
@@ -257,26 +195,12 @@ namespace SPRNetTool.Domain
             return null;
         }
 
-        PaletteColor[]? ISprWorkManagerAdvance.GetGlobalFrameColorData(uint index, out bool isFrameRedrawed)
+        PaletteColor[]? ISprWorkManagerAdvance.GetOriginalDecodedFrameColorData(uint index)
         {
-            var isRedrawed = false;
             if (index < FileHead.modifiedSprFileHeadCache.FrameCounts)
             {
-                FrameData?.Apply(it =>
-                {
-                    if (it[index].isNeedToRedrawGlobalFrameData == true)
-                    {
-                        var globalData = InitGlobalizedFrameDataFromModifiedCache(index);
-                        if (globalData == null) throw new Exception("Failed to redraw global frame data from modified cache");
-                        it[index].globalFrameData = globalData;
-                        it[index].isNeedToRedrawGlobalFrameData = false;
-                        isRedrawed = true;
-                    }
-                });
-                isFrameRedrawed = isRedrawed;
-                return FrameData?[index].globalFrameData;
+                return FrameData?[index].modifiedFrameRGBACache.modifiedFrameData;
             }
-            isFrameRedrawed = false;
             return null;
         }
     }

@@ -34,7 +34,6 @@ namespace SPRNetToolTest.Domain
         [Test, NeedToOpenSprFile]
         public void test_InsertFrame()
         {
-
         }
     }
 
