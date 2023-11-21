@@ -119,14 +119,14 @@ namespace SPRNetTool.View.Pages
                         // Đọc dữ liệu từ FileStream vào mảng byte
                         fs.Read(data, 0, data.Length);
 
-                        WriteableBitmap bitmap = new WriteableBitmap(300, 300, 96, 96, PixelFormats.Bgra32, null);
+                        WriteableBitmap bitmap = new WriteableBitmap(319, 319, 96, 96, PixelFormats.Bgra32, null);
 
                         // Gán dữ liệu từ mảng imageData vào WriteableBitmap
                         bitmap.Lock();
-                        bitmap.WritePixels(new Int32Rect(0, 0, 300, 300), data, 300 * 4, 0);
+                        bitmap.WritePixels(new Int32Rect(0, 0, 319, 319), data, 319 * 4, 0);
                         bitmap.Unlock();
                         bitmap.Freeze();
-                        viewModel.CurrentlyDisplayedBitmapSource = bitmap;
+                        viewModel.CurrentlyDisplayedOptimizedBitmapSource = bitmap;
                     }
                 }
             }

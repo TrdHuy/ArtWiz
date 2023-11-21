@@ -246,7 +246,7 @@ namespace SPRNetTool.ViewModel
         {
 
             get { return _currentDisplayedOptimizedBitmapSource; }
-            private set
+            set
             {
                 _currentDisplayedOptimizedBitmapSource = value;
                 Invalidate();
