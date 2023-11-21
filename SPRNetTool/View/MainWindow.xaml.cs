@@ -8,7 +8,6 @@ namespace SPRNetTool.View
     public partial class MainWindow : BaseArtWizWindow
     {
         private DebugPage? debugPage = null;
-        private UserControl1? testPage = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -29,12 +28,6 @@ namespace SPRNetTool.View
         private void MenuItemDebugPageClick(object sender, RoutedEventArgs e)
         {
             PageContentPresenter.Content = debugPage ?? new DebugPage((IWindowViewer)this).Also((it) => debugPage = it);
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            //debugPage = null;
-            PageContentPresenter.Content = testPage ?? new UserControl1((IWindowViewer)this).Also((it) => testPage = it);
         }
     }
 

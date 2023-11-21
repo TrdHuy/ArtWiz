@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
-using static SPRNetTool.Data.FrameRGBA;
 
 namespace SPRNetTool.Data
 {
@@ -287,7 +286,7 @@ namespace SPRNetTool.Data
 
     public struct PaletteColor
     {
-        public byte Blue { get; set; } = 0x00;
+        public byte Blue = 0x00;
         public byte Green = 0x00;
         public byte Red = 0x00;
         public byte Alpha = 0x00;

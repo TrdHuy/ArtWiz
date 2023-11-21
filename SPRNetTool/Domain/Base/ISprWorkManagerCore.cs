@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain.Base
@@ -18,7 +17,7 @@ namespace SPRNetTool.Domain.Base
 
         bool IsWorkSpaceEmpty => IsCacheEmpty;
 
-        void SetNewColorToPalette(int colorIndex, 
+        void SetNewColorToPalette(int colorIndex,
             byte R, byte G, byte B);
 
         /// <summary>

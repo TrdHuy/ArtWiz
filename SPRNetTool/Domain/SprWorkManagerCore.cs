@@ -397,7 +397,7 @@ namespace SPRNetTool.Domain
             if (FrameData?[i].IsFrameSizeChanged() == true)
             {
                 var newFrameWidth = FrameData[i].modifiedFrameRGBACache.frameWidth;
-                var newFrameHeight= FrameData[i].modifiedFrameRGBACache.frameHeight;
+                var newFrameHeight = FrameData[i].modifiedFrameRGBACache.frameHeight;
 
                 PaletteColor getPaletteColorInRef(uint newX, uint newY, ushort refFrameHeight, ushort refFrameWidth, PaletteColor[] refFrameData)
                 {
@@ -425,7 +425,7 @@ namespace SPRNetTool.Domain
                 }
                 FrameData[i].modifiedFrameRGBACache.modifiedFrameData = newDecodedFrameData;
             }
-            
+
             if (isUseRecalculateData && recalculatedPaletteData != null)
             {
                 return FrameData?[i].Let(it =>

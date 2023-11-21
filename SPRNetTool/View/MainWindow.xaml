@@ -26,8 +26,6 @@
 					  StaysOpenOnClick="True">
 				<MenuItem Header="Debug page"
 						  Click="MenuItemDebugPageClick" />
-				<MenuItem Header="Test page"
-						  Click="MenuItem_Click" />
 			</MenuItem>
 
 			<!-- File Menu -->

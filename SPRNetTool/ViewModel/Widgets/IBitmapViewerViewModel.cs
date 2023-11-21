@@ -1,5 +1,4 @@
 ﻿using SPRNetTool.ViewModel.Base;
-using System.ComponentModel;
 using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.ViewModel.Widgets

@@ -1,5 +1,4 @@
-﻿using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Widgets;
+﻿using SPRNetTool.ViewModel.Widgets;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,7 +12,7 @@ namespace SPRNetTool.View.Widgets
     /// </summary>
     public partial class BitmapViewer : UserControl
     {
-        private ImageSource BlackBagroundImage { get; } 
+        private ImageSource BlackBagroundImage { get; }
             = new BitmapImage(new Uri(@"/Resources/spr_global_background.png", UriKind.Relative));
         private ImageSource TransparentBagroundImage { get; }
            = new BitmapImage(new Uri(@"/Resources/spr_global_transparent_background.png", UriKind.Relative));

@@ -1,11 +1,10 @@
-﻿using SPRNetTool.Domain.Base;
-using SPRNetTool.Domain;
+﻿using SPRNetTool.Domain;
+using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
-using System.Windows.Media.Imaging;
-using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
-using SPRNetTool.Data;
-using System.Windows.Threading;
 using SPRNetTool.ViewModel.Base;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel.Widgets
 {
@@ -232,19 +231,4 @@ namespace SPRNetTool.ViewModel.Widgets
             BitmapDisplayManager.UnregisterObserver(this);
         }
     }
-
-
-    public class BitmapViewerViewModel2 : BaseParentsViewModel
-    {
-        private IBitmapViewerViewModel bitmapViewerVM;
-        public IBitmapViewerViewModel BitmapViewerVM { get => bitmapViewerVM; }
-
-        public BitmapViewerViewModel2()
-        {
-            bitmapViewerVM = new BitmapViewerViewModel(this);
-        }
-
-    }
-
-
 }

@@ -1,9 +1,5 @@
 ﻿using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
-using System;
-using System.ComponentModel;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace SPRNetTool.ViewModel.Base
 {
@@ -40,11 +36,11 @@ namespace SPRNetTool.ViewModel.Base
         {
             OnDomainChanged(args);
         }
-       
+
 
         protected virtual void OnDomainChanged(IDomainChangedArgs args) { }
 
 
-       
+
     }
 }

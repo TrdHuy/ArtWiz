@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using static SPRNetTool.View.Widgets.PaletteEditor;
 
 namespace SPRNetTool.View.Widgets
 {

@@ -19,12 +19,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
 using static SPRNetTool.View.InputWindow;
-using static System.Windows.Forms.DataFormats;
 
 namespace SPRNetTool.View.Pages
 {
