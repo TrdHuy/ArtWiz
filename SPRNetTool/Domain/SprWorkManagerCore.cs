@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Windows.Media;
 
 namespace SPRNetTool.Domain
 {
@@ -395,6 +394,38 @@ namespace SPRNetTool.Domain
             , bool isUseRecalculateData
             , Palette? recalculatedPaletteData)
         {
+            if (FrameData?[i].IsFrameSizeChanged() == true)
+            {
+                var newFrameWidth = FrameData[i].modifiedFrameRGBACache.frameWidth;
+                var newFrameHeight= FrameData[i].modifiedFrameRGBACache.frameHeight;
+
+                PaletteColor getPaletteColorInRef(uint newX, uint newY, ushort refFrameHeight, ushort refFrameWidth, PaletteColor[] refFrameData)
+                {
+                    if (newX >= refFrameWidth || newY >= refFrameHeight)
+                    {
+                        return new PaletteColor(blue: 0,
+                            green: 0,
+                            red: 0,
+                            alpha: 0);
+                    }
+                    return refFrameData[newY * refFrameWidth + newX];
+                }
+                var newDecodedFrameData = new PaletteColor[newFrameWidth * newFrameHeight];
+                for (ushort newY = 0; newY < newFrameHeight; newY++)
+                {
+                    for (ushort newX = 0; newX < newFrameWidth; newX++)
+                    {
+                        newDecodedFrameData[newY * newFrameWidth + newX]
+                            = getPaletteColorInRef(newX,
+                                newY,
+                                refFrameHeight: FrameData[i].frameHeight,
+                                refFrameWidth: FrameData[i].frameWidth,
+                                refFrameData: FrameData[i].originDecodedFrameData);
+                    }
+                }
+                FrameData[i].modifiedFrameRGBACache.modifiedFrameData = newDecodedFrameData;
+            }
+            
             if (isUseRecalculateData && recalculatedPaletteData != null)
             {
                 return FrameData?[i].Let(it =>

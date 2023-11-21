@@ -505,6 +505,11 @@ namespace SPRNetTool.Data
             }
         }
 
+        public bool IsFrameSizeChanged()
+        {
+            return modifiedFrameRGBACache.frameWidth != frameWidth || modifiedFrameRGBACache.frameHeight != frameHeight;
+        }
+
         public class FrameRGBACache
         {
             private FrameRGBA frameRGBA;
