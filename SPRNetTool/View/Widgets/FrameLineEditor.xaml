@@ -3,7 +3,6 @@
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-			 xmlns:local="clr-namespace:SPRNetTool.View.Widgets"
 			 mc:Ignorable="d"
 			 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
 			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -42,23 +41,21 @@
 				</ContextMenu>
 			</Canvas.ContextMenu>
 			<Line X1="0"
-				  X2="{Binding RelativeSource={RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}, Path=ActualWidth}"
+				  X2="{Binding ElementName=MainCanvas, Path=ActualWidth}"
 				  Stroke="Black"
 				  StrokeThickness="5">
 				<Line.Y1>
 					<MultiBinding Converter="{StaticResource FormulaConverter}"
-								  ConverterParameter=" {0} * {1}">
+								  ConverterParameter=" 0.5 * {0}">
 						<Binding Path="ActualHeight"
-								 FallbackValue="0.5" />
-						<Binding Path="ActualHeight"
-								 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+								 ElementName="MainCanvas"/>
 					</MultiBinding>
 				</Line.Y1>
 				<Line.Y2>
 					<MultiBinding Converter="{StaticResource FormulaConverter}"
 								  ConverterParameter="0.5 * {0}">
 						<Binding Path="ActualHeight"
-								 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
+								 ElementName="MainCanvas" />
 					</MultiBinding>
 				</Line.Y2>
 			</Line>

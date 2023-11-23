@@ -554,6 +554,12 @@ namespace SPRNetTool.View.Widgets
 
                         m_generator.PrepareItemContainer(child);
 
+                        if (child is Control control)
+                        {
+                            control.VerticalContentAlignment = control.VerticalContentAlignment;
+                            control.HorizontalContentAlignment = control.HorizontalContentAlignment;
+                        }
+
                         child.Measure(slotSize);
                     }
                     else
@@ -633,6 +639,7 @@ namespace SPRNetTool.View.Widgets
                 {
                     var layoutInfo = m_realizedChildLayout[child];
                     child.Arrange(layoutInfo);
+
                 }
             }
 
