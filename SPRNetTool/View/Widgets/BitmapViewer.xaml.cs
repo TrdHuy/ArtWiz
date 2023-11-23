@@ -1,7 +1,9 @@
-﻿using SPRNetTool.ViewModel.Widgets;
+﻿using SPRNetTool.Utils;
+using SPRNetTool.ViewModel.Widgets;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -35,10 +37,17 @@ namespace SPRNetTool.View.Widgets
             set { SetValue(ViewModelProperty, value); }
         }
 
+        private DraggableCanvasController draggableCanvasController;
         public BitmapViewer()
         {
             InitializeComponent();
+            draggableCanvasController = new DraggableCanvasController(ContainerCanvas,
+                DragableContainer,
+                () => FitToScreenButton.IsChecked == false);
+            Unloaded += OnUnloaded;
+            Loaded += OnLoaded;
             BitmapViewerContainerInternal.GlobalBackgroundSource = BlackBagroundImage;
+            BitmapViewerContainerInternal.FrameSourceChange += OnFrameSourceChange;
             if (TransparenDecodedFrameBackgroundButton.IsChecked == true)
             {
                 DecodedFrameBackground.Fill = new SolidColorBrush(Colors.Transparent);
@@ -51,17 +60,33 @@ namespace SPRNetTool.View.Widgets
             }
         }
 
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            draggableCanvasController.Setup();
+            draggableCanvasController.Reset();
+        }
+
+        private void OnFrameSourceChange(ImageSource? oldSource, ImageSource? newSource)
+        {
+            draggableCanvasController.Reset();
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            draggableCanvasController.Dispose();
+        }
+
         private void FitToScreenButtonClick(object sender, RoutedEventArgs e)
         {
             if (FitToScreenButton.IsChecked == true)
             {
                 StretchContainer.Visibility = Visibility.Visible;
-                NoStretchContainer.Visibility = Visibility.Collapsed;
+                DragableContainer.Visibility = Visibility.Collapsed;
             }
             else
             {
                 StretchContainer.Visibility = Visibility.Collapsed;
-                NoStretchContainer.Visibility = Visibility.Visible;
+                DragableContainer.Visibility = Visibility.Visible;
                 LayoutBoundButton.IsChecked = false;
                 StretchContainer.Margin = new Thickness(0);
                 LayoutBoundRect.StrokeThickness = 0;
@@ -80,11 +105,6 @@ namespace SPRNetTool.View.Widgets
                 BitmapViewerContainerInternal.GlobalBackgroundSource
                     = BlackBagroundImage;
             }
-        }
-
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            BitmapViewerContainerInternal.ViewBoxZoomDelta = e.NewValue;
         }
 
         private void ShowLayoutBoundButtonClick(object sender, RoutedEventArgs e)
@@ -114,10 +134,17 @@ namespace SPRNetTool.View.Widgets
                 DecodedFrameBackground2.Fill = new SolidColorBrush(Colors.White);
             }
         }
+
+        private void ResetViewPortPositionButtonClick(object sender, RoutedEventArgs e)
+        {
+            draggableCanvasController.Reset();
+            BitmapViewerContainerInternal.ViewBoxZoomDelta = 1;
+        }
     }
 
     public class BitmapViewerInternal : UserControl
     {
+        public FrameSourceChangeHandler? FrameSourceChange;
         public static readonly DependencyProperty GlobalOffXProperty =
            DependencyProperty.Register(
                 "GlobalOffX",
@@ -264,7 +291,9 @@ namespace SPRNetTool.View.Widgets
 
         private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-
+            d.IfIs<BitmapViewerInternal>(it =>
+                it.FrameSourceChange?.Invoke(e.OldValue as ImageSource,
+                    e.NewValue as ImageSource));
         }
 
         public static readonly DependencyProperty ViewBoxZoomDeltaProperty =
@@ -279,5 +308,114 @@ namespace SPRNetTool.View.Widgets
             get { return Convert.ToDouble(GetValue(ViewBoxZoomDeltaProperty)); }
             set { SetValue(ViewBoxZoomDeltaProperty, value); }
         }
+
+        public delegate void FrameSourceChangeHandler(ImageSource? oldSource, ImageSource? newSource);
+    }
+
+    public class DraggableCanvasController : IDisposable
+    {
+        private Canvas _viewPortCanvas;
+        private Canvas _draggableCanvas;
+        private Func<bool>? _canContentBeDragged;
+        private bool _isDragging = false;
+        private Point _offset;
+
+        public DraggableCanvasController(Canvas viewPortCanvas,
+            Canvas draggableCanvas,
+            Func<bool>? canContentBeDragged = null)
+        {
+            _canContentBeDragged = canContentBeDragged;
+            _viewPortCanvas = viewPortCanvas;
+            _draggableCanvas = draggableCanvas;
+            Setup();
+        }
+
+        public void Setup()
+        {
+            _draggableCanvas.MouseLeftButtonDown -= ViewPortCanvasMouseLeftButtonDown;
+            _draggableCanvas.MouseMove -= ViewPortCanvasMouseMove;
+            _draggableCanvas.MouseLeftButtonUp -= ViewPortCanvasMouseLeftButtonUp;
+            _draggableCanvas.MouseLeave -= ViewPortCanvasMouseLeave;
+            _viewPortCanvas.MouseLeave -= ViewPortCanvasMouseLeave;
+
+            _draggableCanvas.MouseLeftButtonDown += ViewPortCanvasMouseLeftButtonDown;
+            _draggableCanvas.MouseMove += ViewPortCanvasMouseMove;
+            _draggableCanvas.MouseLeftButtonUp += ViewPortCanvasMouseLeftButtonUp;
+            _draggableCanvas.MouseLeave += ViewPortCanvasMouseLeave;
+            _viewPortCanvas.MouseLeave += ViewPortCanvasMouseLeave;
+        }
+
+        public void Dispose()
+        {
+            _draggableCanvas.MouseLeftButtonDown -= ViewPortCanvasMouseLeftButtonDown;
+            _draggableCanvas.MouseMove -= ViewPortCanvasMouseMove;
+            _draggableCanvas.MouseLeftButtonUp -= ViewPortCanvasMouseLeftButtonUp;
+            _draggableCanvas.MouseLeave -= ViewPortCanvasMouseLeave;
+            _viewPortCanvas.MouseLeave -= ViewPortCanvasMouseLeave;
+        }
+
+        public void Reset()
+        {
+            _isDragging = false;
+            _viewPortCanvas.Cursor = Cursors.Arrow;
+            Canvas.SetLeft(_draggableCanvas, 0);
+            Canvas.SetTop(_draggableCanvas, 0);
+        }
+
+        private void ViewPortCanvasMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _isDragging = true;
+            _offset = e.GetPosition(_draggableCanvas);
+            _viewPortCanvas.Cursor = Cursors.SizeAll;
+        }
+
+        private void ViewPortCanvasMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _isDragging = false;
+            _viewPortCanvas.Cursor = Cursors.Arrow;
+        }
+
+        private void ViewPortCanvasMouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isDragging && (_canContentBeDragged?.Invoke() ?? true))
+            {
+                Point mousePos = e.GetPosition(_viewPortCanvas);
+                double newX = mousePos.X - _offset.X;
+                double newY = mousePos.Y - _offset.Y;
+                double globOffset = 10;
+                // Giới hạn vị trí mới để Canvas B không rời khỏi biên của Canvas A
+                var boundLeft = _viewPortCanvas.ActualWidth - _draggableCanvas.ActualWidth - globOffset;
+                var boundBot = _viewPortCanvas.ActualHeight - _draggableCanvas.ActualHeight - globOffset;
+                var boundRight = 0 + globOffset;
+                var boundTop = 0 + globOffset;
+                if (_viewPortCanvas.ActualWidth < _draggableCanvas.ActualWidth)
+                {
+                    newX = newX < boundLeft ? boundLeft : newX > boundRight ? boundRight : newX;
+                }
+                else
+                {
+                    newX = newX < 0 ? 0 : newX > globOffset ? globOffset: newX;
+                }
+
+                if (_viewPortCanvas.ActualHeight < _draggableCanvas.ActualHeight)
+                {
+                    newY = newY < boundBot ? boundBot : newY > boundTop ? boundTop : newY;
+                }
+                else
+                {
+                    newY = newY < 0 ? 0 : newY > globOffset ? globOffset : newY;
+                }
+
+                Canvas.SetLeft(_draggableCanvas, newX);
+                Canvas.SetTop(_draggableCanvas, newY);
+            }
+        }
+
+        private void ViewPortCanvasMouseLeave(object sender, MouseEventArgs e)
+        {
+            _isDragging = false;
+            _viewPortCanvas.Cursor = Cursors.Arrow;
+        }
+
     }
 }
