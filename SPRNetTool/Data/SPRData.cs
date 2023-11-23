@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
 
@@ -484,10 +485,8 @@ namespace SPRNetTool.Data
         public short frameOffX { get; set; }
         public short frameOffY { get; set; }
         public bool isInsertedFrame { get; set; }
-        public byte[] originDecodedFrameByteData { get; set; }
+        public byte[] originDecodedBGRAData { get; set; }
         public PaletteColor[] originDecodedFrameData { get; set; }
-        public PaletteColor[] globalFrameData { get; set; }
-
         public FrameRGBACache modifiedFrameRGBACache
         {
             get
@@ -499,6 +498,11 @@ namespace SPRNetTool.Data
                     var modifiedData = new PaletteColor[originDecodedFrameData.Length];
                     Array.Copy(originDecodedFrameData, modifiedData, originDecodedFrameData.Length);
                     _modifiedFrameRGBACache.modifiedFrameData = modifiedData;
+
+                    var modifiedBGRAData = new byte[originDecodedBGRAData.Length];
+                    Array.Copy(originDecodedBGRAData, modifiedBGRAData, originDecodedBGRAData.Length);
+                    _modifiedFrameRGBACache.modifiedBGRAData = modifiedBGRAData;
+
                 }
                 return _modifiedFrameRGBACache;
             }
@@ -595,19 +599,60 @@ namespace SPRNetTool.Data
                 }
             }
 
+            public byte[] modifiedBGRAData
+            {
+                get
+                {
+                    return frameRGBA.originDecodedBGRAData;
+                }
+                set
+                {
+                    frameRGBA.originDecodedBGRAData = value;
+                }
+            }
+
 
             public FrameRGBA toFrameRGBA()
             {
                 return frameRGBA;
             }
 
-            public void SetCopiedRecalculatedPaletteData(PaletteColor[] paletteData)
+            private Dictionary<int, int> _paletteColorChangeIndexCache;
+            private Dictionary<int, int> paletteColorChangeIndexCache
             {
-                this.recalculatedPaletteData = new Palette(paletteData.Length);
-                Array.Copy(paletteData, this.recalculatedPaletteData.Data, paletteData.Length);
+                get
+                {
+                    if (_paletteColorChangeIndexCache == null)
+                    {
+                        _paletteColorChangeIndexCache = new Dictionary<int, int>();
+                    }
+                    return _paletteColorChangeIndexCache;
+                }
             }
+            public bool IsPaletteColorChanged { get; private set; }
+            public void ResetPaletteColorChangedIndex()
+            {
+                paletteColorChangeIndexCache.Clear();
+                IsPaletteColorChanged = false;
+            }
+            public void SetPaletteColorChangedIndex(int index)
+            {
+                if (paletteColorChangeIndexCache.ContainsKey(index))
+                {
+                    paletteColorChangeIndexCache[index]++;
+                }
+                else
+                {
+                    paletteColorChangeIndexCache[index] = 1;
+                }
+                IsPaletteColorChanged = true;
+            }
+            public int[] GetPaletteColorChangedIndex()
+            {
+                return paletteColorChangeIndexCache.Select(it => it.Key).ToArray();
+            }
+
+
         }
     }
-
-
 }

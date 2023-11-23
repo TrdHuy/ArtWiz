@@ -1,4 +1,6 @@
-﻿namespace SPRNetTool.ViewModel.CommandVM
+﻿using System.Windows.Media;
+
+namespace SPRNetTool.ViewModel.CommandVM
 {
     public interface IDebugPageCommand
     {
@@ -49,6 +51,8 @@
         bool OnInsertFrameClicked(uint frameIndex, string filePath);
 
         void OnFramePointerClick(uint frameIndex);
+
+        void OnPreviewColorPaletteChanged(uint colorIndex, Color newColor);
 
     }
 }

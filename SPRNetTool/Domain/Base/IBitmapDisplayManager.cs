@@ -20,6 +20,8 @@ namespace SPRNetTool.Domain.Base
         void StopSprAnimation();
 
 
+        void SetNewColorToPalette(uint paletteIndex, Color newColor);
+
         void SetSprGlobalSize(ushort width, ushort height);
         void SetSprGlobalOffset(short offX, short offY);
 

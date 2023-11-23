@@ -2,6 +2,7 @@
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.LogUtil;
+using SPRNetTool.Utils;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -13,6 +14,20 @@ namespace SPRNetTool.Domain
     {
         private Logger logger = new Logger("SprWorkManagerAdvance");
         private Logger pf_logger = new Logger("SprWorkManagerAdvance_PF");
+
+        void ISprWorkManagerAdvance.SetNewColorToPalette(uint colorIndex,
+            byte R, byte G, byte B)
+        {
+            var oldColor = PaletteData.modifiedPalette[(int)colorIndex];
+            PaletteData.modifiedPalette[(int)colorIndex] = new PaletteColor(blue: B,
+                green: G,
+                red: R,
+                alpha: oldColor.Alpha);
+            FrameData?.FoEach(it =>
+            {
+                it.modifiedFrameRGBACache.SetPaletteColorChangedIndex((int)colorIndex);
+            });
+        }
 
         bool ISprWorkManagerAdvance.InsertFrame(uint frameIndex,
           ushort frameWidth,
@@ -78,8 +93,6 @@ namespace SPRNetTool.Domain
 
             FileHead.modifiedSprFileHeadCache.FrameCounts++;
             FrameData = newFramesData;
-            newFramesData[frameIndex].globalFrameData = InitGlobalizedFrameDataFromOrigin(frameIndex)
-                ?? throw new Exception("Failed to insert frame");
             newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = countableSource;
 #if DEBUG
             if (countableSource == null)
@@ -195,11 +208,35 @@ namespace SPRNetTool.Domain
             return null;
         }
 
-        PaletteColor[]? ISprWorkManagerAdvance.GetOriginalDecodedFrameColorData(uint index)
+        byte[]? ISprWorkManagerAdvance.GetDecodedBGRAData(uint index)
         {
             if (index < FileHead.modifiedSprFileHeadCache.FrameCounts)
             {
-                return FrameData?[index].modifiedFrameRGBACache.modifiedFrameData;
+                if (FrameData?[index].modifiedFrameRGBACache.IsPaletteColorChanged == true)
+                {
+                    FrameData[index].modifiedFrameRGBACache.GetPaletteColorChangedIndex().FoEach(paletteIndex =>
+                    {
+                        var newColor = PaletteData.modifiedPalette[paletteIndex];
+                        if (FrameData[index].modifiedFrameRGBACache.PaletteIndexToPixelIndexMap?.ContainsKey(paletteIndex) == true)
+                        {
+                            var pixelIndexMap = FrameData[index].modifiedFrameRGBACache.PaletteIndexToPixelIndexMap?[paletteIndex] ?? throw new Exception("Missing pixel map");
+                            pixelIndexMap.FoEach(pixelIndex =>
+                            {
+                                FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4] = newColor.Blue;
+                                FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4 + 1] = newColor.Green;
+                                FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4 + 2] = newColor.Red;
+
+                                FrameData[index].modifiedFrameRGBACache.modifiedFrameData[pixelIndex].Blue = newColor.Blue;
+                                FrameData[index].modifiedFrameRGBACache.modifiedFrameData[pixelIndex].Green = newColor.Green;
+                                FrameData[index].modifiedFrameRGBACache.modifiedFrameData[pixelIndex].Red = newColor.Red;
+                                // Do not change alpha
+                                //FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4 + 3] = newColor.Alpha;
+                            });
+                        }
+                    });
+                    FrameData[index].modifiedFrameRGBACache.ResetPaletteColorChangedIndex();
+                }
+                return FrameData?[index].modifiedFrameRGBACache.modifiedBGRAData;
             }
             return null;
         }

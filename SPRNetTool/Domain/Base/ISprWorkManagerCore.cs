@@ -17,9 +17,6 @@ namespace SPRNetTool.Domain.Base
 
         bool IsWorkSpaceEmpty => IsCacheEmpty;
 
-        void SetNewColorToPalette(int colorIndex,
-            byte R, byte G, byte B);
-
         /// <summary>
         /// file head của spr đang được load trong work manager hiện tại
         /// </summary>
