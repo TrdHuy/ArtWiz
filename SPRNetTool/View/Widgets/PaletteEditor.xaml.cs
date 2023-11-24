@@ -18,14 +18,18 @@ namespace SPRNetTool.View.Widgets
             public IPaletteEditorColorItemViewModel? Item { get; private set; }
             public Color OldColor { get; private set; }
             public Color NewColor { get; private set; }
+            public int ColorIndex { get; private set; }
+
             public bool Handled { get; set; }
             public PaletteEditorEventChangedArgs(IPaletteEditorColorItemViewModel? item,
                 Color oldColor,
-                Color newColor)
+                Color newColor,
+                int colorIndex)
             {
                 Item = item;
                 OldColor = oldColor;
                 NewColor = newColor;
+                ColorIndex = colorIndex;
             }
         }
 
@@ -62,14 +66,27 @@ namespace SPRNetTool.View.Widgets
                 it.ColorsList.ItemsSource = e.NewValue as IEnumerable;
             });
         }
-
-        private event PaletteEditorHandler? mPreviewColorItemChange;
-        private IPaletteEditorColorItemViewModel? mSelectedItem;
         public IEnumerable ColorItemSource
         {
             get { return (IEnumerable)GetValue(ColorItemSourceProperty); }
             set { SetValue(ColorItemSourceProperty, value); }
         }
+
+        public static readonly DependencyProperty SelectedColorItemProperty =
+           DependencyProperty.Register(
+               "SelectedColorItem",
+               typeof(IPaletteEditorColorItemViewModel),
+               typeof(PaletteEditor),
+           new PropertyMetadata(defaultValue: default(IPaletteEditorColorItemViewModel)));
+
+        public IPaletteEditorColorItemViewModel SelectedColorItem
+        {
+            get { return (IPaletteEditorColorItemViewModel)GetValue(SelectedColorItemProperty); }
+            private set { SetValue(SelectedColorItemProperty, value); }
+        }
+
+        private event PaletteEditorHandler? mPreviewColorItemChange;
+
 
         public PaletteEditor()
         {
@@ -78,10 +95,13 @@ namespace SPRNetTool.View.Widgets
 
         private void ColorsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            e.AddedItems?[0]?.IfIs<IPaletteEditorColorItemViewModel>(it =>
+            if (e.AddedItems.Count > 0)
             {
-                SetSelectedColorItem(it);
-            });
+                e.AddedItems?[0]?.IfIs<IPaletteEditorColorItemViewModel>(it =>
+                {
+                    SetSelectedColorItem(it);
+                });
+            }
         }
 
         private void SetSelectedColorItem(IPaletteEditorColorItemViewModel selectedItem)
@@ -89,13 +109,10 @@ namespace SPRNetTool.View.Widgets
             RedSlider.ValueChanged -= OnValueChangedBySliding;
             GreenSlider.ValueChanged -= OnValueChangedBySliding;
             BlueSlider.ValueChanged -= OnValueChangedBySliding;
-            mSelectedItem = selectedItem;
+            SelectedColorItem = selectedItem;
             RedSlider.Value = selectedItem.ColorBrush.Color.R;
             GreenSlider.Value = selectedItem.ColorBrush.Color.G;
             BlueSlider.Value = selectedItem.ColorBrush.Color.B;
-            SelectedColorView.Background = selectedItem.ColorBrush;
-            SelectedColorHexTextView.Text = selectedItem.ColorBrush.Color.ToString();
-            SelectedColorHexTextView.Fill = selectedItem.ColorBrush;
 
             RedSlider.ValueChanged += OnValueChangedBySliding;
             GreenSlider.ValueChanged += OnValueChangedBySliding;
@@ -104,7 +121,7 @@ namespace SPRNetTool.View.Widgets
 
         private void OnValueChangedBySliding(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            mSelectedItem?.Apply(it =>
+            SelectedColorItem?.Apply(it =>
             {
                 var oldColor = it.ColorBrush.Color;
                 var newColor = it.ColorBrush.Color;
@@ -126,12 +143,11 @@ namespace SPRNetTool.View.Widgets
                         it.ColorBrush.Color.G,
                         (byte)e.NewValue);
                 }
-                var arg = new PaletteEditorEventChangedArgs(it, oldColor, newColor);
+                var arg = new PaletteEditorEventChangedArgs(it, oldColor, newColor, ColorsList.SelectedIndex);
                 mPreviewColorItemChange?.Invoke(this, arg);
                 if (!arg.Handled)
                 {
                     it.ColorBrush.Color = newColor;
-                    SelectedColorHexTextView.Text = it.ColorBrush.Color.ToString();
                 }
             });
 

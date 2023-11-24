@@ -394,7 +394,7 @@ namespace SPRNetTool.View.Widgets
                 }
                 else
                 {
-                    newX = newX < 0 ? 0 : newX > globOffset ? globOffset: newX;
+                    newX = newX < 0 ? 0 : newX > globOffset ? globOffset : newX;
                 }
 
                 if (_viewPortCanvas.ActualHeight < _draggableCanvas.ActualHeight)

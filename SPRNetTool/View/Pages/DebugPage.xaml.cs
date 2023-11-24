@@ -810,6 +810,12 @@ namespace SPRNetTool.View.Pages
                 commandVM?.OnFramePointerClick(it.CurrentIndex);
             });
         }
+
+        private void PaletteEditorPreviewColorItemChange(object sender, PaletteEditor.PaletteEditorEventChangedArgs arg)
+        {
+            commandVM?.OnPreviewColorPaletteChanged((uint)arg.ColorIndex, arg.NewColor);
+            arg.Handled = true;
+        }
     }
 }
 

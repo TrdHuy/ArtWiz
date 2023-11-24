@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
 using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
+using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel
 {
@@ -441,19 +442,27 @@ namespace SPRNetTool.ViewModel
                     {
                         if (castArgs.Event.HasFlag(SPR_FILE_PALETTE_CHANGED))
                         {
-                            castArgs.PaletteData?.Apply(it =>
+                            castArgs.PaletteChangedArg?.Apply(it =>
                             {
-                                ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                                if (it.Event.HasFlag(NEWLY_ADDED))
                                 {
-                                    PaletteColorItemSource = new ObservableCollection<IPaletteEditorColorItemViewModel>();
-                                    foreach (var pColor in it.Data)
+                                    ViewModelOwner?.ViewDispatcher.Invoke(() =>
                                     {
-                                        PaletteColorItemSource.Add(new PaletteEditorColorItemViewModel(
-                                           new SolidColorBrush(Color.FromRgb(pColor.Red,
-                                           pColor.Green, pColor.Blue))));
-                                    }
-                                });
+                                        PaletteColorItemSource = new ObservableCollection<IPaletteEditorColorItemViewModel>();
 
+                                        it.Palette?.Data?.FoEach(pColor =>
+                                        {
+                                            PaletteColorItemSource.Add(new PaletteEditorColorItemViewModel(
+                                               new SolidColorBrush(Color.FromRgb(pColor.Red,
+                                               pColor.Green, pColor.Blue))));
+                                        });
+                                    });
+                                }
+
+                                if (it.Event.HasFlag(COLOR_CHANGED) && PaletteColorItemSource != null)
+                                {
+                                    PaletteColorItemSource[(int)it.ColorChangedIndex].ColorBrush.Color = it.NewColor;
+                                }
                             });
                         }
 
@@ -898,6 +907,14 @@ namespace SPRNetTool.ViewModel
                 BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(frameIndex);
             }
         }
+
+        void IDebugPageCommand.OnPreviewColorPaletteChanged(uint colorIndex, Color newColor)
+        {
+            if (!IsSpr) return;
+
+            BitmapDisplayManager.SetNewColorToPalette(colorIndex, newColor);
+        }
+
         #endregion
     }
 
