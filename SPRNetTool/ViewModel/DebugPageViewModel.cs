@@ -15,8 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
 using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
+using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel
 {
@@ -459,7 +459,7 @@ namespace SPRNetTool.ViewModel
                                     });
                                 }
 
-                                if (it.Event.HasFlag(COLOR_CHANGED) && PaletteColorItemSource!= null)
+                                if (it.Event.HasFlag(COLOR_CHANGED) && PaletteColorItemSource != null)
                                 {
                                     PaletteColorItemSource[(int)it.ColorChangedIndex].ColorBrush.Color = it.NewColor;
                                 }

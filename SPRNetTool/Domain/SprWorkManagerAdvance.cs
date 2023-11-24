@@ -25,7 +25,9 @@ namespace SPRNetTool.Domain
                 alpha: oldColor.Alpha);
             FrameData?.FoEach(it =>
             {
-                it.modifiedFrameRGBACache.SetPaletteColorChangedIndex((int)colorIndex);
+                it.modifiedFrameRGBACache.SetPaletteColorChangedIndex((int)colorIndex,
+                    oldColor: oldColor,
+                    newColor: PaletteData.modifiedPalette[(int)colorIndex]);
             });
         }
 

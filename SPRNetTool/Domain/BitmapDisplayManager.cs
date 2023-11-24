@@ -7,14 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
 using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
+using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
 
 namespace SPRNetTool.Domain
 {
@@ -629,8 +628,7 @@ namespace SPRNetTool.Domain
         {
             return DisplayedBitmapSourceCache.AnimationSourceCaching?.Let(it =>
             {
-                if (it[index] == null
-                || SprWorkManager.GetFrameData(index)?.modifiedFrameRGBACache.IsPaletteColorChanged == true)
+                if (it[index] == null)
                 {
                     it[index] = CreateBitmapSourceFromDecodedFrameData(index) ?? throw new Exception();
                     DisplayedBitmapSourceCache.ColorSourceCaching?
@@ -638,6 +636,37 @@ namespace SPRNetTool.Domain
                        {
                            it2[index] = this.CountColorsToDictionary(it[index]!);
                        });
+                }
+                else if (SprWorkManager.GetFrameData(index)?.modifiedFrameRGBACache.IsPaletteColorChanged == true)
+                {
+                    var changedPaletteColors = SprWorkManager.GetFrameData(index)?.modifiedFrameRGBACache.GetChangedPaletteColors();
+                    it[index] = CreateBitmapSourceFromDecodedFrameData(index) ?? throw new Exception();
+                    DisplayedBitmapSourceCache.ColorSourceCaching?
+                      .Apply(it2 =>
+                      {
+                          if (it2[index] == null)
+                          {
+                              it2[index] = this.CountColorsToDictionary(it[index]!);
+                          }
+                          else
+                          {
+                              changedPaletteColors?.FoEach(it =>
+                              {
+                                  var cache = it2[index]!;
+                                  var oldColor = Color.FromRgb(
+                                      it.Item1.Red,
+                                      it.Item1.Green,
+                                      it.Item1.Blue);
+                                  var newColor = Color.FromRgb(
+                                     it.Item2.Red,
+                                     it.Item2.Green,
+                                     it.Item2.Blue);
+                                  var count = cache[oldColor];
+                                  cache.Remove(oldColor);
+                                  cache.Add(newColor, count);
+                              });
+                          }
+                      });
                 }
 
                 DisplayedBitmapSourceCache.DisplayedBitmapSource = it[index];

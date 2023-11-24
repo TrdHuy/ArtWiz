@@ -617,14 +617,14 @@ namespace SPRNetTool.Data
                 return frameRGBA;
             }
 
-            private Dictionary<int, int> _paletteColorChangeIndexCache;
-            private Dictionary<int, int> paletteColorChangeIndexCache
+            private Dictionary<int, (PaletteColor, PaletteColor)> _paletteColorChangeIndexCache;
+            private Dictionary<int, (PaletteColor, PaletteColor)> paletteColorChangeIndexCache
             {
                 get
                 {
                     if (_paletteColorChangeIndexCache == null)
                     {
-                        _paletteColorChangeIndexCache = new Dictionary<int, int>();
+                        _paletteColorChangeIndexCache = new Dictionary<int, (PaletteColor, PaletteColor)>();
                     }
                     return _paletteColorChangeIndexCache;
                 }
@@ -635,24 +635,29 @@ namespace SPRNetTool.Data
                 paletteColorChangeIndexCache.Clear();
                 IsPaletteColorChanged = false;
             }
-            public void SetPaletteColorChangedIndex(int index)
+
+            public void SetPaletteColorChangedIndex(int index, PaletteColor oldColor, PaletteColor newColor)
             {
-                if (paletteColorChangeIndexCache.ContainsKey(index))
-                {
-                    paletteColorChangeIndexCache[index]++;
-                }
-                else
-                {
-                    paletteColorChangeIndexCache[index] = 1;
-                }
+                paletteColorChangeIndexCache[index] = new(oldColor, newColor);
                 IsPaletteColorChanged = true;
             }
+
             public int[] GetPaletteColorChangedIndex()
             {
                 return paletteColorChangeIndexCache.Select(it => it.Key).ToArray();
             }
 
-
+            public (PaletteColor, PaletteColor)[] GetChangedPaletteColors()
+            {
+                return paletteColorChangeIndexCache
+                    .Select(it =>
+                    {
+                        PaletteColor oldColor = it.Value.Item1;
+                        PaletteColor newColor = it.Value.Item2;
+                        (PaletteColor, PaletteColor) t = new(oldColor, newColor);
+                        return t;
+                    }).ToArray();
+            }
         }
     }
 }

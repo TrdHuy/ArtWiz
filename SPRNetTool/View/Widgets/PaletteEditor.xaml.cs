@@ -29,7 +29,7 @@ namespace SPRNetTool.View.Widgets
                 Item = item;
                 OldColor = oldColor;
                 NewColor = newColor;
-                ColorIndex = colorIndex;    
+                ColorIndex = colorIndex;
             }
         }
 
@@ -95,7 +95,7 @@ namespace SPRNetTool.View.Widgets
 
         private void ColorsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(e.AddedItems.Count > 0)
+            if (e.AddedItems.Count > 0)
             {
                 e.AddedItems?[0]?.IfIs<IPaletteEditorColorItemViewModel>(it =>
                 {
