@@ -540,7 +540,8 @@ namespace SPRNetTool.Domain
 
             var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource,
                 out Dictionary<Color, long> countableSource,
-                out Palette palette)
+                out Palette palette,
+                out byte[] bgraBytesData)
                 ?? (filePath != null ?
                     throw new Exception($"Failed to load bitmap from path {filePath}") :
                     throw new Exception($"Failed to load bitmap"));
@@ -550,6 +551,7 @@ namespace SPRNetTool.Domain
                 , (ushort)bitmapSource.PixelWidth
                 , (ushort)bitmapSource.PixelHeight
                 , palettePixelArray
+                , bgraBytesData
                 , palette
                 , countableSource))
             {
