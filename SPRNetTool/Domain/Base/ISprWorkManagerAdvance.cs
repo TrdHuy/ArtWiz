@@ -27,6 +27,7 @@ namespace SPRNetTool.Domain.Base
             , ushort frameWidth
             , ushort frameHeight
             , PaletteColor[] pixelData
+            , byte[] bgraBytesData
             , Palette paletteData
             , Dictionary<Color, long>? countableSource = null);
 

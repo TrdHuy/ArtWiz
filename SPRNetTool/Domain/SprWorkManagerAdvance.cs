@@ -32,11 +32,12 @@ namespace SPRNetTool.Domain
         }
 
         bool ISprWorkManagerAdvance.InsertFrame(uint frameIndex,
-          ushort frameWidth,
-          ushort frameHeight,
-          PaletteColor[] pixelData,
-          Palette paletteData,
-          Dictionary<Color, long>? countableSource)
+            ushort frameWidth,
+            ushort frameHeight,
+            PaletteColor[] pixelData,
+            byte[] bgraBytesData,
+            Palette paletteData,
+            Dictionary<Color, long>? countableSource)
         {
 #if DEBUG
             var countableColorSource = this.CountColors(pixelData);
@@ -63,6 +64,7 @@ namespace SPRNetTool.Domain
                 isInsertedFrame = true
             };
             frameData.originDecodedFrameData = pixelData;
+            frameData.originDecodedBGRAData = bgraBytesData;
             var newLen = (FrameData?.Length + 1) ?? 1;
             var newFramesData = new FrameRGBA[newLen];
 

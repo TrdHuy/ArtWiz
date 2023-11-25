@@ -490,12 +490,23 @@ namespace SPRNetTool.Domain.Utils
         public static PaletteColor[] ConvertBitmapSourceToPaletteColorArray(this IDomainAdapter adapter,
             BitmapSource bitmapSource,
             out Dictionary<Color, long> countableSource,
-            out Palette palette)
+            out Palette palette,
+            out byte[] bgraBytesData)
         {
             int width = bitmapSource.PixelWidth;
             int height = bitmapSource.PixelHeight;
             int stride = (width * bitmapSource.Format.BitsPerPixel + 7) / 8;
             byte[] pixelData = new byte[height * stride];
+            var bgraCounter = 0;
+            if (bitmapSource.Format == PixelFormats.Bgr32 ||
+                   bitmapSource.Format == PixelFormats.Bgra32)
+            {
+                bgraBytesData = pixelData;
+            }
+            else
+            {
+                bgraBytesData = new byte[height * width * 4];
+            }
             bitmapSource.CopyPixels(pixelData, stride, 0);
 
             PaletteColor[] paletteColors = new PaletteColor[width * height];
@@ -527,6 +538,11 @@ namespace SPRNetTool.Domain.Utils
                         pixelData[offset],
                         pixelData[offset + 1],
                         pixelData[offset + 2]);
+
+                    bgraBytesData[bgraCounter] = pixelData[offset + 2];
+                    bgraBytesData[bgraCounter] = pixelData[offset + 1];
+                    bgraBytesData[bgraCounter] = pixelData[offset];
+                    bgraBytesData[bgraCounter] = 255;
                 }
                 else
                 {

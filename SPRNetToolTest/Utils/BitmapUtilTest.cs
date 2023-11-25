@@ -39,7 +39,8 @@ namespace SPRNetToolTest.Utils
             Assert.NotNull(bmpSource);
             var palarray = mockDomainAdapter.ConvertBitmapSourceToPaletteColorArray(bmpSource,
                 out Dictionary<Color, long> countableSource,
-                out Palette palette);
+                out Palette palette,
+                out byte[] bgraBytesData);
 
             var redColor = Color.FromArgb(255, 237, 28, 36);
             var yellowColor = Color.FromArgb(255, 255, 242, 0);
