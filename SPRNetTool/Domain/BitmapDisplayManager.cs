@@ -139,8 +139,8 @@ namespace SPRNetTool.Domain
             {
                 if (success)
                 {
-                    var bmpSrc = new BitmapSource?[SprWorkManager.FileHead.FrameCounts];
-                    for (int i = 0, j = 0; i < SprWorkManager.FileHead.FrameCounts + 1; i++)
+                    var bmpSrc = new BitmapSource?[SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts];
+                    for (int i = 0, j = 0; i < SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts + 1; i++)
                     {
                         if (i != frameIndex)
                         {
