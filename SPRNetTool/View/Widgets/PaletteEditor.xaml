@@ -277,7 +277,7 @@
 					<Border x:Name="SelectedColorView"
 							BorderBrush="Black"
 							BorderThickness="1"
-							Background="#000000"
+							Background="{Binding ElementName=UC_container, Path=SelectedColorItem.ColorBrush}"
 							Height="20"
 							CornerRadius="5"
 							VerticalAlignment="Bottom"
@@ -288,7 +288,7 @@
 					<local:OutlineTextBlock x:Name="SelectedColorHexTextView"
 											HorizontalAlignment="Center"
 											VerticalAlignment="Top"
-											Fill="#000000"
+											Fill="{Binding ElementName=UC_container, Path=SelectedColorItem.ColorBrush}"
 											Stroke="Black"
 											StrokeThickness="1"
 											FontSize="30"
@@ -296,7 +296,7 @@
 											Grid.Column="1"
 											FontFamily="Calibri"
 											FontWeight="Bold"
-											Text="#000000" />
+											Text="{Binding ElementName=UC_container, Path=SelectedColorItem.ColorBrush.Color, FallbackValue=#00000000}" />
 				</Grid>
 			</StackPanel>
 		</Viewbox>

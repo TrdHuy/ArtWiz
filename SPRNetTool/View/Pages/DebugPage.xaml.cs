@@ -393,7 +393,14 @@ namespace SPRNetTool.View.Pages
                         }
                     case DebugPageTagID.ImageInfo_ImportToNextFrameOfSprWorkSpace:
                         {
-                            commandVM?.OnImportCurrentDisplaySourceToNextFrameOfSprWorkSpace();
+                            LoadingWindow l = new LoadingWindow(ownerWindow, "Exporting to next frame of SprWorkSpace!");
+                            l.Show(block: async () =>
+                            {
+                                await Task.Run(() =>
+                                {
+                                    commandVM?.OnImportCurrentDisplaySourceToNextFrameOfSprWorkSpace();
+                                });
+                            });                            
                             break;
                         }
 
@@ -802,6 +809,12 @@ namespace SPRNetTool.View.Pages
             {
                 commandVM?.OnFramePointerClick(it.CurrentIndex);
             });
+        }
+
+        private void PaletteEditorPreviewColorItemChange(object sender, PaletteEditor.PaletteEditorEventChangedArgs arg)
+        {
+            commandVM?.OnPreviewColorPaletteChanged((uint)arg.ColorIndex, arg.NewColor);
+            arg.Handled = true;
         }
     }
 }
