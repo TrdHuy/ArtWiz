@@ -491,8 +491,11 @@ namespace SPRNetTool.Domain.Utils
             BitmapSource bitmapSource,
             out Dictionary<Color, long> countableSource,
             out Palette palette,
-            out byte[] bgraBytesData)
+            out byte[] bgraBytesData,
+            out Dictionary<int, List<long>> paletteColorIndexToPixelIndexMap)
         {
+            paletteColorIndexToPixelIndexMap = new Dictionary<int, List<long>>();
+            var colorPixelIndexMap = new Dictionary<Color, List<long>>();
             int width = bitmapSource.PixelWidth;
             int height = bitmapSource.PixelHeight;
             int stride = (width * bitmapSource.Format.BitsPerPixel + 7) / 8;
@@ -552,9 +555,11 @@ namespace SPRNetTool.Domain.Utils
                 if (countableSource.ContainsKey(color))
                 {
                     countableSource[color] += 1;
+                    colorPixelIndexMap[color].Add(i);
                 }
                 else
                 {
+                    colorPixelIndexMap.Add(color, new List<long> { i });
                     countableSource.Add(color, 1);
                 }
             }
@@ -562,7 +567,9 @@ namespace SPRNetTool.Domain.Utils
             int j = 0;
             foreach (var color in countableSource.Keys)
             {
-                palette.Data[j++] = new PaletteColor(color.B, color.G, color.R, color.A);
+                palette.Data[j] = new PaletteColor(color.B, color.G, color.R, color.A);
+                paletteColorIndexToPixelIndexMap.Add(j, colorPixelIndexMap[color]);
+                j++;
             }
             return paletteColors;
         }

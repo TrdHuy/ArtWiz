@@ -154,154 +154,161 @@
 		</Style>
 	</UserControl.Resources>
 
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition MinHeight="100"
-						   MaxHeight="300"/>
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
+	<local:PaletteEditorInternal x:Name="InternalContainer"
+								 DataContext="{Binding ElementName=UC_container, Path=ViewModel}"
+								 ColorItemSource="{Binding PaletteColorItemSource}">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition MinHeight="100"
+							   MaxHeight="300" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
 
-		<ListBox x:Name="ColorsList"
-				 Background="Transparent"
-				 BorderThickness="1"
-				 BorderBrush="Black"
-				 SelectionChanged="ColorsList_SelectionChanged">
-			<ItemsControl.ItemsPanel>
-				<ItemsPanelTemplate>
-					<local:VirtualizingWrapPanel IsItemsHost="True"
-												 Orientation="Horizontal" />
-				</ItemsPanelTemplate>
-			</ItemsControl.ItemsPanel>
-			<ItemsControl.ItemTemplate>
-				<DataTemplate DataType="vmw:IPaletteEditorColorItemViewModel">
-					<Border Background="{Binding ColorBrush}"
-							BorderBrush="Black"
-							BorderThickness="2"
-							Height="30"
-							Width="30" />
-				</DataTemplate>
-			</ItemsControl.ItemTemplate>
-		</ListBox>
+			<ListBox x:Name="ColorsList"
+					 Background="Transparent"
+					 BorderThickness="1"
+					 BorderBrush="Black"
+					 SelectedItem="{Binding ElementName=InternalContainer,Path=SelectedColorItem}"
+					 ItemsSource="{Binding ElementName=InternalContainer, Path=ColorItemSource}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<local:VirtualizingWrapPanel IsItemsHost="True"
+													 Orientation="Horizontal" />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate DataType="vmw:IPaletteEditorColorItemViewModel">
+						<Border Background="{Binding ColorBrush}"
+								BorderBrush="Black"
+								BorderThickness="2"
+								Height="30"
+								Width="30" />
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ListBox>
 
-		<Viewbox Grid.Row="1"
-				 Margin="10">
-			<StackPanel Grid.Row="1"
-						Orientation="Horizontal">
-				<Grid HorizontalAlignment="Left"
-					  Height="80">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition MinWidth="40" />
-						<ColumnDefinition Width="4*"
-										  MinWidth="150" />
-						<ColumnDefinition MinWidth="40" />
-					</Grid.ColumnDefinitions>
-					<Grid.RowDefinitions>
-						<RowDefinition />
-						<RowDefinition />
-						<RowDefinition />
-					</Grid.RowDefinitions>
-					<TextBlock Text="Red"
-							   Grid.Row="0"
-							   Margin="0,0,10,0"
-							   HorizontalAlignment="Right"
-							   VerticalAlignment="Center"
-							   FontWeight="Bold" />
-					<Slider x:Name="RedSlider"
-							Style="{StaticResource Horizontal_Slider}"
-							Grid.Row="0"
-							Background="Red"
-							VerticalAlignment="Center"
-							Grid.Column="1" />
-					<local:BalloonBox x:Name="RedValueText"
-									  TextContent="{Binding ElementName=RedSlider, Path=Value, Mode=TwoWay}"
-									  Grid.Row="0"
-									  Maximum="255"
-									  Grid.Column="2"
-									  Margin="5,0"
-									  VerticalAlignment="Center"
-									  FontWeight="Bold" />
-					<TextBlock Text="Green"
-							   VerticalAlignment="Center"
-							   HorizontalAlignment="Right"
-							   Margin="0,0,10,0"
-							   Grid.Row="1"
-							   FontWeight="Bold" />
-					<Slider  x:Name="GreenSlider"
-							 Style="{StaticResource Horizontal_Slider}"
-							 Grid.Row="1"
-							 Background="Lime"
-							 VerticalAlignment="Center"
-							 Grid.Column="1" />
-					<local:BalloonBox  x:Name="GreenValueText"
-									   TextContent="{Binding ElementName=GreenSlider, Path=Value, Mode=TwoWay}"
-									   Margin="5,0"
-									   Grid.Row="1"
-									   Maximum="255"
-									   Grid.Column="2"
-									   VerticalAlignment="Center"
-									   FontWeight="Bold" />
-					<TextBlock Text="Blue"
-							   VerticalAlignment="Center"
-							   HorizontalAlignment="Right"
-							   Margin="0,0,10,0"
-							   Grid.Row="2"
-							   FontWeight="Bold" />
-					<Slider x:Name="BlueSlider"
-							Style="{StaticResource Horizontal_Slider}"
-							Grid.Row="2"
-							Background="Blue"
-							VerticalAlignment="Center"
-							Grid.Column="1" />
-					<local:BalloonBox x:Name="BlueValueText"
-									  TextContent="{Binding ElementName=BlueSlider, Path=Value, Mode=TwoWay}"
-									  Grid.Row="2"
-									  Margin="5,0"
-									  Maximum="255"
-									  Grid.Column="2"
-									  VerticalAlignment="Center"
-									  FontWeight="Bold" />
-				</Grid>
+			<Viewbox Grid.Row="1"
+					 Margin="10">
+				<StackPanel Grid.Row="1"
+							Orientation="Horizontal">
+					<Grid HorizontalAlignment="Left"
+						  Height="80">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition MinWidth="40" />
+							<ColumnDefinition Width="4*"
+											  MinWidth="150" />
+							<ColumnDefinition MinWidth="40" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition />
+							<RowDefinition />
+							<RowDefinition />
+						</Grid.RowDefinitions>
+						<TextBlock Text="Red"
+								   Grid.Row="0"
+								   Margin="0,0,10,0"
+								   HorizontalAlignment="Right"
+								   VerticalAlignment="Center"
+								   FontWeight="Bold" />
+						<Slider x:Name="RedSlider"
+								Style="{StaticResource Horizontal_Slider}"
+								Grid.Row="0"
+								Background="Red"
+								ValueChanged="OnValueChangedBySliding"
+								VerticalAlignment="Center"
+								Grid.Column="1" />
+						<local:BalloonBox x:Name="RedValueText"
+										  TextContent="{Binding ElementName=RedSlider, Path=Value, Mode=TwoWay}"
+										  Grid.Row="0"
+										  Maximum="255"
+										  Grid.Column="2"
+										  Margin="5,0"
+										  VerticalAlignment="Center"
+										  FontWeight="Bold" />
+						<TextBlock Text="Green"
+								   VerticalAlignment="Center"
+								   HorizontalAlignment="Right"
+								   Margin="0,0,10,0"
+								   Grid.Row="1"
+								   FontWeight="Bold" />
+						<Slider  x:Name="GreenSlider"
+								 Style="{StaticResource Horizontal_Slider}"
+								 ValueChanged="OnValueChangedBySliding"
+								 Grid.Row="1"
+								 Background="Lime"
+								 VerticalAlignment="Center"
+								 Grid.Column="1" />
+						<local:BalloonBox  x:Name="GreenValueText"
+										   TextContent="{Binding ElementName=GreenSlider, Path=Value, Mode=TwoWay}"
+										   Margin="5,0"
+										   Grid.Row="1"
+										   Maximum="255"
+										   Grid.Column="2"
+										   VerticalAlignment="Center"
+										   FontWeight="Bold" />
+						<TextBlock Text="Blue"
+								   VerticalAlignment="Center"
+								   HorizontalAlignment="Right"
+								   Margin="0,0,10,0"
+								   Grid.Row="2"
+								   FontWeight="Bold" />
+						<Slider x:Name="BlueSlider"
+								Style="{StaticResource Horizontal_Slider}"
+								Grid.Row="2"
+								ValueChanged="OnValueChangedBySliding"
+								Background="Blue"
+								VerticalAlignment="Center"
+								Grid.Column="1" />
+						<local:BalloonBox x:Name="BlueValueText"
+										  TextContent="{Binding ElementName=BlueSlider, Path=Value, Mode=TwoWay}"
+										  Grid.Row="2"
+										  Margin="5,0"
+										  Maximum="255"
+										  Grid.Column="2"
+										  VerticalAlignment="Center"
+										  FontWeight="Bold" />
+					</Grid>
 
-				<Grid Height="80"
-					  Width="150">
-					<Grid.RowDefinitions>
-						<RowDefinition Height="auto" />
-						<RowDefinition />
-						<RowDefinition Height="auto" />
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition />
-						<ColumnDefinition Width="auto" />
-						<ColumnDefinition />
-					</Grid.ColumnDefinitions>
-					<Border x:Name="SelectedColorView"
-							BorderBrush="Black"
-							BorderThickness="1"
-							Background="{Binding ElementName=UC_container, Path=SelectedColorItem.ColorBrush}"
-							Height="20"
-							CornerRadius="5"
-							VerticalAlignment="Bottom"
-							Grid.Row="1"
-							Width="80"
-							Grid.Column="1" />
+					<Grid Height="80"
+						  Width="150">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="auto" />
+							<RowDefinition />
+							<RowDefinition Height="auto" />
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition Width="auto" />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+						<Border x:Name="SelectedColorView"
+								BorderBrush="Black"
+								BorderThickness="1"
+								Background="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush}"
+								Height="20"
+								CornerRadius="5"
+								VerticalAlignment="Bottom"
+								Grid.Row="1"
+								Width="80"
+								Grid.Column="1" />
 
-					<local:OutlineTextBlock x:Name="SelectedColorHexTextView"
-											HorizontalAlignment="Center"
-											VerticalAlignment="Top"
-											Fill="{Binding ElementName=UC_container, Path=SelectedColorItem.ColorBrush}"
-											Stroke="Black"
-											StrokeThickness="1"
-											FontSize="30"
-											Grid.Row="2"
-											Grid.Column="1"
-											FontFamily="Calibri"
-											FontWeight="Bold"
-											Text="{Binding ElementName=UC_container, Path=SelectedColorItem.ColorBrush.Color, FallbackValue=#00000000}" />
-				</Grid>
-			</StackPanel>
-		</Viewbox>
+						<local:OutlineTextBlock x:Name="SelectedColorHexTextView"
+												HorizontalAlignment="Center"
+												VerticalAlignment="Top"
+												Fill="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush}"
+												Stroke="Black"
+												StrokeThickness="1"
+												FontSize="30"
+												Grid.Row="2"
+												Grid.Column="1"
+												FontFamily="Calibri"
+												FontWeight="Bold"
+												Text="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush.Color, FallbackValue=#00000000}" />
+					</Grid>
+				</StackPanel>
+			</Viewbox>
+		</Grid>
 
-
-	</Grid>
+	</local:PaletteEditorInternal>
 
 </UserControl>

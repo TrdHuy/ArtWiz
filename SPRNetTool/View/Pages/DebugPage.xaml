@@ -569,8 +569,8 @@
 					<ContentControl>
 						<wg:PaletteEditor Grid.Row="1"
 										  Height="300"
+										  ViewModel="{Binding PaletteEditorVM}"
 										  PreviewColorItemChange="PaletteEditorPreviewColorItemChange"
-										  ColorItemSource="{Binding PaletteColorItemSource}"
 										  x:Name="mPaletteEditor" />
 					</ContentControl>
 				

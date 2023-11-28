@@ -399,7 +399,7 @@ namespace SPRNetTool.Data
         public Palette(PaletteColor[] data)
         {
             Size = data.Length;
-            Data = new PaletteColor[256];
+            Data = new PaletteColor[Size];
             Array.Copy(data, Data, Size);
         }
 
@@ -517,7 +517,6 @@ namespace SPRNetTool.Data
         {
             private FrameRGBA frameRGBA;
             private Palette paletteData;
-            private Palette recalculatedPaletteData;
 
             public Dictionary<Color, long>? CountableSource { get; set; }
             public Dictionary<int, List<long>>? PaletteIndexToPixelIndexMap { get; set; }
@@ -532,14 +531,6 @@ namespace SPRNetTool.Data
                     frameOffX = originData.frameOffX,
                     frameOffY = originData.frameOffY,
                 };
-            }
-
-            public Palette RecalculatedPaletteData
-            {
-                get
-                {
-                    return recalculatedPaletteData;
-                }
             }
 
             public ushort frameWidth
@@ -617,7 +608,18 @@ namespace SPRNetTool.Data
                 return frameRGBA;
             }
 
-            private Dictionary<int, (PaletteColor, PaletteColor)> _paletteColorChangeIndexCache;
+            public void SetCopiedPaletteData(Palette palette)
+            {
+                paletteData = new Palette(palette.Data);
+            }
+
+            public Palette GetFramePaletteData()
+            {
+                return paletteData;
+            }
+
+            #region palette color changed cache
+            private Dictionary<int, (PaletteColor, PaletteColor)>? _paletteColorChangeIndexCache;
             private Dictionary<int, (PaletteColor, PaletteColor)> paletteColorChangeIndexCache
             {
                 get
@@ -641,12 +643,10 @@ namespace SPRNetTool.Data
                 paletteColorChangeIndexCache[index] = new(oldColor, newColor);
                 IsPaletteColorChanged = true;
             }
-
             public int[] GetPaletteColorChangedIndex()
             {
                 return paletteColorChangeIndexCache.Select(it => it.Key).ToArray();
             }
-
             public (PaletteColor, PaletteColor)[] GetChangedPaletteColors()
             {
                 return paletteColorChangeIndexCache
@@ -658,6 +658,7 @@ namespace SPRNetTool.Data
                         return t;
                     }).ToArray();
             }
+            #endregion
         }
     }
 }

@@ -54,7 +54,20 @@ namespace SPRNetTool.Domain
         {
             if (!SprWorkManager.IsWorkSpaceEmpty)
             {
-                SprWorkManager.SetNewColorToPalette(paletteIndex, newColor.R, newColor.G, newColor.B);
+                var currentFrameIndex = DisplayedBitmapSourceCache.CurrentFrameIndex ?? 0;
+                if (SprWorkManager.GetFrameData(currentFrameIndex)?.isInsertedFrame ?? false)
+                {
+                    SprWorkManager.SetNewColorToInsertedFramePalette((int)currentFrameIndex,
+                        paletteIndex,
+                        newColor.R,
+                        newColor.G,
+                        newColor.B);
+                }
+                else
+                {
+                    SprWorkManager.SetNewColorToGlobalPalette(paletteIndex, newColor.R, newColor.G, newColor.B);
+                }
+
                 if (InvalidateDisplayBitmapSourceCache(DisplayedBitmapSourceCache.CurrentFrameIndex ?? 0))
                 {
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
@@ -257,20 +270,38 @@ namespace SPRNetTool.Domain
         void IBitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(uint index)
         {
             if (index < 0 || index >= SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts) return;
+            var currentFrameIndex = DisplayedBitmapSourceCache.CurrentFrameIndex ?? 0;
+            var isShouldNotifyPaletteChanged =
+                SprWorkManager.GetFrameData(index)?.isInsertedFrame == true
+                || (SprWorkManager.GetFrameData(currentFrameIndex)?.isInsertedFrame == true
+                    && SprWorkManager.GetFrameData(index)?.isInsertedFrame == false);
             InitAnimationSourceCacheIfAsynchronous();
             if (InvalidateDisplayBitmapSourceCache(index))
             {
-                NotifyChanged(new BitmapDisplayMangerChangedArg(
-                    changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
+                var changeEvent = CURRENT_DISPLAYING_SOURCE_CHANGED
                      | CURRENT_COLOR_SOURCE_CHANGED
                      | CURRENT_DISPLAYING_FRAME_INDEX_CHANGED
                      | SPR_FRAME_DATA_CHANGED
                      | SPR_FRAME_SIZE_CHANGED
-                     | SPR_FRAME_OFFSET_CHANGED,
+                     | SPR_FRAME_OFFSET_CHANGED;
+                var palette = SprWorkManager.GetFrameData(index)?.isInsertedFrame == true ?
+                    SprWorkManager.GetFrameData(index)?
+                                .modifiedFrameRGBACache
+                                .GetFramePaletteData() : SprWorkManager.PaletteData;
+                if (isShouldNotifyPaletteChanged)
+                {
+                    changeEvent |= SPR_FILE_PALETTE_CHANGED;
+                }
+
+                NotifyChanged(new BitmapDisplayMangerChangedArg(
+                    changedEvent: changeEvent,
                      currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                      colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                      currentDisplayFrameIndex: index,
-                     sprFrameData: SprWorkManager.GetFrameData(index)));
+                     sprFrameData: SprWorkManager.GetFrameData(index),
+                     paletteChangedArg: isShouldNotifyPaletteChanged ? new SprPaletteChangedArg(
+                         changedEvent: NEWLY_ADDED,
+                         palette: palette) : null));
             }
 
         }
@@ -541,7 +572,8 @@ namespace SPRNetTool.Domain
             var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource,
                 out Dictionary<Color, long> countableSource,
                 out Palette palette,
-                out byte[] bgraBytesData)
+                out byte[] bgraBytesData,
+                out Dictionary<int, List<long>> paletteColorIndexToPixelIndexMap)
                 ?? (filePath != null ?
                     throw new Exception($"Failed to load bitmap from path {filePath}") :
                     throw new Exception($"Failed to load bitmap"));
@@ -553,7 +585,8 @@ namespace SPRNetTool.Domain
                 , palettePixelArray
                 , bgraBytesData
                 , palette
-                , countableSource))
+                , countableSource
+                , paletteColorIndexToPixelIndexMap))
             {
                 // Update current displaying bitmap
                 var bmpSrc = new BitmapSource?[SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts];
@@ -609,11 +642,18 @@ namespace SPRNetTool.Domain
                             | CURRENT_DISPLAYING_SOURCE_CHANGED
                             | CURRENT_COLOR_SOURCE_CHANGED
                             | SPR_FILE_HEAD_CHANGED
+                            | SPR_FILE_PALETTE_CHANGED
                             | SPR_FRAME_COLLECTION_CHANGED,
                             sprFileHead: SprWorkManager.FileHead,
                             currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                             currentDisplayFrameIndex: frameIndex,
                             colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
+                            paletteChangedArg: new SprPaletteChangedArg(
+                                changedEvent: NEWLY_ADDED,
+                                palette: SprWorkManager
+                                .GetFrameData(DisplayedBitmapSourceCache.CurrentFrameIndex ?? 0)?
+                                .modifiedFrameRGBACache
+                                .GetFramePaletteData()),
                             sprFrameCollectionChangedArg: new SprFrameCollectionChangedArg(
                                 changedEvent: FRAME_INSERTED,
                                 newFrameIndex: (int)frameIndex

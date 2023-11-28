@@ -6,8 +6,12 @@ namespace SPRNetTool.Domain.Base
 {
     public interface ISprWorkManagerAdvance : ISprWorkManagerCore
     {
-        void SetNewColorToPalette(uint colorIndex,
+        void SetNewColorToGlobalPalette(uint colorIndex,
            byte R, byte G, byte B);
+
+        void SetNewColorToInsertedFramePalette(int frameIndex, uint colorIndex,
+           byte R, byte G, byte B);
+
 
         /// <summary>
         /// Lấy frame RGBA theo giá trị index trong list frame data đã được khởi tạo
@@ -29,7 +33,8 @@ namespace SPRNetTool.Domain.Base
             , PaletteColor[] pixelData
             , byte[] bgraBytesData
             , Palette paletteData
-            , Dictionary<Color, long>? countableSource = null);
+            , Dictionary<Color, long>? countableSource = null
+            , Dictionary<int, List<long>>? paletteColorIndexToPixelIndexMap = null);
 
         /// <summary>
         /// Xóa frame theo index

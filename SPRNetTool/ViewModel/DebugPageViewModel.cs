@@ -2,6 +2,7 @@
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
+using SPRNetTool.View.Widgets;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
 using SPRNetTool.ViewModel.Widgets;
@@ -16,7 +17,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
 using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel
 {
@@ -32,7 +32,6 @@ namespace SPRNetTool.ViewModel
         private ObservableCollection<OptimizedColorItemViewModel>? _optimizedDisplayedSource = null;
         private ObservableCollection<ColorItemViewModel>? _displayedRgbCompositeResultSource = null;
         private CustomObservableCollection<IFrameViewModel>? _framesSource;
-        private ObservableCollection<IPaletteEditorColorItemViewModel>? _paletteColorItemSource;
 
         private bool _isPlayingAnimation = false;
         private int _pixelWidth = 0;
@@ -42,11 +41,18 @@ namespace SPRNetTool.ViewModel
         private uint _currentFrameIndex = 0;
         private bool _isSpr = false;
         private IBitmapViewerViewModel bitmapViewerVM;
+        private IPaletteEditorViewModel paletteEditorVM;
 
         [Bindable(true)]
         public IBitmapViewerViewModel BitmapViewerVM
         {
             get => bitmapViewerVM;
+        }
+
+        [Bindable(true)]
+        public IPaletteEditorViewModel PaletteEditorVM
+        {
+            get => paletteEditorVM;
         }
 
         [Bindable(true)]
@@ -66,22 +72,6 @@ namespace SPRNetTool.ViewModel
             }
         }
 
-        [Bindable(true)]
-        public ObservableCollection<IPaletteEditorColorItemViewModel>? PaletteColorItemSource
-        {
-            get
-            {
-                return _paletteColorItemSource;
-            }
-            set
-            {
-                if (_paletteColorItemSource != value)
-                {
-                    _paletteColorItemSource = value;
-                    Invalidate();
-                }
-            }
-        }
 
         [Bindable(true)]
         public uint CurrentFrameIndex
@@ -258,6 +248,7 @@ namespace SPRNetTool.ViewModel
 
         public DebugPageViewModel()
         {
+            paletteEditorVM = new PaletteEditorViewModel(this);
             bitmapViewerVM = new BitmapViewerViewModel(this);
             BindingOperations.EnableCollectionSynchronization(_rawOriginalSource, new object());
             BitmapDisplayManager.RegisterObserver(this);
@@ -285,7 +276,7 @@ namespace SPRNetTool.ViewModel
         }
 
         #region OriginalSource
-        public async Task SetColorSource(Dictionary<Color, long>? colorsSource)
+        public async void SetColorSource(Dictionary<Color, long>? colorsSource)
         {
             _countableColorSource = colorsSource;
             _cachedOrderByCount = null;
@@ -399,7 +390,7 @@ namespace SPRNetTool.ViewModel
         }
         #endregion
 
-        protected async override void OnDomainChanged(IDomainChangedArgs args)
+        protected override void OnDomainChanged(IDomainChangedArgs args)
         {
             if (IsViewModelDestroyed) return;
 
@@ -434,38 +425,12 @@ namespace SPRNetTool.ViewModel
 
                             if (castArgs.CurrentColorSource != null)
                             {
-                                await SetColorSource(castArgs.CurrentColorSource);
+                                SetColorSource(castArgs.CurrentColorSource);
                             }
                         }
                     }
                     else
                     {
-                        if (castArgs.Event.HasFlag(SPR_FILE_PALETTE_CHANGED))
-                        {
-                            castArgs.PaletteChangedArg?.Apply(it =>
-                            {
-                                if (it.Event.HasFlag(NEWLY_ADDED))
-                                {
-                                    ViewModelOwner?.ViewDispatcher.Invoke(() =>
-                                    {
-                                        PaletteColorItemSource = new ObservableCollection<IPaletteEditorColorItemViewModel>();
-
-                                        it.Palette?.Data?.FoEach(pColor =>
-                                        {
-                                            PaletteColorItemSource.Add(new PaletteEditorColorItemViewModel(
-                                               new SolidColorBrush(Color.FromRgb(pColor.Red,
-                                               pColor.Green, pColor.Blue))));
-                                        });
-                                    });
-                                }
-
-                                if (it.Event.HasFlag(COLOR_CHANGED) && PaletteColorItemSource != null)
-                                {
-                                    PaletteColorItemSource[(int)it.ColorChangedIndex].ColorBrush.Color = it.NewColor;
-                                }
-                            });
-                        }
-
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
                             IsSpr = castArgs.CurrentSprFileHead != null;
@@ -484,9 +449,14 @@ namespace SPRNetTool.ViewModel
                             CurrentFrameIndex = castArgs.CurrentDisplayingFrameIndex;
                         }
 
+                        // Nếu tại đây để await SetColorSource, toàn bộ các hàm 
+                        // xử lý tiếp theo sẽ là bất đồng bộ, gây ra 1 vài lỗi bất đồng bộ trên UI.
+                        // Có 2 hướng xử lý:
+                        // 1. Không nên gọi OnDomainChanged async.
+                        // 2. Các hàm bất đồng bộ nên được gọi cuối cùng trong hàm chứa nó.
                         if (castArgs.Event.HasFlag(CURRENT_COLOR_SOURCE_CHANGED))
                         {
-                            await SetColorSource(castArgs.CurrentColorSource);
+                            SetColorSource(castArgs.CurrentColorSource);
                         }
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))

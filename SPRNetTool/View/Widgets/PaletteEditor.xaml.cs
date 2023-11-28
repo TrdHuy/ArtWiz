@@ -1,5 +1,6 @@
 ﻿using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Widgets;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Windows;
@@ -33,6 +34,24 @@ namespace SPRNetTool.View.Widgets
             }
         }
 
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register(
+               "ViewModel",
+               typeof(IPaletteEditorViewModel),
+               typeof(PaletteEditor),
+               new FrameworkPropertyMetadata(default(IPaletteEditorViewModel),
+                   FrameworkPropertyMetadataOptions.AffectsMeasure, propertyChangedCallback: OnViewModelChanged));
+
+        private static void OnViewModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        public IPaletteEditorViewModel? ViewModel
+        {
+            get { return GetValue(ViewModelProperty) as IPaletteEditorViewModel; }
+            set { SetValue(ViewModelProperty, value); }
+        }
+
         public delegate void PaletteEditorHandler(object sender, PaletteEditorEventChangedArgs arg);
         public static void AddPreviewColorItemChangeHandler(DependencyObject element, PaletteEditorHandler handler)
         {
@@ -49,79 +68,18 @@ namespace SPRNetTool.View.Widgets
                 it.mPreviewColorItemChange -= handler;
             });
         }
-
-        public static readonly DependencyProperty ColorItemSourceProperty =
-           DependencyProperty.Register(
-               "ColorItemSource",
-               typeof(IEnumerable<IPaletteEditorColorItemViewModel>),
-               typeof(PaletteEditor),
-           new FrameworkPropertyMetadata(defaultValue: default(IEnumerable<IPaletteEditorColorItemViewModel>),
-               flags: FrameworkPropertyMetadataOptions.AffectsRender,
-               new PropertyChangedCallback(OnColorItemSourceChangedCallback)));
-
-        private static void OnColorItemSourceChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            d.IfIs<PaletteEditor>(it =>
-            {
-                it.ColorsList.ItemsSource = e.NewValue as IEnumerable;
-            });
-        }
-        public IEnumerable ColorItemSource
-        {
-            get { return (IEnumerable)GetValue(ColorItemSourceProperty); }
-            set { SetValue(ColorItemSourceProperty, value); }
-        }
-
-        public static readonly DependencyProperty SelectedColorItemProperty =
-           DependencyProperty.Register(
-               "SelectedColorItem",
-               typeof(IPaletteEditorColorItemViewModel),
-               typeof(PaletteEditor),
-           new PropertyMetadata(defaultValue: default(IPaletteEditorColorItemViewModel)));
-
-        public IPaletteEditorColorItemViewModel SelectedColorItem
-        {
-            get { return (IPaletteEditorColorItemViewModel)GetValue(SelectedColorItemProperty); }
-            private set { SetValue(SelectedColorItemProperty, value); }
-        }
-
+       
         private event PaletteEditorHandler? mPreviewColorItemChange;
-
 
         public PaletteEditor()
         {
             InitializeComponent();
         }
 
-        private void ColorsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0)
-            {
-                e.AddedItems?[0]?.IfIs<IPaletteEditorColorItemViewModel>(it =>
-                {
-                    SetSelectedColorItem(it);
-                });
-            }
-        }
-
-        private void SetSelectedColorItem(IPaletteEditorColorItemViewModel selectedItem)
-        {
-            RedSlider.ValueChanged -= OnValueChangedBySliding;
-            GreenSlider.ValueChanged -= OnValueChangedBySliding;
-            BlueSlider.ValueChanged -= OnValueChangedBySliding;
-            SelectedColorItem = selectedItem;
-            RedSlider.Value = selectedItem.ColorBrush.Color.R;
-            GreenSlider.Value = selectedItem.ColorBrush.Color.G;
-            BlueSlider.Value = selectedItem.ColorBrush.Color.B;
-
-            RedSlider.ValueChanged += OnValueChangedBySliding;
-            GreenSlider.ValueChanged += OnValueChangedBySliding;
-            BlueSlider.ValueChanged += OnValueChangedBySliding;
-        }
 
         private void OnValueChangedBySliding(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            SelectedColorItem?.Apply(it =>
+            InternalContainer.SelectedColorItem?.Apply(it =>
             {
                 var oldColor = it.ColorBrush.Color;
                 var newColor = it.ColorBrush.Color;
@@ -150,8 +108,40 @@ namespace SPRNetTool.View.Widgets
                     it.ColorBrush.Color = newColor;
                 }
             });
+        }
+    }
 
+    public class PaletteEditorInternal : UserControl
+    {
+        public static readonly DependencyProperty SelectedColorItemProperty =
+           DependencyProperty.Register(
+               "SelectedColorItem",
+               typeof(IPaletteEditorColorItemViewModel),
+               typeof(PaletteEditorInternal),
+           new PropertyMetadata(defaultValue: default(IPaletteEditorColorItemViewModel)));
 
+        public IPaletteEditorColorItemViewModel SelectedColorItem
+        {
+            get { return (IPaletteEditorColorItemViewModel)GetValue(SelectedColorItemProperty); }
+            set { SetValue(SelectedColorItemProperty, value); }
+        }
+
+        public static readonly DependencyProperty ColorItemSourceProperty =
+           DependencyProperty.Register(
+               "ColorItemSource",
+               typeof(IEnumerable<IPaletteEditorColorItemViewModel>),
+               typeof(PaletteEditorInternal),
+           new FrameworkPropertyMetadata(defaultValue: default(IEnumerable<IPaletteEditorColorItemViewModel>),
+               flags: FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public IEnumerable ColorItemSource
+        {
+            get { return (IEnumerable)GetValue(ColorItemSourceProperty); }
+            set { SetValue(ColorItemSourceProperty, value); }
+        }
+
+        public PaletteEditorInternal()
+        {
         }
     }
 }
