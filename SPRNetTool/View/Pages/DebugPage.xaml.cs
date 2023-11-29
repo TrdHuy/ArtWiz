@@ -22,6 +22,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.View.InputWindow;
+using static SPRNetTool.View.Widgets.PaletteEditor;
 
 namespace SPRNetTool.View.Pages
 {
@@ -811,7 +812,7 @@ namespace SPRNetTool.View.Pages
             });
         }
 
-        private void PaletteEditorPreviewColorItemChange(object sender, PaletteEditor.PaletteEditorEventChangedArgs arg)
+        private void PaletteEditorPreviewColorItemChange(object sender, PaletteEditorEventChangedArgs arg)
         {
             commandVM?.OnPreviewColorPaletteChanged((uint)arg.ColorIndex, arg.NewColor);
             arg.Handled = true;

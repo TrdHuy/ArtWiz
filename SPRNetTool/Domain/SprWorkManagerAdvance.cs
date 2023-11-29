@@ -15,7 +15,7 @@ namespace SPRNetTool.Domain
         private Logger logger = new Logger("SprWorkManagerAdvance");
         private Logger pf_logger = new Logger("SprWorkManagerAdvance_PF");
 
-        void ISprWorkManagerAdvance.SetNewColorToPalette(uint colorIndex,
+        void ISprWorkManagerAdvance.SetNewColorToGlobalPalette(uint colorIndex,
             byte R, byte G, byte B)
         {
             var oldColor = PaletteData.modifiedPalette[(int)colorIndex];
@@ -25,10 +25,48 @@ namespace SPRNetTool.Domain
                 alpha: oldColor.Alpha);
             FrameData?.FoEach(it =>
             {
-                it.modifiedFrameRGBACache.SetPaletteColorChangedIndex((int)colorIndex,
-                    oldColor: oldColor,
-                    newColor: PaletteData.modifiedPalette[(int)colorIndex]);
+                if (!it.isInsertedFrame)
+                {
+                    it.modifiedFrameRGBACache.SetPaletteColorChangedIndex((int)colorIndex,
+                       oldColor: oldColor,
+                       newColor: PaletteData.modifiedPalette[(int)colorIndex]);
+                }
             });
+        }
+
+        void ISprWorkManagerAdvance.SetNewColorToInsertedFramePalette(int frameIndex, uint colorIndex,
+            byte R, byte G, byte B)
+        {
+            if (frameIndex < FileHead.modifiedSprFileHeadCache.FrameCounts && FrameData != null)
+            {
+                if (FrameData[frameIndex].isInsertedFrame)
+                {
+                    var oldColor = FrameData[frameIndex]
+                        .modifiedFrameRGBACache
+                        .GetFramePaletteData().Data[(int)colorIndex];
+
+                    FrameData[frameIndex]
+                        .modifiedFrameRGBACache
+                        .GetFramePaletteData().Data[(int)colorIndex] = new PaletteColor(blue: B,
+                        green: G,
+                        red: R,
+                        alpha: oldColor.Alpha);
+
+                    FrameData[frameIndex].modifiedFrameRGBACache.SetPaletteColorChangedIndex((int)colorIndex,
+                        oldColor: oldColor,
+                        newColor: FrameData[frameIndex]
+                            .modifiedFrameRGBACache
+                            .GetFramePaletteData().Data[(int)colorIndex]);
+                }
+                else
+                {
+                    throw new Exception("Frame is not inserted");
+                }
+            }
+            else
+            {
+                throw new Exception("Frame is not existed");
+            }
         }
 
         bool ISprWorkManagerAdvance.InsertFrame(uint frameIndex,
@@ -37,7 +75,8 @@ namespace SPRNetTool.Domain
             PaletteColor[] pixelData,
             byte[] bgraBytesData,
             Palette paletteData,
-            Dictionary<Color, long>? countableSource)
+            Dictionary<Color, long>? countableSource,
+            Dictionary<int, List<long>>? paletteColorIndexToPixelIndexMap)
         {
 #if DEBUG
             var countableColorSource = this.CountColors(pixelData);
@@ -65,6 +104,8 @@ namespace SPRNetTool.Domain
             };
             frameData.originDecodedFrameData = pixelData;
             frameData.originDecodedBGRAData = bgraBytesData;
+            frameData.modifiedFrameRGBACache.SetCopiedPaletteData(paletteData);
+            frameData.modifiedFrameRGBACache.PaletteIndexToPixelIndexMap = paletteColorIndexToPixelIndexMap;
             var newLen = (FrameData?.Length + 1) ?? 1;
             var newFramesData = new FrameRGBA[newLen];
 
@@ -220,7 +261,10 @@ namespace SPRNetTool.Domain
                 {
                     FrameData[index].modifiedFrameRGBACache.GetPaletteColorChangedIndex().FoEach(paletteIndex =>
                     {
-                        var newColor = PaletteData.modifiedPalette[paletteIndex];
+                        var newColor = FrameData[index].isInsertedFrame ? 
+                            FrameData[index].modifiedFrameRGBACache.GetFramePaletteData().Data[paletteIndex]:
+                            PaletteData.modifiedPalette[paletteIndex];
+
                         if (FrameData[index].modifiedFrameRGBACache.PaletteIndexToPixelIndexMap?.ContainsKey(paletteIndex) == true)
                         {
                             var pixelIndexMap = FrameData[index].modifiedFrameRGBACache.PaletteIndexToPixelIndexMap?[paletteIndex] ?? throw new Exception("Missing pixel map");
