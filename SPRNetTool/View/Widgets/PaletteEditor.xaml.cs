@@ -74,11 +74,6 @@ namespace SPRNetTool.View.Widgets
         public PaletteEditor()
         {
             InitializeComponent();
-            InternalContainer.SourceChanged += InternalContainer_SourceChanged;
-        }
-
-        private void InternalContainer_SourceChanged(object obj)
-        {
         }
 
         private void OnValueChangedBySliding(object sender, RoutedPropertyChangedEventArgs<double> e)
