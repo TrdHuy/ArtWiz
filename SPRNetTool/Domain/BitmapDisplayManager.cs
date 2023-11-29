@@ -162,17 +162,49 @@ namespace SPRNetTool.Domain
                     }
                     DisplayedBitmapSourceCache.AnimationSourceCaching = bmpSrc;
 
+                    var colorSrc = new Dictionary<Color, long>?[SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts];
+                    for (int i = 0, j = 0; i < SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts + 1; i++)
+                    {
+                        if (i != frameIndex)
+                        {
+                            colorSrc[j++] = DisplayedBitmapSourceCache.ColorSourceCaching?[i];
+                        }
+                    }
+                    DisplayedBitmapSourceCache.ColorSourceCaching = colorSrc;
+
 
                     if (DisplayedBitmapSourceCache.CurrentFrameIndex == frameIndex)
                     {
-                        var newFrameIndex = frameIndex == SprWorkManager.FileHead.FrameCounts ? frameIndex - 1 : frameIndex;
-                        DisplayedBitmapSourceCache.AnimationSourceCaching[newFrameIndex].IfNullThenLet(() =>
-                            CreateBitmapSourceFromDecodedFrameData(newFrameIndex));
-                        DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[newFrameIndex];
-                        DisplayedBitmapSourceCache.CurrentFrameIndex = newFrameIndex;
+                        var newFrameIndex = frameIndex == SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts ? frameIndex - 1 : frameIndex;
+
+                        if (DisplayedBitmapSourceCache.AnimationSourceCaching.Length > 0)
+                        {
+                            DisplayedBitmapSourceCache.AnimationSourceCaching[newFrameIndex] =
+                            DisplayedBitmapSourceCache.AnimationSourceCaching[newFrameIndex].IfNullThenLet(() =>
+                               CreateBitmapSourceFromDecodedFrameData(newFrameIndex));
+                            DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[newFrameIndex];
+                            DisplayedBitmapSourceCache.CurrentFrameIndex = newFrameIndex;
+
+                            DisplayedBitmapSourceCache.DisplayedBitmapSource?.Apply(it =>
+                            {
+                                DisplayedBitmapSourceCache.ColorSourceCaching[newFrameIndex] =
+                                    DisplayedBitmapSourceCache.ColorSourceCaching[newFrameIndex].IfNullThenLet(() =>
+                                    this.CountColorsToDictionary(it));
+                            });
+                            DisplayedBitmapSourceCache.DisplayedColorSource = DisplayedBitmapSourceCache.ColorSourceCaching[newFrameIndex];
+                        }
+                        else
+                        {
+                            DisplayedBitmapSourceCache.DisplayedBitmapSource = null;
+                            DisplayedBitmapSourceCache.CurrentFrameIndex = 0;
+                            DisplayedBitmapSourceCache.DisplayedColorSource = null;
+                        }
 
                         NotifyChanged(new BitmapDisplayMangerChangedArg(
-                            changedEvent: CURRENT_DISPLAYING_FRAME_INDEX_CHANGED | CURRENT_COLOR_SOURCE_CHANGED,
+                            changedEvent: CURRENT_DISPLAYING_FRAME_INDEX_CHANGED
+                            | CURRENT_DISPLAYING_SOURCE_CHANGED
+                            | CURRENT_COLOR_SOURCE_CHANGED,
+                            colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                             currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                             currentDisplayFrameIndex: newFrameIndex));
                     }
