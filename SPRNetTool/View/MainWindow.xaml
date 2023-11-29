@@ -15,6 +15,7 @@
 
 	<Window.Resources>
 		<cvt:FormulaConverter x:Key="FormulaConverter" />
+		
 	</Window.Resources>
 	<Grid>
 		<Grid.RowDefinitions>
