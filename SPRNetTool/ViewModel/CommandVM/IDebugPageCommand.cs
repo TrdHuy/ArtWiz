@@ -48,7 +48,7 @@ namespace SPRNetTool.ViewModel.CommandVM
         bool OnSwitchFrameClicked(uint frameIndex1, uint frameIndex2);
 
         bool OnRemoveFrameClicked(uint frameIndex);
-        bool OnInsertFrameClicked(uint frameIndex, string filePath);
+        bool OnInsertFrameClicked(uint frameIndex, string[] filePaths);
 
         void OnFramePointerClick(uint frameIndex);
 
