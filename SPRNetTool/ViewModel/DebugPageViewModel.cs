@@ -863,9 +863,14 @@ namespace SPRNetTool.ViewModel
             return BitmapDisplayManager.DeleteFrame(frameIndex);
         }
 
-        bool IDebugPageCommand.OnInsertFrameClicked(uint frameIndex, string filePath)
+        bool IDebugPageCommand.OnInsertFrameClicked(uint frameIndex, string[] filePaths)
         {
-            return BitmapDisplayManager.InsertFrame(frameIndex, filePath);
+            var res = false;
+            filePaths.FoEach(it =>
+            {
+                res = BitmapDisplayManager.InsertFrame(frameIndex++, it);
+            });
+            return res;
         }
 
         void IDebugPageCommand.OnFramePointerClick(uint frameIndex)

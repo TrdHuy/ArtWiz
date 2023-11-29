@@ -401,7 +401,7 @@ namespace SPRNetTool.View.Pages
                                 {
                                     commandVM?.OnImportCurrentDisplaySourceToNextFrameOfSprWorkSpace();
                                 });
-                            });                            
+                            });
                             break;
                         }
 
@@ -782,19 +782,25 @@ namespace SPRNetTool.View.Pages
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.Filter = "Tệp ảnh |*.png;*.jpg;*.jpeg;*.spr";
+                openFileDialog.Multiselect = true;
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    string imagePath = openFileDialog.FileName;
+                    string[] imagePaths = openFileDialog.FileNames
+                        .Where(it =>
+                        {
+                            string fileExtension = Path.GetExtension(it).ToLower();
+                            return fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png";
+                        })
+                        .ToArray();
 
-                    string fileExtension = Path.GetExtension(imagePath).ToLower();
-                    if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png")
+                    if (imagePaths.Length > 0)
                     {
                         LoadingWindow l = new LoadingWindow(ownerWindow, tilte: "Inserting new frame");
                         l.Show(block: async () =>
                         {
                             await Task.Run(() =>
                             {
-                                commandVM?.OnInsertFrameClicked((uint)args.NewFrameIndex, imagePath);
+                                commandVM?.OnInsertFrameClicked((uint)args.NewFrameIndex, imagePaths);
                             });
                         });
                     }
