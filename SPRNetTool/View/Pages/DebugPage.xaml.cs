@@ -315,8 +315,7 @@ namespace SPRNetTool.View.Pages
 
         private void ClearClick(object sender, RoutedEventArgs e)
         {
-            viewModel.ResetViewModel();
-            StaticImageView2.Source = null;
+            commandVM?.OnResetSprWorkspaceClicked();
         }
 
         private void TestBtnClick(object sender, RoutedEventArgs e)

@@ -397,7 +397,15 @@ namespace SPRNetTool.ViewModel
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
-                    if (castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED))
+
+                    if (castArgs.Event.HasFlag(SPR_WORKSPACE_RESET))
+                    {
+                        FramesSource = null;
+                        SprFileHead = new SprFileHead();
+                        SprFrameData = new FrameRGBA();
+                        OriginalColorSource.Clear();
+                    }
+                    else if (castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED))
                     {
                         if (castArgs.IsPlayingAnimation == true)
                         {
@@ -577,6 +585,11 @@ namespace SPRNetTool.ViewModel
 
 
         #region Command region
+        void IDebugPageCommand.OnResetSprWorkspaceClicked()
+        {
+            BitmapDisplayManager.ResetSprWorkSpace();
+        }
+
         void IDebugPageCommand.OnPlayPauseAnimationSprClicked()
         {
             if (!IsSpr) return;

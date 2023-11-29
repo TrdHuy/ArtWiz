@@ -121,7 +121,19 @@ namespace SPRNetTool.ViewModel.Widgets
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
-                    if (castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED) && IsSpr)
+                    if (castArgs.Event.HasFlag(SPR_WORKSPACE_RESET))
+                    {
+                        FrameSource = null;
+                        FrameOffX = 0;
+                        FrameOffY = 0;
+                        FrameHeight = 0;
+                        FrameWidth = 0;
+                        GlobalHeight = 0;
+                        GlobalWidth = 0;
+                        GlobalOffY = 0;
+                        GlobalOffX = 0;
+                    }
+                    else if (castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED) && IsSpr)
                     {
                         if (castArgs.Event.HasFlag(SPR_FRAME_OFFSET_CHANGED))
                         {

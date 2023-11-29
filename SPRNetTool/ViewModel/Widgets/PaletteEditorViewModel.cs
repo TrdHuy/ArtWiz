@@ -56,7 +56,11 @@ namespace SPRNetTool.ViewModel.Widgets
             switch (args)
             {
                 case BitmapDisplayMangerChangedArg castArgs:
-                    if (!castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED))
+                    if (castArgs.Event.HasFlag(SPR_WORKSPACE_RESET))
+                    {
+                        PaletteColorItemSource = null;
+                    }
+                    else if (!castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED))
                     {
                         if (castArgs.Event.HasFlag(SPR_FILE_PALETTE_CHANGED))
                         {

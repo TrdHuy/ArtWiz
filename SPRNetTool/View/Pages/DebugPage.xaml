@@ -141,7 +141,7 @@
 					Height="30"
 					BorderThickness="0"
 					Foreground="White"
-					Content="Clear"
+					Content="Reset workspace"
 					Background="Red"
 					Click="ClearClick" />
 

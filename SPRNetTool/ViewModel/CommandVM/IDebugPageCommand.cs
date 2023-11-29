@@ -4,6 +4,8 @@ namespace SPRNetTool.ViewModel.CommandVM
 {
     public interface IDebugPageCommand
     {
+        void OnResetSprWorkspaceClicked();
+
         void OnPlayPauseAnimationSprClicked();
 
         void OnSaveCurrentWorkManagerToFileSprClicked(string filePath);

@@ -15,6 +15,11 @@ namespace SPRNetTool.Domain.Base
 
         #region public API
 
+        void ResetWorkSpace()
+        {
+            InitCache();
+        }
+
         bool IsWorkSpaceEmpty => IsCacheEmpty;
 
         /// <summary>

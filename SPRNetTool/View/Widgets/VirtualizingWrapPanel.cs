@@ -422,14 +422,27 @@ namespace SPRNetTool.View.Widgets
                 m_viewport.Width = visibleSections;
                 m_viewport.Height = pixelMeasuredViewportSize.Height;
             }
-
-            if (Orientation == Orientation.Horizontal)
+            if (m_abstractPanel != null)
             {
-                m_extent.Height = m_abstractPanel.SectionCount + ViewportHeight - 1;
+                if (Orientation == Orientation.Horizontal)
+                {
+                    m_extent.Height = m_abstractPanel.SectionCount + ViewportHeight - 1;
+                }
+                else
+                {
+                    m_extent.Width = m_abstractPanel.SectionCount + ViewportWidth - 1;
+                }
             }
             else
             {
-                m_extent.Width = m_abstractPanel.SectionCount + ViewportWidth - 1;
+                if (Orientation == Orientation.Horizontal)
+                {
+                    m_extent.Height = 0;
+                }
+                else
+                {
+                    m_extent.Width = 0;
+                }
             }
 
             if (ScrollOwner != null)
@@ -508,7 +521,10 @@ namespace SPRNetTool.View.Widgets
         protected override Size MeasureOverride(Size availableSize)
         {
             if (m_itemsControl == null || m_itemsControl.Items.Count == 0)
+            {
+                ComputeExtentAndViewport(new Size(0, 0), 0);
                 return availableSize;
+            }
 
             if (m_abstractPanel == null)
                 m_abstractPanel = new WrapPanelAbstraction(m_itemsControl.Items.Count);
@@ -1053,12 +1069,12 @@ namespace SPRNetTool.View.Widgets
             (next as UIElement).Focus();
         }
 
-        private UIElementCollection m_children;
-        private IItemContainerGenerator m_generator;
-        private ItemsControl m_itemsControl;
+        private UIElementCollection? m_children;
+        private IItemContainerGenerator? m_generator;
+        private ItemsControl? m_itemsControl;
         private Size m_pixelMeasuredViewport = new Size(0, 0);
         private Size m_childSize;
-        private WrapPanelAbstraction m_abstractPanel;
+        private WrapPanelAbstraction? m_abstractPanel;
         private Point m_offset = new Point(0, 0);
         private Size m_extent = new Size(0, 0);
         private Size m_viewport = new Size(0, 0);
