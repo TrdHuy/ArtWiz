@@ -92,7 +92,7 @@ namespace SPRNetTool.View.Widgets
         {
             d.IfIs<FrameLineEditor>(it =>
             {
-                e.NewValue.IfIs<IEnumerable<IFrameViewModel>>(source => it.SetUpFrameSource(source));
+                it.SetUpFrameSource(e.NewValue as IEnumerable<IFrameViewModel>);
                 e.OldValue.IfIs<IEnumerable<IFrameViewModel>>(source => it.DisposeFrameSource(source));
             });
         }
@@ -111,17 +111,25 @@ namespace SPRNetTool.View.Widgets
             Controller = new FrameLineController(ScrView, MainCanvas, 0);
         }
 
-        private void SetUpFrameSource(IEnumerable<IFrameViewModel> frameSource)
+        private void SetUpFrameSource(IEnumerable<IFrameViewModel>? frameSource)
         {
-            frameSource.IfIs<INotifyCollectionChanged>(it =>
+            if (frameSource == null)
             {
-                it.CollectionChanged += FrameSourceCollectionChanged;
-            });
+                Controller.SetTotalFrameCount(0);
+            }
+            else
+            {
+                frameSource.IfIs<INotifyCollectionChanged>(it =>
+                {
+                    it.CollectionChanged += FrameSourceCollectionChanged;
+                });
 
-            frameSource.IfIs<Collection<IFrameViewModel>>(it =>
-            {
-                Controller.SetTotalFrameCount((uint)it.Count);
-            });
+                frameSource.IfIs<Collection<IFrameViewModel>>(it =>
+                {
+                    Controller.SetTotalFrameCount((uint)it.Count);
+                });
+            }
+
         }
 
         private void DisposeFrameSource(IEnumerable<IFrameViewModel> frameSource)

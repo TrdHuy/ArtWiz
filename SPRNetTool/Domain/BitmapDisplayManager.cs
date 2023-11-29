@@ -49,6 +49,22 @@ namespace SPRNetTool.Domain
         private BitmapSourceCache DisplayedBitmapSourceCache { get; } = new BitmapSourceCache();
 
         #region public interface
+        void IBitmapDisplayManager.ResetSprWorkSpace()
+        {
+            SprWorkManager.ResetWorkSpace();
+            if (DisplayedBitmapSourceCache.IsSprImage)
+            {
+                DisplayedBitmapSourceCache.IsPlaying = false;
+                DisplayedBitmapSourceCache.IsSprImage = false;
+                DisplayedBitmapSourceCache.CurrentFrameIndex = 0;
+                DisplayedBitmapSourceCache.ColorSourceCaching = null;
+                DisplayedBitmapSourceCache.AnimationTokenSource = null;
+                DisplayedBitmapSourceCache.AnimationSourceCaching = null;
+                NotifyChanged(new BitmapDisplayMangerChangedArg(
+                        changedEvent: SPR_WORKSPACE_RESET));
+            }
+            
+        }
 
         void IBitmapDisplayManager.SetNewColorToPalette(uint paletteIndex, Color newColor)
         {
@@ -774,6 +790,7 @@ namespace SPRNetTool.Domain
             SPR_GLOBAL_SIZE_CHANGED = 0b1000000000,
             SPR_FRAME_COLLECTION_CHANGED = 0b10000000000,
             SPR_FILE_PALETTE_CHANGED = 0b100000000000,
+            SPR_WORKSPACE_RESET = 0b1000000000000,
         }
 
         public ChangedEvent Event { get; private set; }

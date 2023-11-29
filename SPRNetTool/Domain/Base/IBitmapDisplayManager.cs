@@ -7,6 +7,7 @@ namespace SPRNetTool.Domain.Base
 {
     public interface IBitmapDisplayManager : IObservableDomain, IDomainAdapter
     {
+        void ResetSprWorkSpace();
         void OpenBitmapFromFile(string filePath, bool countPixelColor);
 
         void SetCurrentlyDisplayedFrameOffset(short frameOffX, short frameOffY);

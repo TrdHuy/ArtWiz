@@ -76,7 +76,6 @@ namespace SPRNetTool.View.Widgets
             InitializeComponent();
         }
 
-
         private void OnValueChangedBySliding(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             InternalContainer.SelectedColorItem?.Apply(it =>
@@ -113,6 +112,8 @@ namespace SPRNetTool.View.Widgets
 
     public class PaletteEditorInternal : UserControl
     {
+        public event Action<object>? SourceChanged; 
+
         public static readonly DependencyProperty SelectedColorItemProperty =
            DependencyProperty.Register(
                "SelectedColorItem",
@@ -132,7 +133,12 @@ namespace SPRNetTool.View.Widgets
                typeof(IEnumerable<IPaletteEditorColorItemViewModel>),
                typeof(PaletteEditorInternal),
            new FrameworkPropertyMetadata(defaultValue: default(IEnumerable<IPaletteEditorColorItemViewModel>),
-               flags: FrameworkPropertyMetadataOptions.AffectsRender));
+               propertyChangedCallback: OnSourceChanged));
+
+        private static void OnSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            d.IfIs<PaletteEditorInternal>(it => it.SourceChanged?.Invoke(e.NewValue));
+        }
 
         public IEnumerable ColorItemSource
         {
