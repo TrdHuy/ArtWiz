@@ -63,7 +63,7 @@ namespace SPRNetTool.Domain
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                         changedEvent: SPR_WORKSPACE_RESET));
             }
-            
+
         }
 
         void IBitmapDisplayManager.SetNewColorToPalette(uint paletteIndex, Color newColor)
@@ -107,7 +107,7 @@ namespace SPRNetTool.Domain
                 var frameIndex = DisplayedBitmapSourceCache.CurrentFrameIndex ?? 0;
                 DisplayedBitmapSourceCache.IsSprImage = true;
                 DisplayedBitmapSourceCache.AnimationSourceCaching?[frameIndex].IfNullThenLet(() =>
-                    CreateBitmapSourceFromDecodedFrameData(frameIndex));
+                    CreateBitmapSourceFromDecodedFrameData(frameIndex, out _));
                 DisplayedBitmapSourceCache.DisplayedBitmapSource =
                     DisplayedBitmapSourceCache.AnimationSourceCaching?[frameIndex];
                 DisplayedBitmapSourceCache.ColorSourceCaching?[frameIndex].IfNullThenLet(() =>
@@ -138,11 +138,11 @@ namespace SPRNetTool.Domain
             }
         }
 
-        private BitmapSource? CreateBitmapSourceFromDecodedFrameData(uint frameIndex)
+        private BitmapSource? CreateBitmapSourceFromDecodedFrameData(uint frameIndex, out List<(Color, Color, int)> colorChangedArgs)
         {
             var frameInfo = SprWorkManager.GetFrameData(frameIndex) ?? throw new Exception();
 
-            return SprWorkManager.GetDecodedBGRAData(frameIndex)?
+            return SprWorkManager.GetDecodedBGRAData(frameIndex, out colorChangedArgs)?
                 .Let((it) => this.GetBitmapFromRGBArray(it
                     , frameInfo.frameWidth
                     , frameInfo.frameHeight, PixelFormats.Bgra32))
@@ -197,7 +197,7 @@ namespace SPRNetTool.Domain
                         {
                             DisplayedBitmapSourceCache.AnimationSourceCaching[newFrameIndex] =
                             DisplayedBitmapSourceCache.AnimationSourceCaching[newFrameIndex].IfNullThenLet(() =>
-                               CreateBitmapSourceFromDecodedFrameData(newFrameIndex));
+                               CreateBitmapSourceFromDecodedFrameData(newFrameIndex, out _));
                             DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[newFrameIndex];
                             DisplayedBitmapSourceCache.CurrentFrameIndex = newFrameIndex;
 
@@ -512,7 +512,7 @@ namespace SPRNetTool.Domain
                 {
                     if (SprWorkManager.InitWorkManagerFromSprFile(fs))
                     {
-                        return CreateBitmapSourceFromDecodedFrameData(0);
+                        return CreateBitmapSourceFromDecodedFrameData(0, out _);
                     }
 
                     return null;
@@ -541,7 +541,7 @@ namespace SPRNetTool.Domain
                     stopwatch.Restart();
                     DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex] =
                     DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex].IfNullThenLet(() =>
-                        CreateBitmapSourceFromDecodedFrameData(frameIndex));
+                        CreateBitmapSourceFromDecodedFrameData(frameIndex, out _));
                     DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex];
 
                     NotifyChanged(new BitmapDisplayMangerChangedArg(
@@ -656,7 +656,7 @@ namespace SPRNetTool.Domain
                 DisplayedBitmapSourceCache.AnimationSourceCaching = bmpSrc;
                 DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex]
                     = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex].IfNullThenLet(() =>
-                           CreateBitmapSourceFromDecodedFrameData(frameIndex));
+                           CreateBitmapSourceFromDecodedFrameData(frameIndex, out _));
                 DisplayedBitmapSourceCache.DisplayedBitmapSource = DisplayedBitmapSourceCache.AnimationSourceCaching[frameIndex];
                 DisplayedBitmapSourceCache.CurrentFrameIndex = frameIndex;
 
@@ -720,7 +720,7 @@ namespace SPRNetTool.Domain
             {
                 if (it[index] == null)
                 {
-                    it[index] = CreateBitmapSourceFromDecodedFrameData(index) ?? throw new Exception();
+                    it[index] = CreateBitmapSourceFromDecodedFrameData(index, out _) ?? throw new Exception();
                     DisplayedBitmapSourceCache.ColorSourceCaching?
                        .Apply(it2 =>
                        {
@@ -729,8 +729,7 @@ namespace SPRNetTool.Domain
                 }
                 else if (SprWorkManager.GetFrameData(index)?.modifiedFrameRGBACache.IsPaletteColorChanged == true)
                 {
-                    var changedPaletteColors = SprWorkManager.GetFrameData(index)?.modifiedFrameRGBACache.GetChangedPaletteColors();
-                    it[index] = CreateBitmapSourceFromDecodedFrameData(index) ?? throw new Exception();
+                    it[index] = CreateBitmapSourceFromDecodedFrameData(index, out List<(Color, Color, int)> colorChangedArgs) ?? throw new Exception();
                     DisplayedBitmapSourceCache.ColorSourceCaching?
                       .Apply(it2 =>
                       {
@@ -740,20 +739,27 @@ namespace SPRNetTool.Domain
                           }
                           else
                           {
-                              changedPaletteColors?.FoEach(it =>
+                              colorChangedArgs.FoEach(it =>
                               {
                                   var cache = it2[index]!;
-                                  var oldColor = Color.FromRgb(
-                                      it.Item1.Red,
-                                      it.Item1.Green,
-                                      it.Item1.Blue);
-                                  var newColor = Color.FromRgb(
-                                     it.Item2.Red,
-                                     it.Item2.Green,
-                                     it.Item2.Blue);
-                                  var count = cache[oldColor];
-                                  cache.Remove(oldColor);
-                                  cache.Add(newColor, count);
+                                  var oldColor = it.Item1;
+                                  var newColor = it.Item2;
+                                  var pixelChangedCount = it.Item3;
+
+                                  cache[oldColor] -= pixelChangedCount;
+                                  if (cache[oldColor] == 0)
+                                  {
+                                      cache.Remove(oldColor);
+                                  }
+
+                                  if (!cache.ContainsKey(newColor))
+                                  {
+                                      cache[newColor] = pixelChangedCount;
+                                  }
+                                  else
+                                  {
+                                      cache[newColor] += pixelChangedCount;
+                                  }
                               });
                           }
                       });
