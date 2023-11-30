@@ -207,6 +207,10 @@ namespace SPRNetTool.ViewModel.Widgets
                             FrameSource = castArgs.CurrentDisplayingSource;
                             if (!IsSpr)
                             {
+                                GlobalOffX = 0;
+                                GlobalOffY = 0;
+                                FrameOffX = 0;
+                                FrameOffY = 0;
                                 GlobalHeight = (uint)(castArgs.CurrentDisplayingSource?.PixelHeight ?? 0);
                                 GlobalWidth = (uint)(castArgs.CurrentDisplayingSource?.PixelWidth ?? 0);
                                 FrameHeight = (uint)(castArgs.CurrentDisplayingSource?.PixelHeight ?? 0);
