@@ -253,21 +253,28 @@ namespace SPRNetTool.Domain
             return null;
         }
 
-        byte[]? ISprWorkManagerAdvance.GetDecodedBGRAData(uint index)
+        byte[]? ISprWorkManagerAdvance.GetDecodedBGRAData(uint index, out List<(Color, Color, int)> colorChangedArgs)
         {
+            var internalColorChangedArgs = new List<(Color, Color, int)>();
             if (index < FileHead.modifiedSprFileHeadCache.FrameCounts)
             {
                 if (FrameData?[index].modifiedFrameRGBACache.IsPaletteColorChanged == true)
                 {
-                    FrameData[index].modifiedFrameRGBACache.GetPaletteColorChangedIndex().FoEach(paletteIndex =>
+                    var colorChangedCache = FrameData[index].modifiedFrameRGBACache.GetPaletteColorChangedIndex();
+                    colorChangedCache.FoEach((i, paletteIndex) =>
                     {
-                        var newColor = FrameData[index].isInsertedFrame ? 
-                            FrameData[index].modifiedFrameRGBACache.GetFramePaletteData().Data[paletteIndex]:
+
+                        var newColor = FrameData[index].isInsertedFrame ?
+                            FrameData[index].modifiedFrameRGBACache.GetFramePaletteData().Data[paletteIndex] :
                             PaletteData.modifiedPalette[paletteIndex];
 
                         if (FrameData[index].modifiedFrameRGBACache.PaletteIndexToPixelIndexMap?.ContainsKey(paletteIndex) == true)
                         {
                             var pixelIndexMap = FrameData[index].modifiedFrameRGBACache.PaletteIndexToPixelIndexMap?[paletteIndex] ?? throw new Exception("Missing pixel map");
+                            var oldColor = FrameData[index]
+                                .modifiedFrameRGBACache
+                                .modifiedFrameData[pixelIndexMap[0]];
+
                             pixelIndexMap.FoEach(pixelIndex =>
                             {
                                 FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4] = newColor.Blue;
@@ -280,12 +287,19 @@ namespace SPRNetTool.Domain
                                 // Do not change alpha
                                 //FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4 + 3] = newColor.Alpha;
                             });
+
+                            internalColorChangedArgs.Add(new(
+                                Color.FromRgb(oldColor.Red, oldColor.Green, oldColor.Blue),
+                                Color.FromRgb(newColor.Red, newColor.Green, newColor.Blue),
+                                pixelIndexMap.Count));
                         }
                     });
                     FrameData[index].modifiedFrameRGBACache.ResetPaletteColorChangedIndex();
                 }
+                colorChangedArgs = internalColorChangedArgs;
                 return FrameData?[index].modifiedFrameRGBACache.modifiedBGRAData;
             }
+            colorChangedArgs = internalColorChangedArgs;
             return null;
         }
     }
