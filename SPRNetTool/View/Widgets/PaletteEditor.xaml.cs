@@ -68,12 +68,31 @@ namespace SPRNetTool.View.Widgets
                 it.mPreviewColorItemChange -= handler;
             });
         }
-       
+
         private event PaletteEditorHandler? mPreviewColorItemChange;
 
         public PaletteEditor()
         {
             InitializeComponent();
+            InternalContainer.SelectedItemChanged += InternalContainer_SelectedItemChanged;
+        }
+
+        private void InternalContainer_SelectedItemChanged(object obj)
+        {
+            if (obj is IPaletteEditorColorItemViewModel vm)
+            {
+                RedSlider.ValueChanged -= OnValueChangedBySliding;
+                GreenSlider.ValueChanged -= OnValueChangedBySliding;
+                BlueSlider.ValueChanged -= OnValueChangedBySliding;
+
+                RedSlider.Value = vm.ColorBrush.Color.R;
+                GreenSlider.Value = vm.ColorBrush.Color.G;
+                BlueSlider.Value = vm.ColorBrush.Color.B;
+
+                RedSlider.ValueChanged += OnValueChangedBySliding;
+                GreenSlider.ValueChanged += OnValueChangedBySliding;
+                BlueSlider.ValueChanged += OnValueChangedBySliding;
+            }
         }
 
         private void OnValueChangedBySliding(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -112,14 +131,16 @@ namespace SPRNetTool.View.Widgets
 
     public class PaletteEditorInternal : UserControl
     {
-        public event Action<object>? SourceChanged; 
+        public event Action<object>? SourceChanged;
+        public event Action<object>? SelectedItemChanged;
 
         public static readonly DependencyProperty SelectedColorItemProperty =
            DependencyProperty.Register(
                "SelectedColorItem",
                typeof(IPaletteEditorColorItemViewModel),
                typeof(PaletteEditorInternal),
-           new PropertyMetadata(defaultValue: default(IPaletteEditorColorItemViewModel)));
+           new PropertyMetadata(defaultValue: default(IPaletteEditorColorItemViewModel),
+               propertyChangedCallback: OnPropChanged));
 
         public IPaletteEditorColorItemViewModel SelectedColorItem
         {
@@ -133,11 +154,18 @@ namespace SPRNetTool.View.Widgets
                typeof(IEnumerable<IPaletteEditorColorItemViewModel>),
                typeof(PaletteEditorInternal),
            new FrameworkPropertyMetadata(defaultValue: default(IEnumerable<IPaletteEditorColorItemViewModel>),
-               propertyChangedCallback: OnSourceChanged));
+               propertyChangedCallback: OnPropChanged));
 
-        private static void OnSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnPropChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            d.IfIs<PaletteEditorInternal>(it => it.SourceChanged?.Invoke(e.NewValue));
+            if (e.Property == SelectedColorItemProperty)
+            {
+                d.IfIs<PaletteEditorInternal>(it => it.SelectedItemChanged?.Invoke(e.NewValue));
+            }
+            else if (e.Property == ColorItemSourceProperty)
+            {
+                d.IfIs<PaletteEditorInternal>(it => it.SourceChanged?.Invoke(e.NewValue));
+            }
         }
 
         public IEnumerable ColorItemSource
