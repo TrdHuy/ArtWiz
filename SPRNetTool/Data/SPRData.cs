@@ -640,7 +640,14 @@ namespace SPRNetTool.Data
 
             public void SetPaletteColorChangedIndex(int index, PaletteColor oldColor, PaletteColor newColor)
             {
-                paletteColorChangeIndexCache[index] = new(oldColor, newColor);
+                if (paletteColorChangeIndexCache.ContainsKey(index))
+                {
+                    paletteColorChangeIndexCache[index] = new(paletteColorChangeIndexCache[index].Item1, newColor);
+                }
+                else
+                {
+                    paletteColorChangeIndexCache[index] = new(oldColor, newColor);
+                }
                 IsPaletteColorChanged = true;
             }
             public int[] GetPaletteColorChangedIndex()
