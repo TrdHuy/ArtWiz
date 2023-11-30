@@ -452,7 +452,7 @@ namespace SPRNetTool.Domain
             {
                 DisplayedBitmapSourceCache.DisplayedBitmapSource = OpenSprFile(filePath)?.Also((it) =>
                 {
-                    InitAnimationSourceCacheIfAsynchronous();
+                    InitAnimationSourceCacheIfAsynchronous(force: true);
                     Debug.Assert(DisplayedBitmapSourceCache.ColorSourceCaching != null);
                     Debug.Assert(DisplayedBitmapSourceCache.AnimationSourceCaching != null);
                     DisplayedBitmapSourceCache.AnimationSourceCaching[0] = it;
@@ -494,10 +494,11 @@ namespace SPRNetTool.Domain
 
         #endregion
 
-        private void InitAnimationSourceCacheIfAsynchronous()
+        private void InitAnimationSourceCacheIfAsynchronous(bool force = false)
         {
-            if (DisplayedBitmapSourceCache.AnimationSourceCaching == null ||
-                            DisplayedBitmapSourceCache.AnimationSourceCaching.Length != SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts)
+            if (force ||
+                DisplayedBitmapSourceCache.AnimationSourceCaching == null ||
+                DisplayedBitmapSourceCache.AnimationSourceCaching.Length != SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts)
             {
                 DisplayedBitmapSourceCache.AnimationSourceCaching = new BitmapSource?[SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts];
                 DisplayedBitmapSourceCache.ColorSourceCaching = new Dictionary<Color, long>?[SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts];
