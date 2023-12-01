@@ -822,6 +822,18 @@ namespace SPRNetTool.View.Pages
             commandVM?.OnPreviewColorPaletteChanged((uint)arg.ColorIndex, arg.NewColor);
             arg.Handled = true;
         }
+
+        private void ReloadColorSourceClick(object sender, RoutedEventArgs e)
+        {
+            LoadingWindow l = new LoadingWindow(ownerWindow, tilte: "Reloading color source");
+            l.Show(block: async () =>
+            {
+                await Task.Run(() =>
+                {
+                    commandVM?.OnReloadColorSourceClick();
+                });
+            });
+        }
     }
 }
 

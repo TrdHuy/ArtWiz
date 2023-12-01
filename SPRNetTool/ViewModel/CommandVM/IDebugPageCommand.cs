@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace SPRNetTool.ViewModel.CommandVM
 {
@@ -10,6 +11,7 @@ namespace SPRNetTool.ViewModel.CommandVM
 
         void OnSaveCurrentWorkManagerToFileSprClicked(string filePath);
 
+        Task OnReloadColorSourceClick();
         void OnDecreaseFrameHeightButtonClicked(uint delta = 1);
         void OnIncreaseFrameHeightButtonClicked(uint delta = 1);
         void OnIncreaseFrameOffsetXButtonClicked(uint delta = 1);
