@@ -352,13 +352,13 @@ namespace SPRNetTool.Domain.Utils
 
         public static List<(Color, long)> CountColorsToList(this IDomainAdapter adapter, BitmapSource bitmap)
         {
-            adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc);
+            adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc, out _);
             return argbSrc.Select(kp => (kp.Key, kp.Value)).ToList();
         }
 
         public static Dictionary<Color, long> CountColorsToDictionary(this IDomainAdapter adapter, BitmapSource bitmap)
         {
-            adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc);
+            adapter.CountColors(bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc, out _);
             return argbSrc;
         }
 
@@ -374,7 +374,7 @@ namespace SPRNetTool.Domain.Utils
                     inputBitmap = BitmapFrame.Create(bitmap);
                     inputBitmap.Freeze();
                 }
-                adapter.CountColors(inputBitmap, out long argbCount, out long rgbCount, out argbSrc);
+                adapter.CountColors(inputBitmap, out long argbCount, out long rgbCount, out argbSrc, out _);
             });
             return argbSrc;
         }
@@ -397,7 +397,11 @@ namespace SPRNetTool.Domain.Utils
             return countSource;
         }
 
-        public static void CountColors(this IDomainAdapter adapter, BitmapSource bitmap, out long argbCount, out long rgbCount, out Dictionary<Color, long> argbSrc)
+        public static void CountColors(this IDomainAdapter adapter, BitmapSource bitmap,
+            out long argbCount,
+            out long rgbCount,
+            out Dictionary<Color, long> argbSrc,
+            out HashSet<Color> rgbSrc)
         {
             Dictionary<Color, long> aRGBColorSet = new Dictionary<Color, long>();
             HashSet<Color> rGBColorSet = new HashSet<Color>();
@@ -435,6 +439,7 @@ namespace SPRNetTool.Domain.Utils
             argbCount = aRGBColorSet.Count;
             rgbCount = rGBColorSet.Count;
             argbSrc = aRGBColorSet;
+            rgbSrc = rGBColorSet;
         }
 
         public static byte[] ConvertBitmapSourceToByteArray(this IDomainAdapter adapter, BitmapSource bmp)
