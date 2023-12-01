@@ -55,7 +55,6 @@ namespace SPRNetTool.Domain
             if (DisplayedBitmapSourceCache.IsSprImage)
             {
                 DisplayedBitmapSourceCache.IsPlaying = false;
-                DisplayedBitmapSourceCache.IsSprImage = false;
                 DisplayedBitmapSourceCache.CurrentFrameIndex = 0;
                 DisplayedBitmapSourceCache.ColorSourceCaching = null;
                 DisplayedBitmapSourceCache.AnimationTokenSource = null;
@@ -629,6 +628,7 @@ namespace SPRNetTool.Domain
                     throw new Exception($"Failed to load bitmap from path {filePath}") :
                     throw new Exception($"Failed to load bitmap"));
 
+            var isShouldNotifyGlobalSizeChange = SprWorkManager.IsWorkSpaceEmpty;
 
             if (SprWorkManager.InsertFrame(frameIndex
                 , (ushort)bitmapSource.PixelWidth
@@ -687,18 +687,28 @@ namespace SPRNetTool.Domain
                             .DisplayedBitmapSource ?? throw new Exception("DisplayedBitmapSource must not be null here")));
                 DisplayedBitmapSourceCache.DisplayedColorSource
                     = DisplayedBitmapSourceCache.ColorSourceCaching[frameIndex];
-
-                NotifyChanged(new BitmapDisplayMangerChangedArg(
-                            changedEvent: CURRENT_DISPLAYING_FRAME_INDEX_CHANGED
+                var changeEvent = CURRENT_DISPLAYING_FRAME_INDEX_CHANGED
                             | CURRENT_DISPLAYING_SOURCE_CHANGED
                             | CURRENT_COLOR_SOURCE_CHANGED
                             | SPR_FILE_HEAD_CHANGED
                             | SPR_FILE_PALETTE_CHANGED
-                            | SPR_FRAME_COLLECTION_CHANGED,
+                            | SPR_FRAME_DATA_CHANGED
+                            | SPR_FRAME_SIZE_CHANGED
+                            | SPR_FRAME_OFFSET_CHANGED
+                            | SPR_FRAME_COLLECTION_CHANGED;
+                if (isShouldNotifyGlobalSizeChange)
+                {
+                    changeEvent |= SPR_GLOBAL_OFFSET_CHANGED
+                        | SPR_GLOBAL_SIZE_CHANGED;
+
+                }
+                NotifyChanged(new BitmapDisplayMangerChangedArg(
+                            changedEvent: changeEvent,
                             sprFileHead: SprWorkManager.FileHead,
                             currentDisplayingSource: DisplayedBitmapSourceCache.DisplayedBitmapSource,
                             currentDisplayFrameIndex: frameIndex,
                             colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
+                            sprFrameData: SprWorkManager.GetFrameData(frameIndex),
                             paletteChangedArg: new SprPaletteChangedArg(
                                 changedEvent: NEWLY_ADDED,
                                 palette: SprWorkManager
@@ -710,7 +720,7 @@ namespace SPRNetTool.Domain
                                 newFrameIndex: (int)frameIndex
                         )));
 
-
+                
                 return true;
             }
 
