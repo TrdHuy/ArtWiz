@@ -467,6 +467,7 @@ namespace SPRNetTool.Domain
                 });
                 NotifyChanged(new BitmapDisplayMangerChangedArg(
                     changedEvent: CURRENT_DISPLAYING_SOURCE_CHANGED
+                        | CURRENT_DISPLAYING_FRAME_INDEX_CHANGED
                         | CURRENT_COLOR_SOURCE_CHANGED
                         | SPR_FILE_HEAD_CHANGED
                         | SPR_FRAME_DATA_CHANGED
@@ -480,6 +481,7 @@ namespace SPRNetTool.Domain
                     colorSource: DisplayedBitmapSourceCache.DisplayedColorSource,
                     sprFileHead: SprWorkManager.FileHead,
                     sprFrameData: SprWorkManager.GetFrameData(0),
+                    currentDisplayFrameIndex: 0,
                     paletteChangedArg: new SprPaletteChangedArg(
                         changedEvent: NEWLY_ADDED,
                         palette: SprWorkManager.PaletteData),
