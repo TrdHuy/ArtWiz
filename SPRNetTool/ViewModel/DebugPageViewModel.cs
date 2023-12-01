@@ -500,13 +500,22 @@ namespace SPRNetTool.ViewModel
                                 FramesSource.RemoveAt(collectionChangedArg.OldFrameIndex);
                             }
 
-                            if (collectionChangedArg.Event.HasFlag(FRAME_INSERTED) && FramesSource != null)
+                            if (collectionChangedArg.Event.HasFlag(FRAME_INSERTED))
                             {
-                                ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                                if (FramesSource != null)
                                 {
+                                    ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                                    {
+                                        FramesSource.Insert(collectionChangedArg.NewFrameIndex, new FrameViewModel());
+                                    });
+                                }
+                                else
+                                {
+                                    FramesSource = new CustomObservableCollection<IFrameViewModel>();
                                     FramesSource.Insert(collectionChangedArg.NewFrameIndex, new FrameViewModel());
-                                });
+                                }
                             }
+
                         }
                     }
                     break;
