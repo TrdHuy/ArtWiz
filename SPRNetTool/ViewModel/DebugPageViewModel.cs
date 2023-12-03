@@ -1,6 +1,7 @@
 ﻿using SPRNetTool.Data;
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
+using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Widgets;
 using SPRNetTool.ViewModel.Base;
@@ -276,7 +277,7 @@ namespace SPRNetTool.ViewModel
         }
 
         #region OriginalSource
-        public async void SetColorSource(Dictionary<Color, long>? colorsSource)
+        public async Task SetColorSource(Dictionary<Color, long>? colorsSource)
         {
             _countableColorSource = colorsSource;
             _cachedOrderByCount = null;
@@ -430,11 +431,6 @@ namespace SPRNetTool.ViewModel
                             CurrentFrameIndex = castArgs.CurrentDisplayingFrameIndex;
                             IsPlayingAnimation = false;
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
-
-                            if (castArgs.CurrentColorSource != null)
-                            {
-                                SetColorSource(castArgs.CurrentColorSource);
-                            }
                         }
                     }
                     else
@@ -462,10 +458,10 @@ namespace SPRNetTool.ViewModel
                         // Có 2 hướng xử lý:
                         // 1. Không nên gọi OnDomainChanged async.
                         // 2. Các hàm bất đồng bộ nên được gọi cuối cùng trong hàm chứa nó.
-                        if (castArgs.Event.HasFlag(CURRENT_COLOR_SOURCE_CHANGED))
-                        {
-                            SetColorSource(castArgs.CurrentColorSource);
-                        }
+                        //if (castArgs.Event.HasFlag(CURRENT_COLOR_SOURCE_CHANGED))
+                        //{
+                        //    SetColorSource(castArgs.CurrentColorSource);
+                        //}
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))
                         {
@@ -500,13 +496,22 @@ namespace SPRNetTool.ViewModel
                                 FramesSource.RemoveAt(collectionChangedArg.OldFrameIndex);
                             }
 
-                            if (collectionChangedArg.Event.HasFlag(FRAME_INSERTED) && FramesSource != null)
+                            if (collectionChangedArg.Event.HasFlag(FRAME_INSERTED))
                             {
-                                ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                                if (FramesSource != null)
                                 {
+                                    ViewModelOwner?.ViewDispatcher.Invoke(() =>
+                                    {
+                                        FramesSource.Insert(collectionChangedArg.NewFrameIndex, new FrameViewModel());
+                                    });
+                                }
+                                else
+                                {
+                                    FramesSource = new CustomObservableCollection<IFrameViewModel>();
                                     FramesSource.Insert(collectionChangedArg.NewFrameIndex, new FrameViewModel());
-                                });
+                                }
                             }
+
                         }
                     }
                     break;
@@ -517,7 +522,7 @@ namespace SPRNetTool.ViewModel
         {
             await Task.Run(() =>
             {
-                BitmapDisplayManager.OpenBitmapFromFile(filePath, true);
+                BitmapDisplayManager.OpenBitmapFromFile(filePath);
             });
 
         }
@@ -585,6 +590,19 @@ namespace SPRNetTool.ViewModel
 
 
         #region Command region
+        async Task IDebugPageCommand.OnReloadColorSourceClick()
+        {
+            if (bitmapViewerVM.FrameSource != null)
+            {
+                var colorSource = BitmapDisplayManager.CountColorsToDictionary(bitmapViewerVM.FrameSource);
+                await SetColorSource(colorSource);
+            }
+            else
+            {
+                await SetColorSource(null);
+            }
+        }
+
         void IDebugPageCommand.OnResetSprWorkspaceClicked()
         {
             BitmapDisplayManager.ResetSprWorkSpace();
@@ -843,10 +861,24 @@ namespace SPRNetTool.ViewModel
             if (IsSpr) return;
             CurrentlyDisplayedBitmapSource?.Apply(it =>
             {
-                BitmapDisplayManager.OptimzeImageColorNA256(it)?.Apply(it =>
+                BitmapDisplayManager.CountColors(
+                    it
+                    , out long argbCount
+                    , out long rgbCount
+                    , out _
+                    , out HashSet<Color> rgbSrc);
+                if (argbCount > rgbCount && rgbCount <= 256)
                 {
                     SprWorkManager.SaveBitmapSourceToSprFile(it, filePath);
-                });
+                }
+                else
+                {
+                    BitmapDisplayManager.OptimzeImageColorNA256(it)?.Apply(it =>
+                    {
+                        SprWorkManager.SaveBitmapSourceToSprFile(it, filePath);
+                    });
+                }
+
             });
         }
 

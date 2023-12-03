@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace SPRNetTool.Domain.Base
@@ -135,9 +136,13 @@ namespace SPRNetTool.Domain.Base
         public void SaveBitmapSourceToSprFile(BitmapSource bitmapSource, string filePath)
         {
             var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource);
-            var countablePaletteColors = this.CountColorsToList(bitmapSource);
-
-            if (countablePaletteColors.Count > 256)
+            this.CountColors(
+                 bitmapSource
+                 , out long argbCount
+                 , out long rgbCount
+                 , out Dictionary<Color, long> argbSrc
+                 , out HashSet<Color> rgbSrc);
+            if (rgbCount > 256)
             {
                 throw new Exception("cannot save bitmap to spr because its color size > 256");
             }
@@ -149,8 +154,8 @@ namespace SPRNetTool.Domain.Base
             {
                 throw new Exception($"cannot save bitmap to spr because its height > {ushort.MaxValue}");
             }
-            var paletteColorArray = countablePaletteColors.Select(it =>
-                new PaletteColor(it.Item1.B, it.Item1.G, it.Item1.R, it.Item1.A)).ToArray();
+            var paletteColorArray = rgbSrc.Select(it =>
+                new PaletteColor(it.B, it.G, it.R, it.A)).ToArray();
 
             var encryptedFrameData = EncryptFrameData(palettePixelArray,
                 paletteColorArray,
