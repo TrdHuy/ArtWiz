@@ -253,7 +253,8 @@ namespace SPRNetTool.Domain
             return null;
         }
 
-        byte[]? ISprWorkManagerAdvance.GetDecodedBGRAData(uint index, out List<(Color, Color, int)> colorChangedArgs)
+        byte[]? ISprWorkManagerAdvance.GetDecodedBGRAData(uint index,
+            out List<(Color, Color, int)> rgbColorChangedArgs)
         {
             var internalColorChangedArgs = new List<(Color, Color, int)>();
             if (index < FileHead.modifiedSprFileHeadCache.FrameCounts)
@@ -284,7 +285,7 @@ namespace SPRNetTool.Domain
                                 FrameData[index].modifiedFrameRGBACache.modifiedFrameData[pixelIndex].Blue = newColor.Blue;
                                 FrameData[index].modifiedFrameRGBACache.modifiedFrameData[pixelIndex].Green = newColor.Green;
                                 FrameData[index].modifiedFrameRGBACache.modifiedFrameData[pixelIndex].Red = newColor.Red;
-                                // Do not change alpha
+                                // Do not change alpha 
                                 //FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4 + 3] = newColor.Alpha;
                             });
 
@@ -296,10 +297,10 @@ namespace SPRNetTool.Domain
                     });
                     FrameData[index].modifiedFrameRGBACache.ResetPaletteColorChangedIndex();
                 }
-                colorChangedArgs = internalColorChangedArgs;
+                rgbColorChangedArgs = internalColorChangedArgs;
                 return FrameData?[index].modifiedFrameRGBACache.modifiedBGRAData;
             }
-            colorChangedArgs = internalColorChangedArgs;
+            rgbColorChangedArgs = internalColorChangedArgs;
             return null;
         }
     }

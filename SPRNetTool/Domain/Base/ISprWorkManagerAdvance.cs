@@ -25,7 +25,8 @@ namespace SPRNetTool.Domain.Base
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        byte[]? GetDecodedBGRAData(uint index, out List<(Color, Color, int)> colorChangedArgs);
+        byte[]? GetDecodedBGRAData(uint index,
+            out List<(Color, Color, int)> rgbColorChangedArgs);
 
         bool InsertFrame(uint frameIndex
             , ushort frameWidth

@@ -551,9 +551,10 @@
 					</TextBlock>
 				</wg:CollapsibleControl>
 				<wg:CollapsibleControl Header="ORIGINAL SOURCE">
-					<ListView ItemsSource="{Binding OriginalColorSource}"
-							  Height="300"
-							  Margin="5,10,5,0">
+					<StackPanel>
+						<ListView ItemsSource="{Binding OriginalColorSource}"
+								  Height="300"
+								  Margin="5,10,5,0">
 							<ListView.View>
 								<GridView>
 									<GridViewColumn HeaderContainerStyle="{StaticResource ListViewStyle}"
@@ -596,6 +597,12 @@
 								</GridView>
 							</ListView.View>
 						</ListView>
+						<Button Height="30"
+								Content="Reload color source"
+								Margin="5,10,5,0"
+								Click="ReloadColorSourceClick" />
+					</StackPanel>
+					
 				</wg:CollapsibleControl>
 			</StackPanel>
 

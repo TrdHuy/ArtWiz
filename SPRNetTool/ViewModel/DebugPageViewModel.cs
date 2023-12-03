@@ -1,6 +1,7 @@
 ﻿using SPRNetTool.Data;
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
+using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Widgets;
 using SPRNetTool.ViewModel.Base;
@@ -276,7 +277,7 @@ namespace SPRNetTool.ViewModel
         }
 
         #region OriginalSource
-        public async void SetColorSource(Dictionary<Color, long>? colorsSource)
+        public async Task SetColorSource(Dictionary<Color, long>? colorsSource)
         {
             _countableColorSource = colorsSource;
             _cachedOrderByCount = null;
@@ -430,11 +431,6 @@ namespace SPRNetTool.ViewModel
                             CurrentFrameIndex = castArgs.CurrentDisplayingFrameIndex;
                             IsPlayingAnimation = false;
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
-
-                            if (castArgs.CurrentColorSource != null)
-                            {
-                                SetColorSource(castArgs.CurrentColorSource);
-                            }
                         }
                     }
                     else
@@ -462,10 +458,10 @@ namespace SPRNetTool.ViewModel
                         // Có 2 hướng xử lý:
                         // 1. Không nên gọi OnDomainChanged async.
                         // 2. Các hàm bất đồng bộ nên được gọi cuối cùng trong hàm chứa nó.
-                        if (castArgs.Event.HasFlag(CURRENT_COLOR_SOURCE_CHANGED))
-                        {
-                            SetColorSource(castArgs.CurrentColorSource);
-                        }
+                        //if (castArgs.Event.HasFlag(CURRENT_COLOR_SOURCE_CHANGED))
+                        //{
+                        //    SetColorSource(castArgs.CurrentColorSource);
+                        //}
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))
                         {
@@ -526,7 +522,7 @@ namespace SPRNetTool.ViewModel
         {
             await Task.Run(() =>
             {
-                BitmapDisplayManager.OpenBitmapFromFile(filePath, true);
+                BitmapDisplayManager.OpenBitmapFromFile(filePath);
             });
 
         }
@@ -594,6 +590,19 @@ namespace SPRNetTool.ViewModel
 
 
         #region Command region
+        async Task IDebugPageCommand.OnReloadColorSourceClick()
+        {
+            if (bitmapViewerVM.FrameSource != null)
+            {
+                var colorSource = BitmapDisplayManager.CountColorsToDictionary(bitmapViewerVM.FrameSource);
+                await SetColorSource(colorSource);
+            }
+            else
+            {
+                await SetColorSource(null);
+            }
+        }
+
         void IDebugPageCommand.OnResetSprWorkspaceClicked()
         {
             BitmapDisplayManager.ResetSprWorkSpace();

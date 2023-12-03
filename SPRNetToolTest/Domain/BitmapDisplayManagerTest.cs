@@ -20,7 +20,7 @@ namespace SPRNetToolTest.Domain
 
             if (isNeedToOpenSprFile)
             {
-                bitmapDisplayManager.OpenBitmapFromFile(sprFilePath, false);
+                bitmapDisplayManager.OpenBitmapFromFile(sprFilePath);
             }
 
         }
