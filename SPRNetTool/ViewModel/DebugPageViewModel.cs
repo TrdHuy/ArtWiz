@@ -861,10 +861,24 @@ namespace SPRNetTool.ViewModel
             if (IsSpr) return;
             CurrentlyDisplayedBitmapSource?.Apply(it =>
             {
-                BitmapDisplayManager.OptimzeImageColorNA256(it)?.Apply(it =>
+                BitmapDisplayManager.CountColors(
+                    it
+                    , out long argbCount
+                    , out long rgbCount
+                    , out _
+                    , out HashSet<Color> rgbSrc);
+                if (argbCount > rgbCount && rgbCount <= 256)
                 {
                     SprWorkManager.SaveBitmapSourceToSprFile(it, filePath);
-                });
+                }
+                else
+                {
+                    BitmapDisplayManager.OptimzeImageColorNA256(it)?.Apply(it =>
+                    {
+                        SprWorkManager.SaveBitmapSourceToSprFile(it, filePath);
+                    });
+                }
+
             });
         }
 
