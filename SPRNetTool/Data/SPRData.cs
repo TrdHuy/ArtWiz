@@ -407,7 +407,9 @@ namespace SPRNetTool.Data
         {
             foreach (var item in Data)
             {
-                if (item == color) return true;
+                if (color.Blue == item.Blue &&
+                    color.Green == item.Green &&
+                    color.Red == item.Red) return true;
             }
             return false;
         }

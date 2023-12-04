@@ -549,15 +549,24 @@ namespace SPRNetTool.Domain
 
         private bool InsertBimapSourceToSprWorkSpace(uint frameIndex, BitmapSource bitmapSource, string? filePath = null)
         {
-            var countSource = this.CountColorsToDictionary(bitmapSource);
-            if (countSource.Count > 256)
+            this.CountColors(
+                    bitmapSource
+                    , out long argbCount
+                    , out long rgbCount
+                    , out _
+                    , out HashSet<Color> rgbSrc);
+            if (argbCount > rgbCount && rgbCount <= 256)
+            {
+
+            }
+            else
             {
                 bitmapSource = (this as IBitmapDisplayManager).OptimzeImageColorNA256(bitmapSource)
-                    ?? throw new Exception($"Failed to optimize image colors.");
+                   ?? throw new Exception($"Failed to optimize image colors.");
             }
 
             var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource,
-                out Dictionary<Color, long> countableSource,
+                out Dictionary<Color, long> argbCountableSource,
                 out Palette palette,
                 out byte[] bgraBytesData,
                 out Dictionary<int, List<long>> paletteColorIndexToPixelIndexMap)
@@ -573,7 +582,7 @@ namespace SPRNetTool.Domain
                 , palettePixelArray
                 , bgraBytesData
                 , palette
-                , countableSource
+                , argbCountableSource
                 , paletteColorIndexToPixelIndexMap))
             {
                 // Update current displaying bitmap
