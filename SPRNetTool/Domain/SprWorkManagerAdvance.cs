@@ -75,7 +75,7 @@ namespace SPRNetTool.Domain
             PaletteColor[] pixelData,
             byte[] bgraBytesData,
             Palette paletteData,
-            Dictionary<Color, long>? argbCountableSource,
+            Dictionary<Color, long>? rgbCountableSource,
             Dictionary<int, List<long>>? paletteColorIndexToPixelIndexMap)
         {
 #if DEBUG
@@ -83,11 +83,7 @@ namespace SPRNetTool.Domain
                out long argbCount,
                out long rgbCount,
                out Dictionary<Color, long> argbColorSource,
-               out HashSet<Color> rgbSrc);
-            if (argbCountableSource != null && !this.AreCountableSourcesEqual(argbCountableSource, argbColorSource))
-            {
-                throw new Exception("failed to count color source!");
-            }
+               out Dictionary<Color, long> rgbColorSource);
             if (rgbCount > 256) throw new Exception("Number of color from pixel data must be smaller or equal 256.");
             foreach (var color in pixelData)
             {
@@ -142,10 +138,10 @@ namespace SPRNetTool.Domain
 
             FileHead.modifiedSprFileHeadCache.FrameCounts++;
             FrameData = newFramesData;
-            newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = argbCountableSource;
+            newFramesData[frameIndex].modifiedFrameRGBACache.RgbCountableSource = rgbCountableSource;
 #if DEBUG
-            if (argbCountableSource == null)
-                newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = argbColorSource;
+            if (rgbCountableSource == null)
+                newFramesData[frameIndex].modifiedFrameRGBACache.RgbCountableSource = rgbColorSource;
 #endif
             return true;
         }

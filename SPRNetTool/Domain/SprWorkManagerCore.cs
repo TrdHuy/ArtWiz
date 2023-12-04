@@ -55,19 +55,22 @@ namespace SPRNetTool.Domain
             var newPixelData = new PaletteColor[dataSize];
             for (int i = 0; i < dataSize; i++)
             {
-                newPixelData[i] = FindClosetColorInPalette(
+                // Must keep old alpha, because palette only apply for rgb color
+                var oldAlpha = it.modifiedFrameRGBACache.modifiedFrameData[i].Alpha;
+                newPixelData[i] = FindClosetRGBColorInPalette(
                     it.modifiedFrameRGBACache.modifiedFrameData[i], newPalettData);
+                newPixelData[i].Alpha = oldAlpha;
             }
             it.modifiedFrameRGBACache.modifiedFrameData = newPixelData;
         }
 
-        private PaletteColor FindClosetColorInPalette(PaletteColor targetColor, Palette palette)
+        private PaletteColor FindClosetRGBColorInPalette(PaletteColor targetColor, Palette palette)
         {
             var distance = double.MaxValue;
             var outColor = new PaletteColor();
             for (int i = 0; i < palette.Size; i++)
             {
-                var newDistance = this.CalculateEuclideanDistance(targetColor, palette.Data[i]);
+                var newDistance = this.CalculateRGBEuclideanDistance(targetColor, palette.Data[i]);
                 if (newDistance < distance)
                 {
                     distance = newDistance;
@@ -494,13 +497,13 @@ namespace SPRNetTool.Domain
             // Tính lại toàn bộ lượng màu sử dụng trên từng frame
             // kể cả frame ban đầu và frame được insert mới
             var countableSource = FrameData
-                .Select(it => it.modifiedFrameRGBACache.CountableSource
+                .Select(it => it.modifiedFrameRGBACache.RgbCountableSource
                     ?? this.CountColors(it.modifiedFrameRGBACache.modifiedFrameData,
                         out _,
                         out _,
                         out _,
                         out _)
-                        .Also(it2 => it.modifiedFrameRGBACache.CountableSource = it2))
+                        .Also(it2 => it.modifiedFrameRGBACache.RgbCountableSource = it2))
                 .ToArray();
             var newPaletteSource = this.SelectMostUsePaletteColorFromCountableColorSource(
                 colorDifferenceDelta: 100,
