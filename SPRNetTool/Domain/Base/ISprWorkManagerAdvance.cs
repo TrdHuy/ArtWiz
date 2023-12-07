@@ -34,7 +34,7 @@ namespace SPRNetTool.Domain.Base
             , PaletteColor[] pixelData
             , byte[] bgraBytesData
             , Palette paletteData
-            , Dictionary<Color, long>? countableSource = null
+            , Dictionary<Color, long>? argbCountableSource = null
             , Dictionary<int, List<long>>? paletteColorIndexToPixelIndexMap = null);
 
         /// <summary>

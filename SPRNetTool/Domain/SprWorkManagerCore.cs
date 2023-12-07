@@ -495,7 +495,11 @@ namespace SPRNetTool.Domain
             // kể cả frame ban đầu và frame được insert mới
             var countableSource = FrameData
                 .Select(it => it.modifiedFrameRGBACache.CountableSource
-                    ?? this.CountColors(it.modifiedFrameRGBACache.modifiedFrameData)
+                    ?? this.CountColors(it.modifiedFrameRGBACache.modifiedFrameData,
+                        out _,
+                        out _,
+                        out _,
+                        out _)
                         .Also(it2 => it.modifiedFrameRGBACache.CountableSource = it2))
                 .ToArray();
             var newPaletteSource = this.SelectMostUsePaletteColorFromCountableColorSource(

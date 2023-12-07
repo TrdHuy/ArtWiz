@@ -156,7 +156,7 @@ namespace SPRNetToolTest.Utils
                 new PaletteColor(1,1,1,2),
                 new PaletteColor(1,1,1,1),
             };
-            mockDomainAdapter.CountColors(data);
+            mockDomainAdapter.CountColors(data, out _, out _, out _, out _);
         }
 
         [Test]

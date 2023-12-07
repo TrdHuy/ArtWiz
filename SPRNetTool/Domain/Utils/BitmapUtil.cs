@@ -379,22 +379,39 @@ namespace SPRNetTool.Domain.Utils
             return argbSrc;
         }
 
-        public static Dictionary<Color, long> CountColors(this IDomainAdapter adapter, PaletteColor[] pixelArray)
+        public static Dictionary<Color, long> CountColors(this IDomainAdapter adapter, PaletteColor[] pixelArray,
+            out long argbCount,
+            out long rgbCount,
+            out Dictionary<Color, long> argbSrc,
+            out HashSet<Color> rgbSrc)
         {
-            Dictionary<Color, long> countSource = new Dictionary<Color, long>();
+            Dictionary<Color, long> aRGBColorSet = new Dictionary<Color, long>();
+            HashSet<Color> rGBColorSet = new HashSet<Color>();
+
             for (int i = 0; i < pixelArray.Length; i++)
             {
-                var color = Color.FromArgb(pixelArray[i].Alpha, pixelArray[i].Red, pixelArray[i].Green, pixelArray[i].Blue);
-                if (countSource.ContainsKey(color))
+                byte blue = pixelArray[i].Blue;
+                byte green = pixelArray[i].Green;
+                byte red = pixelArray[i].Red;
+                byte alpha = pixelArray[i].Alpha;
+
+                Color colorARGB = Color.FromArgb(alpha, red, green, blue);
+                if (!aRGBColorSet.ContainsKey(colorARGB))
                 {
-                    countSource[color]++;
+                    aRGBColorSet[colorARGB] = 1;
                 }
                 else
                 {
-                    countSource.Add(color, 1);
+                    aRGBColorSet[colorARGB]++;
                 }
+                Color colorRGB = Color.FromRgb(red, green, blue);
+                rGBColorSet.Add(colorRGB);
             }
-            return countSource;
+            argbCount = aRGBColorSet.Count;
+            rgbCount = rGBColorSet.Count;
+            argbSrc = aRGBColorSet;
+            rgbSrc = rGBColorSet;
+            return argbSrc;
         }
 
         public static void CountColors(this IDomainAdapter adapter, BitmapSource bitmap,
@@ -494,7 +511,7 @@ namespace SPRNetTool.Domain.Utils
 
         public static PaletteColor[] ConvertBitmapSourceToPaletteColorArray(this IDomainAdapter adapter,
             BitmapSource bitmapSource,
-            out Dictionary<Color, long> countableSource,
+            out Dictionary<Color, long> argbCountableSource,
             out Palette palette,
             out byte[] bgraBytesData,
             out Dictionary<int, List<long>> paletteColorIndexToPixelIndexMap)
@@ -518,10 +535,12 @@ namespace SPRNetTool.Domain.Utils
             bitmapSource.CopyPixels(pixelData, stride, 0);
 
             PaletteColor[] paletteColors = new PaletteColor[width * height];
-            countableSource = new Dictionary<Color, long>();
+            argbCountableSource = new Dictionary<Color, long>();
+            var rgbSource = new HashSet<Color>();
             for (int i = 0; i < width * height; i++)
             {
-                var color = Colors.Transparent;
+                var argbColor = Colors.Transparent;
+                var rgbColor = Colors.White;
                 if (bitmapSource.Format == PixelFormats.Bgr32 ||
                     bitmapSource.Format == PixelFormats.Bgra32)
                 {
@@ -530,7 +549,11 @@ namespace SPRNetTool.Domain.Utils
                         green: pixelData[offset + 1],
                         red: pixelData[offset + 2],
                         alpha: pixelData[offset + 3]);
-                    color = Color.FromArgb(pixelData[offset + 3],
+                    argbColor = Color.FromArgb(pixelData[offset + 3],
+                        pixelData[offset + 2],
+                        pixelData[offset + 1],
+                        pixelData[offset]);
+                    rgbColor = Color.FromRgb(
                         pixelData[offset + 2],
                         pixelData[offset + 1],
                         pixelData[offset]);
@@ -542,10 +565,14 @@ namespace SPRNetTool.Domain.Utils
                         green: pixelData[offset + 1],
                         red: pixelData[offset],
                         alpha: 255);
-                    color = Color.FromArgb(255,
+                    argbColor = Color.FromArgb(255,
                         pixelData[offset],
                         pixelData[offset + 1],
                         pixelData[offset + 2]);
+                    rgbColor = Color.FromRgb(
+                        pixelData[offset + 2],
+                        pixelData[offset + 1],
+                        pixelData[offset]);
 
                     bgraBytesData[bgraCounter] = pixelData[offset + 2];
                     bgraBytesData[bgraCounter] = pixelData[offset + 1];
@@ -557,22 +584,30 @@ namespace SPRNetTool.Domain.Utils
                     throw new Exception("ConvertBitmapSourceToPaletteColorArray: Invaild format!");
                 }
 
-                if (countableSource.ContainsKey(color))
+                if (argbCountableSource.ContainsKey(argbColor))
                 {
-                    countableSource[color] += 1;
-                    colorPixelIndexMap[color].Add(i);
+                    argbCountableSource[argbColor] += 1;
                 }
                 else
                 {
-                    colorPixelIndexMap.Add(color, new List<long> { i });
-                    countableSource.Add(color, 1);
+                    argbCountableSource.Add(argbColor, 1);
+                }
+
+                if (rgbSource.Contains(rgbColor))
+                {
+                    colorPixelIndexMap[rgbColor].Add(i);
+                }
+                else
+                {
+                    colorPixelIndexMap.Add(rgbColor, new List<long> { i });
+                    rgbSource.Add(rgbColor);
                 }
             }
-            palette = new Palette(countableSource.Count);
+            palette = new Palette(rgbSource.Count);
             int j = 0;
-            foreach (var color in countableSource.Keys)
+            foreach (var color in rgbSource)
             {
-                palette.Data[j] = new PaletteColor(color.B, color.G, color.R, color.A);
+                palette.Data[j] = new PaletteColor(color.B, color.G, color.R, 255);
                 paletteColorIndexToPixelIndexMap.Add(j, colorPixelIndexMap[color]);
                 j++;
             }

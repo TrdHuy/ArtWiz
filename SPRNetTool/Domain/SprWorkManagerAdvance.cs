@@ -75,16 +75,20 @@ namespace SPRNetTool.Domain
             PaletteColor[] pixelData,
             byte[] bgraBytesData,
             Palette paletteData,
-            Dictionary<Color, long>? countableSource,
+            Dictionary<Color, long>? argbCountableSource,
             Dictionary<int, List<long>>? paletteColorIndexToPixelIndexMap)
         {
 #if DEBUG
-            var countableColorSource = this.CountColors(pixelData);
-            if (countableSource != null && !this.AreCountableSourcesEqual(countableSource, countableColorSource))
+            this.CountColors(pixelData,
+               out long argbCount,
+               out long rgbCount,
+               out Dictionary<Color, long> argbColorSource,
+               out HashSet<Color> rgbSrc);
+            if (argbCountableSource != null && !this.AreCountableSourcesEqual(argbCountableSource, argbColorSource))
             {
                 throw new Exception("failed to count color source!");
             }
-            if (countableColorSource.Count > 256) throw new Exception("Number of color from pixel data must be smaller or equal 256.");
+            if (rgbCount > 256) throw new Exception("Number of color from pixel data must be smaller or equal 256.");
             foreach (var color in pixelData)
             {
                 if (!paletteData.IsContain(color))
@@ -138,10 +142,10 @@ namespace SPRNetTool.Domain
 
             FileHead.modifiedSprFileHeadCache.FrameCounts++;
             FrameData = newFramesData;
-            newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = countableSource;
+            newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = argbCountableSource;
 #if DEBUG
-            if (countableSource == null)
-                newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = countableColorSource;
+            if (argbCountableSource == null)
+                newFramesData[frameIndex].modifiedFrameRGBACache.CountableSource = argbColorSource;
 #endif
             return true;
         }
