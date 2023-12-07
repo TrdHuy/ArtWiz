@@ -212,6 +212,13 @@ namespace SPRNetTool.Domain
             {
                 if (success)
                 {
+                    DisplayedBitmapSourceCache.AnimationSourceCaching?.Apply(it =>
+                    {
+                        var tempCache = it[frameIndex2];
+                        it[frameIndex2] = it[frameIndex1];
+                        it[frameIndex1] = tempCache;
+                    });
+
                     if (DisplayedBitmapSourceCache.CurrentFrameIndex == frameIndex1)
                     {
                         DisplayedBitmapSourceCache.CurrentFrameIndex = frameIndex2;
