@@ -168,16 +168,16 @@
 									   IsEllipse="False"
 									   IsEnableToggleClick="False"
 									   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}"
-									   Margin="15,0,0,0"
+									   Margin="10,0,0,0"
 									   Tag="{x:Static local:SprEditorPageTagId.ImportToSprWorkSpace}"
 									   Click="OnButtonClick"
 									   Style="{StaticResource IconToogleStyle2}"
-									   IconRatio="0.83"
+									   IconRatio="0.85"
 									   Width="18"
 									   Height="18"
-									   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}"
-									   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}"
-									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}" />
+									   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.FileImportIconGeometry}}"
+									   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.FileImportIconGeometry}}"
+									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.FileImportIconGeometry}}" />
 					</StackPanel>
 				</wg:CollapsibleControl.ExtraHeaderContent>
 
