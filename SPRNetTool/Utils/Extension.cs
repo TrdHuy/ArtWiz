@@ -279,11 +279,15 @@ namespace SPRNetTool.Utils
             return self;
         }
 
-        public static void IfIs<T>(this object self, Action<T> block)
+        public static void IfIs<T>(this object self, Action<T> block, Action? @else = null)
         {
             if (self is T e)
             {
                 block(e);
+            }
+            else
+            {
+                @else?.Invoke();
             }
         }
 

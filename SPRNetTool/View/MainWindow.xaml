@@ -9,13 +9,12 @@
 					   xmlns:wg="clr-namespace:SPRNetTool.View.Widgets"
 					   mc:Ignorable="d"
 					   Title="MainWindow"
-					   Height="900"
-					   Width="1000"
+					   d:DesignHeight="760"
+					   d:DesignWidth="1280"
 					   xmlns:vm="clr-namespace:SPRNetTool.ViewModel">
 
 	<Window.Resources>
 		<cvt:FormulaConverter x:Key="FormulaConverter" />
-		
 	</Window.Resources>
 	<Grid>
 		<Grid.RowDefinitions>
@@ -27,6 +26,8 @@
 					  StaysOpenOnClick="True">
 				<MenuItem Header="Debug page"
 						  Click="MenuItemDebugPageClick" />
+				<MenuItem Header="Editor page"
+						  Click="MenuItemEditorPageClick" />
 			</MenuItem>
 
 			<!-- File Menu -->
@@ -61,7 +62,6 @@
 				Grid.RowSpan="2"
 				Background="#50808080"
 				Visibility="Collapsed" />
-
 	</Grid>
 
 

@@ -60,10 +60,27 @@ namespace SPRNetTool.View.Widgets
             }
         }
 
+        private void OnWindowLocationChanged(object? sender, EventArgs e)
+        {
+            if (ZoomingPopup.IsOpen)
+            {
+                var offset = ZoomingPopup.HorizontalOffset;
+                ZoomingPopup.HorizontalOffset = offset + 1;
+                ZoomingPopup.HorizontalOffset = offset;
+            }
+        }
+
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             draggableCanvasController.Setup();
             draggableCanvasController.Reset();
+
+            var window = Window.GetWindow(this);
+            if (window != null)
+            {
+                window.LocationChanged -= OnWindowLocationChanged;
+                window.LocationChanged += OnWindowLocationChanged;
+            }
         }
 
         private void OnFrameSourceChange(ImageSource? oldSource, ImageSource? newSource)
@@ -85,6 +102,7 @@ namespace SPRNetTool.View.Widgets
             }
             else
             {
+                ZoomButton.IsChecked = false;
                 StretchContainer.Visibility = Visibility.Collapsed;
                 DragableContainer.Visibility = Visibility.Visible;
                 LayoutBoundButton.IsChecked = false;

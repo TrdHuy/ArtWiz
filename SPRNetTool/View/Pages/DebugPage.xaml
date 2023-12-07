@@ -219,6 +219,7 @@
 
 			<StackPanel Grid.Row="2"
 						Margin="10">
+				<wg:FileHeadEditor ViewModel="{Binding FileHeadEditorVM}"/>
 				<wg:CollapsibleControl Header="IMAGE INFO"
 									   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}">
 					<TextBlock x:Name="ImageInfoBlock"

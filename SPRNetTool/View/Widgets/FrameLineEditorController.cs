@@ -1,4 +1,5 @@
 ﻿using SPRNetTool.LogUtil;
+using SPRNetTool.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -53,14 +54,14 @@ namespace SPRNetTool.View.Widgets
                 MinHeight = 5,
                 Width = 20,
                 Height = 20,
-                Stroke = new SolidColorBrush(Color.FromArgb(0xff, 0x2B, 0xC8, 0xc8)),
+                Stroke = (Definitions.Instance?[Definitions.ForegroundLevel0] as SolidColorBrush) ?? new SolidColorBrush(Color.FromArgb(0xff, 0x2B, 0xC8, 0xc8)),
                 StrokeThickness = 0,
-                Fill = Brushes.Black,
+                Fill = (Definitions.Instance?[Definitions.ForegroundLevel1] as SolidColorBrush) ?? Brushes.White,
             };
             this.ownerCanvas = ownerCanvas;
             contentView = new TextBlock();
             contentView.Text = index.ToString();
-            contentView.Foreground = Brushes.Red;
+            contentView.Foreground = (Definitions.Instance?[Definitions.ForegroundLevel0] as SolidColorBrush) ?? Brushes.Red;
 
             ContainerCanvas = new Canvas();
             ContainerCanvas.Children.Add(MainEllipse);
@@ -108,13 +109,26 @@ namespace SPRNetTool.View.Widgets
                 Logger.Raw.D($"SetDragEllipseEnter:{initIndex} to {dragEnteredEllipse.initIndex}");
                 if (isEnter)
                 {
-                    dragEnteredEllipse.BeginAnimation(Color.FromArgb(0xff, 0x0D, 0x44, 0x47), 2);
+                    Definitions.Instance?[Definitions.ForegroundEffectColorLevel1].IfIs<Color>(it =>
+                    {
+                        dragEnteredEllipse.BeginAnimation(it, 2);
+                    }, @else: () =>
+                    {
+                        dragEnteredEllipse.BeginAnimation(Color.FromArgb(0xff, 0x0D, 0x44, 0x47), 2);
+                    });
                     this.dragEnteredEllipse = dragEnteredEllipse;
                     Logger.Raw.D($"Entering {dragEnteredEllipse.initIndex}");
                 }
                 else
                 {
-                    dragEnteredEllipse.BeginAnimation(Colors.Black, 0);
+                    Definitions.Instance?[Definitions.ForegroundColorLevel1].IfIs<Color>(it =>
+                    {
+                        dragEnteredEllipse.BeginAnimation(it, 0);
+                    }, @else: () =>
+                    {
+                        dragEnteredEllipse.BeginAnimation(Colors.Black, 0);
+                    });
+
                     if (this.dragEnteredEllipse == dragEnteredEllipse)
                     {
                         this.dragEnteredEllipse = null;
@@ -231,16 +245,31 @@ namespace SPRNetTool.View.Widgets
 
         private void ContainerCanvas_MouseEnter(object sender, MouseEventArgs e)
         {
-            BeginAnimation(Color.FromArgb(0xff, 0x0D, 0x44, 0x47), 2);
-            MainEllipse.Cursor = Cursors.Hand;
+            Definitions.Instance?[Definitions.ForegroundEffectColorLevel1].IfIs<Color>(it =>
+            {
+                BeginAnimation(it, 2);
+                MainEllipse.Cursor = Cursors.Hand;
+            }, @else: () =>
+            {
+                BeginAnimation(Color.FromArgb(0xff, 0x0D, 0x44, 0x47), 2);
+                MainEllipse.Cursor = Cursors.Hand;
+            });
+
         }
 
         private void ContainerCanvas_MouseLeave(object sender, MouseEventArgs e)
         {
             if (!isMouseHolded)
             {
-                BeginAnimation(Colors.Black, 0);
-                MainEllipse.Cursor = Cursors.Arrow;
+                Definitions.Instance?[Definitions.ForegroundColorLevel1].IfIs<Color>(it =>
+                {
+                    BeginAnimation(it, 0);
+                    MainEllipse.Cursor = Cursors.Arrow;
+                }, @else: () =>
+                {
+                    BeginAnimation(Colors.Black, 0);
+                    MainEllipse.Cursor = Cursors.Arrow;
+                });
             }
         }
 
@@ -296,7 +325,13 @@ namespace SPRNetTool.View.Widgets
                     Logger.Raw.D($"Up on: {dragEnteredEllipse.initIndex}");
 
                     OnDraggingMouseUpEnteredEllipse?.Invoke(this, dragEnteredEllipse);
-                    dragEnteredEllipse.BeginAnimation(Colors.Black, 0);
+                    Definitions.Instance?[Definitions.ForegroundColorLevel1].IfIs<Color>(it =>
+                    {
+                        dragEnteredEllipse.BeginAnimation(it, 0);
+                    }, @else: () =>
+                    {
+                        dragEnteredEllipse.BeginAnimation(Colors.Black, 0);
+                    });
                     dragEnteredEllipse.isEllipseDraggedEnter = false;
                     dragEnteredEllipse = null;
                 }

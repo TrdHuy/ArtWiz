@@ -4,6 +4,7 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 			 xmlns:local="clr-namespace:SPRNetTool.View.Widgets"
+			 xmlns:def="clr-namespace:SPRNetTool"
 			 xmlns:vmw="clr-namespace:SPRNetTool.ViewModel.Widgets"
 			 mc:Ignorable="d"
 			 d:DesignHeight="450"
@@ -24,11 +25,11 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="RepeatButton">
-						<Border Background="White"
-								BorderThickness="1"
+						<Border Background="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0_1}}"
+								BorderThickness="0"
 								BorderBrush="Black"
 								CornerRadius="0,2.5,2.5,0"
-								Height="7" />
+								Height="7.6" />
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
@@ -44,11 +45,10 @@
 				<Setter.Value>
 					<ControlTemplate TargetType="RepeatButton">
 						<Border SnapsToDevicePixels="True"
-								BorderThickness="1"
-								BorderBrush="Black"
+								BorderThickness="0"
 								Background="{Binding RelativeSource={RelativeSource AncestorType=Slider, Mode=FindAncestor}, Path=Background}"
 								CornerRadius="2.5,0,0,2.5"
-								Height="7" />
+								Height="7.6" />
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
@@ -65,7 +65,7 @@
 					<ControlTemplate TargetType="Thumb">
 						<Border  Height="15"
 								 Width="15"
-								 BorderThickness="1"
+								 BorderThickness="0"
 								 BorderBrush="Black"
 								 CornerRadius="10"
 								 Background="{Binding RelativeSource={RelativeSource AncestorType=Slider, Mode=FindAncestor}, Path=Background}">
@@ -159,9 +159,8 @@
 								 ColorItemSource="{Binding PaletteColorItemSource}">
 		<Grid>
 			<Grid.RowDefinitions>
-				<RowDefinition MinHeight="100"
-							   MaxHeight="300" />
-				<RowDefinition Height="Auto" />
+				<RowDefinition Height="2.4*" />
+				<RowDefinition Height="1.4*" />
 			</Grid.RowDefinitions>
 
 			<ListBox x:Name="ColorsList"
@@ -181,132 +180,129 @@
 						<Border Background="{Binding ColorBrush}"
 								BorderBrush="Black"
 								BorderThickness="2"
+								CornerRadius="5"
 								Height="30"
 								Width="30" />
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ListBox>
 
-			<Viewbox Grid.Row="1"
-					 Margin="10">
-				<StackPanel Grid.Row="1"
-							Orientation="Horizontal">
-					<Grid HorizontalAlignment="Left"
-						  Height="80">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition MinWidth="40" />
-							<ColumnDefinition Width="4*"
-											  MinWidth="150" />
-							<ColumnDefinition MinWidth="40" />
-						</Grid.ColumnDefinitions>
-						<Grid.RowDefinitions>
-							<RowDefinition />
-							<RowDefinition />
-							<RowDefinition />
-						</Grid.RowDefinitions>
-						<TextBlock Text="Red"
-								   Grid.Row="0"
-								   Margin="0,0,10,0"
-								   HorizontalAlignment="Right"
-								   VerticalAlignment="Center"
-								   FontWeight="Bold" />
-						<Slider x:Name="RedSlider"
-								Style="{StaticResource Horizontal_Slider}"
-								Grid.Row="0"
-								Background="Red"
-								ValueChanged="OnValueChangedBySliding"
-								VerticalAlignment="Center"
-								Grid.Column="1" />
-						<local:BalloonBox x:Name="RedValueText"
-										  TextContent="{Binding ElementName=RedSlider, Path=Value, Mode=TwoWay}"
-										  Grid.Row="0"
-										  Maximum="255"
-										  Grid.Column="2"
-										  Margin="5,0"
-										  VerticalAlignment="Center"
-										  FontWeight="Bold" />
-						<TextBlock Text="Green"
-								   VerticalAlignment="Center"
-								   HorizontalAlignment="Right"
-								   Margin="0,0,10,0"
-								   Grid.Row="1"
-								   FontWeight="Bold" />
-						<Slider  x:Name="GreenSlider"
-								 Style="{StaticResource Horizontal_Slider}"
-								 ValueChanged="OnValueChangedBySliding"
-								 Grid.Row="1"
-								 Background="Lime"
-								 VerticalAlignment="Center"
-								 Grid.Column="1" />
-						<local:BalloonBox  x:Name="GreenValueText"
-										   TextContent="{Binding ElementName=GreenSlider, Path=Value, Mode=TwoWay}"
-										   Margin="5,0"
-										   Grid.Row="1"
-										   Maximum="255"
-										   Grid.Column="2"
-										   VerticalAlignment="Center"
-										   FontWeight="Bold" />
-						<TextBlock Text="Blue"
-								   VerticalAlignment="Center"
-								   HorizontalAlignment="Right"
-								   Margin="0,0,10,0"
-								   Grid.Row="2"
-								   FontWeight="Bold" />
-						<Slider x:Name="BlueSlider"
-								Style="{StaticResource Horizontal_Slider}"
-								Grid.Row="2"
-								ValueChanged="OnValueChangedBySliding"
-								Background="Blue"
-								VerticalAlignment="Center"
-								Grid.Column="1" />
-						<local:BalloonBox x:Name="BlueValueText"
-										  TextContent="{Binding ElementName=BlueSlider, Path=Value, Mode=TwoWay}"
-										  Grid.Row="2"
-										  Margin="5,0"
-										  Maximum="255"
-										  Grid.Column="2"
-										  VerticalAlignment="Center"
-										  FontWeight="Bold" />
-					</Grid>
+			<StackPanel Grid.Row="1"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						Orientation="Horizontal">
+				<Grid HorizontalAlignment="Left"
+					  Height="80">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="50" />
+						<ColumnDefinition Width="175"/>
+						<ColumnDefinition MinWidth="40" />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+					</Grid.RowDefinitions>
+					<TextBlock Text="Red"
+							   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+							   Grid.Row="0"
+							   VerticalAlignment="Center" />
+					<Slider x:Name="RedSlider"
+							Style="{StaticResource Horizontal_Slider}"
+							Grid.Row="0"
+							Background="#FFFF0000"
+							ValueChanged="OnValueChangedBySliding"
+							VerticalAlignment="Center"
+							Grid.Column="1" />
+					<local:BalloonBox x:Name="RedValueText"
+									  TextContent="{Binding ElementName=RedSlider, Path=Value, Mode=TwoWay}"
+									  Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+									  Grid.Row="0"
+									  Maximum="255"
+									  Grid.Column="2"
+									  Margin="5,0"
+									  VerticalAlignment="Center"
+									  FontWeight="Bold" />
+					<TextBlock Text="Green"
+							   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+							   VerticalAlignment="Center"
+							   Grid.Row="1" />
+					<Slider  x:Name="GreenSlider"
+							 Style="{StaticResource Horizontal_Slider}"
+							 ValueChanged="OnValueChangedBySliding"
+							 Grid.Row="1"
+							 Background="#FF92D050"
+							 VerticalAlignment="Center"
+							 Grid.Column="1" />
+					<local:BalloonBox  x:Name="GreenValueText"
+									   TextContent="{Binding ElementName=GreenSlider, Path=Value, Mode=TwoWay}"
+									   Margin="5,0"
+									   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+									   Grid.Row="1"
+									   Maximum="255"
+									   Grid.Column="2"
+									   VerticalAlignment="Center"
+									   FontWeight="Bold" />
+					<TextBlock Text="Blue"
+							   VerticalAlignment="Center"
+							   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+							   Grid.Row="2" />
+					<Slider x:Name="BlueSlider"
+							Style="{StaticResource Horizontal_Slider}"
+							Grid.Row="2"
+							ValueChanged="OnValueChangedBySliding"
+							Background="#FF2E75B6"
+							VerticalAlignment="Center"
+							Grid.Column="1" />
+					<local:BalloonBox x:Name="BlueValueText"
+									  TextContent="{Binding ElementName=BlueSlider, Path=Value, Mode=TwoWay}"
+									  Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+									  Grid.Row="2"
+									  Margin="5,0"
+									  Maximum="255"
+									  Grid.Column="2"
+									  VerticalAlignment="Center"
+									  FontWeight="Bold" />
+				</Grid>
 
-					<Grid Height="80"
-						  Width="150">
-						<Grid.RowDefinitions>
-							<RowDefinition Height="auto" />
-							<RowDefinition />
-							<RowDefinition Height="auto" />
-						</Grid.RowDefinitions>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition />
-							<ColumnDefinition Width="auto" />
-							<ColumnDefinition />
-						</Grid.ColumnDefinitions>
-						<Border x:Name="SelectedColorView"
-								BorderBrush="Black"
-								BorderThickness="1"
-								Background="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush}"
-								Height="20"
-								CornerRadius="5"
-								VerticalAlignment="Bottom"
-								Grid.Row="1"
-								Width="80"
-								Grid.Column="1" />
+				<Grid Height="80"
+					  Margin="30,0"
+					  Width="150">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="auto" />
+						<RowDefinition />
+						<RowDefinition Height="auto" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition />
+						<ColumnDefinition Width="auto" />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+					<Border x:Name="SelectedColorView"
+							BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+							BorderThickness="1"
+							Background="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush}"
+							Height="20"
+							CornerRadius="5"
+							VerticalAlignment="Bottom"
+							Grid.Row="1"
+							Width="80"
+							Grid.Column="1" />
 
-						<local:OutlineTextBlock x:Name="SelectedColorHexTextView"
-												HorizontalAlignment="Center"
-												VerticalAlignment="Top"
-												Fill="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush}"
-												Stroke="Black"
-												StrokeThickness="1"
-												FontSize="30"
-												Grid.Row="2"
-												Grid.Column="1"
-												FontFamily="Calibri"
-												FontWeight="Bold"
-												Text="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush.Color, FallbackValue=#00000000}" />
-					</Grid>
-				</StackPanel>
-			</Viewbox>
+					<local:OutlineTextBlock x:Name="SelectedColorHexTextView"
+											HorizontalAlignment="Center"
+											VerticalAlignment="Top"
+											Fill="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush}"
+											Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+											StrokeThickness="1"
+											FontSize="30"
+											Grid.Row="2"
+											Grid.Column="1"
+											FontFamily="Calibri"
+											FontWeight="Bold"
+											Text="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush.Color, FallbackValue=#00000000}" />
+				</Grid>
+			</StackPanel>
 		</Grid>
 
 	</local:PaletteEditorInternal>

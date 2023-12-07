@@ -1,0 +1,60 @@
+﻿<UserControl x:Class="SPRNetTool.View.Widgets.ParamEditor"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:wg="clr-namespace:SPRNetTool.View.Widgets"
+			 xmlns:def="clr-namespace:SPRNetTool"
+			 mc:Ignorable="d"
+			 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
+			 x:Name="UC_Container">
+	<UserControl.Resources>
+		<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+		<Style TargetType="Ellipse"
+			   x:Key="MouseEffectEllipse">
+			<Setter Property="Fill"
+					Value="#00000000" />
+		</Style>
+	</UserControl.Resources>
+	<StackPanel Orientation="Horizontal">
+		<wg:IconToggle Width="14"
+					   IsEnableToggleClick="False"
+					   Style="{StaticResource IconToogleStyle1}"
+					   Visibility="{Binding ElementName=UC_Container, Path=IsEnabled, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}"
+					   Height="14"
+					   cvt:AttachedEvent.MouseHold="OnMinusMouseHold"
+					   Click="OnMinusClick"
+					   StrokeThickness="2"
+					   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.ParamSubtracterIconGeometry}}"
+					   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.ParamSubtracterIconGeometry}}"
+					   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.ParamSubtracterIconGeometry}}">
+			
+		</wg:IconToggle>
+
+		<wg:BalloonBox TextContent="{Binding ElementName=UC_Container, Path=Value}"
+					   Width="50"
+					   Margin="5,0"
+					   Maximum="{Binding ElementName=UC_Container, Path=Max}"
+					   Minimum="{Binding ElementName=UC_Container, Path=Min}"
+					   FontSize="14"
+					   FontWeight="Bold"
+					   FontFamily="Calibri"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"
+					   PreviewTextContentUpdated="OnBalloonBoxPreviewTextContentUpdated"
+					   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}" />
+
+		<wg:IconToggle Width="14"
+					   IsEnableToggleClick="False"
+					   Click="OnPlusClick"
+					   Style="{StaticResource IconToogleStyle1}"
+					   cvt:AttachedEvent.MouseHold="OnPlusMouseHold"
+					   Visibility="{Binding ElementName=UC_Container, Path=IsEnabled, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}"
+					   Height="14"
+					   StrokeThickness="2"
+					   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.ParamAdditionIconGeometry}}"
+					   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.ParamAdditionIconGeometry}}"
+					   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.ParamAdditionIconGeometry}}">
+		</wg:IconToggle>
+	</StackPanel>
+</UserControl>
