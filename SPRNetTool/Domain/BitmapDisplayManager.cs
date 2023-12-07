@@ -348,7 +348,7 @@ namespace SPRNetTool.Domain
         async void IBitmapDisplayManager.StartSprAnimation()
         {
             if (!DisplayedBitmapSourceCache.IsPlaying && DisplayedBitmapSourceCache.IsSprImage
-                && SprWorkManager.FileHead.FrameCounts > 1)
+                && SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts > 1)
             {
                 DisplayedBitmapSourceCache.IsPlaying = true;
 
@@ -361,7 +361,7 @@ namespace SPRNetTool.Domain
         void IBitmapDisplayManager.StopSprAnimation()
         {
             if (DisplayedBitmapSourceCache.IsPlaying && DisplayedBitmapSourceCache.IsSprImage
-                && SprWorkManager.FileHead.FrameCounts > 1)
+                && SprWorkManager.FileHead.modifiedSprFileHeadCache.FrameCounts > 1)
             {
                 DisplayedBitmapSourceCache.IsPlaying = false;
                 DisplayedBitmapSourceCache.AnimationTokenSource?.Cancel();
