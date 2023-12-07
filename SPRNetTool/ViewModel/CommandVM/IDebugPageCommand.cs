@@ -7,7 +7,7 @@ namespace SPRNetTool.ViewModel.CommandVM
     {
         void OnResetSprWorkspaceClicked();
 
-        void OnPlayPauseAnimationSprClicked();
+        bool OnPlayPauseAnimationSprClicked();
 
         void OnSaveCurrentWorkManagerToFileSprClicked(string filePath);
 
@@ -58,5 +58,6 @@ namespace SPRNetTool.ViewModel.CommandVM
 
         void OnPreviewColorPaletteChanged(uint colorIndex, Color newColor);
 
+        Task OnOpenImageFromFileClickAsync(string filePath);
     }
 }

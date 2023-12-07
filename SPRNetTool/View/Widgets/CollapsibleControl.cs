@@ -6,6 +6,19 @@ namespace SPRNetTool.View.Widgets
 {
     public class CollapsibleControl : UserControl
     {
+        public static readonly DependencyProperty ExtraHeaderContentProperty =
+           DependencyProperty.Register(
+               "ExtraHeaderContent",
+               typeof(object),
+               typeof(CollapsibleControl),
+               new PropertyMetadata(default(object)));
+
+        public object ExtraHeaderContent
+        {
+            get { return GetValue(ExtraHeaderContentProperty); }
+            set { SetValue(ExtraHeaderContentProperty, value); }
+        }
+
         public static readonly DependencyProperty HeaderProperty =
            DependencyProperty.Register(
                "Header",

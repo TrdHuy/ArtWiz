@@ -104,7 +104,7 @@ namespace SPRNetTool.View.Pages
                     LoadingWindow l = new LoadingWindow(ownerWindow);
                     l.Show(block: async () =>
                     {
-                        await viewModel.OpenImageFromFileAsync(imagePath);
+                        await (commandVM?.OnOpenImageFromFileClickAsync(imagePath) ?? Task.CompletedTask);
                         bmpSource = viewModel.CurrentlyDisplayedBitmapSource;
 
                         Debug.WriteLine($"WxH= {bmpSource?.PixelWidth * bmpSource?.PixelHeight}");

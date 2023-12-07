@@ -3,7 +3,6 @@ using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
-using SPRNetTool.View.Widgets;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
 using SPRNetTool.ViewModel.Widgets;
@@ -37,12 +36,16 @@ namespace SPRNetTool.ViewModel
         private bool _isPlayingAnimation = false;
         private int _pixelWidth = 0;
         private int _pixelHeight = 0;
-        private SprFileHead _sprFileHead;
-        private FrameRGBA _sprFrameData;
-        private uint _currentFrameIndex = 0;
         private bool _isSpr = false;
+        private IFileHeadEditorViewModel fileHeadEditorVM;
         private IBitmapViewerViewModel bitmapViewerVM;
         private IPaletteEditorViewModel paletteEditorVM;
+
+        [Bindable(true)]
+        public IFileHeadEditorViewModel FileHeadEditorVM
+        {
+            get => fileHeadEditorVM;
+        }
 
         [Bindable(true)]
         public IBitmapViewerViewModel BitmapViewerVM
@@ -73,24 +76,6 @@ namespace SPRNetTool.ViewModel
             }
         }
 
-
-        [Bindable(true)]
-        public uint CurrentFrameIndex
-        {
-            get
-            {
-                return _currentFrameIndex;
-            }
-            set
-            {
-                if (_currentFrameIndex != value)
-                {
-                    _currentFrameIndex = value;
-                    Invalidate();
-                }
-            }
-        }
-
         [Bindable(true)]
         public bool IsSpr
         {
@@ -105,35 +90,6 @@ namespace SPRNetTool.ViewModel
                     _isSpr = value;
                     Invalidate();
                 }
-            }
-        }
-
-
-        [Bindable(true)]
-        public SprFileHead SprFileHead
-        {
-            get
-            {
-                return _sprFileHead;
-            }
-            private set
-            {
-                _sprFileHead = value;
-                Invalidate();
-            }
-        }
-
-        [Bindable(true)]
-        public FrameRGBA SprFrameData
-        {
-            get
-            {
-                return _sprFrameData;
-            }
-            private set
-            {
-                _sprFrameData = value;
-                Invalidate();
             }
         }
 
@@ -251,6 +207,7 @@ namespace SPRNetTool.ViewModel
         {
             paletteEditorVM = new PaletteEditorViewModel(this);
             bitmapViewerVM = new BitmapViewerViewModel(this);
+            fileHeadEditorVM = new FileHeadEditorViewModel(this);
             BindingOperations.EnableCollectionSynchronization(_rawOriginalSource, new object());
             BitmapDisplayManager.RegisterObserver(this);
         }
@@ -402,8 +359,6 @@ namespace SPRNetTool.ViewModel
                     if (castArgs.Event.HasFlag(SPR_WORKSPACE_RESET))
                     {
                         FramesSource = null;
-                        SprFileHead = new SprFileHead();
-                        SprFrameData = new FrameRGBA();
                         OriginalColorSource.Clear();
                     }
                     else if (castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED))
@@ -411,7 +366,7 @@ namespace SPRNetTool.ViewModel
                         if (castArgs.IsPlayingAnimation == true)
                         {
                             var dispatcherPriority = DispatcherPriority.Background;
-                            if (SprFileHead.Interval > 20)
+                            if (FileHeadEditorVM.FileHead.Interval > 20)
                             {
                                 dispatcherPriority = DispatcherPriority.Render;
                             }
@@ -422,13 +377,10 @@ namespace SPRNetTool.ViewModel
                             {
                                 IsPlayingAnimation = true;
                                 CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
-                                CurrentFrameIndex = castArgs.CurrentDisplayingFrameIndex;
                             }, dispatcherPriority);
                         }
                         else if (castArgs.IsPlayingAnimation == false)
                         {
-                            SprFrameData = castArgs.SprFrameData ?? SprFrameData;
-                            CurrentFrameIndex = castArgs.CurrentDisplayingFrameIndex;
                             IsPlayingAnimation = false;
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
                         }
@@ -438,7 +390,6 @@ namespace SPRNetTool.ViewModel
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
                             IsSpr = castArgs.CurrentSprFileHead != null;
-                            castArgs.CurrentSprFileHead?.Apply(it => SprFileHead = it.modifiedSprFileHeadCache.ToSprFileHead());
                         }
 
                         if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED))
@@ -446,26 +397,6 @@ namespace SPRNetTool.ViewModel
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
                             PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
                             PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
-                        }
-
-                        if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_FRAME_INDEX_CHANGED))
-                        {
-                            CurrentFrameIndex = castArgs.CurrentDisplayingFrameIndex;
-                        }
-
-                        // Nếu tại đây để await SetColorSource, toàn bộ các hàm 
-                        // xử lý tiếp theo sẽ là bất đồng bộ, gây ra 1 vài lỗi bất đồng bộ trên UI.
-                        // Có 2 hướng xử lý:
-                        // 1. Không nên gọi OnDomainChanged async.
-                        // 2. Các hàm bất đồng bộ nên được gọi cuối cùng trong hàm chứa nó.
-                        //if (castArgs.Event.HasFlag(CURRENT_COLOR_SOURCE_CHANGED))
-                        //{
-                        //    SetColorSource(castArgs.CurrentColorSource);
-                        //}
-
-                        if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))
-                        {
-                            SprFrameData = castArgs.SprFrameData?.modifiedFrameRGBACache?.toFrameRGBA() ?? new FrameRGBA();
                         }
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_COLLECTION_CHANGED))
@@ -516,15 +447,6 @@ namespace SPRNetTool.ViewModel
                     }
                     break;
             }
-        }
-
-        public async Task OpenImageFromFileAsync(string filePath)
-        {
-            await Task.Run(() =>
-            {
-                BitmapDisplayManager.OpenBitmapFromFile(filePath);
-            });
-
         }
 
         public Dictionary<Color, long>? _countableColorSource;
@@ -590,6 +512,15 @@ namespace SPRNetTool.ViewModel
 
 
         #region Command region
+        async Task IDebugPageCommand.OnOpenImageFromFileClickAsync(string filePath)
+        {
+            await Task.Run(() =>
+            {
+                BitmapDisplayManager.OpenBitmapFromFile(filePath);
+            });
+
+        }
+
         async Task IDebugPageCommand.OnReloadColorSourceClick()
         {
             if (bitmapViewerVM.FrameSource != null)
@@ -608,9 +539,9 @@ namespace SPRNetTool.ViewModel
             BitmapDisplayManager.ResetSprWorkSpace();
         }
 
-        void IDebugPageCommand.OnPlayPauseAnimationSprClicked()
+        bool IDebugPageCommand.OnPlayPauseAnimationSprClicked()
         {
-            if (!IsSpr) return;
+            if (!IsSpr) return false;
 
             if (!IsPlayingAnimation)
             {
@@ -620,6 +551,7 @@ namespace SPRNetTool.ViewModel
             {
                 BitmapDisplayManager.StopSprAnimation();
             }
+            return true;
         }
 
         void IDebugPageCommand.OnSaveCurrentWorkManagerToFileSprClicked(string filePath)
@@ -734,60 +666,60 @@ namespace SPRNetTool.ViewModel
         {
             if (!IsSpr) return;
 
-            var nW = width ?? SprFileHead.GlobalWidth;
-            var nH = height ?? SprFileHead.GlobalHeight;
+            var nW = width ?? FileHeadEditorVM.FileHead.GlobalWidth;
+            var nH = height ?? FileHeadEditorVM.FileHead.GlobalHeight;
 
-            SetGlobalSize(nW - SprFileHead.GlobalWidth, nH - SprFileHead.GlobalHeight);
+            SetGlobalSize(nW - FileHeadEditorVM.FileHead.GlobalWidth, nH - FileHeadEditorVM.FileHead.GlobalHeight);
         }
 
         void IDebugPageCommand.SetSprGlobalOffset(short? offX, short? offY)
         {
             if (!IsSpr) return;
 
-            var nOffX = offX ?? SprFileHead.OffX;
-            var nOffY = offY ?? SprFileHead.OffY;
+            var nOffX = offX ?? FileHeadEditorVM.FileHead.OffX;
+            var nOffY = offY ?? FileHeadEditorVM.FileHead.OffY;
 
-            SetGlobalOffset(nOffX - SprFileHead.OffX, nOffY - SprFileHead.OffY);
+            SetGlobalOffset(nOffX - FileHeadEditorVM.FileHead.OffX, nOffY - FileHeadEditorVM.FileHead.OffY);
         }
 
         void IDebugPageCommand.SetSprFrameSize(ushort? width, ushort? height)
         {
             if (!IsSpr) return;
 
-            var nW = width ?? SprFrameData.frameWidth;
-            var nH = height ?? SprFrameData.frameHeight;
+            var nW = width ?? FileHeadEditorVM.CurrentFrameData.frameWidth;
+            var nH = height ?? FileHeadEditorVM.CurrentFrameData.frameHeight;
 
-            SetFrameSize(nW - SprFrameData.frameWidth, nH - SprFrameData.frameHeight);
+            SetFrameSize(nW - FileHeadEditorVM.CurrentFrameData.frameWidth, nH - FileHeadEditorVM.CurrentFrameData.frameHeight);
         }
 
         void IDebugPageCommand.SetSprFrameOffset(short? offX, short? offY)
         {
             if (!IsSpr) return;
 
-            var nOffX = offX ?? SprFrameData.frameOffX;
-            var nOffY = offY ?? SprFrameData.frameOffY;
+            var nOffX = offX ?? FileHeadEditorVM.CurrentFrameData.frameOffX;
+            var nOffY = offY ?? FileHeadEditorVM.CurrentFrameData.frameOffY;
 
-            SetFrameOffset(nOffX - SprFrameData.frameOffX, nOffY - SprFrameData.frameOffY);
+            SetFrameOffset(nOffX - FileHeadEditorVM.CurrentFrameData.frameOffX, nOffY - FileHeadEditorVM.CurrentFrameData.frameOffY);
         }
 
         private void SetFrameOffset(int deltaX, int deltaY)
         {
-            var newOffX = (short)(SprFrameData.modifiedFrameRGBACache.frameOffX + deltaX);
-            var newOffY = (short)(SprFrameData.modifiedFrameRGBACache.frameOffY + deltaY);
+            var newOffX = (short)(FileHeadEditorVM.CurrentFrameData.modifiedFrameRGBACache.frameOffX + deltaX);
+            var newOffY = (short)(FileHeadEditorVM.CurrentFrameData.modifiedFrameRGBACache.frameOffY + deltaY);
             BitmapDisplayManager.SetCurrentlyDisplayedFrameOffset(newOffX, newOffY);
         }
 
         private void SetGlobalOffset(int deltaX, int deltaY)
         {
-            var newOffX = (short)(SprFileHead.modifiedSprFileHeadCache.offX + deltaX);
-            var newOffY = (short)(SprFileHead.modifiedSprFileHeadCache.offY + deltaY);
+            var newOffX = (short)(FileHeadEditorVM.FileHead.modifiedSprFileHeadCache.offX + deltaX);
+            var newOffY = (short)(FileHeadEditorVM.FileHead.modifiedSprFileHeadCache.offY + deltaY);
             BitmapDisplayManager.SetSprGlobalOffset(newOffX, newOffY);
         }
 
         private void SetGlobalSize(int deltaWidth, int deltaHeight)
         {
-            var tempWidth = SprFileHead.modifiedSprFileHeadCache.globalWidth + deltaWidth;
-            var tempHeight = SprFileHead.modifiedSprFileHeadCache.globalHeight + deltaHeight;
+            var tempWidth = FileHeadEditorVM.FileHead.modifiedSprFileHeadCache.globalWidth + deltaWidth;
+            var tempHeight = FileHeadEditorVM.FileHead.modifiedSprFileHeadCache.globalHeight + deltaHeight;
             var newWidth = (ushort)(tempWidth < 0 ? 0 : tempWidth);
             var newHeight = (ushort)(tempHeight < 0 ? 0 : tempHeight);
             BitmapDisplayManager.SetSprGlobalSize(newWidth, newHeight);
@@ -795,8 +727,8 @@ namespace SPRNetTool.ViewModel
 
         private void SetFrameSize(int deltaWidth, int deltaHeight)
         {
-            var tempWidth = SprFrameData.modifiedFrameRGBACache.frameWidth + deltaWidth;
-            var tempHeight = SprFrameData.modifiedFrameRGBACache.frameHeight + deltaHeight;
+            var tempWidth = FileHeadEditorVM.CurrentFrameData.modifiedFrameRGBACache.frameWidth + deltaWidth;
+            var tempHeight = FileHeadEditorVM.CurrentFrameData.modifiedFrameRGBACache.frameHeight + deltaHeight;
             var newWidth = (ushort)(tempWidth < 0 ? 0 : tempWidth);
             var newHeight = (ushort)(tempHeight < 0 ? 0 : tempHeight);
             BitmapDisplayManager.SetCurrentlyDisplayedFrameSize(newWidth, newHeight);
@@ -807,9 +739,9 @@ namespace SPRNetTool.ViewModel
         {
             if (!IsSpr) return;
 
-            if (CurrentFrameIndex < SprFileHead.modifiedSprFileHeadCache.FrameCounts - 1)
+            if (FileHeadEditorVM.CurrentFrameIndex < FileHeadEditorVM.FileHead.modifiedSprFileHeadCache.FrameCounts - 1)
             {
-                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(CurrentFrameIndex + 1);
+                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex((uint)FileHeadEditorVM.CurrentFrameIndex + 1);
             }
             else
             {
@@ -819,13 +751,15 @@ namespace SPRNetTool.ViewModel
 
         void IDebugPageCommand.OnDecreaseCurrentlyDisplayedSprFrameIndex()
         {
-            if (CurrentFrameIndex >= 1)
+            if (!IsSpr) return;
+
+            if (FileHeadEditorVM.CurrentFrameIndex >= 1)
             {
-                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(CurrentFrameIndex - 1);
+                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex((uint)FileHeadEditorVM.CurrentFrameIndex - 1);
             }
             else
             {
-                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex((uint)SprFileHead.FrameCounts - 1);
+                BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex((uint)FileHeadEditorVM.FileHead.FrameCounts - 1);
             }
         }
 
@@ -833,9 +767,9 @@ namespace SPRNetTool.ViewModel
         {
             if (!IsSpr) return;
 
-            if (SprFileHead.Interval > 0)
+            if (FileHeadEditorVM.FileHead.Interval > 0)
             {
-                BitmapDisplayManager.SetSprInterval((ushort)(SprFileHead.Interval - 1));
+                BitmapDisplayManager.SetSprInterval((ushort)(FileHeadEditorVM.FileHead.Interval - 1));
             }
         }
 
@@ -850,9 +784,9 @@ namespace SPRNetTool.ViewModel
         {
             if (!IsSpr) return;
 
-            if (SprFileHead.Interval < 1000)
+            if (FileHeadEditorVM.FileHead.Interval < 1000)
             {
-                BitmapDisplayManager.SetSprInterval((ushort)(SprFileHead.Interval + 1));
+                BitmapDisplayManager.SetSprInterval((ushort)(FileHeadEditorVM.FileHead.Interval + 1));
             }
         }
 
@@ -886,13 +820,13 @@ namespace SPRNetTool.ViewModel
         {
             if (CurrentlyDisplayedBitmapSource != null)
             {
-                if (SprFileHead.VersionInfo == null)
+                if (FileHeadEditorVM.FileHead.VersionInfo == null)
                 {
                     BitmapDisplayManager.InsertFrame(0, CurrentlyDisplayedBitmapSource);
                 }
                 else
                 {
-                    BitmapDisplayManager.InsertFrame(SprFileHead.modifiedSprFileHeadCache.FrameCounts, CurrentlyDisplayedBitmapSource);
+                    BitmapDisplayManager.InsertFrame(FileHeadEditorVM.FileHead.modifiedSprFileHeadCache.FrameCounts, CurrentlyDisplayedBitmapSource);
                 }
                 BitmapDisplayManager.ChangeCurrentDisplayMode(isSpr: true);
             }
@@ -922,7 +856,7 @@ namespace SPRNetTool.ViewModel
         {
             if (!IsSpr) return;
 
-            if (CurrentFrameIndex != frameIndex && frameIndex < SprFileHead.FrameCounts)
+            if (FileHeadEditorVM.CurrentFrameIndex != frameIndex && frameIndex < FileHeadEditorVM.FileHead.FrameCounts)
             {
                 BitmapDisplayManager.SetCurrentlyDisplayedSprFrameIndex(frameIndex);
             }

@@ -8,9 +8,11 @@ namespace SPRNetTool.View
     public partial class MainWindow : BaseArtWizWindow
     {
         private DebugPage? debugPage = null;
+        private SprEditorPage? sprEditorPage = null;
         public MainWindow()
         {
             InitializeComponent();
+            PageContentPresenter.Content = sprEditorPage ?? new SprEditorPage((IWindowViewer)this).Also((it) => sprEditorPage = it);
         }
 
         public override void DisableWindow(bool isDisabled)
@@ -28,6 +30,11 @@ namespace SPRNetTool.View
         private void MenuItemDebugPageClick(object sender, RoutedEventArgs e)
         {
             PageContentPresenter.Content = debugPage ?? new DebugPage((IWindowViewer)this).Also((it) => debugPage = it);
+        }
+
+        private void MenuItemEditorPageClick(object sender, RoutedEventArgs e)
+        {
+            PageContentPresenter.Content = sprEditorPage ?? new SprEditorPage((IWindowViewer)this).Also((it) => sprEditorPage = it);
         }
     }
 

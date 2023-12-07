@@ -5,10 +5,10 @@
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 			 xmlns:local="clr-namespace:SPRNetTool.View.Widgets"
 			 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
+			 xmlns:def="clr-namespace:SPRNetTool"
 			 mc:Ignorable="d"
 			 d:DesignHeight="450"
 			 d:DesignWidth="800"
-			 Background="Gray"
 			 x:Name="BitmapViewerContainer">
 
 	<UserControl.Resources>
@@ -18,8 +18,8 @@
 
 	<Grid>
 		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="auto" />
 			<ColumnDefinition x:Name="ContentColumn" />
-			<ColumnDefinition Width="60" />
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition />
@@ -27,6 +27,9 @@
 		</Grid.RowDefinitions>
 
 		<local:BitmapViewerInternal x:Name="BitmapViewerContainerInternal"
+									Grid.Column="1"
+									BorderThickness="3,3,3,0"
+									BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
 									DataContext="{Binding ElementName=BitmapViewerContainer, Path=ViewModel}"
 									GlobalHeight="{Binding GlobalHeight}"
 									GlobalWidth="{Binding GlobalWidth}"
@@ -118,6 +121,32 @@
 					</Rectangle.Width>
 				</Rectangle>
 
+				<Rectangle Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+						   Width="{Binding ElementName=ContainerCanvas, Path=ActualWidth}"
+						   Height="2"
+						   Visibility="{Binding ElementName=LayoutBoundButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}">
+					<Canvas.Top>
+						<MultiBinding Converter="{StaticResource FormulaConverter}"
+									  ConverterParameter="0.5 * {0}">
+							<Binding Path="ActualHeight"
+									 ElementName="ContainerCanvas" />
+						</MultiBinding>
+					</Canvas.Top>
+				</Rectangle>
+
+				<Rectangle Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+						   Height="{Binding ElementName=ContainerCanvas, Path=ActualWidth}"
+						   Width="2"
+						   Visibility="{Binding ElementName=LayoutBoundButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}">
+					<Canvas.Left>
+						<MultiBinding Converter="{StaticResource FormulaConverter}"
+									  ConverterParameter="0.5 * {0}">
+							<Binding Path="ActualWidth"
+									 ElementName="ContainerCanvas" />
+						</MultiBinding>
+					</Canvas.Left>
+				</Rectangle>
+				
 				<Viewbox VerticalAlignment="Top"
 						 HorizontalAlignment="Left"
 						 Visibility="Collapsed"
@@ -210,55 +239,131 @@
 			</Canvas>
 		</local:BitmapViewerInternal>
 
-		<StackPanel Grid.Column="1"
+		<StackPanel Grid.Column="0"
+					Width="45"
+					Margin="0,0,10,0"
+					VerticalAlignment="Top"
+					Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
 					Orientation="Vertical">
-			<ToggleButton Content="Fit"
-						  Margin="5"
-						  ToolTip="Fit content to screen size"
-						  x:Name="FitToScreenButton"
-						  Click="FitToScreenButtonClick" />
-			<ToggleButton Content="Trans"
-						  Margin="5"
-						  ToolTip="Transparent global background"
-						  x:Name="TransparentBackgroundButton"
-						  Click="TransparentBackgroundButtonClick" />
-			<ToggleButton Content="Trans2"
-						  Margin="5"
-						  ToolTip="Transparent decoded frame background"
-						  x:Name="TransparenDecodedFrameBackgroundButton"
-						  Click="TransparenDecodedFrameBackgroundButtonClick" />
-			<ToggleButton Content="Bound"
-						  Margin="5"
-						  IsEnabled="{Binding ElementName=FitToScreenButton, Path=IsChecked}"
-						  ToolTip="Show layout bound"
-						  x:Name="LayoutBoundButton"
-						  Click="ShowLayoutBoundButtonClick" />
-			<Button Content="Reset"
-					Margin="5"
-					ToolTip="Reset view port position"
-					Click="ResetViewPortPositionButtonClick" />
+
+			<local:IconToggle x:Name="FitToScreenButton"
+							  Click="FitToScreenButtonClick"
+							  ToolTip="Fit content to screen size"
+							  Height="36.5"
+							  Width="36.5"
+							  Margin="0,5,0,0"
+							  StrokeThickness="2"
+							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
+							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.UnFitToScreenIconGeometry}}"
+							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.FitToScreenIconGeometry}}"
+							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.UnFitToScreenIconGeometry}}" />
+
+
+			<local:IconToggle x:Name="TransparentBackgroundButton"
+							  Click="TransparentBackgroundButtonClick"
+							  ToolTip="Transparent global background"
+							  Height="36.5"
+							  Width="36.5"
+							  Margin="0,5,0,0"
+							  StrokeThickness="2"
+							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
+							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.GlobalUnTransparentBackgroundIconGeometry}}"
+							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.GlobalTransparentBackgroundIconGeometry}}"
+							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.GlobalTransparentBackgroundIconGeometry}}" />
+
+			<local:IconToggle x:Name="TransparenDecodedFrameBackgroundButton"
+							  Click="TransparenDecodedFrameBackgroundButtonClick"
+							  ToolTip="Transparent global background"
+							  Height="36.5"
+							  Width="36.5"
+							  Margin="0,5,0,0"
+							  StrokeThickness="2"
+							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
+							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.FrameUnTransparentBackgroundIconGeometry}}"
+							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.FrameTransparentBackgroundIconGeometry}}"
+							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.FrameTransparentBackgroundIconGeometry}}" />
+
+			<local:IconToggle x:Name="LayoutBoundButton"
+							  Click="ShowLayoutBoundButtonClick"
+							  ToolTip="Transparent global background"
+							  Height="36.5"
+							  Width="36.5"
+							  IsEnabled="{Binding ElementName=FitToScreenButton, Path=IsChecked}"
+							  Margin="0,5,0,0"
+							  StrokeThickness="2"
+							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
+							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.LayoutBoundIconGeometry}}"
+							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.LayoutBoundIconGeometry}}"
+							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.LayoutBoundIconGeometry}}" />
+
+			<local:IconToggle Click="ResetViewPortPositionButtonClick"
+							  Height="36.5"
+							  Width="36.5"
+							  ToolTip="Reset view port position"
+							  Margin="0,5,0,0"
+							  StrokeThickness="2"
+							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
+							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}"
+							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}"
+							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}" />
+
+			<local:IconToggle x:Name="ZoomButton"
+							  Click="ResetViewPortPositionButtonClick"
+							  Height="36.5"
+							  Width="36.5"
+							  IsEnabled="{Binding ElementName=FitToScreenButton, Path=IsChecked}"
+							  ToolTip="Reset view port position"
+							  Margin="0,5,0,5"
+							  StrokeThickness="2"
+							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
+							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.MagnifyIconGeometry}}"
+							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.MagnifyIconGeometry}}"
+							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.MagnifyIconGeometry}}" />
+
+			<Popup x:Name="ZoomingPopup"
+				   IsOpen="{Binding IsChecked, ElementName=ZoomButton}"
+				   AllowsTransparency="True"
+				   Placement="Right"
+				   HorizontalOffset="5"
+				   PlacementTarget="{Binding ElementName=ZoomButton}">
+				<Border Grid.Row="0"
+						Grid.Column="1"
+						Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
+						Width="286"
+						Height="40"
+						CornerRadius="10">
+					<Grid VerticalAlignment="Center">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition Width="auto" />
+						</Grid.ColumnDefinitions>
+
+						<Slider x:Name="ViewBoxDeltaSlider"
+								Margin="5,0,0,0"
+								Maximum="2"
+								Value="{Binding ElementName=BitmapViewerContainerInternal, Path=ViewBoxZoomDelta}"
+								IsSnapToTickEnabled="True"
+								TickFrequency="0.01" />
+						<TextBlock Grid.Column="1"
+								   MaxWidth="40"
+								   Margin="0,0,5,0"
+								   VerticalAlignment="Center"
+								   FontWeight="Bold"
+								   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+								   HorizontalAlignment="Center"
+								   Text="{Binding ElementName=ViewBoxDeltaSlider, Path=Value, StringFormat=N2}" />
+					</Grid>
+				</Border>
+			</Popup>
+
 
 		</StackPanel>
-
-		<Grid Grid.Row="1"
-			  Visibility="{Binding ElementName=FitToScreenButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition />
-				<ColumnDefinition Width="auto" />
-			</Grid.ColumnDefinitions>
-
-			<Slider x:Name="ViewBoxDeltaSlider"
-					Margin="5"
-					Maximum="2"
-					Value="{Binding ElementName=BitmapViewerContainerInternal, Path=ViewBoxZoomDelta}"
-					IsSnapToTickEnabled="True"
-					TickFrequency="0.01" />
-			<TextBlock Grid.Column="1"
-					   Margin="5"
-					   Width="30"
-					   HorizontalAlignment="Center"
-					   Text="{Binding ElementName=ViewBoxDeltaSlider, Path=Value}" />
-		</Grid>
 
 	</Grid>
 
