@@ -13,213 +13,251 @@
 			 FontSize="16"
 			 Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
 			 Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}">
-	<Grid DataContext="{Binding ElementName=UC_Container, Path=ViewModel}">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition />
-			<ColumnDefinition />
-			<ColumnDefinition />
-			<ColumnDefinition />
-		</Grid.ColumnDefinitions>
-		<Grid.RowDefinitions>
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-		</Grid.RowDefinitions>
+	<Grid>
+		<Grid DataContext="{Binding ElementName=UC_Container, Path=ViewModel}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition />
+				<ColumnDefinition />
+				<ColumnDefinition />
+				<ColumnDefinition />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+			</Grid.RowDefinitions>
 
-		<TextBlock Text="Global width:"
-				   VerticalAlignment="Center"
-				   Grid.Row="0"
-				   Grid.Column="0" />
-		<TextBlock Text="Global height:"
-				   VerticalAlignment="Center"
-				   Grid.Row="1"
-				   Grid.Column="0" />
-		<TextBlock Text="Global offset X:"
-				   VerticalAlignment="Center"
-				   Grid.Row="2"
-				   Grid.Column="0" />
-		<TextBlock Text="Global offset Y:"
-				   VerticalAlignment="Center"
-				   Grid.Row="3"
-				   Grid.Column="0" />
-		<TextBlock Text="Colors count:"
-				   VerticalAlignment="Center"
-				   Grid.Row="4"
-				   Grid.Column="0" />
-		<TextBlock Text="Directions count:"
-				   VerticalAlignment="Center"
-				   Grid.Row="5"
-				   Grid.Column="0" />
-		<TextBlock Text="Interval: "
-				   VerticalAlignment="Center"
-				   Grid.Row="6"
-				   Grid.Column="0" />
 
-		<local:ParamEditor Grid.Row="0"
-						   Grid.Column="1"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_GlobalWidthParam}"
-						   Value="{Binding FileHead.GlobalWidth}"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="1"
-						   Grid.Column="1"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_GlobalHeightParam}"
-						   Value="{Binding FileHead.GlobalHeight}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="2"
-						   Grid.Column="1"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_GlobalOffsetXParam}"
-						   Value="{Binding FileHead.OffX}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="3"
-						   Grid.Column="1"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_GlobalOffsetYParam}"
-						   Value="{Binding FileHead.OffY}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="4"
-						   Grid.Column="1"
-						   IsEnabled="False"
-						   Value="{Binding FileHead.ColorCounts}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="5"
-						   Grid.Column="1"
-						   IsEnabled="False"
-						   Value="{Binding FileHead.DirectionCount}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="6"
-						   Grid.Column="1"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_IntervalParam}"
-						   Value="{Binding FileHead.Interval}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
+			<TextBlock VerticalAlignment="Center"
+					   Grid.Row="0"
+					   Grid.Column="0">
+				<Run Text="Pixel width: " />
+				<Run Text="{Binding PixelWidth}" />
 
-		<TextBlock Text="Frame:"
-				   VerticalAlignment="Center"
-				   Grid.Row="0"
-				   Grid.Column="2" />
-		<TextBlock Text="Frame width:"
-				   VerticalAlignment="Center"
-				   Grid.Row="1"
-				   Grid.Column="2" />
-		<TextBlock Text="Frame height:"
-				   VerticalAlignment="Center"
-				   Grid.Row="2"
-				   Grid.Column="2" />
-		<TextBlock Text="Frame offset X:"
-				   VerticalAlignment="Center"
-				   Grid.Row="3"
-				   Grid.Column="2" />
-		<TextBlock Text="Frame offset Y:"
-				   VerticalAlignment="Center"
-				   Grid.Row="4"
-				   Grid.Column="2" />
-		<TextBlock Text="Frames count:"
-				   VerticalAlignment="Center"
-				   Grid.Row="5"
-				   Grid.Column="2" />
-		<local:ParamEditor Grid.Row="0"
-						   Grid.Column="3"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameIndexParam}"
-						   Value="{Binding CurrentFrameIndex}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="1"
-						   Grid.Column="3"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameWidthParam}"
-						   Value="{Binding CurrentFrameData.frameWidth}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="2"
-						   Grid.Column="3"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameHeightParam}"
-						   Value="{Binding CurrentFrameData.frameHeight}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="3"
-						   Grid.Column="3"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameOffXParam}"
-						   Value="{Binding CurrentFrameData.frameOffX}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="4"
-						   Grid.Column="3"
-						   PlusMouseHold="OnPlusMouseHold"
-						   MinusMouseHold="OnMinusMouseHold"
-						   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameOffYParam}"
-						   Value="{Binding CurrentFrameData.frameOffY}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
-		<local:ParamEditor Grid.Row="5"
-						   Grid.Column="3"
-						   IsEnabled="False"
-						   Value="{Binding FileHead.FrameCounts}"
-						   PlusClick="OnPlusParamClick"
-						   MinusClick="OnMinusParamClick"
-						   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
-						   HorizontalAlignment="Left"
-						   VerticalAlignment="Center" />
+			</TextBlock>
+			<TextBlock VerticalAlignment="Center"
+					   Grid.Row="1"
+					   Grid.Column="0">
+				<Run Text="Pixel height:" />
+				<Run Text="{Binding PixelHeight}" />
+			</TextBlock>
+			
+		</Grid>
+
+		<Grid Visibility="Collapsed"
+			  DataContext="{Binding ElementName=UC_Container, Path=ViewModel}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition />
+				<ColumnDefinition />
+				<ColumnDefinition />
+				<ColumnDefinition />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+			</Grid.RowDefinitions>
+
+			<TextBlock Text="Global width:"
+					   VerticalAlignment="Center"
+					   Grid.Row="0"
+					   Grid.Column="0" />
+			<TextBlock Text="Global height:"
+					   VerticalAlignment="Center"
+					   Grid.Row="1"
+					   Grid.Column="0" />
+			<TextBlock Text="Global offset X:"
+					   VerticalAlignment="Center"
+					   Grid.Row="2"
+					   Grid.Column="0" />
+			<TextBlock Text="Global offset Y:"
+					   VerticalAlignment="Center"
+					   Grid.Row="3"
+					   Grid.Column="0" />
+			<TextBlock Text="Colors count:"
+					   VerticalAlignment="Center"
+					   Grid.Row="4"
+					   Grid.Column="0" />
+			<TextBlock Text="Directions count:"
+					   VerticalAlignment="Center"
+					   Grid.Row="5"
+					   Grid.Column="0" />
+			<TextBlock Text="Interval: "
+					   VerticalAlignment="Center"
+					   Grid.Row="6"
+					   Grid.Column="0" />
+
+			<local:ParamEditor Grid.Row="0"
+							   Grid.Column="1"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_GlobalWidthParam}"
+							   Value="{Binding FileHead.GlobalWidth}"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="1"
+							   Grid.Column="1"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_GlobalHeightParam}"
+							   Value="{Binding FileHead.GlobalHeight}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="2"
+							   Grid.Column="1"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_GlobalOffsetXParam}"
+							   Value="{Binding FileHead.OffX}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="3"
+							   Grid.Column="1"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_GlobalOffsetYParam}"
+							   Value="{Binding FileHead.OffY}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="4"
+							   Grid.Column="1"
+							   IsEnabled="False"
+							   Value="{Binding FileHead.ColorCounts}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="5"
+							   Grid.Column="1"
+							   IsEnabled="False"
+							   Value="{Binding FileHead.DirectionCount}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="6"
+							   Grid.Column="1"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_IntervalParam}"
+							   Value="{Binding FileHead.Interval}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+
+			<TextBlock Text="Frame:"
+					   VerticalAlignment="Center"
+					   Grid.Row="0"
+					   Grid.Column="2" />
+			<TextBlock Text="Frame width:"
+					   VerticalAlignment="Center"
+					   Grid.Row="1"
+					   Grid.Column="2" />
+			<TextBlock Text="Frame height:"
+					   VerticalAlignment="Center"
+					   Grid.Row="2"
+					   Grid.Column="2" />
+			<TextBlock Text="Frame offset X:"
+					   VerticalAlignment="Center"
+					   Grid.Row="3"
+					   Grid.Column="2" />
+			<TextBlock Text="Frame offset Y:"
+					   VerticalAlignment="Center"
+					   Grid.Row="4"
+					   Grid.Column="2" />
+			<TextBlock Text="Frames count:"
+					   VerticalAlignment="Center"
+					   Grid.Row="5"
+					   Grid.Column="2" />
+			<local:ParamEditor Grid.Row="0"
+							   Grid.Column="3"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameIndexParam}"
+							   Value="{Binding CurrentFrameIndex}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="1"
+							   Grid.Column="3"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameWidthParam}"
+							   Value="{Binding CurrentFrameData.frameWidth}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="2"
+							   Grid.Column="3"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameHeightParam}"
+							   Value="{Binding CurrentFrameData.frameHeight}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="3"
+							   Grid.Column="3"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameOffXParam}"
+							   Value="{Binding CurrentFrameData.frameOffX}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="4"
+							   Grid.Column="3"
+							   PlusMouseHold="OnPlusMouseHold"
+							   MinusMouseHold="OnMinusMouseHold"
+							   Tag="{x:Static local:FileHeadEditorTagId.SPRInfo_FrameOffYParam}"
+							   Value="{Binding CurrentFrameData.frameOffY}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+			<local:ParamEditor Grid.Row="5"
+							   Grid.Column="3"
+							   IsEnabled="False"
+							   Value="{Binding FileHead.FrameCounts}"
+							   PlusClick="OnPlusParamClick"
+							   MinusClick="OnMinusParamClick"
+							   PreviewTextContentUpdated="OnPreviewTextContentParamUpdated"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Center" />
+		</Grid>
 	</Grid>
+
 </UserControl>

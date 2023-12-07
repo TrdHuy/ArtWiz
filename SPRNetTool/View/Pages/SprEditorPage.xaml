@@ -162,8 +162,10 @@
 									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.PauseIconGeometry}}" />
 					</StackPanel>
 				</wg:CollapsibleControl.ExtraHeaderContent>
+				
 				<wg:FileHeadEditor Margin="10,0"
 								   ViewModel="{Binding FileHeadEditorVM}" />
+				
 			</wg:CollapsibleControl>
 
 			<wg:CollapsibleControl Header="SPR PALETTE INFO"

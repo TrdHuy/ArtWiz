@@ -15,6 +15,8 @@ namespace SPRNetTool.ViewModel.Widgets
         private SprFileHead _sprFileHead;
         private FrameRGBA _sprFrameData;
         private int _currentFrameIndex = 0;
+        private int _pixelHeight = 0;
+        private int _pixelWidth = 0;
 
         [Bindable(true)]
         public SprFileHead FileHead
@@ -45,6 +47,24 @@ namespace SPRNetTool.ViewModel.Widgets
             set
             {
                 _sprFrameData = value;
+                Invalidate();
+            }
+        }
+
+        public int PixelHeight
+        {
+            get => _pixelHeight; set
+            {
+                _pixelHeight = value;
+                Invalidate();
+            }
+        }
+
+        public int PixelWidth
+        {
+            get => _pixelWidth; set
+            {
+                _pixelWidth = value;
                 Invalidate();
             }
         }
