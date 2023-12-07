@@ -1,6 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using SPRNetTool.Utils;
 using System.Windows;
-using SPRNetTool.Utils;
+using System.Windows.Controls;
 
 namespace SPRNetTool.View.Widgets
 {

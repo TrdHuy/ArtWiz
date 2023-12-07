@@ -9,6 +9,7 @@
 					 mc:Ignorable="d"
 					 d:DesignHeight="720"
 					 d:DesignWidth="1280"
+					 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
 					 MinWidth="1280"
 					 xmlns:def="clr-namespace:SPRNetTool"
 					 Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel0}}"
@@ -19,6 +20,7 @@
 	</UserControl.DataContext>
 
 	<UserControl.Resources>
+		<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 		<Style TargetType="wg:CollapsibleControl">
 			<Setter Property="Template">
 				<Setter.Value>
@@ -49,9 +51,9 @@
 								</Border>
 
 
-								<wg:IconToggle OnIconData="m 60.996287,-109.13791 c -1.494735,-0.85776 -9.805014,-10.29444 -9.805171,-11.13419 -3.45e-4,-1.85852 0.01451,-1.86111 10.697238,-1.86111 13.712581,0 13.66436,-0.21677 2.503104,11.25291 -2.08406,2.14165 -2.408918,2.30836 -3.395171,1.74239 z"
-											   OffIconData="m 60.996287,-109.13791 c -1.494735,-0.85776 -9.805014,-10.29444 -9.805171,-11.13419 -3.45e-4,-1.85852 0.01451,-1.86111 10.697238,-1.86111 13.712581,0 13.66436,-0.21677 2.503104,11.25291 -2.08406,2.14165 -2.408918,2.30836 -3.395171,1.74239 z"
-											   DefaultIconData="m 60.996287,-109.13791 c -1.494735,-0.85776 -9.805014,-10.29444 -9.805171,-11.13419 -3.45e-4,-1.85852 0.01451,-1.86111 10.697238,-1.86111 13.712581,0 13.66436,-0.21677 2.503104,11.25291 -2.08406,2.14165 -2.408918,2.30836 -3.395171,1.74239 z"
+								<wg:IconToggle OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.DropDownIconGeometry}}"
+											   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.DropDownIconGeometry}}"
+											   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.DropDownIconGeometry}}"
 											   Grid.Column="1"
 											   Width="18"
 											   Height="18"
@@ -149,6 +151,7 @@
 									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.SaveFileGeometry}}" />
 
 						<wg:IconToggle x:Name="PlayPauseButton"
+									   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}"
 									   IsEllipse="False"
 									   Margin="15,0,0,0"
 									   Tag="{x:Static local:SprEditorPageTagId.PlayPauseSprAnimation}"
@@ -160,12 +163,27 @@
 									   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}"
 									   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.PauseIconGeometry}}"
 									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.PauseIconGeometry}}" />
+
+						<wg:IconToggle x:Name="ImportToSprWorkspaceButton"
+									   IsEllipse="False"
+									   IsEnableToggleClick="False"
+									   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}"
+									   Margin="15,0,0,0"
+									   Tag="{x:Static local:SprEditorPageTagId.ImportToSprWorkSpace}"
+									   Click="OnButtonClick"
+									   Style="{StaticResource IconToogleStyle2}"
+									   IconRatio="0.83"
+									   Width="18"
+									   Height="18"
+									   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}"
+									   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}"
+									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}" />
 					</StackPanel>
 				</wg:CollapsibleControl.ExtraHeaderContent>
-				
+
 				<wg:FileHeadEditor Margin="10,0"
 								   ViewModel="{Binding FileHeadEditorVM}" />
-				
+
 			</wg:CollapsibleControl>
 
 			<wg:CollapsibleControl Header="SPR PALETTE INFO"

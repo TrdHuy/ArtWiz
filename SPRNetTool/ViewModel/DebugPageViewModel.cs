@@ -1,5 +1,4 @@
-﻿using SPRNetTool.Data;
-using SPRNetTool.Domain;
+﻿using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
@@ -551,7 +550,7 @@ namespace SPRNetTool.ViewModel
             {
                 BitmapDisplayManager.StopSprAnimation();
             }
-            return true;
+            return FileHeadEditorVM.FileHead.FrameCounts > 1;
         }
 
         void IDebugPageCommand.OnSaveCurrentWorkManagerToFileSprClicked(string filePath)

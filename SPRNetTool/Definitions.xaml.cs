@@ -34,6 +34,7 @@ namespace SPRNetTool
         public static ResourceKey PlayIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey PauseIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey SaveFileGeometry { get; } = CreateResourceKey();
+        public static ResourceKey DropDownIconGeometry { get; } = CreateResourceKey();
 
 
         public static Definitions? Instance;

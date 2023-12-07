@@ -565,7 +565,7 @@ namespace SPRNetTool.Domain
 
             var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource,
                 out Dictionary<Color, long> argbCountableSource,
-                out Dictionary<Color,long> rgbCountableSource,
+                out Dictionary<Color, long> rgbCountableSource,
                 out Palette palette,
                 out byte[] bgraBytesData,
                 out Dictionary<int, List<long>> paletteColorIndexToPixelIndexMap)
@@ -639,7 +639,7 @@ namespace SPRNetTool.Domain
                                 newFrameIndex: (int)frameIndex
                         )));
 
-                
+
                 return true;
             }
 

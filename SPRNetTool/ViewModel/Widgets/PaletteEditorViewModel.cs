@@ -1,14 +1,12 @@
-﻿using SPRNetTool.Data;
+﻿using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
-using SPRNetTool.Domain;
 using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
 using System.Windows.Media;
+using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
+using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel.Widgets
 {

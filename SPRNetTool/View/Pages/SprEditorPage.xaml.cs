@@ -1,25 +1,16 @@
 ﻿using Microsoft.Win32;
-using SPRNetTool.Domain;
-using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
-using SPRNetTool.View.Utils;
 using SPRNetTool.View.Widgets;
 using SPRNetTool.ViewModel;
-using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static SPRNetTool.View.InputWindow;
 using static SPRNetTool.View.Widgets.PaletteEditor;
@@ -31,6 +22,7 @@ namespace SPRNetTool.View.Pages
         OpenImageFile,
         SaveImageFile,
         PlayPauseSprAnimation,
+        ImportToSprWorkSpace,
     }
     /// <summary>
     /// Interaction logic for SprEditorPage.xaml
@@ -209,12 +201,32 @@ namespace SPRNetTool.View.Pages
                                     }
                                     else if (checkedContent == "spr")
                                     {
-                                        commandVM?.OnSaveCurrentWorkManagerToFileSprClicked(filePath);
+                                        if (viewModel?.IsSpr == true)
+                                        {
+                                            commandVM?.OnSaveCurrentWorkManagerToFileSprClicked(filePath);
+                                        }
+                                        else
+                                        {
+                                            commandVM?.OnSaveCurrentDisplayedBitmapSourceToSpr(Path.ChangeExtension(filePath, "spr"));
+                                        }
                                     }
                                 });
                             }
                             break;
                         }
+                    case SprEditorPageTagId.ImportToSprWorkSpace:
+                        {
+                            LoadingWindow l = new LoadingWindow(ownerWindow, "Exporting to next frame of SprWorkSpace!");
+                            l.Show(block: async () =>
+                            {
+                                await Task.Run(() =>
+                                {
+                                    commandVM?.OnImportCurrentDisplaySourceToNextFrameOfSprWorkSpace();
+                                });
+                            });
+                            break;
+                        }
+
                 }
             });
         }

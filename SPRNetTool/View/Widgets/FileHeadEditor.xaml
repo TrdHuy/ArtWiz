@@ -5,6 +5,7 @@
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 			 xmlns:local="clr-namespace:SPRNetTool.View.Widgets"
 			 xmlns:def="clr-namespace:SPRNetTool"
+			 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
 			 mc:Ignorable="d"
 			 d:DesignHeight="450"
 			 d:DesignWidth="800"
@@ -13,8 +14,11 @@
 			 FontSize="16"
 			 Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
 			 Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}">
-	<Grid>
-		<Grid DataContext="{Binding ElementName=UC_Container, Path=ViewModel}">
+	<UserControl.Resources>
+		<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+	</UserControl.Resources>
+	<Grid DataContext="{Binding ElementName=UC_Container, Path=ViewModel}">
+		<Grid Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition />
 				<ColumnDefinition />
@@ -31,7 +35,6 @@
 				<RowDefinition />
 			</Grid.RowDefinitions>
 
-
 			<TextBlock VerticalAlignment="Center"
 					   Grid.Row="0"
 					   Grid.Column="0">
@@ -45,11 +48,10 @@
 				<Run Text="Pixel height:" />
 				<Run Text="{Binding PixelHeight}" />
 			</TextBlock>
-			
+
 		</Grid>
 
-		<Grid Visibility="Collapsed"
-			  DataContext="{Binding ElementName=UC_Container, Path=ViewModel}">
+		<Grid Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition />
 				<ColumnDefinition />

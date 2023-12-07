@@ -1,12 +1,11 @@
 ﻿using SPRNetTool.Data;
-using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain;
+using SPRNetTool.Domain.Base;
+using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
 using System.ComponentModel;
 using System.Windows.Threading;
-using SPRNetTool.Utils;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel.Widgets
 {
@@ -17,6 +16,7 @@ namespace SPRNetTool.ViewModel.Widgets
         private int _currentFrameIndex = 0;
         private int _pixelHeight = 0;
         private int _pixelWidth = 0;
+        private bool _isSpr;
 
         [Bindable(true)]
         public SprFileHead FileHead
@@ -51,6 +51,7 @@ namespace SPRNetTool.ViewModel.Widgets
             }
         }
 
+        [Bindable(true)]
         public int PixelHeight
         {
             get => _pixelHeight; set
@@ -60,11 +61,22 @@ namespace SPRNetTool.ViewModel.Widgets
             }
         }
 
+        [Bindable(true)]
         public int PixelWidth
         {
             get => _pixelWidth; set
             {
                 _pixelWidth = value;
+                Invalidate();
+            }
+        }
+
+        [Bindable(true)]
+        public bool IsSpr
+        {
+            get => _isSpr; set
+            {
+                _isSpr = value;
                 Invalidate();
             }
         }
@@ -125,6 +137,7 @@ namespace SPRNetTool.ViewModel.Widgets
                     {
                         if (castArgs.Event.HasFlag(SPR_FILE_HEAD_CHANGED))
                         {
+                            IsSpr = castArgs.CurrentSprFileHead != null;
                             castArgs.CurrentSprFileHead?.Apply(it => FileHead = it.modifiedSprFileHeadCache.ToSprFileHead());
                         }
 
