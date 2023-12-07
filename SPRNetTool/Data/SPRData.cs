@@ -520,7 +520,7 @@ namespace SPRNetTool.Data
             private FrameRGBA frameRGBA;
             private Palette paletteData;
 
-            public Dictionary<Color, long>? CountableSource { get; set; }
+            public Dictionary<Color, long>? RgbCountableSource { get; set; }
             public Dictionary<int, List<long>>? PaletteIndexToPixelIndexMap { get; set; }
 
             public FrameRGBACache(FrameRGBA originData)

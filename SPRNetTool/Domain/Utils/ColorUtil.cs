@@ -15,7 +15,7 @@ namespace SPRNetTool.Domain.Utils
             return Math.Sqrt(deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue);
         }
 
-        public static double CalculateEuclideanDistance(this IDomainAdapter adapter, PaletteColor thisColor, PaletteColor otherColor)
+        public static double CalculateRGBEuclideanDistance(this IDomainAdapter adapter, PaletteColor thisColor, PaletteColor otherColor)
         {
             int deltaRed = thisColor.Red - otherColor.Red;
             int deltaGreen = thisColor.Green - otherColor.Green;

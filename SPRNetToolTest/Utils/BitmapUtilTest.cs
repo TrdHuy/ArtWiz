@@ -38,7 +38,8 @@ namespace SPRNetToolTest.Utils
             var bmpSource = mockDomainAdapter.LoadBitmapFromFile(imagePath);
             Assert.NotNull(bmpSource);
             var palarray = mockDomainAdapter.ConvertBitmapSourceToPaletteColorArray(bmpSource,
-                out Dictionary<Color, long> countableSource,
+                out Dictionary<Color, long> argbCountableSource,
+                out Dictionary<Color, long> rgbcountableSource,
                 out Palette palette,
                 out byte[] bgraBytesData,
                 out _);
@@ -48,12 +49,12 @@ namespace SPRNetToolTest.Utils
             var greenColor = Color.FromArgb(255, 34, 177, 76);
             var blueColor = Color.FromArgb(255, 0, 162, 232);
 
-            Assert.That(palarray.Length == countableSource.Sum(it => it.Value));
+            Assert.That(palarray.Length == argbCountableSource.Sum(it => it.Value));
             Assert.That(palette.Size == 4);
-            Assert.That(countableSource[redColor], Is.EqualTo(21456));
-            Assert.That(countableSource[yellowColor], Is.EqualTo(23999));
-            Assert.That(countableSource[greenColor], Is.EqualTo(22499));
-            Assert.That(countableSource[blueColor], Is.EqualTo(22046));
+            Assert.That(argbCountableSource[redColor], Is.EqualTo(21456));
+            Assert.That(argbCountableSource[yellowColor], Is.EqualTo(23999));
+            Assert.That(argbCountableSource[greenColor], Is.EqualTo(22499));
+            Assert.That(argbCountableSource[blueColor], Is.EqualTo(22046));
 
             Assert.That(palette.Data[0] == new PaletteColor(36, 28, 237, 255));
             Assert.That(palette.Data[1] == new PaletteColor(0, 242, 255, 255));
@@ -61,7 +62,7 @@ namespace SPRNetToolTest.Utils
             Assert.That(palette.Data[3] == new PaletteColor(232, 162, 0, 255));
 
             palarray = mockDomainAdapter.ConvertBitmapSourceToPaletteColorArray(bmpSource);
-            Assert.That(palarray.Length == countableSource.Sum(it => it.Value));
+            Assert.That(palarray.Length == argbCountableSource.Sum(it => it.Value));
         }
 
         [Test]
@@ -373,8 +374,6 @@ namespace SPRNetToolTest.Utils
             var x = 10;
 
         }
-
-
 
 
         [Test]
