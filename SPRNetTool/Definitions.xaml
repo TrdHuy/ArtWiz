@@ -15,7 +15,9 @@
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel1}">#FF548235</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel1}">#FF6D9154</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel2}">#FF89B46A</Color>
-
+	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel2_OP1}">#5089B46A</Color>
+	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel2_OP2}">#3089B46A</Color>
+	
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel0}}"
 					 x:Key="{x:Static local:Definitions.BackgroundLevel0}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel1}}"
@@ -34,7 +36,14 @@
 					 x:Key="{x:Static local:Definitions.ForegroundLevel1}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundColorLevel0_1}}"
 					 x:Key="{x:Static local:Definitions.ForegroundLevel0_1}" />
-
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundEffectColorLevel1}}"
+					 x:Key="{x:Static local:Definitions.ForegroundEffectLevel1}" />
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundEffectColorLevel2}}"
+					 x:Key="{x:Static local:Definitions.ForegroundEffectLevel2}" />
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundEffectColorLevel2_OP1}}"
+					 x:Key="{x:Static local:Definitions.ForegroundEffectLevel2_OP1}" />
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundEffectColorLevel2_OP2}}"
+					 x:Key="{x:Static local:Definitions.ForegroundEffectLevel2_OP2}" />
 	<Geometry x:Key="{x:Static local:Definitions.PlayIconGeometry}">
 		m -89.988593,210.08636 c -0.498979,-0.26037 -1.153823,-0.80945 -1.455209,-1.22019 -0.535655,-0.73 -0.549535,-1.06012 -0.617408,-14.68437 -0.06413,-12.87337 -0.03383,-14.00686 0.396875,-14.84482 0.641841,-1.24874 1.736853,-1.99116 2.936828,-1.99116 0.831857,0 2.78298,1.09172 12.047283,6.74087 6.080068,3.70747 11.3375,7.0192 11.683184,7.3594 1.047191,1.03057 1.316365,2.26422 0.79303,3.63455 -0.408922,1.07074 -0.722344,1.33842 -3.797983,3.24362 -11.441501,7.08744 -19.629504,11.96319 -20.302382,12.08957 -0.484814,0.0911 -1.118133,-0.0321 -1.684218,-0.32747 z
 	</Geometry>
