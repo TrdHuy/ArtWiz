@@ -8,6 +8,19 @@ namespace SPRNetTool.View.Widgets
 {
     public class CollapsibleControl : UserControl
     {
+        public static readonly DependencyProperty CollapseVelocityProperty =
+           DependencyProperty.Register(
+               "CollapseVelocity",
+               typeof(uint),
+               typeof(CollapsibleControl),
+               new PropertyMetadata(2200u));
+
+        public uint CollapseVelocity
+        {
+            get { return (uint)GetValue(CollapseVelocityProperty); }
+            set { SetValue(CollapseVelocityProperty, value); }
+        }
+
         public static readonly DependencyProperty IsCollapseProperty =
            DependencyProperty.Register(
                "IsCollapse",
@@ -124,7 +137,8 @@ namespace SPRNetTool.View.Widgets
                 oldHeightCache = mainBoderContainer.ActualHeight;
                 uiContentCache = mainBoderContainer.Child;
                 var animationStoryboard = new Storyboard();
-                DoubleAnimation collapseAnim = new DoubleAnimation(oldHeightCache, 0, TimeSpan.FromSeconds(0.1));
+                var time = oldHeightCache / CollapseVelocity;
+                DoubleAnimation collapseAnim = new DoubleAnimation(oldHeightCache, 0, TimeSpan.FromSeconds(time));
                 Storyboard.SetTarget(collapseAnim, mainBoderContainer);
                 Storyboard.SetTargetProperty(collapseAnim, new PropertyPath("(Border.Height)"));
                 animationStoryboard.Children.Add(collapseAnim);
@@ -143,7 +157,8 @@ namespace SPRNetTool.View.Widgets
             if (mainBoderContainer != null && IsCollapse)
             {
                 var animationStoryboard = new Storyboard();
-                DoubleAnimation collapseAnim = new DoubleAnimation(0, oldHeightCache, TimeSpan.FromSeconds(0.1));
+                var time = oldHeightCache / CollapseVelocity;
+                DoubleAnimation collapseAnim = new DoubleAnimation(0, oldHeightCache, TimeSpan.FromSeconds(time));
                 Storyboard.SetTarget(collapseAnim, mainBoderContainer);
                 Storyboard.SetTargetProperty(collapseAnim, new PropertyPath("(Border.Height)"));
                 animationStoryboard.Children.Add(collapseAnim);
