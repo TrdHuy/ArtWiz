@@ -11,17 +11,6 @@
 			 d:DesignHeight="100"
 			 d:DesignWidth="100"
 			 x:Name="IconToggleContainer">
-	<UserControl.Style>
-		<Style TargetType="UserControl">
-			<Style.Triggers>
-				<Trigger Property="IsEnabled"
-						 Value="False">
-					<Setter Property="Opacity"
-							Value="0.4" />
-				</Trigger>
-			</Style.Triggers>
-		</Style>
-	</UserControl.Style>
 	<UserControl.Resources>
 		<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 		<cvt:FormulaConverter x:Key="FormulaConverter" />

@@ -7,6 +7,10 @@ namespace SPRNetTool
     {
         public static ResourceKey BackgroundColorLevel0 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundColorLevel1 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundColorLevel2 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundColorLevel5 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundColorLevel8 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundColorLevel10 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundColorLevel0 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundColorLevel0_1 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundColorLevel1 { get; } = CreateResourceKey();
@@ -15,6 +19,10 @@ namespace SPRNetTool
 
         public static ResourceKey BackgroundLevel0 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundLevel1 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundLevel2 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundLevel5 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundLevel8 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundLevel10 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundLevel0 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundLevel0_1 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundLevel1 { get; } = CreateResourceKey();

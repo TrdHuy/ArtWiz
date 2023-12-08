@@ -1,11 +1,30 @@
 ﻿using SPRNetTool.Utils;
+using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 
 namespace SPRNetTool.View.Widgets
 {
     public class CollapsibleControl : UserControl
     {
+        public static readonly DependencyProperty IsCollapseProperty =
+           DependencyProperty.Register(
+               "IsCollapse",
+               typeof(bool),
+               typeof(CollapsibleControl),
+               new PropertyMetadata(false, OnChanged));
+
+        private static void OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        public bool IsCollapse
+        {
+            get { return (bool)GetValue(IsCollapseProperty); }
+            set { SetValue(IsCollapseProperty, value); }
+        }
+
         public static readonly DependencyProperty ExtraHeaderContentProperty =
            DependencyProperty.Register(
                "ExtraHeaderContent",
@@ -40,9 +59,8 @@ namespace SPRNetTool.View.Widgets
             set { SetValue(HeaderProperty, value); }
         }
 
-        private Button? collapseButton;
         private TextBlock? headerTextBlock;
-        private bool isCollapse = false;
+        private Border? mainBoderContainer;
 
         public CollapsibleControl()
         {
@@ -50,22 +68,93 @@ namespace SPRNetTool.View.Widgets
 
         public override void OnApplyTemplate()
         {
-            collapseButton = GetTemplateChild("CollapseButton") as Button;
             headerTextBlock = GetTemplateChild("Header") as TextBlock;
+            mainBoderContainer = GetTemplateChild("MainBorderContainer") as Border;
             headerTextBlock?.Apply(it => it.Text = Header);
-            if (collapseButton != null)
+            GetTemplateChild("CollapseButton").IfIs<Button>(it =>
             {
-                collapseButton.Click += CollapseButton_Click;
+                it.Click -= CollapseButton_Click;
+                it.Click += CollapseButton_Click;
+            });
+            GetTemplateChild("CollapseButton").IfIs<IconToggle>(it =>
+            {
+                it.Click -= CollapseButton_Click;
+                it.Click += CollapseButton_Click;
+            });
+        }
+
+        private void CollapseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!IsCollapse)
+            {
+                BeginCollapseAnimation();
+            }
+            else
+            {
+                BeginExpandAnimation();
             }
         }
 
-        private void CollapseButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        protected override Size MeasureOverride(Size constraint)
         {
-            isCollapse = !isCollapse;
-            Content.IfIs<UIElement>(it =>
+            if (Double.IsNaN(oldHeightCache))
             {
-                it.Visibility = isCollapse ? Visibility.Collapsed : Visibility.Visible;
-            });
+                mainBoderContainer?.Apply(it =>
+                {
+                    it.Measure(constraint);
+                    oldHeightCache = it.DesiredSize.Height;
+                    uiContentCache = mainBoderContainer.Child;
+                    if (IsCollapse)
+                    {
+                        mainBoderContainer.Height = 0;
+                        mainBoderContainer.Child = null;
+                    }
+                });
+            }
+
+            return base.MeasureOverride(constraint);
+        }
+
+        private double oldHeightCache = Double.NaN;
+        private object? uiContentCache;
+        private void BeginCollapseAnimation()
+        {
+            if (mainBoderContainer != null && !IsCollapse)
+            {
+                oldHeightCache = mainBoderContainer.ActualHeight;
+                uiContentCache = mainBoderContainer.Child;
+                var animationStoryboard = new Storyboard();
+                DoubleAnimation collapseAnim = new DoubleAnimation(oldHeightCache, 0, TimeSpan.FromSeconds(0.1));
+                Storyboard.SetTarget(collapseAnim, mainBoderContainer);
+                Storyboard.SetTargetProperty(collapseAnim, new PropertyPath("(Border.Height)"));
+                animationStoryboard.Children.Add(collapseAnim);
+                animationStoryboard.FillBehavior = FillBehavior.HoldEnd;
+                animationStoryboard.Completed += (_, _) =>
+                {
+                    mainBoderContainer.Child = null;
+                    IsCollapse = !IsCollapse;
+                };
+                this.BeginStoryboard(animationStoryboard);
+            }
+        }
+
+        private void BeginExpandAnimation()
+        {
+            if (mainBoderContainer != null && IsCollapse)
+            {
+                var animationStoryboard = new Storyboard();
+                DoubleAnimation collapseAnim = new DoubleAnimation(0, oldHeightCache, TimeSpan.FromSeconds(0.1));
+                Storyboard.SetTarget(collapseAnim, mainBoderContainer);
+                Storyboard.SetTargetProperty(collapseAnim, new PropertyPath("(Border.Height)"));
+                animationStoryboard.Children.Add(collapseAnim);
+                animationStoryboard.FillBehavior = FillBehavior.HoldEnd;
+                animationStoryboard.Completed += (_, _) =>
+                {
+                    uiContentCache?.IfIs<UIElement>(it => mainBoderContainer.Child = it);
+                    IsCollapse = !IsCollapse;
+                };
+                this.BeginStoryboard(animationStoryboard);
+            }
         }
     }
 }

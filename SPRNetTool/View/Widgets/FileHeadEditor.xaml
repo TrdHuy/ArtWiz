@@ -13,7 +13,7 @@
 			 FontFamily="Calibri"
 			 FontSize="16"
 			 Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
-			 Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}">
+			 Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}">
 	<UserControl.Resources>
 		<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 	</UserControl.Resources>

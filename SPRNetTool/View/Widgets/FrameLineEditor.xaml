@@ -17,7 +17,7 @@
 	<ScrollViewer x:Name="ScrView"
 				  Grid.Row="1"
 				  Width="auto"
-				  Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
+				  Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
 				  Height="auto"
 				  VerticalScrollBarVisibility="Auto"
 				  HorizontalScrollBarVisibility="Auto">
@@ -26,7 +26,7 @@
 		</ScrollViewer.Resources>
 		<Canvas x:Name="MainCanvas"
 				Height="auto"
-				Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
+				Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
 				Width="auto">
 			<Canvas.ContextMenu>
 				<ContextMenu Name="cm"
