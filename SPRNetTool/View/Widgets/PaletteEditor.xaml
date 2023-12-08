@@ -174,15 +174,96 @@
 													 Orientation="Horizontal" />
 					</ItemsPanelTemplate>
 				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemContainerStyle>
+					<Style TargetType="ListBoxItem">
+						<Setter Property="BorderThickness"
+								Value="0" />
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="{x:Type ListBoxItem}">
+									<Border x:Name="Bd"
+											BorderBrush="{TemplateBinding BorderBrush}"
+											CornerRadius="10"
+											Padding="8"
+											SnapsToDevicePixels="true">
+										<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+														  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+														  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+									</Border>
+									<ControlTemplate.Triggers>
+										<MultiTrigger>
+											<MultiTrigger.Conditions>
+												<Condition Property="IsMouseOver"
+														   Value="True" />
+											</MultiTrigger.Conditions>
+											<Setter Property="Background"
+													TargetName="Bd"
+													Value="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundEffectLevel2_OP2}}" />
+										</MultiTrigger>
+										<MultiTrigger>
+											<MultiTrigger.Conditions>
+												<Condition Property="Selector.IsSelectionActive"
+														   Value="False" />
+												<Condition Property="IsSelected"
+														   Value="True" />
+											</MultiTrigger.Conditions>
+											<Setter Property="Background"
+													TargetName="Bd"
+													Value="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundEffectLevel2_OP1}}" />
+										</MultiTrigger>
+										<MultiTrigger>
+											<MultiTrigger.Conditions>
+												<Condition Property="Selector.IsSelectionActive"
+														   Value="True" />
+												<Condition Property="IsSelected"
+														   Value="True" />
+											</MultiTrigger.Conditions>
+											<Setter Property="Background"
+													TargetName="Bd"
+													Value="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundEffectLevel2_OP1}}" />
+										</MultiTrigger>
+										<Trigger Property="IsEnabled"
+												 Value="False">
+											<Setter Property="TextElement.Foreground"
+													TargetName="Bd"
+													Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+										</Trigger>
+									</ControlTemplate.Triggers>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+					</Style>
+				</ItemsControl.ItemContainerStyle>
 				<ItemsControl.ItemTemplate>
 					<DataTemplate DataType="vmw:IPaletteEditorColorItemViewModel">
-						<Border Background="{Binding ColorBrush}"
-								Margin="8,10,0,0"
-								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+						<Border x:Name="Item"
+								Background="{Binding ColorBrush}"
+								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0_1}}"
 								BorderThickness="2"
 								CornerRadius="10"
 								Height="51"
 								Width="51" />
+						<DataTemplate.Triggers>
+							<Trigger Property="IsMouseOver"
+									 Value="True">
+								<Setter TargetName="Item"
+										Property="BorderThickness"
+										Value="3" />
+								<Setter TargetName="Item"
+										Property="BorderBrush"
+										Value="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}" />
+							</Trigger>
+
+							<DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}, Path=IsSelected}"
+										 Value="True">
+								<Setter TargetName="Item"
+										Property="BorderThickness"
+										Value="3" />
+								<Setter TargetName="Item"
+										Property="BorderBrush"
+										Value="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}" />
+							</DataTrigger>
+						</DataTemplate.Triggers>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ListBox>

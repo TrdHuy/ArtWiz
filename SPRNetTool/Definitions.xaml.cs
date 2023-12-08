@@ -16,7 +16,9 @@ namespace SPRNetTool
         public static ResourceKey ForegroundColorLevel1 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundEffectColorLevel1 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundEffectColorLevel2 { get; } = CreateResourceKey();
-
+        public static ResourceKey ForegroundEffectColorLevel2_OP1 { get; } = CreateResourceKey();
+        public static ResourceKey ForegroundEffectColorLevel2_OP2 { get; } = CreateResourceKey();
+        
         public static ResourceKey BackgroundLevel0 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundLevel1 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundLevel2 { get; } = CreateResourceKey();
@@ -26,6 +28,10 @@ namespace SPRNetTool
         public static ResourceKey ForegroundLevel0 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundLevel0_1 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundLevel1 { get; } = CreateResourceKey();
+        public static ResourceKey ForegroundEffectLevel1 { get; } = CreateResourceKey();
+        public static ResourceKey ForegroundEffectLevel2 { get; } = CreateResourceKey();
+        public static ResourceKey ForegroundEffectLevel2_OP1 { get; } = CreateResourceKey();
+        public static ResourceKey ForegroundEffectLevel2_OP2 { get; } = CreateResourceKey();
 
         public static ResourceKey FitToScreenIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey UnFitToScreenIconGeometry { get; } = CreateResourceKey();
