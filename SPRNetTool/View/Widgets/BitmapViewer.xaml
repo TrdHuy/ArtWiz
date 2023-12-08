@@ -315,7 +315,6 @@
 								  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}" />
 
 				<local:IconToggle x:Name="ZoomButton"
-								  Click="ResetViewPortPositionButtonClick"
 								  Style="{StaticResource ToolButtonStyle}"
 								  Margin="0,12"
 								  IsEnabled="{Binding ElementName=FitToScreenButton, Path=IsChecked}"
