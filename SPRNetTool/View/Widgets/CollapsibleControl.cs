@@ -137,7 +137,6 @@ namespace SPRNetTool.View.Widgets
                 oldHeightCache = mainBoderContainer.ActualHeight;
                 uiContentCache = mainBoderContainer.Child;
                 var animationStoryboard = new Storyboard();
-
                 var time = oldHeightCache / CollapseVelocity;
                 DoubleAnimation collapseAnim = new DoubleAnimation(oldHeightCache, 0, TimeSpan.FromSeconds(time));
                 Storyboard.SetTarget(collapseAnim, mainBoderContainer);
