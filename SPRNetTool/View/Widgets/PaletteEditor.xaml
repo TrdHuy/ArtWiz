@@ -11,7 +11,6 @@
 			 d:DesignWidth="800"
 			 x:Name="UC_container">
 	<UserControl.Resources>
-
 		<Style x:Key="SliderRepeatButton"
 			   TargetType="RepeatButton">
 			<Setter Property="SnapsToDevicePixels"
@@ -25,7 +24,7 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="RepeatButton">
-						<Border Background="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0_1}}"
+						<Border Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
 								BorderThickness="0"
 								BorderBrush="Black"
 								CornerRadius="0,2.5,2.5,0"
@@ -165,8 +164,8 @@
 
 			<ListBox x:Name="ColorsList"
 					 Background="Transparent"
-					 BorderThickness="1"
-					 BorderBrush="Black"
+					 BorderThickness="0,0,0,2"
+					 BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel8}}"
 					 SelectedItem="{Binding ElementName=InternalContainer,Path=SelectedColorItem}"
 					 ItemsSource="{Binding ElementName=InternalContainer, Path=ColorItemSource}">
 				<ItemsControl.ItemsPanel>
@@ -178,11 +177,12 @@
 				<ItemsControl.ItemTemplate>
 					<DataTemplate DataType="vmw:IPaletteEditorColorItemViewModel">
 						<Border Background="{Binding ColorBrush}"
-								BorderBrush="Black"
+								Margin="8,10,0,0"
+								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
 								BorderThickness="2"
-								CornerRadius="5"
-								Height="30"
-								Width="30" />
+								CornerRadius="10"
+								Height="51"
+								Width="51" />
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ListBox>
@@ -191,26 +191,26 @@
 						HorizontalAlignment="Center"
 						VerticalAlignment="Center"
 						Orientation="Horizontal">
-				<Grid HorizontalAlignment="Left"
-					  Height="80">
+				<Grid HorizontalAlignment="Left">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="50" />
-						<ColumnDefinition Width="175"/>
+						<ColumnDefinition Width="68" />
+						<ColumnDefinition Width="175" />
 						<ColumnDefinition MinWidth="40" />
 					</Grid.ColumnDefinitions>
 					<Grid.RowDefinitions>
-						<RowDefinition />
-						<RowDefinition />
-						<RowDefinition />
+						<RowDefinition Height="29" />
+						<RowDefinition Height="29" />
+						<RowDefinition Height="29" />
 					</Grid.RowDefinitions>
 					<TextBlock Text="Red"
 							   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+							   FontSize="16"
 							   Grid.Row="0"
 							   VerticalAlignment="Center" />
 					<Slider x:Name="RedSlider"
 							Style="{StaticResource Horizontal_Slider}"
 							Grid.Row="0"
-							Background="#FFFF0000"
+							Background="#FF760000"
 							ValueChanged="OnValueChangedBySliding"
 							VerticalAlignment="Center"
 							Grid.Column="1" />
@@ -224,6 +224,7 @@
 									  VerticalAlignment="Center"
 									  FontWeight="Bold" />
 					<TextBlock Text="Green"
+							   FontSize="16"
 							   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
 							   VerticalAlignment="Center"
 							   Grid.Row="1" />
@@ -231,7 +232,7 @@
 							 Style="{StaticResource Horizontal_Slider}"
 							 ValueChanged="OnValueChangedBySliding"
 							 Grid.Row="1"
-							 Background="#FF92D050"
+							 Background="#FF5F9127"
 							 VerticalAlignment="Center"
 							 Grid.Column="1" />
 					<local:BalloonBox  x:Name="GreenValueText"
@@ -244,6 +245,7 @@
 									   VerticalAlignment="Center"
 									   FontWeight="Bold" />
 					<TextBlock Text="Blue"
+							   FontSize="16"
 							   VerticalAlignment="Center"
 							   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
 							   Grid.Row="2" />
@@ -251,7 +253,7 @@
 							Style="{StaticResource Horizontal_Slider}"
 							Grid.Row="2"
 							ValueChanged="OnValueChangedBySliding"
-							Background="#FF2E75B6"
+							Background="#FF1E4D78"
 							VerticalAlignment="Center"
 							Grid.Column="1" />
 					<local:BalloonBox x:Name="BlueValueText"
@@ -282,11 +284,11 @@
 							BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
 							BorderThickness="1"
 							Background="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush}"
-							Height="20"
-							CornerRadius="5"
+							Height="37.4"
+							CornerRadius="17"
 							VerticalAlignment="Bottom"
 							Grid.Row="1"
-							Width="80"
+							Width="121"
 							Grid.Column="1" />
 
 					<local:OutlineTextBlock x:Name="SelectedColorHexTextView"
@@ -295,7 +297,7 @@
 											Fill="{Binding ElementName=InternalContainer, Path=SelectedColorItem.ColorBrush}"
 											Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
 											StrokeThickness="1"
-											FontSize="30"
+											FontSize="32"
 											Grid.Row="2"
 											Grid.Column="1"
 											FontFamily="Calibri"

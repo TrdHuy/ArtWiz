@@ -4,8 +4,12 @@
 					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 					xmlns:local="clr-namespace:SPRNetTool">
 
-	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel0}">#FF151515</Color>
-	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel1}">#FF262626</Color>
+	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel0}">#FF000000</Color>
+	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel1}">#FF151515</Color>
+	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel2}">#FF262626</Color>
+	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel5}">#FF2E2E2E</Color>
+	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel8}">#FF3B3B3B</Color>
+	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel10}">#FF3D3D3D</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel0}">#FFFFFFFF</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel0_1}">#FFD9D9D9</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel1}">#FF548235</Color>
@@ -16,6 +20,14 @@
 					 x:Key="{x:Static local:Definitions.BackgroundLevel0}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel1}}"
 					 x:Key="{x:Static local:Definitions.BackgroundLevel1}" />
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel2}}"
+					 x:Key="{x:Static local:Definitions.BackgroundLevel2}" />
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel5}}"
+					 x:Key="{x:Static local:Definitions.BackgroundLevel5}" />
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel8}}"
+					 x:Key="{x:Static local:Definitions.BackgroundLevel8}" />
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel10}}"
+					 x:Key="{x:Static local:Definitions.BackgroundLevel10}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundColorLevel0}}"
 					 x:Key="{x:Static local:Definitions.ForegroundLevel0}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundColorLevel1}}"
@@ -71,6 +83,273 @@
 	<Geometry x:Key="{x:Static local:Definitions.DropDownIconGeometry}">
 		m 60.996287,-109.13791 c -1.494735,-0.85776 -9.805014,-10.29444 -9.805171,-11.13419 -3.45e-4,-1.85852 0.01451,-1.86111 10.697238,-1.86111 13.712581,0 13.66436,-0.21677 2.503104,11.25291 -2.08406,2.14165 -2.408918,2.30836 -3.395171,1.74239 z
 	</Geometry>
+	<Geometry x:Key="{x:Static local:Definitions.FileImportIconGeometry}">
+		m 167.191,175.593 c -1.162,-0.613 -1.97,-1.417 -2.539,-2.526 l -0.503,-0.982 v -5.302 v -5.302 h -4.763 h -4.763 l -0.529,-0.529 c -0.702,-0.702 -0.702,-2.209 0,-2.91 l 0.529,-0.529 h 4.763 h 4.763 v -9.932 v -9.932 l 0.503,-0.982 c 0.583,-1.138 1.397,-1.934 2.592,-2.538 l 0.847,-0.428 h 7.421 h 7.421 v 5.569 v 5.569 l 0.389,0.752 c 0.605,1.17 1.545,1.338 7.465,1.338 h 5.394 l -0.076,12.81 l -0.076,12.81 l -0.797,1.147 c -0.466,0.67 -1.286,1.394 -1.974,1.742 l -1.177,0.595 l -12.049,-0.011 l -12.049,-0.011 z m 10.398,-7.87 c 0.973,-0.506 7.339,-7.029 7.57,-7.756 c 0.102,-0.321 0.043,-0.856 -0.13,-1.189 c -0.452,-0.868 -6.589,-7.06 -7.438,-7.506 l -0.713,-0.374 l -0.66,0.251 c -0.742,0.282 -1.222,1.018 -1.222,1.875 c 0,0.355 0.727,1.324 1.897,2.531 l 1.897,1.956 h -7.188 h -7.188 v 1.984 v 1.984 h 7.188 h 7.188 l -1.897,1.956 c -1.916,1.976 -2.182,2.574 -1.615,3.632 c 0.225,0.42 0.922,0.883 1.517,1.009 c 0.044,0.009 0.401,-0.151 0.794,-0.355 z m 7.726,-28.732 c 0,-2.91 0.09,-5.292 0.201,-5.292 c 0.111,0 2.58,2.381 5.488,5.292 l 5.287,5.292 h -5.488 h -5.488 z
+	</Geometry>
+
+	<!--TODO: Optimize this view-->
+	<Style TargetType="{x:Type ScrollViewer}">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type ScrollViewer}">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="*" />
+							<RowDefinition Height="Auto" />
+						</Grid.RowDefinitions>
+
+						<Border Background="{TemplateBinding Background}"
+								Margin="{TemplateBinding Padding}">
+							<ScrollContentPresenter Name="PART_ScrollContentPresenter"
+													KeyboardNavigation.DirectionalNavigation="Local"
+													CanContentScroll="{TemplateBinding CanContentScroll}"
+													CanHorizontallyScroll="False"
+													CanVerticallyScroll="False" />
+
+						</Border>
+
+						<ScrollBar Name="PART_HorizontalScrollBar"
+								   Orientation="Horizontal"
+								   Grid.Row="1"
+								   BorderThickness="0"
+								   Maximum="{TemplateBinding ScrollableWidth}"
+								   ViewportSize="{TemplateBinding ViewportWidth}"
+								   Value="{TemplateBinding HorizontalOffset}"
+								   Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}">
+							<ScrollBar.Template>
+								<ControlTemplate TargetType="{x:Type ScrollBar}">
+									<Grid x:Name="Bg"
+										  SnapsToDevicePixels="True">
+										<Border BorderBrush="{TemplateBinding BorderBrush}"
+												BorderThickness="{TemplateBinding BorderThickness}"
+												Background="{TemplateBinding Background}"
+												Grid.Column="1" />
+										<Track x:Name="PART_Track"
+											   Grid.Column="1"
+											   IsEnabled="{TemplateBinding IsMouseOver}">
+											<Track.DecreaseRepeatButton>
+												<RepeatButton Command="ScrollBar.PageLeftCommand">
+													<RepeatButton.Style>
+														<Style TargetType="{x:Type RepeatButton}">
+															<Setter Property="OverridesDefaultStyle"
+																	Value="True" />
+															<Setter Property="Background"
+																	Value="Transparent" />
+															<Setter Property="Focusable"
+																	Value="False" />
+															<Setter Property="IsTabStop"
+																	Value="False" />
+															<Setter Property="Template">
+																<Setter.Value>
+																	<ControlTemplate TargetType="{x:Type RepeatButton}">
+																		<Rectangle Fill="{TemplateBinding Background}"
+																				   Height="{TemplateBinding Height}"
+																				   Width="{TemplateBinding Width}" />
+																	</ControlTemplate>
+																</Setter.Value>
+															</Setter>
+														</Style>
+													</RepeatButton.Style>
+												</RepeatButton>
+											</Track.DecreaseRepeatButton>
+											<Track.IncreaseRepeatButton>
+												<RepeatButton Command="ScrollBar.PageRightCommand">
+													<RepeatButton.Style>
+														<Style TargetType="{x:Type RepeatButton}">
+															<Setter Property="OverridesDefaultStyle"
+																	Value="True" />
+															<Setter Property="Background"
+																	Value="Transparent" />
+															<Setter Property="Focusable"
+																	Value="False" />
+															<Setter Property="IsTabStop"
+																	Value="False" />
+															<Setter Property="Template">
+																<Setter.Value>
+																	<ControlTemplate TargetType="{x:Type RepeatButton}">
+																		<Rectangle Fill="{TemplateBinding Background}"
+																				   Height="{TemplateBinding Height}"
+																				   Width="{TemplateBinding Width}" />
+																	</ControlTemplate>
+																</Setter.Value>
+															</Setter>
+														</Style>
+													</RepeatButton.Style>
+												</RepeatButton>
+											</Track.IncreaseRepeatButton>
+											<Track.Thumb>
+												<Thumb>
+													<Thumb.Style>
+														<Style TargetType="{x:Type Thumb}">
+															<Setter Property="OverridesDefaultStyle"
+																	Value="True" />
+															<Setter Property="IsTabStop"
+																	Value="False" />
+															<Setter Property="Template">
+																<Setter.Value>
+																	<ControlTemplate TargetType="{x:Type Thumb}">
+																		<Rectangle x:Name="rectangle"
+																				   Height="{TemplateBinding Height}"
+																				   SnapsToDevicePixels="True"
+																				   Width="{TemplateBinding Width}" />
+																	</ControlTemplate>
+																</Setter.Value>
+															</Setter>
+														</Style>
+													</Thumb.Style>
+												</Thumb>
+											</Track.Thumb>
+										</Track>
+									</Grid>
+								</ControlTemplate>
+							</ScrollBar.Template>
+						</ScrollBar>
+
+						<ScrollBar Name="PART_VerticalScrollBar"
+								   Grid.Column="1"
+								   Grid.RowSpan="2"
+								   Background="Transparent"
+								   Maximum="{TemplateBinding ScrollableHeight}"
+								   ViewportSize="{TemplateBinding ViewportHeight}"
+								   Value="{TemplateBinding VerticalOffset}"
+								   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}">
+							<ScrollBar.Template>
+								<ControlTemplate TargetType="{x:Type ScrollBar}">
+									<Grid x:Name="Bg"
+										  SnapsToDevicePixels="True">
+										<Border x:Name="border"
+												BorderBrush="{TemplateBinding BorderBrush}"
+												BorderThickness="0"
+												Background="{TemplateBinding Background}"
+												Grid.Row="1" />
+										<Track x:Name="PART_Track"
+											   IsDirectionReversed="True"
+											   IsEnabled="True"
+											   Grid.Row="1">
+											<Track.DecreaseRepeatButton>
+												<RepeatButton Command="ScrollBar.PageUpCommand">
+													<RepeatButton.Style>
+														<Style TargetType="{x:Type RepeatButton}">
+															<Setter Property="OverridesDefaultStyle"
+																	Value="True" />
+															<Setter Property="Background"
+																	Value="Transparent" />
+															<Setter Property="Focusable"
+																	Value="False" />
+															<Setter Property="IsTabStop"
+																	Value="False" />
+															<Setter Property="Template">
+																<Setter.Value>
+																	<ControlTemplate TargetType="{x:Type RepeatButton}">
+																		<Rectangle Fill="{TemplateBinding Background}"
+																				   Height="{TemplateBinding Height}"
+																				   Width="{TemplateBinding Width}" />
+																	</ControlTemplate>
+																</Setter.Value>
+															</Setter>
+														</Style>
+													</RepeatButton.Style>
+												</RepeatButton>
+											</Track.DecreaseRepeatButton>
+											<Track.IncreaseRepeatButton>
+												<RepeatButton Command="ScrollBar.PageDownCommand">
+													<RepeatButton.Style>
+														<Style TargetType="{x:Type RepeatButton}">
+															<Setter Property="OverridesDefaultStyle"
+																	Value="True" />
+															<Setter Property="Background"
+																	Value="Transparent" />
+															<Setter Property="Focusable"
+																	Value="False" />
+															<Setter Property="IsTabStop"
+																	Value="False" />
+															<Setter Property="Template">
+																<Setter.Value>
+																	<ControlTemplate TargetType="{x:Type RepeatButton}">
+																		<Rectangle Fill="{TemplateBinding Background}"
+																				   Height="{TemplateBinding Height}"
+																				   Width="{TemplateBinding Width}" />
+																	</ControlTemplate>
+																</Setter.Value>
+															</Setter>
+														</Style>
+													</RepeatButton.Style>
+												</RepeatButton>
+											</Track.IncreaseRepeatButton>
+											<Track.Thumb>
+												<Thumb>
+													<Thumb.Style>
+														<Style TargetType="{x:Type Thumb}">
+															<Setter Property="OverridesDefaultStyle"
+																	Value="True" />
+															<Setter Property="IsTabStop"
+																	Value="False" />
+															<Setter Property="Template">
+																<Setter.Value>
+																	<ControlTemplate TargetType="{x:Type Thumb}">
+																		<Rectangle x:Name="rectangle"
+																				   RadiusX="5"
+																				   RadiusY="5"
+																				   Height="{TemplateBinding Height}"
+																				   Fill="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel8}}"
+																				   SnapsToDevicePixels="True"
+																				   Width="{TemplateBinding Width}" />
+																		<ControlTemplate.Triggers>
+																			<Trigger Property="IsEnabled"
+																					 Value="False">
+																				<Setter Property="Width"
+																						TargetName="rectangle"
+																						Value="6" />
+																				<Setter Property="RadiusX"
+																						TargetName="rectangle"
+																						Value="2" />
+																				<Setter Property="RadiusY"
+																						TargetName="rectangle"
+																						Value="2" />
+																				<Setter Property="HorizontalAlignment"
+																						TargetName="rectangle"
+																						Value="Right" />
+																			</Trigger>
+																		</ControlTemplate.Triggers>
+																	</ControlTemplate>
+																</Setter.Value>
+															</Setter>
+														</Style>
+													</Thumb.Style>
+												</Thumb>
+											</Track.Thumb>
+										</Track>
+									</Grid>
+									<ControlTemplate.Triggers>
+										<MultiDataTrigger>
+											<MultiDataTrigger.Conditions>
+												<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}"
+														   Value="False" />
+											</MultiDataTrigger.Conditions>
+											<Setter TargetName="border"
+													Property="Background"
+													Value="Transparent" />
+											<Setter TargetName="PART_Track"
+													Property="IsEnabled"
+													Value="False" />
+										</MultiDataTrigger>
+
+
+									</ControlTemplate.Triggers>
+								</ControlTemplate>
+							</ScrollBar.Template>
+						</ScrollBar>
+
+					</Grid>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
 	<Style TargetType="wg:CollapsibleControl">
 		<Setter Property="Template">
 			<Setter.Value>
@@ -109,8 +388,21 @@
 		</Setter>
 	</Style>
 
+	<Style TargetType="{x:Type wg:IconToggle}">
+		<Setter Property="OverridesDefaultStyle"
+				Value="True" />
+		<Style.Triggers>
+			<Trigger Property="IsEnabled"
+					 Value="False">
+				<Setter Property="Opacity"
+						Value="0.4" />
+			</Trigger>
+		</Style.Triggers>
+	</Style>
+
 	<Style TargetType="wg:IconToggle"
-		   x:Key="IconToogleStyle1">
+		   x:Key="IconToogleStyle1"
+		   BasedOn="{StaticResource {x:Type wg:IconToggle}}">
 		<Setter Property="Stroke"
 				Value="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundLevel0}}" />
 		<Style.Triggers>
@@ -147,9 +439,10 @@
 	</Style>
 
 	<Style TargetType="wg:IconToggle"
-		   x:Key="IconToogleStyle2">
+		   x:Key="IconToogleStyle2"
+		   BasedOn="{StaticResource {x:Type wg:IconToggle}}">
 		<Setter Property="Stroke"
-				Value="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel0}}" />
+				Value="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundLevel0}}" />
 		<Style.Triggers>
 			<Trigger Property="IsMouseOver"
 					 Value="True">
@@ -174,7 +467,7 @@
 					<BeginStoryboard>
 						<Storyboard>
 							<ColorAnimation Storyboard.TargetProperty="(wg:IconToggle.Stroke).(SolidColorBrush.Color)"
-											To="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel0}}"
+											To="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundColorLevel0}}"
 											Duration="0:0:0" />
 						</Storyboard>
 					</BeginStoryboard>

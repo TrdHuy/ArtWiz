@@ -12,7 +12,7 @@
 					 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
 					 MinWidth="1280"
 					 xmlns:def="clr-namespace:SPRNetTool"
-					 Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel0}}"
+					 Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
 					 xmlns:vm="clr-namespace:SPRNetTool.ViewModel">
 
 	<UserControl.DataContext>
@@ -20,12 +20,13 @@
 	</UserControl.DataContext>
 
 	<UserControl.Resources>
+		<cvt:RevertBoolConverter x:Key="RevertBoolConverter" />
 		<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 		<Style TargetType="wg:CollapsibleControl">
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type wg:CollapsibleControl}">
-						<Border Background="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+						<Border Background="Transparent"
 								BorderBrush="{TemplateBinding BorderBrush}"
 								BorderThickness="{TemplateBinding BorderThickness}"
 								Padding="{TemplateBinding Padding}"
@@ -33,18 +34,22 @@
 							<Grid x:Name="GridContainer">
 								<Grid.RowDefinitions>
 									<RowDefinition Height="Auto" />
-									<RowDefinition />
+									<RowDefinition Height="Auto" />
 								</Grid.RowDefinitions>
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="*" />
 									<ColumnDefinition />
 								</Grid.ColumnDefinitions>
-
-								<Border Grid.Row="2"
+								<Rectangle Grid.Row="0"
+										   Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
+										   Grid.ColumnSpan="2" />
+								<Border x:Name="MainBorderContainer"
+										Grid.Row="1"
 										Grid.ColumnSpan="2"
-										BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
-										BorderThickness="2,0,2,2"
-										Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}">
+										BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
+										BorderThickness="3,0,3,3"
+										VerticalAlignment="Top"
+										Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}">
 									<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
 													  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
 													  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -54,21 +59,37 @@
 								<wg:IconToggle OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.DropDownIconGeometry}}"
 											   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.DropDownIconGeometry}}"
 											   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.DropDownIconGeometry}}"
+											   IsChecked="{TemplateBinding IsCollapse, Converter={StaticResource RevertBoolConverter}}"
 											   Grid.Column="1"
 											   Width="18"
 											   Height="18"
 											   Margin="18,10"
 											   StrokeThickness="2"
 											   HorizontalAlignment="Right"
-											   x:Name="CollapseButton"
-											   Stroke="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel0}}">
-
+											   x:Name="CollapseButton">
+									<wg:IconToggle.Style>
+										<Style TargetType="wg:IconToggle">
+											<Style.Triggers>
+												<Trigger Property="IsChecked"
+														 Value="False">
+													<Setter Property="Stroke"
+															Value="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}" />
+												</Trigger>
+												<Trigger Property="IsChecked"
+														 Value="True">
+													<Setter Property="Stroke"
+															Value="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}" />
+												</Trigger>
+											</Style.Triggers>
+										</Style>
+									</wg:IconToggle.Style>
 								</wg:IconToggle>
 
 								<StackPanel HorizontalAlignment="Left"
 											Orientation="Horizontal">
 									<TextBlock x:Name="Header"
 											   Margin="18,10"
+											   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
 											   FontSize="15"
 											   FontWeight="Bold" />
 									<ContentPresenter Content="{TemplateBinding ExtraHeaderContent}" />
@@ -104,7 +125,7 @@
 			<wg:FrameLineEditor Height="101"
 								BorderThickness="3,0,3,3"
 								Margin="55,0,0,0"
-								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel8}}"
 								OnPreviewFrameIndexSwitched="OnPreviewFrameIndexSwitched"
 								OnPreviewAddingFrame="OnPreviewAddingFrame"
 								OnPreviewRemovingFrame="OnPreviewRemovingFrame"
@@ -116,13 +137,12 @@
 		<Grid Grid.Row="1"
 			  Grid.Column="3">
 			<Grid.RowDefinitions>
-				<RowDefinition Height="2.7*"
-							   MaxHeight="260" />
+				<RowDefinition Height="Auto" />
 				<RowDefinition Height="15" />
-				<RowDefinition Height="4.28*"
-							   MaxHeight="410" />
+				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			<wg:CollapsibleControl Header="IMAGE INFO">
+			<wg:CollapsibleControl Header="IMAGE INFO"
+								   IsCollapse="True">
 				<wg:CollapsibleControl.ExtraHeaderContent>
 					<StackPanel Orientation="Horizontal">
 						<wg:IconToggle IsEllipse="False"
@@ -168,26 +188,28 @@
 									   IsEllipse="False"
 									   IsEnableToggleClick="False"
 									   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}"
-									   Margin="15,0,0,0"
+									   Margin="10,0,0,0"
 									   Tag="{x:Static local:SprEditorPageTagId.ImportToSprWorkSpace}"
 									   Click="OnButtonClick"
 									   Style="{StaticResource IconToogleStyle2}"
-									   IconRatio="0.83"
+									   IconRatio="0.85"
 									   Width="18"
 									   Height="18"
-									   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}"
-									   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}"
-									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}" />
+									   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.FileImportIconGeometry}}"
+									   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.FileImportIconGeometry}}"
+									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.FileImportIconGeometry}}" />
 					</StackPanel>
 				</wg:CollapsibleControl.ExtraHeaderContent>
 
 				<wg:FileHeadEditor Margin="10,0"
+								   MinHeight="217"
 								   ViewModel="{Binding FileHeadEditorVM}" />
 
 			</wg:CollapsibleControl>
 
 			<wg:CollapsibleControl Header="SPR PALETTE INFO"
-								   Grid.Row="2">
+								   Grid.Row="2"
+								   IsCollapse="True">
 				<wg:PaletteEditor Grid.Row="1"
 								  Height="361"
 								  ViewModel="{Binding PaletteEditorVM}"

@@ -14,6 +14,24 @@
 	<UserControl.Resources>
 		<cvt:FormulaConverter x:Key="FormulaConverter" />
 		<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+		<Style TargetType="{x:Type local:IconToggle}"
+			   BasedOn="{StaticResource {x:Type local:IconToggle}}"
+			   x:Key="ToolButtonStyle">
+			<Setter Property="OverridesDefaultStyle"
+					Value="False" />
+			<Setter Property="Height"
+					Value="26" />
+			<Setter Property="Width"
+					Value="26" />
+			<Setter Property="Margin"
+					Value="0,10,0,0" />
+			<Setter Property="StrokeThickness"
+					Value="2" />
+			<Setter Property="Fill"
+					Value="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}" />
+			<Setter Property="Stroke"
+					Value="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}" />
+		</Style>
 	</UserControl.Resources>
 
 	<Grid>
@@ -25,184 +43,55 @@
 			<RowDefinition />
 			<RowDefinition Height="auto" />
 		</Grid.RowDefinitions>
+		<Border Grid.Column="1"
+				BorderThickness="3"
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel8}}">
+			<local:BitmapViewerInternal x:Name="BitmapViewerContainerInternal"
+										DataContext="{Binding ElementName=BitmapViewerContainer, Path=ViewModel}"
+										GlobalHeight="{Binding GlobalHeight}"
+										GlobalWidth="{Binding GlobalWidth}"
+										GlobalOffX="{Binding GlobalOffX}"
+										GlobalOffY="{Binding GlobalOffY}"
+										FrameHeight="{Binding FrameHeight}"
+										FrameWidth="{Binding FrameWidth}"
+										FrameOffX="{Binding FrameOffX}"
+										FrameOffY="{Binding FrameOffY}"
+										FrameSource="{Binding FrameSource}">
+				<UserControl.Background>
+					<ImageBrush Stretch="None"
+								ImageSource="/SPRNetTool;component/resources/spr_viewer_background.png" />
+				</UserControl.Background>
+				<Canvas x:Name="ContainerCanvas"
+						ClipToBounds="True"
+						Background="Transparent"
+						Width="{Binding ElementName=BitmapViewerContainerInternal,Path=ActualWidth}"
+						Height="{Binding ElementName=BitmapViewerContainerInternal,Path=ActualHeight}">
+					<Rectangle x:Name="ContainerBackgroundColorFilter"
+							   Fill="#FF08273D"
+							   Opacity="0.5"
+							   Height="{Binding ElementName=ContainerCanvas, Path=ActualWidth}"
+							   Width="{Binding ElementName=ContainerCanvas, Path=ActualWidth}" />
 
-		<local:BitmapViewerInternal x:Name="BitmapViewerContainerInternal"
-									Grid.Column="1"
-									BorderThickness="3,3,3,0"
-									BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
-									DataContext="{Binding ElementName=BitmapViewerContainer, Path=ViewModel}"
-									GlobalHeight="{Binding GlobalHeight}"
-									GlobalWidth="{Binding GlobalWidth}"
-									GlobalOffX="{Binding GlobalOffX}"
-									GlobalOffY="{Binding GlobalOffY}"
-									FrameHeight="{Binding FrameHeight}"
-									FrameWidth="{Binding FrameWidth}"
-									FrameOffX="{Binding FrameOffX}"
-									FrameOffY="{Binding FrameOffY}"
-									FrameSource="{Binding FrameSource}">
-			<UserControl.Background>
-				<ImageBrush Stretch="None"
-							ImageSource="/SPRNetTool;component/resources/spr_viewer_background.png" />
-			</UserControl.Background>
-			<Canvas x:Name="ContainerCanvas"
-					ClipToBounds="True"
-					Background="Transparent"
-					Width="{Binding ElementName=BitmapViewerContainerInternal,Path=ActualWidth}"
-					Height="{Binding ElementName=BitmapViewerContainerInternal,Path=ActualHeight}">
-				<Canvas x:Name="DragableContainer"
-						Visibility="Visible"
-						Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth}"
-						Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight}">
-					<Canvas ClipToBounds="True"
-							x:Name="NoStretchContainer"
+					<Canvas x:Name="DragableContainer"
 							Visibility="Visible"
 							Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth}"
 							Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight}">
-						<Canvas.Left>
-							<Binding Path="GlobalOffX"
-									 FallbackValue="10"
-									 ElementName="BitmapViewerContainerInternal" />
-						</Canvas.Left>
-						<Canvas.Top>
-							<Binding Path="GlobalOffY"
-									 FallbackValue="10"
-									 ElementName="BitmapViewerContainerInternal" />
-						</Canvas.Top>
-						<Image x:Name="SprGlobalBackgroundImage"
-							   Stretch="Fill"
-							   Source="{Binding ElementName=BitmapViewerContainerInternal, Path=GlobalBackgroundSource}"
-							   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth, FallbackValue=500}"
-							   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight, FallbackValue=200}" />
 						<Canvas ClipToBounds="True"
-								SnapsToDevicePixels="True"
-								Canvas.Left="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffX,FallbackValue=60}"
-								Canvas.Top="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffY,FallbackValue=60}"
-								Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
-								Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}">
-
-							<Rectangle SnapsToDevicePixels="True"
-									   x:Name="DecodedFrameBackground"
-									   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
-									   Canvas.Left="0"
-									   Canvas.Top="0"
-									   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}" />
-
-							<Image x:Name="SprFrameImage"
-								   Stretch="None"
-								   HorizontalAlignment="Left"
-								   VerticalAlignment="Top"
-								   SnapsToDevicePixels="True"
-								   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
-								   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}"
-								   Source="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameSource}" />
-						</Canvas>
-					</Canvas>
-				</Canvas>
-
-				<Rectangle Stroke="Red"
-						   StrokeThickness="0"
-						   SnapsToDevicePixels="True"
-						   x:Name="LayoutBoundRect"
-						   Visibility="{Binding ElementName=LayoutBoundButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}">
-					<Rectangle.Height>
-						<MultiBinding Converter="{StaticResource FormulaConverter}"
-									  ConverterParameter="1 * {0} + 4">
-							<Binding Path="ActualHeight"
-									 ElementName="StretchContainer" />
-						</MultiBinding>
-					</Rectangle.Height>
-
-					<Rectangle.Width>
-						<MultiBinding Converter="{StaticResource FormulaConverter}"
-									  ConverterParameter="1 * {0} + 4">
-							<Binding Path="ActualWidth"
-									 ElementName="StretchContainer" />
-						</MultiBinding>
-					</Rectangle.Width>
-				</Rectangle>
-
-				<Rectangle Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-						   Width="{Binding ElementName=ContainerCanvas, Path=ActualWidth}"
-						   Height="2"
-						   Visibility="{Binding ElementName=LayoutBoundButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}">
-					<Canvas.Top>
-						<MultiBinding Converter="{StaticResource FormulaConverter}"
-									  ConverterParameter="0.5 * {0}">
-							<Binding Path="ActualHeight"
-									 ElementName="ContainerCanvas" />
-						</MultiBinding>
-					</Canvas.Top>
-				</Rectangle>
-
-				<Rectangle Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-						   Height="{Binding ElementName=ContainerCanvas, Path=ActualWidth}"
-						   Width="2"
-						   Visibility="{Binding ElementName=LayoutBoundButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}">
-					<Canvas.Left>
-						<MultiBinding Converter="{StaticResource FormulaConverter}"
-									  ConverterParameter="0.5 * {0}">
-							<Binding Path="ActualWidth"
-									 ElementName="ContainerCanvas" />
-						</MultiBinding>
-					</Canvas.Left>
-				</Rectangle>
-				
-				<Viewbox VerticalAlignment="Top"
-						 HorizontalAlignment="Left"
-						 Visibility="Collapsed"
-						 Stretch="Uniform"
-						 x:Name="StretchContainer">
-					<Viewbox.Height>
-						<MultiBinding Converter="{StaticResource FormulaConverter}"
-									  ConverterParameter="1 * {0} * {1} - {2} * 2">
-							<Binding Path="ActualHeight"
-									 ElementName="ContainerCanvas" />
-							<Binding Path="ViewBoxZoomDelta"
-									 ElementName="BitmapViewerContainerInternal" />
-							<Binding Path="StrokeThickness"
-									 ElementName="LayoutBoundRect" />
-						</MultiBinding>
-					</Viewbox.Height>
-					<Viewbox.Width>
-						<MultiBinding Converter="{StaticResource FormulaConverter}"
-									  ConverterParameter="1 * {0} * {1} - {2} * 2">
-							<Binding Path="ActualWidth"
-									 ElementName="ContainerCanvas" />
-							<Binding Path="ViewBoxZoomDelta"
-									 ElementName="BitmapViewerContainerInternal" />
-							<Binding Path="StrokeThickness"
-									 ElementName="LayoutBoundRect" />
-						</MultiBinding>
-					</Viewbox.Width>
-					<Canvas ClipToBounds="True"
-							x:Name="StretchContainerCanvas">
-						<Canvas.Height>
-							<MultiBinding Converter="{StaticResource FormulaConverter}"
-										  ConverterParameter="1 * {0} + {1}">
-								<Binding Path="GlobalHeight"
-										 ElementName="BitmapViewerContainerInternal" />
-								<Binding Path="GlobalOffY"
-										 ElementName="BitmapViewerContainerInternal" />
-							</MultiBinding>
-						</Canvas.Height>
-
-						<Canvas.Width>
-							<MultiBinding Converter="{StaticResource FormulaConverter}"
-										  ConverterParameter="1 * {0} + {1}">
-								<Binding Path="GlobalWidth"
-										 ElementName="BitmapViewerContainerInternal" />
-								<Binding Path="GlobalOffX"
-										 ElementName="BitmapViewerContainerInternal" />
-							</MultiBinding>
-						</Canvas.Width>
-
-
-						<Canvas ClipToBounds="True"
+								x:Name="NoStretchContainer"
+								Visibility="Visible"
 								Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth}"
-								Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight}"
-								Canvas.Left="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalOffX}"
-								Canvas.Top="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalOffY}">
-							<Image x:Name="SprGlobalBackgroundImage2"
+								Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight}">
+							<Canvas.Left>
+								<Binding Path="GlobalOffX"
+										 FallbackValue="10"
+										 ElementName="BitmapViewerContainerInternal" />
+							</Canvas.Left>
+							<Canvas.Top>
+								<Binding Path="GlobalOffY"
+										 FallbackValue="10"
+										 ElementName="BitmapViewerContainerInternal" />
+							</Canvas.Top>
+							<Image x:Name="SprGlobalBackgroundImage"
 								   Stretch="Fill"
 								   Source="{Binding ElementName=BitmapViewerContainerInternal, Path=GlobalBackgroundSource}"
 								   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth, FallbackValue=500}"
@@ -214,14 +103,14 @@
 									Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
 									Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}">
 
-								<Rectangle x:Name="DecodedFrameBackground2"
-										   SnapsToDevicePixels="True"
+								<Rectangle SnapsToDevicePixels="True"
+										   x:Name="DecodedFrameBackground"
 										   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
 										   Canvas.Left="0"
 										   Canvas.Top="0"
 										   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}" />
 
-								<Image x:Name="SprFrameImage2"
+								<Image x:Name="SprFrameImage"
 									   Stretch="None"
 									   HorizontalAlignment="Left"
 									   VerticalAlignment="Top"
@@ -230,140 +119,253 @@
 									   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}"
 									   Source="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameSource}" />
 							</Canvas>
+						</Canvas>
+					</Canvas>
+
+					<Rectangle Stroke="Red"
+							   StrokeThickness="0"
+							   SnapsToDevicePixels="True"
+							   x:Name="LayoutBoundRect"
+							   Visibility="{Binding ElementName=LayoutBoundButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}">
+						<Rectangle.Height>
+							<MultiBinding Converter="{StaticResource FormulaConverter}"
+										  ConverterParameter="1 * {0} + 4">
+								<Binding Path="ActualHeight"
+										 ElementName="StretchContainer" />
+							</MultiBinding>
+						</Rectangle.Height>
+
+						<Rectangle.Width>
+							<MultiBinding Converter="{StaticResource FormulaConverter}"
+										  ConverterParameter="1 * {0} + 4">
+								<Binding Path="ActualWidth"
+										 ElementName="StretchContainer" />
+							</MultiBinding>
+						</Rectangle.Width>
+					</Rectangle>
+
+					<Rectangle Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+							   Width="{Binding ElementName=ContainerCanvas, Path=ActualWidth}"
+							   Height="2"
+							   Visibility="{Binding ElementName=LayoutBoundButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}">
+						<Canvas.Top>
+							<MultiBinding Converter="{StaticResource FormulaConverter}"
+										  ConverterParameter="0.5 * {0}">
+								<Binding Path="ActualHeight"
+										 ElementName="ContainerCanvas" />
+							</MultiBinding>
+						</Canvas.Top>
+					</Rectangle>
+
+					<Rectangle Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+							   Height="{Binding ElementName=ContainerCanvas, Path=ActualWidth}"
+							   Width="2"
+							   Visibility="{Binding ElementName=LayoutBoundButton,Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.HIDDEN}}">
+						<Canvas.Left>
+							<MultiBinding Converter="{StaticResource FormulaConverter}"
+										  ConverterParameter="0.5 * {0}">
+								<Binding Path="ActualWidth"
+										 ElementName="ContainerCanvas" />
+							</MultiBinding>
+						</Canvas.Left>
+					</Rectangle>
+
+					<Viewbox VerticalAlignment="Top"
+							 HorizontalAlignment="Left"
+							 Visibility="Collapsed"
+							 Stretch="Uniform"
+							 x:Name="StretchContainer">
+						<Viewbox.Height>
+							<MultiBinding Converter="{StaticResource FormulaConverter}"
+										  ConverterParameter="1 * {0} * {1} - {2} * 2">
+								<Binding Path="ActualHeight"
+										 ElementName="ContainerCanvas" />
+								<Binding Path="ViewBoxZoomDelta"
+										 ElementName="BitmapViewerContainerInternal" />
+								<Binding Path="StrokeThickness"
+										 ElementName="LayoutBoundRect" />
+							</MultiBinding>
+						</Viewbox.Height>
+						<Viewbox.Width>
+							<MultiBinding Converter="{StaticResource FormulaConverter}"
+										  ConverterParameter="1 * {0} * {1} - {2} * 2">
+								<Binding Path="ActualWidth"
+										 ElementName="ContainerCanvas" />
+								<Binding Path="ViewBoxZoomDelta"
+										 ElementName="BitmapViewerContainerInternal" />
+								<Binding Path="StrokeThickness"
+										 ElementName="LayoutBoundRect" />
+							</MultiBinding>
+						</Viewbox.Width>
+						<Canvas ClipToBounds="True"
+								x:Name="StretchContainerCanvas">
+							<Canvas.Height>
+								<MultiBinding Converter="{StaticResource FormulaConverter}"
+											  ConverterParameter="1 * {0} + {1}">
+									<Binding Path="GlobalHeight"
+											 ElementName="BitmapViewerContainerInternal" />
+									<Binding Path="GlobalOffY"
+											 ElementName="BitmapViewerContainerInternal" />
+								</MultiBinding>
+							</Canvas.Height>
+
+							<Canvas.Width>
+								<MultiBinding Converter="{StaticResource FormulaConverter}"
+											  ConverterParameter="1 * {0} + {1}">
+									<Binding Path="GlobalWidth"
+											 ElementName="BitmapViewerContainerInternal" />
+									<Binding Path="GlobalOffX"
+											 ElementName="BitmapViewerContainerInternal" />
+								</MultiBinding>
+							</Canvas.Width>
+
+
+							<Canvas ClipToBounds="True"
+									Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth}"
+									Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight}"
+									Canvas.Left="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalOffX}"
+									Canvas.Top="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalOffY}">
+								<Image x:Name="SprGlobalBackgroundImage2"
+									   Stretch="Fill"
+									   Source="{Binding ElementName=BitmapViewerContainerInternal, Path=GlobalBackgroundSource}"
+									   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalWidth, FallbackValue=500}"
+									   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=GlobalHeight, FallbackValue=200}" />
+								<Canvas ClipToBounds="True"
+										SnapsToDevicePixels="True"
+										Canvas.Left="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffX,FallbackValue=60}"
+										Canvas.Top="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameOffY,FallbackValue=60}"
+										Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
+										Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}">
+
+									<Rectangle x:Name="DecodedFrameBackground2"
+											   SnapsToDevicePixels="True"
+											   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
+											   Canvas.Left="0"
+											   Canvas.Top="0"
+											   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}" />
+
+									<Image x:Name="SprFrameImage2"
+										   Stretch="None"
+										   HorizontalAlignment="Left"
+										   VerticalAlignment="Top"
+										   SnapsToDevicePixels="True"
+										   Width="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameWidth, FallbackValue=200}"
+										   Height="{Binding ElementName=BitmapViewerContainerInternal,Path=FrameHeight, FallbackValue=100}"
+										   Source="{Binding ElementName=BitmapViewerContainerInternal, Path=FrameSource}" />
+								</Canvas>
+
+							</Canvas>
 
 						</Canvas>
 
-					</Canvas>
+					</Viewbox>
+				</Canvas>
+			</local:BitmapViewerInternal>
 
-				</Viewbox>
-			</Canvas>
-		</local:BitmapViewerInternal>
+		</Border>
 
-		<StackPanel Grid.Column="0"
-					Width="45"
-					Margin="0,0,10,0"
-					VerticalAlignment="Top"
-					Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
-					Orientation="Vertical">
-
-			<local:IconToggle x:Name="FitToScreenButton"
-							  Click="FitToScreenButtonClick"
-							  ToolTip="Fit content to screen size"
-							  Height="36.5"
-							  Width="36.5"
-							  Margin="0,5,0,0"
-							  StrokeThickness="2"
-							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
-							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.UnFitToScreenIconGeometry}}"
-							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.FitToScreenIconGeometry}}"
-							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.UnFitToScreenIconGeometry}}" />
+		<Border Grid.Column="0"
+				BorderThickness="3"
+				Margin="0,0,10,0"
+				Width="45"
+				VerticalAlignment="Top"
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
+				Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
+				CornerRadius="20">
+			<StackPanel Orientation="Vertical">
+				<local:IconToggle x:Name="FitToScreenButton"
+								  Click="FitToScreenButtonClick"
+								  ToolTip="Fit content to screen size"
+								  Style="{StaticResource ToolButtonStyle}"
+								  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.UnFitToScreenIconGeometry}}"
+								  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.FitToScreenIconGeometry}}"
+								  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.UnFitToScreenIconGeometry}}" />
 
 
-			<local:IconToggle x:Name="TransparentBackgroundButton"
-							  Click="TransparentBackgroundButtonClick"
-							  ToolTip="Transparent global background"
-							  Height="36.5"
-							  Width="36.5"
-							  Margin="0,5,0,0"
-							  StrokeThickness="2"
-							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
-							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.GlobalUnTransparentBackgroundIconGeometry}}"
-							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.GlobalTransparentBackgroundIconGeometry}}"
-							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.GlobalTransparentBackgroundIconGeometry}}" />
+				<local:IconToggle x:Name="TransparentBackgroundButton"
+								  Click="TransparentBackgroundButtonClick"
+								  ToolTip="Transparent global background"
+								  Style="{StaticResource ToolButtonStyle}"
+								  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.GlobalUnTransparentBackgroundIconGeometry}}"
+								  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.GlobalTransparentBackgroundIconGeometry}}"
+								  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.GlobalTransparentBackgroundIconGeometry}}" />
 
-			<local:IconToggle x:Name="TransparenDecodedFrameBackgroundButton"
-							  Click="TransparenDecodedFrameBackgroundButtonClick"
-							  ToolTip="Transparent global background"
-							  Height="36.5"
-							  Width="36.5"
-							  Margin="0,5,0,0"
-							  StrokeThickness="2"
-							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
-							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.FrameUnTransparentBackgroundIconGeometry}}"
-							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.FrameTransparentBackgroundIconGeometry}}"
-							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.FrameTransparentBackgroundIconGeometry}}" />
+				<local:IconToggle x:Name="TransparenDecodedFrameBackgroundButton"
+								  Click="TransparenDecodedFrameBackgroundButtonClick"
+								  ToolTip="Transparent global background"
+								  Style="{StaticResource ToolButtonStyle}"
+								  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.FrameUnTransparentBackgroundIconGeometry}}"
+								  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.FrameTransparentBackgroundIconGeometry}}"
+								  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.FrameTransparentBackgroundIconGeometry}}" />
 
-			<local:IconToggle x:Name="LayoutBoundButton"
-							  Click="ShowLayoutBoundButtonClick"
-							  ToolTip="Transparent global background"
-							  Height="36.5"
-							  Width="36.5"
-							  IsEnabled="{Binding ElementName=FitToScreenButton, Path=IsChecked}"
-							  Margin="0,5,0,0"
-							  StrokeThickness="2"
-							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
-							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.LayoutBoundIconGeometry}}"
-							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.LayoutBoundIconGeometry}}"
-							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.LayoutBoundIconGeometry}}" />
+				<local:IconToggle x:Name="LayoutBoundButton"
+								  Click="ShowLayoutBoundButtonClick"
+								  ToolTip="Transparent global background"
+								  Style="{StaticResource ToolButtonStyle}"
+								  IsEnabled="{Binding ElementName=FitToScreenButton, Path=IsChecked}"
+								  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.LayoutBoundIconGeometry}}"
+								  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.LayoutBoundIconGeometry}}"
+								  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.LayoutBoundIconGeometry}}" />
 
-			<local:IconToggle Click="ResetViewPortPositionButtonClick"
-							  Height="36.5"
-							  Width="36.5"
-							  ToolTip="Reset view port position"
-							  Margin="0,5,0,0"
-							  StrokeThickness="2"
-							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
-							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}"
-							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}"
-							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}" />
+				<local:IconToggle Click="ResetViewPortPositionButtonClick"
+								  ToolTip="Reset view port position"
+								  Style="{StaticResource ToolButtonStyle}"
+								  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}"
+								  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}"
+								  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}" />
 
-			<local:IconToggle x:Name="ZoomButton"
-							  Click="ResetViewPortPositionButtonClick"
-							  Height="36.5"
-							  Width="36.5"
-							  IsEnabled="{Binding ElementName=FitToScreenButton, Path=IsChecked}"
-							  ToolTip="Reset view port position"
-							  Margin="0,5,0,5"
-							  StrokeThickness="2"
-							  Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
-							  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-							  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.MagnifyIconGeometry}}"
-							  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.MagnifyIconGeometry}}"
-							  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.MagnifyIconGeometry}}" />
+				<local:IconToggle x:Name="ZoomButton"
+								  Click="ResetViewPortPositionButtonClick"
+								  Style="{StaticResource ToolButtonStyle}"
+								  Margin="0,12"
+								  IsEnabled="{Binding ElementName=FitToScreenButton, Path=IsChecked}"
+								  ToolTip="Reset view port position"
+								  OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.MagnifyIconGeometry}}"
+								  OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.MagnifyIconGeometry}}"
+								  DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.MagnifyIconGeometry}}" />
 
-			<Popup x:Name="ZoomingPopup"
-				   IsOpen="{Binding IsChecked, ElementName=ZoomButton}"
-				   AllowsTransparency="True"
-				   Placement="Right"
-				   HorizontalOffset="5"
-				   PlacementTarget="{Binding ElementName=ZoomButton}">
-				<Border Grid.Row="0"
-						Grid.Column="1"
-						Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
-						Width="286"
-						Height="40"
-						CornerRadius="10">
-					<Grid VerticalAlignment="Center">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition />
-							<ColumnDefinition Width="auto" />
-						</Grid.ColumnDefinitions>
+				<Popup x:Name="ZoomingPopup"
+					   IsOpen="{Binding IsChecked, ElementName=ZoomButton}"
+					   AllowsTransparency="True"
+					   Placement="Right"
+					   HorizontalOffset="12"
+					   VerticalOffset="-5"
+					   PlacementTarget="{Binding ElementName=ZoomButton}">
+					<Border Grid.Row="0"
+							Grid.Column="1"
+							BorderThickness="3"
+							BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
+							Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
+							Width="286"
+							Height="40"
+							CornerRadius="10">
+						<Grid VerticalAlignment="Center">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition />
+								<ColumnDefinition Width="auto" />
+							</Grid.ColumnDefinitions>
 
-						<Slider x:Name="ViewBoxDeltaSlider"
-								Margin="5,0,0,0"
-								Maximum="2"
-								Value="{Binding ElementName=BitmapViewerContainerInternal, Path=ViewBoxZoomDelta}"
-								IsSnapToTickEnabled="True"
-								TickFrequency="0.01" />
-						<TextBlock Grid.Column="1"
-								   MaxWidth="40"
-								   Margin="0,0,5,0"
-								   VerticalAlignment="Center"
-								   FontWeight="Bold"
-								   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
-								   HorizontalAlignment="Center"
-								   Text="{Binding ElementName=ViewBoxDeltaSlider, Path=Value, StringFormat=N2}" />
-					</Grid>
-				</Border>
-			</Popup>
+							<Slider x:Name="ViewBoxDeltaSlider"
+									Margin="5,0,0,0"
+									Maximum="2"
+									Value="{Binding ElementName=BitmapViewerContainerInternal, Path=ViewBoxZoomDelta}"
+									IsSnapToTickEnabled="True"
+									TickFrequency="0.01" />
+							<TextBlock Grid.Column="1"
+									   MaxWidth="40"
+									   Margin="0,0,5,0"
+									   VerticalAlignment="Center"
+									   FontWeight="Bold"
+									   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel0}}"
+									   HorizontalAlignment="Center"
+									   Text="{Binding ElementName=ViewBoxDeltaSlider, Path=Value, StringFormat=N2}" />
+						</Grid>
+					</Border>
+				</Popup>
 
 
-		</StackPanel>
+			</StackPanel>
+		</Border>
 
 	</Grid>
 
