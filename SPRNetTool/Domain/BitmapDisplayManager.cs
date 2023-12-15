@@ -457,24 +457,15 @@ namespace SPRNetTool.Domain
 
         private BitmapSource? OpenSprFile(string filePath)
         {
-            try
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
-                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                if (SprWorkManager.InitWorkManagerFromSprFile(fs))
                 {
-                    if (SprWorkManager.InitWorkManagerFromSprFile(fs))
-                    {
-                        return CreateBitmapSourceFromDecodedFrameData(0, out _);
-                    }
-
-                    return null;
-
+                    return CreateBitmapSourceFromDecodedFrameData(0, out _);
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi: " + ex.Message);
-                return null;
-            }
+            return null;
+
         }
 
         private async Task PlayAnimation()

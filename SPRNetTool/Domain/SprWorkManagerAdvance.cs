@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace SPRNetTool.Domain
 {
-    class SprWorkManagerAdvance : SprWorkManagerCore, ISprWorkManagerAdvance
+    public class SprWorkManagerAdvance : SprWorkManagerCore, ISprWorkManagerAdvance
     {
         private Logger logger = new Logger("SprWorkManagerAdvance");
         private Logger pf_logger = new Logger("SprWorkManagerAdvance_PF");
@@ -102,7 +102,6 @@ namespace SPRNetTool.Domain
                 frameOffY = 0,
                 isInsertedFrame = true
             };
-            frameData.originDecodedFrameData = pixelData;
             frameData.originDecodedBGRAData = bgraBytesData;
             frameData.modifiedFrameRGBACache.SetCopiedPaletteData(paletteData);
             frameData.modifiedFrameRGBACache.PaletteIndexToPixelIndexMap = paletteColorIndexToPixelIndexMap;
@@ -272,9 +271,11 @@ namespace SPRNetTool.Domain
                         if (FrameData[index].modifiedFrameRGBACache.PaletteIndexToPixelIndexMap?.ContainsKey(paletteIndex) == true)
                         {
                             var pixelIndexMap = FrameData[index].modifiedFrameRGBACache.PaletteIndexToPixelIndexMap?[paletteIndex] ?? throw new Exception("Missing pixel map");
-                            var oldColor = FrameData[index]
-                                .modifiedFrameRGBACache
-                                .modifiedFrameData[pixelIndexMap[0]];
+                            var oldColor = new PaletteColor(
+                                blue: FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndexMap[0] * 4],
+                                green: FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndexMap[0] * 4 + 1],
+                                red: FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndexMap[0] * 4 + 2],
+                                alpha: FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndexMap[0] * 4 + 3]);
 
                             pixelIndexMap.FoEach(pixelIndex =>
                             {
@@ -282,9 +283,6 @@ namespace SPRNetTool.Domain
                                 FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4 + 1] = newColor.Green;
                                 FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4 + 2] = newColor.Red;
 
-                                FrameData[index].modifiedFrameRGBACache.modifiedFrameData[pixelIndex].Blue = newColor.Blue;
-                                FrameData[index].modifiedFrameRGBACache.modifiedFrameData[pixelIndex].Green = newColor.Green;
-                                FrameData[index].modifiedFrameRGBACache.modifiedFrameData[pixelIndex].Red = newColor.Red;
                                 // Do not change alpha 
                                 //FrameData[index].modifiedFrameRGBACache.modifiedBGRAData[pixelIndex * 4 + 3] = newColor.Alpha;
                             });

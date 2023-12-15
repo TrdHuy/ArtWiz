@@ -108,8 +108,6 @@ namespace SPRNetTool.Domain.Base
                     byte[][] allFramesData = new byte[FileHead.modifiedSprFileHeadCache.FrameCounts][];
                     for (int i = 0; i < FileHead.modifiedSprFileHeadCache.FrameCounts; i++)
                     {
-                        // TODO: cần kiểm tra có frame nào đã thay đổi kích thước hoặc offset hay
-                        // không
                         allFramesData[i] = GetByteArrayFromEncryptedFrameData(i,
                             isModifiedData,
                             isRecalculatePaletteColorSuccess,
@@ -135,7 +133,7 @@ namespace SPRNetTool.Domain.Base
         #region public standalone API
         public void SaveBitmapSourceToSprFile(BitmapSource bitmapSource, string filePath)
         {
-            var palettePixelArray = this.ConvertBitmapSourceToPaletteColorArray(bitmapSource);
+            var pixelArray = this.ConvertBitmapSourceToByteArray(bitmapSource);
             this.CountColors(
                  bitmapSource
                  , out long argbCount
@@ -157,7 +155,7 @@ namespace SPRNetTool.Domain.Base
             var paletteColorArray = rgbSrc.Select(it =>
                 new PaletteColor(it.B, it.G, it.R, it.A)).ToArray();
 
-            var encryptedFrameData = EncryptFrameData(palettePixelArray,
+            var encryptedFrameData = EncryptFrameData(pixelArray,
                 paletteColorArray,
                 frameWidth: (ushort)bitmapSource.PixelWidth,
                 frameHeight: (ushort)bitmapSource.PixelHeight,
@@ -201,7 +199,7 @@ namespace SPRNetTool.Domain.Base
         protected void InitPaletteDataFromFileStream(FileStream fs, US_SprFileHead fileHead);
         protected void InitFrameData(FileStream fs);
 
-        protected byte[]? EncryptFrameData(PaletteColor[] pixelArray, PaletteColor[] paletteData
+        protected byte[]? EncryptFrameData(byte[] pixelArray, PaletteColor[] paletteData
                    , ushort frameWidth, ushort frameHeight, ushort frameOffX, ushort frameOffY);
 
         protected byte[]? EncryptedSprFile(List<byte[]> encryptedFrameData,
