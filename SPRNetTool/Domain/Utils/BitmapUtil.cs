@@ -379,6 +379,49 @@ namespace SPRNetTool.Domain.Utils
             return argbSrc;
         }
 
+        public static Dictionary<Color, long> CountBGRAColors(this IDomainAdapter adapter, byte[] pixelArray,
+            out long argbCount,
+            out long rgbCount,
+            out Dictionary<Color, long> argbSrc,
+            out Dictionary<Color, long> rgbSrc)
+        {
+            Dictionary<Color, long> aRGBColorSet = new Dictionary<Color, long>();
+            Dictionary<Color, long> rGBColorSet = new Dictionary<Color, long>();
+
+            for (int i = 0; i < pixelArray.Length; i += 4)
+            {
+                byte blue = pixelArray[i];
+                byte green = pixelArray[i + 1];
+                byte red = pixelArray[i + 2];
+                byte alpha = pixelArray[i + 3];
+
+                Color colorARGB = Color.FromArgb(alpha, red, green, blue);
+                if (!aRGBColorSet.ContainsKey(colorARGB))
+                {
+                    aRGBColorSet[colorARGB] = 1;
+                }
+                else
+                {
+                    aRGBColorSet[colorARGB]++;
+                }
+
+                Color colorRGB = Color.FromRgb(red, green, blue);
+                if (!rGBColorSet.ContainsKey(colorRGB))
+                {
+                    rGBColorSet[colorRGB] = 1;
+                }
+                else
+                {
+                    rGBColorSet[colorRGB]++;
+                }
+            }
+            argbCount = aRGBColorSet.Count;
+            rgbCount = rGBColorSet.Count;
+            argbSrc = aRGBColorSet;
+            rgbSrc = rGBColorSet;
+            return argbSrc;
+        }
+
         public static Dictionary<Color, long> CountColors(this IDomainAdapter adapter, PaletteColor[] pixelArray,
             out long argbCount,
             out long rgbCount,
