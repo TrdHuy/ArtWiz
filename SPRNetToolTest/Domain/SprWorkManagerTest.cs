@@ -1,24 +1,27 @@
-﻿using SPRNetTool.Data;
+﻿using WizMachine.Data;
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using SPRNetToolTest.Utils;
+using WizMachine;
+using Moq;
 
 namespace SPRNetToolTest.Domain
 {
     internal class SprWorkManagerTest
     {
-        private class SprWorkManagerTestObject : SprWorkManagerAdvance
+        private class SprWorkManagerTestObject : SprWorkManager, ISprWorkManager
         {
-            public long GetFrameDataBegPosCache()
-            {
-                return FrameDataBegPos;
-            }
 
             public FrameRGBA[]? GetFrameDataCache()
             {
-                return FrameData;
+                FrameRGBA[] cache = new FrameRGBA[sprWorkManagerService.FileHead.FrameCounts];
+                for (int i = 0; i < sprWorkManagerService.FileHead.FrameCounts; i++)
+                {
+                    cache[i] = sprWorkManagerService.GetFrameData((uint)i) ?? throw new Exception();
+                }
+                return cache;
             }
         }
 
@@ -34,15 +37,22 @@ namespace SPRNetToolTest.Domain
         private string _3binFilePath = "Resources\\3.bin";
         private string _4binFilePath = "Resources\\4.bin";
         private string _5binFilePath = "Resources\\5.bin";
-        private ISprWorkManagerAdvance sprWorkManager;
         private SprWorkManagerTestObject sprWorkManagerTestObject;
+        private ISprWorkManager sprWorkManager;
+
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            var mockStreamWriter = new Mock<StreamWriter>("output.txt").Object ?? throw new Exception();
+            EngineKeeper.Init(mockStreamWriter);
+        }
 
 
         [SetUp]
         public void Setup()
         {
-            sprWorkManager = new SprWorkManagerTestObject();
-            sprWorkManagerTestObject = (SprWorkManagerTestObject)sprWorkManager;
+            sprWorkManagerTestObject = new SprWorkManagerTestObject();
+            sprWorkManager = (ISprWorkManager)sprWorkManagerTestObject;
         }
 
         [TearDown]
@@ -64,7 +74,7 @@ namespace SPRNetToolTest.Domain
                 Assert.That(frameRGBAs[0].modifiedFrameRGBACache.frameHeight == 300);
                 // Change frameSize 
                 frameRGBAs[0].modifiedFrameRGBACache.frameWidth = 319;
-                frameRGBAs[0].modifiedFrameRGBACache.frameHeight = 319;
+                frameRGBAs[0]!.modifiedFrameRGBACache.frameHeight = 319;
 
                 sprWorkManager.SaveCurrentWorkToSpr("Resources\\test_SaveCurrentWorkToSpr.spr", true);
             }

@@ -1,4 +1,4 @@
-﻿using SPRNetTool.Data;
+﻿using WizMachine.Data;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using System;

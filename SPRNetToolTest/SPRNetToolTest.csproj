@@ -7,6 +7,8 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+	<PlatformTarget>x64</PlatformTarget>
+
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
+	<ContentWithTargetPath Include="..\libs\engine.dll">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<TargetPath>engine.dll</TargetPath>
+	</ContentWithTargetPath>
     <Content Include="Resources\1.bin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -81,6 +87,12 @@
     <Content Include="Resources\test.spr">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="wengine">
+      <HintPath>..\libs\wengine.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

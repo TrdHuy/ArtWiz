@@ -1,5 +1,5 @@
 ﻿using Moq;
-using SPRNetTool.Data;
+using WizMachine.Data;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 using static SPRNetTool.Utils.BitmapUtil;
+using System.Windows;
 
 namespace SPRNetToolTest.Utils
 {
@@ -29,6 +30,12 @@ namespace SPRNetToolTest.Utils
             NUM2 = 0b00000010,
             NUM3 = 0b00000100,
             NUM4 = 0b00001000,
+        }
+
+        [Test]
+        public void MyTest()
+        {
+            double sizeForWpf = (double)new FontSizeConverter().ConvertFrom("10pt");
         }
 
         [Test]
