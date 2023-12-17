@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using SPRNetTool.LogUtil;
+using System.Windows;
+using WizMachine;
 
 namespace SPRNetTool
 {
@@ -7,5 +9,10 @@ namespace SPRNetTool
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            EngineKeeper.Init(Logger.LogWriter);
+        }
     }
 }

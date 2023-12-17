@@ -1,4 +1,4 @@
-﻿using SPRNetTool.Data;
+﻿using WizMachine.Data;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.LogUtil;
@@ -20,16 +20,16 @@ namespace SPRNetTool.Domain
     public class BitmapDisplayManager : BaseDomain, IBitmapDisplayManager
     {
         private static Logger logger = new Logger("BitmapDisplayManager");
-        private ISprWorkManagerAdvance? sprWorkManagerInstance;
-        protected ISprWorkManagerAdvance SprWorkManager
+        private ISprWorkManager? sprWorkManager;
+        protected ISprWorkManager SprWorkManager
         {
             get
             {
-                return sprWorkManagerInstance ??
+                return sprWorkManager ??
                     IDomainAccessors
                     .DomainContext
-                    .GetDomain<ISprWorkManagerAdvance>()
-                    .Also(it => sprWorkManagerInstance = it);
+                    .GetDomain<ISprWorkManager>()
+                    .Also(it => sprWorkManager = it);
             }
         }
 
@@ -457,15 +457,11 @@ namespace SPRNetTool.Domain
 
         private BitmapSource? OpenSprFile(string filePath)
         {
-            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            if (SprWorkManager.InitWorkManagerFromSprFile(filePath))
             {
-                if (SprWorkManager.InitWorkManagerFromSprFile(fs))
-                {
-                    return CreateBitmapSourceFromDecodedFrameData(0, out _);
-                }
+                return CreateBitmapSourceFromDecodedFrameData(0, out _);
             }
             return null;
-
         }
 
         private async Task PlayAnimation()

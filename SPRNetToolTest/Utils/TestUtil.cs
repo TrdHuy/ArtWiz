@@ -1,4 +1,4 @@
-﻿using SPRNetTool.Data;
+﻿using WizMachine.Data;
 using System.Runtime.InteropServices;
 
 namespace SPRNetToolTest.Utils

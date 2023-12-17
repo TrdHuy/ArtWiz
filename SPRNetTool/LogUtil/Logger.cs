@@ -10,7 +10,7 @@ namespace SPRNetTool.LogUtil
     {
         private const string LOG_FOLDER = "temp\\logs";
         private const string PROJECT_TAG = "ArtWiz";
-        private static StreamWriter _logWriter;
+        public static StreamWriter LogWriter;
         private static FileStream _logFs;
         private string classTag;
 
@@ -30,7 +30,7 @@ namespace SPRNetTool.LogUtil
             var filePath = LOG_FOLDER + @"\" + logFileName;
 
             _logFs = new FileStream(filePath, FileMode.Append, FileAccess.Write);
-            _logWriter = new StreamWriter(_logFs);
+            LogWriter = new StreamWriter(_logFs);
 
             AppDomain.CurrentDomain.ProcessExit -= CurrentDomain_ProcessExit;
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
@@ -47,19 +47,19 @@ namespace SPRNetTool.LogUtil
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var exception = e.ExceptionObject as Exception;
-            _logWriter.WriteLine($"Unhandled Exception: {exception?.Message ?? ""}");
-            _logWriter.WriteLine($"StackTrace: {exception?.StackTrace ?? ""}");
-            _logWriter.WriteLine($"Occurred at: {DateTime.Now}");
-            _logWriter.Close();
-            _logWriter.Dispose();
+            LogWriter.WriteLine($"Unhandled Exception: {exception?.Message ?? ""}");
+            LogWriter.WriteLine($"StackTrace: {exception?.StackTrace ?? ""}");
+            LogWriter.WriteLine($"Occurred at: {DateTime.Now}");
+            LogWriter.Close();
+            LogWriter.Dispose();
             _logFs.Close();
             _logFs.Dispose();
         }
 
         private static void CurrentDomain_ProcessExit(object? sender, EventArgs e)
         {
-            _logWriter.Close();
-            _logWriter.Dispose();
+            LogWriter.Close();
+            LogWriter.Dispose();
             _logFs.Close();
             _logFs.Dispose();
         }
@@ -70,7 +70,7 @@ namespace SPRNetTool.LogUtil
 #if DEBUG
             var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tD\t{PROJECT_TAG}\t{classTag}\t{caller}\t{message}";
             Debug.WriteLine(log);
-            _logWriter.WriteLine(log);
+            LogWriter.WriteLine(log);
 #endif
         }
 
@@ -78,14 +78,14 @@ namespace SPRNetTool.LogUtil
         {
             var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tI\t{PROJECT_TAG}\t{classTag}\t{caller}\t{message}";
             Debug.WriteLine(log);
-            _logWriter.WriteLine(log);
+            LogWriter.WriteLine(log);
         }
 
         public void E(string message, [CallerMemberName] string caller = "")
         {
             var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tE\t{PROJECT_TAG}\t{classTag}\t{caller}\t{message}";
             Debug.WriteLine(log);
-            _logWriter.WriteLine(log);
+            LogWriter.WriteLine(log);
         }
 
 
@@ -96,7 +96,7 @@ namespace SPRNetTool.LogUtil
 #if DEBUG
                 var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tD\t{PROJECT_TAG}\t{caller}\t{message}";
                 Debug.WriteLine(log);
-                _logWriter.WriteLine(log);
+                LogWriter.WriteLine(log);
 #endif
             }
 
@@ -104,14 +104,14 @@ namespace SPRNetTool.LogUtil
             {
                 var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tI\t{PROJECT_TAG}\t{caller}\t{message}";
                 Debug.WriteLine(log);
-                _logWriter.WriteLine(log);
+                LogWriter.WriteLine(log);
             }
 
             public static void E(string message, [CallerMemberName] string caller = "")
             {
                 var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tE\t{PROJECT_TAG}\t{caller}\t{message}";
                 Debug.WriteLine(log);
-                _logWriter.WriteLine(log);
+                LogWriter.WriteLine(log);
             }
         }
     }

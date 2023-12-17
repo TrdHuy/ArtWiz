@@ -1,4 +1,4 @@
-﻿using SPRNetTool.Data;
+﻿using WizMachine.Data;
 using SPRNetTool.ViewModel.Base;
 
 namespace SPRNetTool.ViewModel.Widgets

@@ -18,10 +18,10 @@ namespace SPRNetToolTest.Domain
                 .GetCustomAttributes(true)
                 .Any(it => it is NeedToOpenSprFileAttribute) ?? false;
 
-            if (isNeedToOpenSprFile)
-            {
-                bitmapDisplayManager.OpenBitmapFromFile(sprFilePath);
-            }
+            //if (isNeedToOpenSprFile)
+            //{
+            //    bitmapDisplayManager.OpenBitmapFromFile(sprFilePath);
+            //}
 
         }
 
