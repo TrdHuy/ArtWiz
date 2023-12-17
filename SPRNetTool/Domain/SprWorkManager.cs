@@ -1,4 +1,5 @@
 ﻿using SPRNetTool.Domain.Base;
+using WizMachine;
 
 namespace SPRNetTool.Domain
 {
@@ -11,7 +12,7 @@ namespace SPRNetTool.Domain
 
         public SprWorkManager()
         {
-            sprWorkManagerService = new WizMachine.Services.Impl.SprWorkManagerAdvance();
+            sprWorkManagerService = EngineKeeper.GetSprWorkManagerService();
         }
     }
 }
