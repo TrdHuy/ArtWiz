@@ -32,7 +32,10 @@ namespace SPRNetTool
         public static ResourceKey ForegroundEffectLevel2 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundEffectLevel2_OP1 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundEffectLevel2_OP2 { get; } = CreateResourceKey();
-
+        public static ResourceKey MenuItemBackground { get; } = CreateResourceKey();
+        public static ResourceKey MenuItemBorderBrush { get; } = CreateResourceKey();
+        public static ResourceKey MouseOverMenuItemBackgroundBrush { get; } = CreateResourceKey();
+        
         public static ResourceKey FitToScreenIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey UnFitToScreenIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey GlobalUnTransparentBackgroundIconGeometry { get; } = CreateResourceKey();
@@ -50,7 +53,8 @@ namespace SPRNetTool
         public static ResourceKey SaveFileGeometry { get; } = CreateResourceKey();
         public static ResourceKey DropDownIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey FileImportIconGeometry { get; } = CreateResourceKey();
-
+        public static ResourceKey DeveloperModeIconGeometry { get; } = CreateResourceKey();
+        public static ResourceKey SprWorkSpaceIconGeometry { get; } = CreateResourceKey();
 
         public static Definitions? Instance;
 
