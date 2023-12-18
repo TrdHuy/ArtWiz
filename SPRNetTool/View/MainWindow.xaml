@@ -10,8 +10,7 @@
 					   xmlns:def="clr-namespace:SPRNetTool"
 					   mc:Ignorable="d"
 					   FontFamily="Calibri"
-					   Title="MainWindow"
-					   Height="800"
+					   Height="765"
 					   d:DesignWidth="1280">
 
 	<Window.Resources>
@@ -25,7 +24,7 @@
 			<Setter Property="BorderThickness"
 					Value="1" />
 			<Setter Property="Margin"
-					Value="0,4" />
+					Value="0,0" />
 			<Setter Property="Padding"
 					Value="10,0" />
 
@@ -432,7 +431,6 @@
 				</Trigger>-->
 			</ControlTemplate.Triggers>
 		</ControlTemplate>
-
 	</Window.Resources>
 	<Grid Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}">
 		<Grid.RowDefinitions>
@@ -441,7 +439,7 @@
 		</Grid.RowDefinitions>
 		<Menu x:Name="MainMenu"
 			  Background="{StaticResource ResourceKey={x:Static def:Definitions.MenuItemBackground}}"
-			  Height="35"
+			  Height="27"
 			  Panel.ZIndex="1"
 			  Padding="5,0,0,0"
 			  VerticalContentAlignment="Center">
@@ -471,7 +469,7 @@
 				</MenuItem>
 			</MenuItem>
 			<MenuItem Header="About"
-					  Margin="-15,4"
+					  Margin="-15,0"
 					  Style="{StaticResource menuParentStyle}"
 					  ItemContainerStyle="{DynamicResource MenuItemStyle1}"
 					  Template="{DynamicResource MenuItemControlTemplate2}" />
@@ -479,8 +477,7 @@
 
 		<ScrollViewer Grid.Row="1"
 					  VerticalScrollBarVisibility="Auto">
-			<ContentPresenter x:Name="PageContentPresenter"
-							  Margin="0,10,0,0" />
+			<ContentPresenter x:Name="PageContentPresenter" />
 		</ScrollViewer>
 
 		<Border x:Name="DisableLayer"

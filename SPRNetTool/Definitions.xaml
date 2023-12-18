@@ -110,6 +110,20 @@
 	<Geometry x:Key="{x:Static local:Definitions.SprWorkSpaceIconGeometry}">
 		m 97.759789,-541.98656 c -0.922238,-0.37779 -1.173616,-1.54605 -0.500796,-2.32742 0.409915,-0.47605 0.409915,-0.47605 3.400077,-0.5294 1.64459,-0.0294 2.99016,-0.0888 2.99016,-0.13209 0,-0.0433 -0.49726,-2.05951 -1.10502,-4.48045 -0.60777,-2.42094 -1.10503,-4.57073 -1.10503,-4.77731 0,-0.25924 0.89934,-1.27849 2.90301,-3.29008 2.90302,-2.91449 2.90302,-2.91449 2.36777,-3.67235 -1.33589,-1.89151 -0.49304,-4.36287 1.6641,-4.87934 1.36647,-0.32716 2.03031,-0.0524 3.67033,1.51894 l 1.39494,1.33656 3.4502,0.0526 c 3.45019,0.0526 3.45019,0.0526 3.86015,0.52868 0.24707,0.2869 0.40995,0.69012 0.40995,1.01485 0,0.48018 -0.55334,1.09106 -5.08504,5.61383 -4.99987,4.99001 -5.09455,5.07319 -5.65263,4.96614 -0.31217,-0.0599 -0.73971,-0.30409 -0.95009,-0.54268 -0.36545,-0.41447 -0.38251,-0.56585 -0.38251,-3.39356 0,-1.62786 -0.0585,-2.95974 -0.12996,-2.95974 -0.0715,0 -1.11027,0.98056 -2.30844,2.17903 l -2.17849,2.17903 1.08893,4.3108 1.08894,4.31079 3.78463,0.0848 c 3.78464,0.0848 3.78464,0.0848 4.19458,0.56088 0.52397,0.60847 0.52388,1.32398 -1.7e-4,1.93227 -0.41019,0.47605 -0.41019,0.47605 -8.45769,0.51022 -4.42613,0.0188 -8.211451,-0.033 -8.411826,-0.11507 z m 18.667861,-10.88076 c -0.73688,-0.37096 -0.73688,-0.37096 0.84666,-1.95799 0.87096,-0.87286 1.63372,-1.58702 1.69504,-1.58702 0.20015,0 0.66026,1.14224 0.65961,1.63749 -8.5e-4,0.58435 -0.51637,1.47179 -1.06266,1.82903 -0.69723,0.45594 -1.34187,0.4796 -2.13865,0.0785 z
 	</Geometry>
+
+	<Geometry x:Key="MinimizeButton">
+		M 335.49414 311.73828 L 335.49414 323.13867 L 425.46484 323.13867 L 425.46484 311.73828 L 335.49414 311.73828 z
+	</Geometry>
+	<Geometry x:Key="MaximizeButton">
+		M 91.305676,113.22577 V 129.0383 H 107.1182 v -15.81253 z m 0.932541,0.81706 h 13.947443 v 12.67039 H 92.238217 Z
+	</Geometry>
+	<Geometry x:Key="CloseButton">
+		m 75.809197,16.628119 -7.349991,7.34999 -7.349885,-7.349885 -2.132578,2.132581 7.349882,7.349882 -7.349991,7.34999 2.132581,2.132581 7.349991,-7.349991 7.349991,7.349991 2.132578,-2.132578 -7.349988,-7.349991 7.349991,-7.349992 z
+	</Geometry>
+	<Geometry x:Key="SmallmizeButton">
+		m 99.030774,118.24771 v 2.7772 h -1.916687 v 12.55053 h 12.550543 v -2.77678 h 1.91668 v -12.55095 z m 0.739933,0.64846 h 11.070263 v 10.05676 h -1.17634 v -7.92802 h -9.893923 z m -1.916278,2.7772 H 108.9247 v 10.05676 H 97.854429 Z
+	</Geometry>
+	
 	<!--TODO: Optimize this view-->
 	<Style TargetType="{x:Type ScrollViewer}">
 		<Setter Property="Template">
@@ -498,4 +512,445 @@
 			</EventTrigger>
 		</Style.Triggers>
 	</Style>
+
+	<Style TargetType="{x:Type Window}"
+		   x:Key="{x:Static local:Definitions.ArtWizDefaultWindowStyle}">
+		<Setter Property="AllowsTransparency"
+				Value="True" />
+		<Setter Property="Background"
+				Value="Transparent" />
+		<Setter Property="WindowStyle"
+				Value="None" />
+		<Setter Property="ResizeMode"
+				Value="CanResizeWithGrip" />
+
+		<Setter Property="WindowChrome.WindowChrome">
+			<Setter.Value>
+				<WindowChrome CaptionHeight="40" />
+			</Setter.Value>
+		</Setter>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type Window}">
+					<ControlTemplate.Resources>
+
+						<!--Window control button-->
+						<Style x:Key="WindowControlButton"
+							   TargetType="{x:Type Button}">
+							<Style.Triggers>
+								<Trigger Property="IsMouseOver"
+										 Value="True">
+									<Setter Property="Foreground"
+											Value="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundLevel0}}" />
+								</Trigger>
+							</Style.Triggers>
+							<Setter Property="WindowChrome.IsHitTestVisibleInChrome"
+									Value="True" />
+							<Setter Property="Background"
+									Value="Transparent" />
+							<Setter Property="Height"
+									Value="40" />
+							<Setter Property="Width"
+									Value="40" />
+							<Setter Property="VerticalAlignment"
+									Value="Stretch" />
+							<Setter Property="Foreground"
+									Value="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundLevel1}}" />
+							<Setter Property="Template">
+								<Setter.Value>
+									<ControlTemplate TargetType="{x:Type Button}">
+										<Border Background="{TemplateBinding Background}"
+												Padding="{TemplateBinding Padding}"
+												x:Name="MainBorder">
+											<Path x:Name="ContentPath"
+												  Width="10"
+												  Height="10"
+												  Fill="{TemplateBinding Foreground}"
+												  Data="{Binding Source={StaticResource CloseButton}}"
+												  Stretch="Uniform" />
+										</Border>
+										<ControlTemplate.Triggers>
+											<Trigger Property="IsMouseOver"
+													 Value="True">
+												<Setter Property="Height"
+														TargetName="ContentPath"
+														Value="12" />
+												<Setter Property="Width"
+														TargetName="ContentPath"
+														Value="12" />
+												<Setter Property="Background"
+														TargetName="MainBorder"
+														Value="#4CEB2838" />
+											</Trigger>
+
+										</ControlTemplate.Triggers>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+
+
+						</Style>
+
+						<!--Window Maximize button-->
+						<Style x:Key="WindowMaximizeButton"
+							   BasedOn="{StaticResource WindowControlButton}"
+							   TargetType="{x:Type Button}">
+							<Style.Triggers>
+								<DataTrigger Value="NoResize"
+											 Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=ResizeMode}">
+									<Setter Property="Visibility"
+											Value="Collapsed" />
+								</DataTrigger>
+
+								<DataTrigger Value="CanResize"
+											 Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=ResizeMode}">
+									<Setter Property="Visibility"
+											Value="Visible" />
+								</DataTrigger>
+							</Style.Triggers>
+							<Setter Property="Template">
+								<Setter.Value>
+									<ControlTemplate TargetType="{x:Type Button}">
+										<Border Background="{TemplateBinding Background}"
+												Padding="{TemplateBinding Padding}"
+												x:Name="MainBorder">
+											<Path x:Name="ContentPath"
+												  Width="10"
+												  Height="10"
+												  Fill="{TemplateBinding Foreground}"
+												  Data="{Binding Source={StaticResource MaximizeButton}}"
+												  Stretch="Uniform" />
+										</Border>
+										<ControlTemplate.Triggers>
+											<Trigger Property="IsMouseOver"
+													 Value="True">
+												<Setter Property="Height"
+														TargetName="ContentPath"
+														Value="12" />
+												<Setter Property="Width"
+														TargetName="ContentPath"
+														Value="12" />
+												<Setter Property="Background"
+														TargetName="MainBorder"
+														Value="#4C989898" />
+											</Trigger>
+										</ControlTemplate.Triggers>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+						</Style>
+
+						<!--Window smallmize button-->
+						<Style x:Key="WindowSmallmizeButton"
+							   BasedOn="{StaticResource WindowControlButton}"
+							   TargetType="{x:Type Button}">
+							<Style.Triggers>
+								<DataTrigger Value="NoResize"
+											 Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=ResizeMode}">
+									<Setter Property="Visibility"
+											Value="Collapsed" />
+								</DataTrigger>
+
+								<DataTrigger Value="CanResize"
+											 Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=ResizeMode}">
+									<Setter Property="Visibility"
+											Value="Visible" />
+								</DataTrigger>
+							</Style.Triggers>
+							<Setter Property="Template">
+								<Setter.Value>
+									<ControlTemplate TargetType="{x:Type Button}">
+										<Border Background="{TemplateBinding Background}"
+												Padding="{TemplateBinding Padding}"
+												x:Name="MainBorder">
+											<Path x:Name="ContentPath"
+												  Width="10"
+												  Height="10"
+												  Fill="{TemplateBinding Foreground}"
+												  Data="{Binding Source={StaticResource SmallmizeButton}}"
+												  Stretch="Uniform" />
+										</Border>
+										<ControlTemplate.Triggers>
+											<Trigger Property="IsMouseOver"
+													 Value="True">
+												<Setter Property="Height"
+														TargetName="ContentPath"
+														Value="12" />
+												<Setter Property="Width"
+														TargetName="ContentPath"
+														Value="12" />
+												<Setter Property="Background"
+														TargetName="MainBorder"
+														Value="#4C989898" />
+											</Trigger>
+										</ControlTemplate.Triggers>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+						</Style>
+
+						<!-- Window Minimize Button -->
+						<Style x:Key="WindowMinimizeButton"
+							   BasedOn="{StaticResource WindowControlButton}"
+							   TargetType="{x:Type Button}">
+							<Setter Property="Template">
+								<Setter.Value>
+									<ControlTemplate TargetType="{x:Type Button}">
+										<Border x:Name="MainBorder"
+												Background="{TemplateBinding Background}"
+												Padding="{TemplateBinding Padding}">
+											<Path x:Name="ContentPath"
+												  Width="10"
+												  Height="10"
+												  Fill="{TemplateBinding Foreground}"
+												  Data="{Binding Source={StaticResource MinimizeButton}}"
+												  Stretch="Uniform" />
+										</Border>
+										<ControlTemplate.Triggers>
+											<Trigger Property="IsMouseOver"
+													 Value="True">
+												<Setter Property="Height"
+														TargetName="ContentPath"
+														Value="12" />
+												<Setter Property="Width"
+														TargetName="ContentPath"
+														Value="12" />
+												<Setter Property="Background"
+														TargetName="MainBorder"
+														Value="#4C989898" />
+											</Trigger>
+										</ControlTemplate.Triggers>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+						</Style>
+
+					</ControlTemplate.Resources>
+
+					<Border x:Name="MainBorderContainer"
+							Width="{TemplateBinding Width}"
+							Height="{TemplateBinding Height}"
+							Background="Transparent">
+
+						<Border.LayoutTransform>
+							<ScaleTransform x:Name="MainBorderCtn_ScaleTransform"
+											ScaleX="1"
+											ScaleY="1" />
+						</Border.LayoutTransform>
+
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition x:Name="LeftShadowColumnDef"
+												  Width="5" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition x:Name="RightShadowColumnDef"
+												  Width="5" />
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="*" />
+								<RowDefinition x:Name="BotShadowRowDef"
+											   Height="5" />
+							</Grid.RowDefinitions>
+
+							<!--Content and title bar field-->
+							<Grid x:Name="ContentAndTitleGrid"
+								  Background="{TemplateBinding Background}"
+								  Grid.Column="1">
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="*" />
+								</Grid.RowDefinitions>
+
+								<!--Title bar-->
+								<Grid x:Name="TitleBartGrid"
+									  Grid.Row="0"
+									  Height="40"
+									  Background="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel10}}"
+									  VerticalAlignment="Stretch"
+									  WindowChrome.IsHitTestVisibleInChrome="False">
+
+									<Grid.ColumnDefinitions>
+										<!--Title-->
+										<ColumnDefinition Width="*" />
+										<!--Windows Button-->
+										<ColumnDefinition Width="Auto" />
+
+									</Grid.ColumnDefinitions>
+
+									<!--Title-->
+									<Viewbox x:Name="TitleViewBox"
+											 Grid.Column="0"
+											 HorizontalAlignment="Left"
+											 Grid.ColumnSpan="3"
+											 Margin="20,8,8,8">
+										<TextBlock x:Name="SubContentTitleText"
+												   FontWeight="Bold"
+												   FontFamily="Calibri"
+												   Text="{TemplateBinding Title}"
+												   TextAlignment="Center" />
+									</Viewbox>
+
+									<!--Window Buttons-->
+									<StackPanel x:Name="WindowControlPanel"
+												Grid.Column="1"
+												Orientation="Horizontal">
+
+										<Button x:Name="MinimizeButton"
+												Margin="0,1"
+												Background="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel2}}"
+												Style="{StaticResource WindowMinimizeButton}" />
+										<Button x:Name="SmallmizeButton"
+												Margin="1,1"
+												Background="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel2}}"
+												Style="{StaticResource WindowSmallmizeButton}" />
+										<Button x:Name="MaximizeButton"
+												Margin="1,1"
+												Background="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel2}}"
+												Style="{StaticResource WindowMaximizeButton}" />
+										<Button x:Name="CloseButton"
+												Margin="0,1"
+												Background="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel2}}"
+												Style="{StaticResource WindowControlButton}" />
+									</StackPanel>
+
+								</Grid>
+
+								<!--Content field-->
+								<ContentPresenter x:Name="DWContentPresenter"
+												  Grid.Row="1"
+												  Margin="{TemplateBinding Padding}"
+												  Content="{TemplateBinding Content}"
+												  Visibility="Visible">
+								</ContentPresenter>
+							</Grid>
+
+							<!--Shadow effect-->
+							<!--Must use radient due to performance issue-->
+							<!--link: https://www.telerik.com/forums/extremely-slow-when-having-dropshadow-->
+							<Rectangle Grid.Column="0"
+									   Grid.RowSpan="1">
+								<Rectangle.Fill>
+									<LinearGradientBrush EndPoint="0.5,1"
+														 StartPoint="0.5,0">
+										<LinearGradientBrush.RelativeTransform>
+											<TransformGroup>
+												<ScaleTransform CenterY="0.5"
+																CenterX="0.5" />
+												<SkewTransform CenterX="0.5"
+															   CenterY="0.5" />
+												<RotateTransform Angle="90"
+																 CenterX="0.5"
+																 CenterY="0.5" />
+												<TranslateTransform />
+											</TransformGroup>
+										</LinearGradientBrush.RelativeTransform>
+										<GradientStop Color="#25000000" />
+										<GradientStop Color="#00000000"
+													  Offset="1" />
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+							<Rectangle Grid.Column="1"
+									   Grid.Row="1"
+									   Grid.ColumnSpan="1">
+								<Rectangle.Fill>
+									<LinearGradientBrush EndPoint="0.5,1"
+														 StartPoint="0.5,0">
+										<GradientStop Color="#25000000" />
+										<GradientStop Color="#00000000"
+													  Offset="1" />
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+							<Rectangle Grid.Column="2"
+									   Grid.RowSpan="1">
+								<Rectangle.Fill>
+									<LinearGradientBrush EndPoint="0.5,1"
+														 StartPoint="0.5,0">
+										<LinearGradientBrush.RelativeTransform>
+											<TransformGroup>
+												<ScaleTransform CenterY="0.5"
+																CenterX="0.5" />
+												<SkewTransform CenterX="0.5"
+															   CenterY="0.5" />
+												<RotateTransform Angle="-90"
+																 CenterX="0.5"
+																 CenterY="0.5" />
+												<TranslateTransform />
+											</TransformGroup>
+										</LinearGradientBrush.RelativeTransform>
+										<GradientStop Color="#25000000" />
+										<GradientStop Color="#00000000"
+													  Offset="1" />
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+							<Rectangle Grid.Row="1">
+								<Rectangle.Fill>
+									<LinearGradientBrush EndPoint="0.5,1"
+														 StartPoint="0.5,0">
+										<LinearGradientBrush.RelativeTransform>
+											<TransformGroup>
+												<ScaleTransform CenterY="0.5"
+																CenterX="0.5" />
+												<SkewTransform CenterX="0.5"
+															   CenterY="0.5" />
+												<RotateTransform Angle="45"
+																 CenterX="0.5"
+																 CenterY="0.5" />
+												<TranslateTransform />
+											</TransformGroup>
+										</LinearGradientBrush.RelativeTransform>
+										<GradientStop Color="#19000000" />
+										<GradientStop Color="#00000000"
+													  Offset="1" />
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+							<Rectangle Grid.Row="1"
+									   Grid.Column="2">
+								<Rectangle.Fill>
+									<LinearGradientBrush EndPoint="0.5,1"
+														 StartPoint="0.5,0">
+										<LinearGradientBrush.RelativeTransform>
+											<TransformGroup>
+												<ScaleTransform CenterY="0.5"
+																CenterX="0.5" />
+												<SkewTransform CenterX="0.5"
+															   CenterY="0.5" />
+												<RotateTransform Angle="-45"
+																 CenterX="0.5"
+																 CenterY="0.5" />
+												<TranslateTransform />
+											</TransformGroup>
+										</LinearGradientBrush.RelativeTransform>
+										<GradientStop Color="#19000000" />
+										<GradientStop Color="#00000000"
+													  Offset="1" />
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+						</Grid>
+
+					</Border>
+					<ControlTemplate.Triggers>
+						<Trigger Property="WindowState"
+								 Value="Maximized">
+							<Setter TargetName="MaximizeButton"
+									Property="Visibility"
+									Value="Collapsed" />
+						</Trigger>
+
+						<Trigger Property="WindowState"
+								 Value="Normal">
+							<Setter TargetName="SmallmizeButton"
+									Property="Visibility"
+									Value="Collapsed" />
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
 </ResourceDictionary>
