@@ -24,6 +24,7 @@
     <None Remove="Resources\bg2.jpg" />
     <None Remove="Resources\cuukiem.spr" />
     <None Remove="Resources\Font Awesome 6 Free-Solid-900.otf" />
+    <None Remove="Resources\logo_500.png" />
     <None Remove="Resources\spr_global_background.png" />
     <None Remove="Resources\spr_viewer_background.png" />
   </ItemGroup>
@@ -57,6 +58,9 @@
     <Reference Include="wengine">
       <HintPath>..\libs\wengine.dll</HintPath>
     </Reference>
+    <Resource Include="Resources\logo_500.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\spr_viewer_background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

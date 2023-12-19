@@ -136,6 +136,15 @@
 
 		<Grid Grid.Row="1"
 			  Grid.Column="3">
+			<Image Stretch="Uniform"
+				   Width="270"
+				   Source="/SPRNetTool;component/resources/logo_500.png">
+			</Image>
+		</Grid>
+		<Grid Grid.Row="1"
+			  Grid.Column="3">
+
+
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="15" />
@@ -216,6 +225,7 @@
 								  PreviewColorItemChange="PaletteEditorPreviewColorItemChange"
 								  x:Name="mPaletteEditor" />
 			</wg:CollapsibleControl>
+
 		</Grid>
 
 	</Grid>
