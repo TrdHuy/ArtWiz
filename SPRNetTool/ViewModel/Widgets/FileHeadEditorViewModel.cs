@@ -150,6 +150,12 @@ namespace SPRNetTool.ViewModel.Widgets
                         {
                             CurrentFrameData = castArgs.SprFrameData?.modifiedFrameRGBACache?.toFrameRGBA() ?? new FrameRGBA();
                         }
+
+                        if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED) && !IsSpr)
+                        {
+                            PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
+                            PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
+                        }
                     }
                     break;
             }
