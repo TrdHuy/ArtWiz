@@ -1,5 +1,4 @@
 ﻿using Moq;
-using WizMachine.Data;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
@@ -7,9 +6,10 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.Windows.Media;
-using static SPRNetTool.Utils.BitmapUtil;
 using System.Windows;
+using System.Windows.Media;
+using WizMachine.Data;
+using static SPRNetTool.Utils.BitmapUtil;
 
 namespace SPRNetToolTest.Utils
 {

@@ -1,10 +1,10 @@
-﻿using WizMachine.Data;
-using SPRNetTool.Domain;
+﻿using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
 using System.ComponentModel;
 using System.Windows.Threading;
+using WizMachine.Data;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
 
 namespace SPRNetTool.ViewModel.Widgets

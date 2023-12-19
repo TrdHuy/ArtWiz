@@ -13,9 +13,6 @@
 					   FontFamily="Calibri"
 					   Height="765"
 					   d:DesignWidth="1280">
-	<Window.DataContext>
-		<vm:MainWindowViewModel />
-	</Window.DataContext>
 	<Window.Resources>
 		<cvt:FormulaConverter x:Key="FormulaConverter" />
 	</Window.Resources>

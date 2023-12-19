@@ -1,7 +1,7 @@
-﻿using WizMachine.Data;
-using SPRNetTool.Domain.Base;
+﻿using SPRNetTool.Domain.Base;
 using System;
 using System.Windows.Media;
+using WizMachine.Data;
 
 namespace SPRNetTool.Domain.Utils
 {

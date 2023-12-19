@@ -660,8 +660,7 @@
 						  ItemContainerStyle="{DynamicResource MenuItemStyle1}"
 						  Template="{DynamicResource MenuItemControlTemplate2}">
 					<MenuItem Header="Developer mode"
-							  x:Name="DeveloperModeMenu"
-							  Click="MenuItemPageClick">
+							  x:Name="DeveloperModeMenu">
 						<MenuItem.Icon>
 							<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
 								  Stretch="Uniform"
@@ -671,8 +670,7 @@
 						</MenuItem.Icon>
 					</MenuItem>
 					<MenuItem Header="Spr work space"
-							  x:Name="SprWorkSpceMenu"
-							  Click="MenuItemPageClick">
+							  x:Name="SprWorkSpceMenu">
 						<MenuItem.Icon>
 							<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
 								  Stretch="Uniform"

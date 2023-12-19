@@ -1,11 +1,11 @@
-﻿using WizMachine.Data;
+﻿using Moq;
 using SPRNetTool.Domain;
 using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.Utils;
 using SPRNetToolTest.Utils;
 using WizMachine;
-using Moq;
+using WizMachine.Data;
 
 namespace SPRNetToolTest.Domain
 {

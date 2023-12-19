@@ -1,5 +1,4 @@
-﻿using WizMachine.Data;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace SPRNetToolTest.Utils
 {
