@@ -1,5 +1,5 @@
-﻿using WizMachine.Data;
-using SPRNetTool.ViewModel.Base;
+﻿using SPRNetTool.ViewModel.Base;
+using WizMachine.Data;
 
 namespace SPRNetTool.ViewModel.Widgets
 {

@@ -1,6 +1,4 @@
 ﻿using Microsoft.Win32;
-using SPRNetTool.Domain;
-using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using SPRNetTool.View.Base;
 using SPRNetTool.View.Utils;

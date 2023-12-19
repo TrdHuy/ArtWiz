@@ -1,5 +1,4 @@
-﻿using WizMachine.Data;
-using SPRNetTool.Domain.Base;
+﻿using SPRNetTool.Domain.Base;
 using SPRNetTool.Domain.Utils;
 using SPRNetTool.LogUtil;
 using SPRNetTool.Utils;
@@ -11,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using WizMachine.Data;
 using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
 using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
 using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;

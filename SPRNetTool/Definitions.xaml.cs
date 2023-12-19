@@ -18,7 +18,7 @@ namespace SPRNetTool
         public static ResourceKey ForegroundEffectColorLevel2 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundEffectColorLevel2_OP1 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundEffectColorLevel2_OP2 { get; } = CreateResourceKey();
-        
+
         public static ResourceKey BackgroundLevel0 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundLevel1 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundLevel2 { get; } = CreateResourceKey();
@@ -35,7 +35,7 @@ namespace SPRNetTool
         public static ResourceKey MenuItemBackground { get; } = CreateResourceKey();
         public static ResourceKey MenuItemBorderBrush { get; } = CreateResourceKey();
         public static ResourceKey MouseOverMenuItemBackgroundBrush { get; } = CreateResourceKey();
-        
+
         public static ResourceKey FitToScreenIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey UnFitToScreenIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey GlobalUnTransparentBackgroundIconGeometry { get; } = CreateResourceKey();
@@ -55,6 +55,7 @@ namespace SPRNetTool
         public static ResourceKey FileImportIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey DeveloperModeIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey SprWorkSpaceIconGeometry { get; } = CreateResourceKey();
+        public static ResourceKey ArtWizLogoGeometry { get; } = CreateResourceKey();
 
         public static ResourceKey ArtWizDefaultWindowStyle { get; } = CreateResourceKey();
 

@@ -27,14 +27,23 @@ namespace SPRNetTool.View
             }
         }
 
-        private void MenuItemDebugPageClick(object sender, RoutedEventArgs e)
+        public override void OnApplyTemplate()
         {
-            PageContentPresenter.Content = debugPage ?? new DebugPage((IWindowViewer)this).Also((it) => debugPage = it);
+            base.OnApplyTemplate();
+            _devModeMenuItem!.Click += MenuItemClick;
+            _sprWorkSpaceItem!.Click += MenuItemClick;
         }
 
-        private void MenuItemEditorPageClick(object sender, RoutedEventArgs e)
+        private void MenuItemClick(object sender, RoutedEventArgs e)
         {
-            PageContentPresenter.Content = sprEditorPage ?? new SprEditorPage((IWindowViewer)this).Also((it) => sprEditorPage = it);
+            if (sender == _devModeMenuItem)
+            {
+                PageContentPresenter.Content = debugPage ?? new DebugPage((IWindowViewer)this).Also((it) => debugPage = it);
+            }
+            else if (sender == _sprWorkSpaceItem)
+            {
+                PageContentPresenter.Content = sprEditorPage ?? new SprEditorPage((IWindowViewer)this).Also((it) => sprEditorPage = it);
+            }
         }
     }
 

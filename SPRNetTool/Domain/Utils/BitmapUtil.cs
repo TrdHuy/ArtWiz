@@ -1,5 +1,4 @@
-﻿using WizMachine.Data;
-using SPRNetTool.Domain.Base;
+﻿using SPRNetTool.Domain.Base;
 using SPRNetTool.Utils;
 using System;
 using System.Collections.Generic;
@@ -13,6 +12,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using WizMachine.Data;
 
 namespace SPRNetTool.Domain.Utils
 {
