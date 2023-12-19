@@ -125,7 +125,7 @@
 			<wg:FrameLineEditor Height="101"
 								BorderThickness="3,0,3,3"
 								Margin="55,0,0,0"
-								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel8}}"
+								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
 								OnPreviewFrameIndexSwitched="OnPreviewFrameIndexSwitched"
 								OnPreviewAddingFrame="OnPreviewAddingFrame"
 								OnPreviewRemovingFrame="OnPreviewRemovingFrame"

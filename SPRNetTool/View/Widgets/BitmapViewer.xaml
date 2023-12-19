@@ -45,7 +45,7 @@
 		</Grid.RowDefinitions>
 		<Border Grid.Column="1"
 				BorderThickness="3"
-				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel8}}">
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}">
 			<local:BitmapViewerInternal x:Name="BitmapViewerContainerInternal"
 										DataContext="{Binding ElementName=BitmapViewerContainer, Path=ViewModel}"
 										GlobalHeight="{Binding GlobalHeight}"
@@ -269,7 +269,7 @@
 				Margin="0,0,10,0"
 				Width="45"
 				VerticalAlignment="Top"
-				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
 				Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
 				CornerRadius="20">
 			<StackPanel Orientation="Vertical">
