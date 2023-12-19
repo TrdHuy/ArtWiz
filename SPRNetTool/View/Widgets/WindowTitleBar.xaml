@@ -634,12 +634,14 @@
 
 		<StackPanel Orientation="Horizontal"
 					HorizontalAlignment="Left">
-			
-			<Image  Height="25"
-					Stretch="Uniform"
-					Margin="5,0,0,0"
-					Width="25"
-					Source="/SPRNetTool;component/resources/logo_500.png" />
+
+			<Image Height="25"
+				   Stretch="Uniform"
+				   Margin="5,0,0,0"
+				   Width="25"
+				   RenderOptions.BitmapScalingMode="HighQuality"
+				   SnapsToDevicePixels="True"
+				   Source="/SPRNetTool;component/resources/logo_500.png" />
 
 			<Menu x:Name="MainMenu"
 				  Background="{StaticResource ResourceKey={x:Static def:Definitions.MenuItemBackground}}"
