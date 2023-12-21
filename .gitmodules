@@ -1,0 +1,3 @@
+[submodule "libs/WizMachine"]
+	path = libs/WizMachine
+	url = https://github.com/TrdHuy/WizMachine.git
