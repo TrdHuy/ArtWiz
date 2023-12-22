@@ -92,6 +92,7 @@ jobs:
     ################### UNITTES REGION #######################
     - name: Run tests with coverage
       run: |
+        dotnet nuget remove source "trdhuy-nuget-package-source"
         dotnet nuget add source "https://nuget.pkg.github.com/TrdHuy/index.json" --name "trdhuy-nuget-package-source" --username "trdtranduchuy@gmail.com" --password "${{ secrets.WORK_FLOW_ACCESS_TOKEN }}"
         dotnet restore
         dotnet test --configuration Release --collect:"XPlat Code Coverage"
