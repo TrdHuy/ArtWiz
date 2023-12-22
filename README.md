@@ -36,4 +36,4 @@ force="false"
 ```
 https://nuget.pkg.github.com/TrdHuy/index.json
 ```
-###### 💥 For nuget source password (PAT) please contact: trdtranduchuy@gmail.com
+###### 💥 For nuget source password (PAT) please contact: trdtranduchuy@gmail.com or visit [Trd workflow guidelines](https://github.com/BalalaX/TrdRepoNote?tab=readme-ov-file#pat)
