@@ -31,3 +31,9 @@ force="false"
 ```
 
 #### 👉 Note: new versions will be released automatically every Friday at 18:00 (UTC+7), [detail](https://github.com/TrdHuy/ArtWiz/blob/dev/.github/workflows/dot-net-auto-version-up.yml)
+
+#### 👉 Internal nuget source address
+```
+https://nuget.pkg.github.com/TrdHuy/index.json
+```
+###### 💥 For nuget source password (PAT) please contact: trdtranduchuy@gmail.com or visit [Trd workflow guidelines](https://github.com/BalalaX/TrdRepoNote?tab=readme-ov-file#pat)
