@@ -27,8 +27,8 @@
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type wg:CollapsibleControl}">
 						<Border Background="Transparent"
-								BorderBrush="{TemplateBinding BorderBrush}"
-								BorderThickness="{TemplateBinding BorderThickness}"
+								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
+								BorderThickness="1"
 								Padding="{TemplateBinding Padding}"
 								SnapsToDevicePixels="true">
 							<Grid x:Name="GridContainer">
@@ -47,7 +47,6 @@
 										Grid.Row="1"
 										Grid.ColumnSpan="2"
 										BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
-										BorderThickness="3,0,3,3"
 										VerticalAlignment="Top"
 										Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}">
 									<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
