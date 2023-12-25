@@ -19,6 +19,8 @@
 			   x:Key="ToolButtonStyle">
 			<Setter Property="OverridesDefaultStyle"
 					Value="False" />
+			<Setter Property="IsEllipse"
+					Value="False" />
 			<Setter Property="Height"
 					Value="26" />
 			<Setter Property="Width"
@@ -44,8 +46,8 @@
 			<RowDefinition Height="auto" />
 		</Grid.RowDefinitions>
 		<Border Grid.Column="1"
-				BorderThickness="3"
-				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}">
+				BorderThickness="1"
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}">
 			<local:BitmapViewerInternal x:Name="BitmapViewerContainerInternal"
 										DataContext="{Binding ElementName=BitmapViewerContainer, Path=ViewModel}"
 										GlobalHeight="{Binding GlobalHeight}"
@@ -265,11 +267,11 @@
 		</Border>
 
 		<Border Grid.Column="0"
-				BorderThickness="3"
+				BorderThickness="1"
 				Margin="0,0,10,0"
 				Width="45"
 				VerticalAlignment="Top"
-				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
 				Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
 				CornerRadius="20">
 			<StackPanel Orientation="Vertical">

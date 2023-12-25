@@ -13,7 +13,7 @@
 	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel10}">#FF3D3D3D</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel0}">#FFFFFFFF</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel0_1}">#FFD9D9D9</Color>
-	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel1}">#FF548235</Color>
+	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel1}">#FF4FE79A</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel1}">#FF6D9154</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel2}">#FF89B46A</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel2_OP1}">#5089B46A</Color>
@@ -52,7 +52,7 @@
 					 Color="#FF3B3B3B" />
 	<SolidColorBrush x:Key="{x:Static local:Definitions.MouseOverMenuItemBackgroundBrush}"
 					 Color="#FF131E0C" />
-	
+
 	<Geometry x:Key="{x:Static local:Definitions.PlayIconGeometry}">
 		m -89.988593,210.08636 c -0.498979,-0.26037 -1.153823,-0.80945 -1.455209,-1.22019 -0.535655,-0.73 -0.549535,-1.06012 -0.617408,-14.68437 -0.06413,-12.87337 -0.03383,-14.00686 0.396875,-14.84482 0.641841,-1.24874 1.736853,-1.99116 2.936828,-1.99116 0.831857,0 2.78298,1.09172 12.047283,6.74087 6.080068,3.70747 11.3375,7.0192 11.683184,7.3594 1.047191,1.03057 1.316365,2.26422 0.79303,3.63455 -0.408922,1.07074 -0.722344,1.33842 -3.797983,3.24362 -11.441501,7.08744 -19.629504,11.96319 -20.302382,12.08957 -0.484814,0.0911 -1.118133,-0.0321 -1.684218,-0.32747 z
 	</Geometry>
@@ -114,7 +114,7 @@
 	<Geometry x:Key="{x:Static local:Definitions.ArtWizLogoGeometry}">
 		m 16.200181,0.01255691 c -0.9,0 -1.8,0.3 -2.9,0.9 c -2,1.09999999 -2,0.99999999 -0.4,1.89999999 c 1.1,0.6 6.9,3.9 12.1,7 c 3.1,1.7000001 3,1.6000001 3,11.9000001 v 8.6 l 1.1,-0.5 c 3.5,-1.9 3.7,-2.4 3.7,-11.7 c 0,-10.6000001 1.3,-8.8000001 -12.5,-16.7000001 c -1.7,-0.99999999 -2.9,-1.49999999 -4.1,-1.39999999 z M 8.9001813,4.2125569 c -1.1,0 -2.2,0.5 -4,1.6 c -5.00000002,2.9 -4.90000002006,2.5 -4.90000002006,12.2000001 c 0,9.7 -0.0999999999,9.5 4.40000002006,12.1 c 8.4999997,5 9.9999997,5.8 10.7999997,6 c 1.4,0.3 2.9,0 5.3,-1.4 c 5.2,-2.9 5,-2.3 4.8,-12.9 c -0.1,-9.7 0.4,-8.6 -5.1,-11.8 c -2.3,-1.3000001 -5.5,-3.2000001 -7.1,-4.1000001 c -1.9,-1.1 -3.1,-1.7 -4.1999997,-1.7 z m -0.1,5.1 c 0.4,0.1 1.2999997,0.5 3.3999997,1.7000001 c 4.1,2.3 6.8,3.9 7.6,4.4 c 0.6,0.3 0.6,0.4 0.6,7 v 6.7 l -1.4,0.9 c -2,1.2 -3.3,1.1 -5.5,-0.2 c -1,-0.6 -3,-1.8 -4.5999997,-2.8 c -4.1,-2.3 -4.1,-2.4 -4.1,-8.9 c 0,-6.4 0.2,-6.9 3.6,-8.7000001 c 0.1,0 0.2,-0.1 0.4,-0.1 z m -1.2,2.2000001 c -0.1,0 -0.2,2.3 -0.2,5.2 c 0,6.9 -0.3,6.3 5.3999997,9.6 c 2.5,1.5 4.6,2.6 4.7,2.6 c 0.1,0 0.2,-1.2 0.2,-2.7 v -2.7 l -2.6,-1.5 l -2.7,-1.5 v -3.2 v -3.1 l -2.3,-1.4 c -1.2999997,-0.7 -2.3999997,-1.3 -2.4999997,-1.3 z
 	</Geometry>
-	
+
 	<Geometry x:Key="MinimizeButton">
 		M 335.49414 311.73828 L 335.49414 323.13867 L 425.46484 323.13867 L 425.46484 311.73828 L 335.49414 311.73828 z
 	</Geometry>
@@ -127,7 +127,7 @@
 	<Geometry x:Key="SmallmizeButton">
 		m 99.030774,118.24771 v 2.7772 h -1.916687 v 12.55053 h 12.550543 v -2.77678 h 1.91668 v -12.55095 z m 0.739933,0.64846 h 11.070263 v 10.05676 h -1.17634 v -7.92802 h -9.893923 z m -1.916278,2.7772 H 108.9247 v 10.05676 H 97.854429 Z
 	</Geometry>
-	
+
 	<!--TODO: Optimize this view-->
 	<Style TargetType="{x:Type ScrollViewer}">
 		<Setter Property="Template">
@@ -530,10 +530,10 @@
 
 		<Setter Property="shell:WindowChrome.WindowChrome">
 			<Setter.Value>
-				<shell:WindowChrome CaptionHeight="40"/>
+				<shell:WindowChrome CaptionHeight="40" />
 			</Setter.Value>
 		</Setter>
-		
+
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type Window}">
@@ -563,60 +563,64 @@
 							</Grid.RowDefinitions>
 
 							<!--Content and title bar field-->
-							<Grid x:Name="ContentAndTitleGrid"
-								  Background="{TemplateBinding Background}"
-								  Grid.Column="1">
-								<Grid.RowDefinitions>
-									<RowDefinition Height="Auto" />
-									<RowDefinition Height="*" />
-								</Grid.RowDefinitions>
-								
-								<!--Title bar-->
-								<Grid x:Name="TitleBartGrid"
-									  Grid.Row="0"
-									  Height="40"
-									  Background="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel10}}"
-									  VerticalAlignment="Stretch">
-		
-									<Grid.ColumnDefinitions>
+							<Border BorderThickness="1"
+									BorderBrush="#FF4FE79A"
+									Grid.Column="1">
+								<Grid x:Name="ContentAndTitleGrid"
+									  Background="{TemplateBinding Background}">
+									<Grid.RowDefinitions>
+										<RowDefinition Height="Auto" />
+										<RowDefinition Height="*" />
+									</Grid.RowDefinitions>
+
+									<!--Title bar-->
+									<Grid x:Name="TitleBartGrid"
+										  Grid.Row="0"
+										  Height="40"
+										  Background="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel10}}"
+										  VerticalAlignment="Stretch">
+
+										<Grid.ColumnDefinitions>
+											<!--Title-->
+											<ColumnDefinition Width="*" />
+											<!--Windows Button-->
+											<ColumnDefinition Width="Auto" />
+
+										</Grid.ColumnDefinitions>
+
+										<wg:WindowTitleBar x:Name="WindowTitleBar" />
 										<!--Title-->
-										<ColumnDefinition Width="*" />
-										<!--Windows Button-->
-										<ColumnDefinition Width="Auto" />
+										<Viewbox x:Name="TitleViewBox"
+												 Grid.Column="0"
+												 HorizontalAlignment="Left"
+												 Grid.ColumnSpan="3"
+												 Margin="20,8,8,8">
+											<TextBlock x:Name="SubContentTitleText"
+													   FontWeight="Bold"
+													   FontFamily="Calibri"
+													   Text="{TemplateBinding Title}"
+													   TextAlignment="Center" />
+										</Viewbox>
 
-									</Grid.ColumnDefinitions>
+										<!--Window Buttons-->
+										<StackPanel x:Name="WindowControlPanel"
+													Grid.Column="1"
+													Orientation="Horizontal">
+										</StackPanel>
 
-									<wg:WindowTitleBar x:Name="WindowTitleBar"/>
-									<!--Title-->
-									<Viewbox x:Name="TitleViewBox"
-											 Grid.Column="0"
-											 HorizontalAlignment="Left"
-											 Grid.ColumnSpan="3"
-											 Margin="20,8,8,8">
-										<TextBlock x:Name="SubContentTitleText"
-												   FontWeight="Bold"
-												   FontFamily="Calibri"
-												   Text="{TemplateBinding Title}"
-												   TextAlignment="Center" />
-									</Viewbox>
+									</Grid>
 
-									<!--Window Buttons-->
-									<StackPanel x:Name="WindowControlPanel"
-												Grid.Column="1"
-												Orientation="Horizontal">
-									</StackPanel>
+									<!--Content field-->
+
+									<ContentPresenter x:Name="DWContentPresenter"
+													  Margin="{TemplateBinding Padding}"
+													  Content="{TemplateBinding Content}"
+													  Visibility="Visible"
+													  Grid.Row="1">
+									</ContentPresenter>
 
 								</Grid>
-
-								<!--Content field-->
-								<ContentPresenter x:Name="DWContentPresenter"
-												  Grid.Row="1"
-												  Margin="{TemplateBinding Padding}"
-												  Content="{TemplateBinding Content}"
-												  Visibility="Visible">
-								</ContentPresenter>
-							</Grid>
-
+							</Border>
 							<!--Shadow effect-->
 							<!--Must use radient due to performance issue-->
 							<!--link: https://www.telerik.com/forums/extremely-slow-when-having-dropshadow-->

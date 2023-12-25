@@ -164,8 +164,8 @@
 
 			<ListBox x:Name="ColorsList"
 					 Background="Transparent"
-					 BorderThickness="0,0,0,2"
-					 BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel8}}"
+					 BorderThickness="0,0,0,1"
+					 BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
 					 SelectedItem="{Binding ElementName=InternalContainer,Path=SelectedColorItem}"
 					 ItemsSource="{Binding ElementName=InternalContainer, Path=ColorItemSource}">
 				<ItemsControl.ItemsPanel>

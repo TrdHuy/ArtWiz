@@ -24,6 +24,7 @@
     <None Remove="Resources\bg2.jpg" />
     <None Remove="Resources\cuukiem.spr" />
     <None Remove="Resources\Font Awesome 6 Free-Solid-900.otf" />
+    <None Remove="Resources\g26.svg" />
     <None Remove="Resources\spr_global_background.png" />
     <None Remove="Resources\spr_viewer_background.png" />
   </ItemGroup>
@@ -51,6 +52,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <PackageReference Include="WizMachine" Version="0.0.0.5" />
+    <Content Include="Resources\g26.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Resources\spr_viewer_background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

@@ -27,8 +27,8 @@
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type wg:CollapsibleControl}">
 						<Border Background="Transparent"
-								BorderBrush="{TemplateBinding BorderBrush}"
-								BorderThickness="{TemplateBinding BorderThickness}"
+								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
+								BorderThickness="1"
 								Padding="{TemplateBinding Padding}"
 								SnapsToDevicePixels="true">
 							<Grid x:Name="GridContainer">
@@ -47,7 +47,6 @@
 										Grid.Row="1"
 										Grid.ColumnSpan="2"
 										BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
-										BorderThickness="3,0,3,3"
 										VerticalAlignment="Top"
 										Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}">
 									<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -123,9 +122,9 @@
 							 ViewModel="{Binding BitmapViewerVM}" />
 
 			<wg:FrameLineEditor Height="101"
-								BorderThickness="3,0,3,3"
+								BorderThickness="1,0,1,1"
 								Margin="55,0,0,0"
-								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
+								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
 								OnPreviewFrameIndexSwitched="OnPreviewFrameIndexSwitched"
 								OnPreviewAddingFrame="OnPreviewAddingFrame"
 								OnPreviewRemovingFrame="OnPreviewRemovingFrame"
