@@ -28,10 +28,6 @@
     <None Remove="Resources\spr_viewer_background.png" />
   </ItemGroup>
   <ItemGroup>
-	<ContentWithTargetPath Include="..\libs\engine.dll">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<TargetPath>engine.dll</TargetPath>
-	</ContentWithTargetPath>
     <Content Include="Resources\bg.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -54,9 +50,7 @@
     <Content Include="Resources\spr_global_background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Reference Include="wengine">
-      <HintPath>..\libs\wengine.dll</HintPath>
-    </Reference>
+    <PackageReference Include="WizMachine" Version="0.0.0.5" />
     <Resource Include="Resources\spr_viewer_background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
