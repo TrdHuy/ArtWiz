@@ -52,9 +52,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <PackageReference Include="WizMachine" Version="0.0.0.5" />
-    <Content Include="Resources\g26.svg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Resources\spr_viewer_background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
