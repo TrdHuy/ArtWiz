@@ -40,9 +40,10 @@
 			<ColumnDefinition x:Name="ContentColumn" />
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
-			<RowDefinition />
+			<RowDefinition Height="*"/>
 			<RowDefinition Height="auto" />
 		</Grid.RowDefinitions>
+		
 		<Border Grid.Column="1"
 				BorderThickness="3"
 				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}">
@@ -69,7 +70,7 @@
 					<Rectangle x:Name="ContainerBackgroundColorFilter"
 							   Fill="#FF08273D"
 							   Opacity="0.5"
-							   Height="{Binding ElementName=ContainerCanvas, Path=ActualWidth}"
+							   Height="{Binding ElementName=ContainerCanvas, Path=ActualHeight}"
 							   Width="{Binding ElementName=ContainerCanvas, Path=ActualWidth}" />
 
 					<Canvas x:Name="DragableContainer"
@@ -265,13 +266,12 @@
 		</Border>
 
 		<Border Grid.Column="0"
-				BorderThickness="3"
-				Margin="0,0,10,0"
-				Width="45"
-				VerticalAlignment="Top"
-				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
-				Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
-				CornerRadius="20">
+				BorderThickness="1"
+				Margin="0,0,5,0"
+				Grid.RowSpan="2"
+				Width="40"
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
+				Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}">
 			<StackPanel Orientation="Vertical">
 				<local:IconToggle x:Name="FitToScreenButton"
 								  Click="FitToScreenButtonClick"
@@ -366,6 +366,9 @@
 			</StackPanel>
 		</Border>
 
+		<ContentControl Grid.Column="1"
+						Grid.Row="1"
+						Content="{Binding ElementName=BitmapViewerContainer, Path=Footer}" />
 	</Grid>
 
 </UserControl>

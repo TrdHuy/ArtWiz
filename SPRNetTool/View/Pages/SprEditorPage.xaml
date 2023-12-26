@@ -33,7 +33,7 @@
 								SnapsToDevicePixels="true">
 							<Grid x:Name="GridContainer">
 								<Grid.RowDefinitions>
-									<RowDefinition Height="Auto" />
+									<RowDefinition Height="40" />
 									<RowDefinition Height="Auto" />
 								</Grid.RowDefinitions>
 								<Grid.ColumnDefinitions>
@@ -104,11 +104,11 @@
 	</UserControl.Resources>
 	<Grid>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="10" />
+			<ColumnDefinition Width="5" />
 			<ColumnDefinition Width="7.33*" />
-			<ColumnDefinition Width="10" />
+			<ColumnDefinition Width="5" />
 			<ColumnDefinition Width="5.48*" />
-			<ColumnDefinition Width="10" />
+			<ColumnDefinition Width="5" />
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="10" />
@@ -116,23 +116,21 @@
 			<RowDefinition Height="10" />
 		</Grid.RowDefinitions>
 
-		<StackPanel Grid.Row="1"
-					Grid.Column="1"
-					Orientation="Vertical">
-			<wg:BitmapViewer Height="576"
-							 ViewModel="{Binding BitmapViewerVM}" />
-
-			<wg:FrameLineEditor Height="101"
-								BorderThickness="3,0,3,3"
-								Margin="55,0,0,0"
-								BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel5}}"
-								OnPreviewFrameIndexSwitched="OnPreviewFrameIndexSwitched"
-								OnPreviewAddingFrame="OnPreviewAddingFrame"
-								OnPreviewRemovingFrame="OnPreviewRemovingFrame"
-								OnEllipseMouseClick="OnEllipseMouseClick"
-								FrameSource="{Binding FramesSource}" />
-
-		</StackPanel>
+		<wg:BitmapViewer Grid.Row="1"
+						 Grid.Column="1"
+						 ViewModel="{Binding BitmapViewerVM}">
+			<wg:BitmapViewer.Footer>
+				<wg:FrameLineEditor Grid.Row="1"
+									Height="101"
+									BorderThickness="1,0,1,1"
+									BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
+									OnPreviewFrameIndexSwitched="OnPreviewFrameIndexSwitched"
+									OnPreviewAddingFrame="OnPreviewAddingFrame"
+									OnPreviewRemovingFrame="OnPreviewRemovingFrame"
+									OnEllipseMouseClick="OnEllipseMouseClick"
+									FrameSource="{Binding FramesSource}" />
+			</wg:BitmapViewer.Footer>
+		</wg:BitmapViewer>
 
 		<StackPanel Grid.Row="1"
 					Grid.Column="3"
@@ -154,7 +152,7 @@
 
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
-				<RowDefinition Height="15" />
+				<RowDefinition Height="5" />
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
 			<wg:CollapsibleControl Header="IMAGE INFO"
@@ -218,7 +216,7 @@
 				</wg:CollapsibleControl.ExtraHeaderContent>
 
 				<wg:FileHeadEditor Margin="10,0"
-								   MinHeight="217"
+								   MinHeight="230"
 								   ViewModel="{Binding FileHeadEditorVM}" />
 
 			</wg:CollapsibleControl>
@@ -227,7 +225,7 @@
 								   Grid.Row="2"
 								   IsCollapse="True">
 				<wg:PaletteEditor Grid.Row="1"
-								  Height="361"
+								  Height="379"
 								  ViewModel="{Binding PaletteEditorVM}"
 								  PreviewColorItemChange="PaletteEditorPreviewColorItemChange"
 								  x:Name="mPaletteEditor" />
