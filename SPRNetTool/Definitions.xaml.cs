@@ -56,6 +56,7 @@ namespace SPRNetTool
         public static ResourceKey DeveloperModeIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey SprWorkSpaceIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey ArtWizLogoGeometry { get; } = CreateResourceKey();
+        public static ResourceKey ArtWizTextLogoGeometry { get; } = CreateResourceKey();
 
         public static ResourceKey ArtWizDefaultWindowStyle { get; } = CreateResourceKey();
 
