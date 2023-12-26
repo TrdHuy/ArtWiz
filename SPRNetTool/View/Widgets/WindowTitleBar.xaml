@@ -503,14 +503,12 @@
 						<ColumnDefinition Width="Auto" />
 					</Grid.ColumnDefinitions>
 
-
-					<Border x:Name="EffectBorder2"
+					<Border x:Name="EffectBorder"
 							Grid.ColumnSpan="2"
 							ClipToBounds="False"
 							CornerRadius="10"
-							Visibility="Hidden"
-							BorderBrush="{TemplateBinding BorderBrush}"
-							Background="{TemplateBinding BorderBrush}">
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}">
 						<Border.Effect>
 							<DropShadowEffect ShadowDepth="0"
 											  Color="#FF9CB297"
@@ -518,12 +516,6 @@
 											  BlurRadius="20" />
 						</Border.Effect>
 					</Border>
-					<Border x:Name="EffectBorder"
-							Grid.ColumnSpan="2"
-							ClipToBounds="False"
-							CornerRadius="10"
-							Background="{TemplateBinding Background}"
-							BorderBrush="{TemplateBinding BorderBrush}" />
 
 					<ContentPresenter x:Name="Icon"
 									  Content="{TemplateBinding Icon}"
@@ -545,9 +537,9 @@
 							   Text="{TemplateBinding Header}"
 							   Grid.Column="1"
 							   Height="15"
-							   FontSize="12"
+							   FontSize="14"
 							   FontFamily="Calibri"
-							   Margin="0,4"
+							   Margin="0,3,0,5"
 							   Padding="20,0,20,0"
 							   VerticalAlignment="Center"
 							   SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
@@ -584,9 +576,9 @@
 							TargetName="EffectBorder"
 							Value="{StaticResource ResourceKey={x:Static def:Definitions.MouseOverMenuItemBackgroundBrush}}" />
 
-					<Setter TargetName="EffectBorder2"
+					<!--<Setter TargetName="EffectBorder2"
 							Property="Visibility"
-							Value="Visible" />
+							Value="Visible" />-->
 				</Trigger>
 				<Trigger Property="IsSuspendingPopupAnimation"
 						 Value="True">
@@ -642,12 +634,14 @@
 
 		<StackPanel Orientation="Horizontal"
 					HorizontalAlignment="Left">
-			<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
-				  Height="25"
-				  Stretch="Uniform"
-				  Margin="5,0,0,0"
-				  Data="{StaticResource ResourceKey={x:Static def:Definitions.ArtWizLogoGeometry}}"
-				  Width="25" />
+
+			<Image Height="25"
+				   Stretch="Uniform"
+				   Margin="5,0,0,0"
+				   Width="25"
+				   RenderOptions.BitmapScalingMode="HighQuality"
+				   SnapsToDevicePixels="True"
+				   Source="/SPRNetTool;component/resources/logo_500.png" />
 
 			<Menu x:Name="MainMenu"
 				  Background="{StaticResource ResourceKey={x:Static def:Definitions.MenuItemBackground}}"
@@ -656,6 +650,7 @@
 				  Padding="5,0,0,0"
 				  VerticalContentAlignment="Center">
 				<MenuItem Header="Home"
+						  Margin="-12,0,0,0"
 						  Style="{StaticResource menuParentStyle}"
 						  ItemContainerStyle="{DynamicResource MenuItemStyle1}"
 						  Template="{DynamicResource MenuItemControlTemplate2}">
@@ -681,7 +676,7 @@
 					</MenuItem>
 				</MenuItem>
 				<MenuItem Header="About"
-						  Margin="-15,0"
+						  Margin="-15,0,0,0"
 						  Style="{StaticResource menuParentStyle}"
 						  ItemContainerStyle="{DynamicResource MenuItemStyle1}"
 						  Template="{DynamicResource MenuItemControlTemplate2}" />
