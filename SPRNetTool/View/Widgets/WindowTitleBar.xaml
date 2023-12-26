@@ -686,7 +686,6 @@
 						  ItemContainerStyle="{DynamicResource MenuItemStyle1}"
 						  Template="{DynamicResource MenuItemControlTemplate2}" />
 			</Menu>
-			<ContentPresenter Content="{Binding RelativeSource={RelativeSource AncestorType={x:Type bview:BaseArtWizWindow}, Mode=FindAncestor}, Path=ExtraHeaderContent}" />
 		</StackPanel>
 
 
