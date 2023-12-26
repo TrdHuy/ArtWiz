@@ -539,7 +539,8 @@
 							   Height="15"
 							   FontSize="14"
 							   FontFamily="Calibri"
-							   Margin="0,3,0,5"
+							   FontWeight="Thin"
+							   Margin="0,4"
 							   Padding="20,0,20,0"
 							   VerticalAlignment="Center"
 							   SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />

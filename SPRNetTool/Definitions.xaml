@@ -13,7 +13,7 @@
 	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel10}">#FF3D3D3D</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel0}">#FFFFFFFF</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel0_1}">#FFD9D9D9</Color>
-	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel1}">#FF548235</Color>
+	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel1}">#FF4FE79A</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel1}">#FF6D9154</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel2}">#FF89B46A</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundEffectColorLevel2_OP1}">#5089B46A</Color>
@@ -566,60 +566,64 @@
 							</Grid.RowDefinitions>
 
 							<!--Content and title bar field-->
-							<Grid x:Name="ContentAndTitleGrid"
-								  Background="{TemplateBinding Background}"
-								  Grid.Column="1">
-								<Grid.RowDefinitions>
-									<RowDefinition Height="Auto" />
-									<RowDefinition Height="*" />
-								</Grid.RowDefinitions>
+							<Border BorderThickness="1"
+									BorderBrush="#FF4FE79A"
+									Grid.Column="1">
+								<Grid x:Name="ContentAndTitleGrid"
+									  Background="{TemplateBinding Background}">
+									<Grid.RowDefinitions>
+										<RowDefinition Height="Auto" />
+										<RowDefinition Height="*" />
+									</Grid.RowDefinitions>
 
-								<!--Title bar-->
-								<Grid x:Name="TitleBartGrid"
-									  Grid.Row="0"
-									  Height="40"
-									  Background="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel10}}"
-									  VerticalAlignment="Stretch">
+									<!--Title bar-->
+									<Grid x:Name="TitleBartGrid"
+										  Grid.Row="0"
+										  Height="40"
+										  Background="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel10}}"
+										  VerticalAlignment="Stretch">
 
-									<Grid.ColumnDefinitions>
+										<Grid.ColumnDefinitions>
+											<!--Title-->
+											<ColumnDefinition Width="*" />
+											<!--Windows Button-->
+											<ColumnDefinition Width="Auto" />
+
+										</Grid.ColumnDefinitions>
+
+										<wg:WindowTitleBar x:Name="WindowTitleBar" />
 										<!--Title-->
-										<ColumnDefinition Width="*" />
-										<!--Windows Button-->
-										<ColumnDefinition Width="Auto" />
+										<Viewbox x:Name="TitleViewBox"
+												 Grid.Column="0"
+												 HorizontalAlignment="Left"
+												 Grid.ColumnSpan="3"
+												 Margin="20,8,8,8">
+											<TextBlock x:Name="SubContentTitleText"
+													   FontWeight="Bold"
+													   FontFamily="Calibri"
+													   Text="{TemplateBinding Title}"
+													   TextAlignment="Center" />
+										</Viewbox>
 
-									</Grid.ColumnDefinitions>
+										<!--Window Buttons-->
+										<StackPanel x:Name="WindowControlPanel"
+													Grid.Column="1"
+													Orientation="Horizontal">
+										</StackPanel>
 
-									<wg:WindowTitleBar x:Name="WindowTitleBar" />
-									<!--Title-->
-									<Viewbox x:Name="TitleViewBox"
-											 Grid.Column="0"
-											 HorizontalAlignment="Left"
-											 Grid.ColumnSpan="3"
-											 Margin="20,8,8,8">
-										<TextBlock x:Name="SubContentTitleText"
-												   FontWeight="Bold"
-												   FontFamily="Calibri"
-												   Text="{TemplateBinding Title}"
-												   TextAlignment="Center" />
-									</Viewbox>
+									</Grid>
 
-									<!--Window Buttons-->
-									<StackPanel x:Name="WindowControlPanel"
-												Grid.Column="1"
-												Orientation="Horizontal">
-									</StackPanel>
+									<!--Content field-->
+
+									<ContentPresenter x:Name="DWContentPresenter"
+													  Margin="{TemplateBinding Padding}"
+													  Content="{TemplateBinding Content}"
+													  Visibility="Visible"
+													  Grid.Row="1">
+									</ContentPresenter>
 
 								</Grid>
-
-								<!--Content field-->
-								<ContentPresenter x:Name="DWContentPresenter"
-												  Grid.Row="1"
-												  Margin="{TemplateBinding Padding}"
-												  Content="{TemplateBinding Content}"
-												  Visibility="Visible">
-								</ContentPresenter>
-							</Grid>
-
+							</Border>
 							<!--Shadow effect-->
 							<!--Must use radient due to performance issue-->
 							<!--link: https://www.telerik.com/forums/extremely-slow-when-having-dropshadow-->

@@ -19,6 +19,19 @@ namespace SPRNetTool.View.Widgets
         private ImageSource TransparentBagroundImage { get; }
            = new BitmapImage(new Uri(@"/Resources/spr_global_transparent_background.png", UriKind.Relative));
 
+        public static readonly DependencyProperty FooterProperty =
+           DependencyProperty.Register(
+               "Footer",
+               typeof(object),
+               typeof(BitmapViewer),
+               new PropertyMetadata(default(object)));
+
+        public object Footer
+        {
+            get { return GetValue(FooterProperty); }
+            set { SetValue(FooterProperty, value); }
+        }
+
         public static readonly DependencyProperty ViewModelProperty =
            DependencyProperty.Register(
                "ViewModel",
