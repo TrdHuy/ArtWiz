@@ -23,6 +23,7 @@ namespace SPRNetTool.View.Pages
         SaveImageFile,
         PlayPauseSprAnimation,
         ImportToSprWorkSpace,
+        ResetSprWorkSpace,
     }
     /// <summary>
     /// Interaction logic for SprEditorPage.xaml
@@ -226,7 +227,11 @@ namespace SPRNetTool.View.Pages
                             });
                             break;
                         }
-
+                    case SprEditorPageTagId.ResetSprWorkSpace:
+                        {
+                            commandVM?.OnResetSprWorkspaceClicked();
+                            break;
+                        }
                 }
             });
         }

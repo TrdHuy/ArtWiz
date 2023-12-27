@@ -212,6 +212,21 @@
 									   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.FileImportIconGeometry}}"
 									   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.FileImportIconGeometry}}"
 									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.FileImportIconGeometry}}" />
+
+						<wg:IconToggle x:Name="ResetSprWorkspaceButton"
+									   IsEllipse="False"
+									   IsEnableToggleClick="False"
+									   Visibility="{Binding IsSpr, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.COLLAPSED}}"
+									   Margin="10,0,0,0"
+									   Tag="{x:Static local:SprEditorPageTagId.ResetSprWorkSpace}"
+									   Click="OnButtonClick"
+									   Style="{StaticResource IconToogleStyle2}"
+									   IconRatio="0.85"
+									   Width="18"
+									   Height="18"
+									   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}"
+									   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}"
+									   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.ResetIconGeometry}}" />
 					</StackPanel>
 				</wg:CollapsibleControl.ExtraHeaderContent>
 
