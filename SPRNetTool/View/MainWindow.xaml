@@ -12,6 +12,7 @@
 					   mc:Ignorable="d"
 					   FontFamily="Calibri"
 					   Height="765"
+					   StateChanged="OnWindowStateChanged"
 					   d:DesignWidth="1280">
 	<Window.Resources>
 		<cvt:FormulaConverter x:Key="FormulaConverter" />
@@ -22,6 +23,7 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<ScrollViewer Grid.Row="1"
+					  x:Name="PageContentScrollViewer"
 					  VerticalScrollBarVisibility="Auto">
 			<ContentPresenter x:Name="PageContentPresenter" />
 		</ScrollViewer>

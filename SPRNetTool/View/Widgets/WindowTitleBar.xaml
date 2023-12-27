@@ -625,84 +625,88 @@
 			</ControlTemplate.Triggers>
 		</ControlTemplate>
 	</UserControl.Resources>
-	<Grid Background="{StaticResource ResourceKey={x:Static def:Definitions.MenuItemBackground}}"
-		  x:Name="ContainerGrid">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*" />
-			<ColumnDefinition Width="Auto" />
+	<Border BorderThickness="0,0,0,1"
+			BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}">
+		<Grid Background="{StaticResource ResourceKey={x:Static def:Definitions.MenuItemBackground}}"
+			  x:Name="ContainerGrid">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
 
-		</Grid.ColumnDefinitions>
+			</Grid.ColumnDefinitions>
 
-		<StackPanel Orientation="Horizontal"
-					HorizontalAlignment="Left">
+			<StackPanel Orientation="Horizontal"
+						HorizontalAlignment="Left">
 
-			<Image Height="25"
-				   Stretch="Uniform"
-				   Margin="5,0,0,0"
-				   Width="25"
-				   RenderOptions.BitmapScalingMode="HighQuality"
-				   SnapsToDevicePixels="True"
-				   Source="/SPRNetTool;component/resources/logo_500.png" />
+				<Image Height="25"
+					   Stretch="Uniform"
+					   Margin="5,0,0,0"
+					   Width="25"
+					   RenderOptions.BitmapScalingMode="HighQuality"
+					   SnapsToDevicePixels="True"
+					   Source="/SPRNetTool;component/resources/logo_500.png" />
 
-			<Menu x:Name="MainMenu"
-				  Background="{StaticResource ResourceKey={x:Static def:Definitions.MenuItemBackground}}"
-				  Height="27"
-				  Panel.ZIndex="1"
-				  Padding="5,0,0,0"
-				  VerticalContentAlignment="Center">
-				<MenuItem Header="Home"
-						  Margin="-12,0,0,0"
-						  Style="{StaticResource menuParentStyle}"
-						  ItemContainerStyle="{DynamicResource MenuItemStyle1}"
-						  Template="{DynamicResource MenuItemControlTemplate2}">
-					<MenuItem Header="Developer mode"
-							  x:Name="DeveloperModeMenu">
-						<MenuItem.Icon>
-							<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-								  Stretch="Uniform"
-								  Width="16"
-								  Height="16"
-								  Data="{StaticResource ResourceKey={x:Static def:Definitions.DeveloperModeIconGeometry}}" />
-						</MenuItem.Icon>
+				<Menu x:Name="MainMenu"
+					  Background="{StaticResource ResourceKey={x:Static def:Definitions.MenuItemBackground}}"
+					  Height="27"
+					  Panel.ZIndex="1"
+					  Padding="5,0,0,0"
+					  VerticalContentAlignment="Center">
+					<MenuItem Header="Home"
+							  Margin="-12,0,0,0"
+							  Style="{StaticResource menuParentStyle}"
+							  ItemContainerStyle="{DynamicResource MenuItemStyle1}"
+							  Template="{DynamicResource MenuItemControlTemplate2}">
+						<MenuItem Header="Developer mode"
+								  x:Name="DeveloperModeMenu">
+							<MenuItem.Icon>
+								<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+									  Stretch="Uniform"
+									  Width="16"
+									  Height="16"
+									  Data="{StaticResource ResourceKey={x:Static def:Definitions.DeveloperModeIconGeometry}}" />
+							</MenuItem.Icon>
+						</MenuItem>
+						<MenuItem Header="Spr work space"
+								  x:Name="SprWorkSpceMenu">
+							<MenuItem.Icon>
+								<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+									  Stretch="Uniform"
+									  Width="16"
+									  Height="16"
+									  Data="{StaticResource ResourceKey={x:Static def:Definitions.SprWorkSpaceIconGeometry}}" />
+							</MenuItem.Icon>
+						</MenuItem>
 					</MenuItem>
-					<MenuItem Header="Spr work space"
-							  x:Name="SprWorkSpceMenu">
-						<MenuItem.Icon>
-							<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-								  Stretch="Uniform"
-								  Width="16"
-								  Height="16"
-								  Data="{StaticResource ResourceKey={x:Static def:Definitions.SprWorkSpaceIconGeometry}}" />
-						</MenuItem.Icon>
-					</MenuItem>
-				</MenuItem>
-				<MenuItem Header="About"
-						  Margin="-15,0,0,0"
-						  Style="{StaticResource menuParentStyle}"
-						  ItemContainerStyle="{DynamicResource MenuItemStyle1}"
-						  Template="{DynamicResource MenuItemControlTemplate2}" />
-			</Menu>
-		</StackPanel>
+					<MenuItem Header="About"
+							  Margin="-15,0,0,0"
+							  Style="{StaticResource menuParentStyle}"
+							  ItemContainerStyle="{DynamicResource MenuItemStyle1}"
+							  Template="{DynamicResource MenuItemControlTemplate2}" />
+				</Menu>
+			</StackPanel>
 
 
-		<!--Window Buttons-->
-		<StackPanel x:Name="WindowControlPanel"
-					Grid.Column="1"
-					Orientation="Horizontal">
+			<!--Window Buttons-->
+			<StackPanel x:Name="WindowControlPanel"
+						Grid.Column="1"
+						Orientation="Horizontal">
 
-			<Button x:Name="MinimizeButton"
-					Margin="0,1"
-					Style="{StaticResource WindowMinimizeButton}" />
-			<Button x:Name="SmallmizeButton"
-					Margin="1,1"
-					Style="{StaticResource WindowSmallmizeButton}" />
-			<Button x:Name="MaximizeButton"
-					Margin="1,1"
-					Style="{StaticResource WindowMaximizeButton}" />
-			<Button x:Name="CloseButton"
-					Margin="0,1"
-					Style="{StaticResource WindowControlButton}" />
-		</StackPanel>
+				<Button x:Name="MinimizeButton"
+						Margin="0,1"
+						Style="{StaticResource WindowMinimizeButton}" />
+				<Button x:Name="SmallmizeButton"
+						Margin="1,1"
+						Style="{StaticResource WindowSmallmizeButton}" />
+				<Button x:Name="MaximizeButton"
+						Margin="1,1"
+						Style="{StaticResource WindowMaximizeButton}" />
+				<Button x:Name="CloseButton"
+						Margin="0,1"
+						Style="{StaticResource WindowControlButton}" />
+			</StackPanel>
 
-	</Grid>
+		</Grid>
+
+	</Border>
 </UserControl>
