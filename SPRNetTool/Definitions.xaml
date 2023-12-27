@@ -147,7 +147,9 @@
 						</Grid.RowDefinitions>
 
 						<Border Background="{TemplateBinding Background}"
-								Margin="{TemplateBinding Padding}">
+								Margin="{TemplateBinding Padding}"
+								Grid.RowSpan="2"
+								Grid.ColumnSpan="2">
 							<ScrollContentPresenter Name="PART_ScrollContentPresenter"
 													KeyboardNavigation.DirectionalNavigation="Local"
 													CanContentScroll="{TemplateBinding CanContentScroll}"
@@ -168,7 +170,8 @@
 								<ControlTemplate TargetType="{x:Type ScrollBar}">
 									<Grid x:Name="Bg"
 										  SnapsToDevicePixels="True">
-										<Border BorderBrush="{TemplateBinding BorderBrush}"
+										<Border x:Name="border"
+												BorderBrush="{TemplateBinding BorderBrush}"
 												BorderThickness="{TemplateBinding BorderThickness}"
 												Background="{TemplateBinding Background}"
 												Grid.Column="1" />
@@ -237,7 +240,10 @@
 																<Setter.Value>
 																	<ControlTemplate TargetType="{x:Type Thumb}">
 																		<Rectangle x:Name="rectangle"
+																				   RadiusX="5"
+																				   RadiusY="5"
 																				   Height="{TemplateBinding Height}"
+																				   Fill="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel8}}"
 																				   SnapsToDevicePixels="True"
 																				   Width="{TemplateBinding Width}" />
 																	</ControlTemplate>
@@ -249,6 +255,20 @@
 											</Track.Thumb>
 										</Track>
 									</Grid>
+									<ControlTemplate.Triggers>
+										<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}"
+													 Value="False">
+											<Setter TargetName="border"
+													Property="Background"
+													Value="Transparent" />
+										</DataTrigger>
+										<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}"
+													 Value="True">
+											<Setter TargetName="border"
+													Property="Background"
+													Value="Transparent" />
+										</DataTrigger>
+									</ControlTemplate.Triggers>
 								</ControlTemplate>
 							</ScrollBar.Template>
 						</ScrollBar>

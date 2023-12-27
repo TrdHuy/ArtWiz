@@ -22,7 +22,7 @@
 				  VerticalScrollBarVisibility="Auto"
 				  HorizontalScrollBarVisibility="Auto">
 		<ScrollViewer.Resources>
-			<sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">10</sys:Double>
+			<sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">8</sys:Double>
 		</ScrollViewer.Resources>
 		<Canvas x:Name="MainCanvas"
 				Height="auto"
