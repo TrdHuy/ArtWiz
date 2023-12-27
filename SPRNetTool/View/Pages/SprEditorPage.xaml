@@ -11,6 +11,7 @@
 					 d:DesignWidth="1280"
 					 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
 					 MinWidth="1280"
+					 MinHeight="718"
 					 xmlns:def="clr-namespace:SPRNetTool"
 					 Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel1}}"
 					 xmlns:vm="clr-namespace:SPRNetTool.ViewModel">

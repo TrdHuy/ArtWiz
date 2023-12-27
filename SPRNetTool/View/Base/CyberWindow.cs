@@ -19,7 +19,7 @@ namespace SPRNetTool.View.Base
                 DefaultArtWizWindowStyle = app.TryFindResource(Definitions.ArtWizDefaultWindowStyle) as Style;
             }
         }
-        private class WindowSizeManager
+        protected class WindowSizeManager
         {
             /// <summary>
             /// Message detail:
@@ -395,7 +395,7 @@ namespace SPRNetTool.View.Base
         private ColumnDefinition? _rightShadowColumnDefinition;
         protected WindowTitleBar? _windowTitleBar;
 
-        private WindowSizeManager _windowSizeManager;
+        protected WindowSizeManager _windowSizeManager;
 
 
         public CyberWindow()

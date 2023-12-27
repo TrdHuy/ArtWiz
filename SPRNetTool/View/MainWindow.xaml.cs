@@ -2,6 +2,8 @@
 using SPRNetTool.View.Base;
 using SPRNetTool.View.Pages;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Shell;
 
 namespace SPRNetTool.View
 {
@@ -9,10 +11,26 @@ namespace SPRNetTool.View
     {
         private DebugPage? debugPage = null;
         private SprEditorPage? sprEditorPage = null;
+        private double previousePageContentScrollViewHeightCache = -1d;
+
         public MainWindow()
         {
             InitializeComponent();
-            PageContentPresenter.Content = sprEditorPage ?? new SprEditorPage((IWindowViewer)this).Also((it) => sprEditorPage = it);
+            SetPageContent(sprEditorPage ?? new SprEditorPage((IWindowViewer)this).Also((it) => sprEditorPage = it));
+        }
+
+        private void SetPageContent(object content)
+        {
+            PageContentPresenter.Content = content;
+            var chrome = WindowChrome.GetWindowChrome(this);
+            if (content is SprEditorPage)
+            {
+                chrome.ResizeBorderThickness = new Thickness(0);
+            }
+            else
+            {
+                chrome.ResizeBorderThickness = new Thickness(10);
+            }
         }
 
         public override void DisableWindow(bool isDisabled)
@@ -38,11 +56,32 @@ namespace SPRNetTool.View
         {
             if (sender == _devModeMenuItem)
             {
-                PageContentPresenter.Content = debugPage ?? new DebugPage((IWindowViewer)this).Also((it) => debugPage = it);
+                SetPageContent(debugPage ?? new DebugPage((IWindowViewer)this).Also((it) => debugPage = it));
             }
             else if (sender == _sprWorkSpaceItem)
             {
-                PageContentPresenter.Content = sprEditorPage ?? new SprEditorPage((IWindowViewer)this).Also((it) => sprEditorPage = it);
+                SetPageContent(sprEditorPage ?? new SprEditorPage((IWindowViewer)this).Also((it) => sprEditorPage = it));
+            }
+        }
+
+        private void OnWindowStateChanged(object sender, System.EventArgs e)
+        {
+            if (_windowSizeManager.OldState == WindowState.Normal &&
+                WindowState == WindowState.Maximized &&
+                PageContentPresenter.Content == sprEditorPage &&
+                PageContentScrollViewer.VerticalScrollBarVisibility != ScrollBarVisibility.Visible)
+            {
+                previousePageContentScrollViewHeightCache = PageContentScrollViewer.ActualHeight;
+            }
+            else if (_windowSizeManager.OldState == WindowState.Maximized &&
+                WindowState == WindowState.Normal &&
+                previousePageContentScrollViewHeightCache != -1d &&
+                sprEditorPage != null &&
+                previousePageContentScrollViewHeightCache >= sprEditorPage.MinHeight)
+            {
+                PageContentScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                PageContentScrollViewer.UpdateLayout();
+                PageContentScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             }
         }
     }
