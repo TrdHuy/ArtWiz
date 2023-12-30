@@ -15,9 +15,9 @@ namespace SPRNetTool.View.Widgets
     public partial class BitmapViewer : UserControl
     {
         private ImageSource BlackBagroundImage { get; }
-            = new BitmapImage(new Uri(@"/Resources/spr_global_background.png", UriKind.Relative));
+           = new BitmapImage(new Uri(@"/SPRNetTool;component/resources/spr_global_background.png", UriKind.RelativeOrAbsolute));
         private ImageSource TransparentBagroundImage { get; }
-           = new BitmapImage(new Uri(@"/Resources/spr_global_transparent_background.png", UriKind.Relative));
+           = new BitmapImage(new Uri(@"/SPRNetTool;component/resources/spr_global_transparent_background.png", UriKind.RelativeOrAbsolute));
 
         public static readonly DependencyProperty FooterProperty =
            DependencyProperty.Register(

@@ -11,6 +11,7 @@
 	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel5}">#FF2E2E2E</Color>
 	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel8}">#FF3B3B3B</Color>
 	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel10}">#FF3D3D3D</Color>
+	<Color x:Key="{x:Static local:Definitions.BackgroundColorLevel15}">#FF7F7F7F</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel0}">#FFFFFFFF</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel0_1}">#FFD9D9D9</Color>
 	<Color x:Key="{x:Static local:Definitions.ForegroundColorLevel1}">#FF4FE79A</Color>
@@ -31,6 +32,8 @@
 					 x:Key="{x:Static local:Definitions.BackgroundLevel8}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel10}}"
 					 x:Key="{x:Static local:Definitions.BackgroundLevel10}" />
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundColorLevel15}}"
+					 x:Key="{x:Static local:Definitions.BackgroundLevel15}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundColorLevel0}}"
 					 x:Key="{x:Static local:Definitions.ForegroundLevel0}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ForegroundColorLevel1}}"
@@ -130,6 +133,17 @@
 	<Geometry x:Key="SmallmizeButton">
 		m 99.030774,118.24771 v 2.7772 h -1.916687 v 12.55053 h 12.550543 v -2.77678 h 1.91668 v -12.55095 z m 0.739933,0.64846 h 11.070263 v 10.05676 h -1.17634 v -7.92802 h -9.893923 z m -1.916278,2.7772 H 108.9247 v 10.05676 H 97.854429 Z
 	</Geometry>
+	<Geometry x:Key="{x:Static local:Definitions.RightArrowIconGeometry}">
+		m 372.60773,-152.28993 c -2.5482,0 -5.09659,0.97592 -7.04916,2.92851 l -1.05627,1.05626 c -3.90517,3.90516 -3.90517,10.19269 0,14.09785 l 32.46779,32.46779 -32.46779,32.467262 c -3.90517,3.905163 -3.90517,10.193205 0,14.098365 l 1.05627,1.055749 c 3.90514,3.905162 10.19267,3.905162 14.09785,0 l 39.51644,-39.515933 1.05627,-1.056267 c 1.95257,-1.95258 2.92902,-4.500957 2.92902,-7.049176 0,-0.15927 -0.004,-0.31838 -0.0114,-0.4775 -0.1144,-2.38677 -1.08709,-4.74114 -2.91764,-6.57169 l -1.05577,-1.05626 -0.0103,-0.01 -39.50663,-39.50663 c -1.9526,-1.95259 -4.50046,-2.92851 -7.04869,-2.92851 z
+	</Geometry>
+
+	<Geometry x:Key="{x:Static local:Definitions.LeftArrowIconGeometry}">
+		m 410.53633,-58.068615 c 2.5482,0 5.09659,-0.97592 7.04916,-2.92851 l 1.05627,-1.05626 c 3.90517,-3.90516 3.90517,-10.19269 0,-14.09785 l -32.46779,-32.467785 32.46779,-32.46727 c 3.90517,-3.90516 3.90517,-10.1932 0,-14.09836 l -1.05627,-1.05575 c -3.90514,-3.90516 -10.19267,-3.90516 -14.09785,0 l -39.51644,39.51593 -1.05627,1.05627 c -1.95257,1.95258 -2.92902,4.50096 -2.92902,7.04918 0,0.15927 0.004,0.31838 0.0114,0.4775 0.1144,2.38677 1.08709,4.74114 2.91764,6.57169 l 1.05577,1.05626 0.0103,0.01 39.50663,39.506625 c 1.9526,1.95259 4.50046,2.92851 7.04869,2.92851 z
+	</Geometry>
+	<BitmapImage x:Key="{x:Static local:Definitions.UnidentifiedPreviewFrameSource}"
+				 UriSource="/SPRNetTool;component/resources/logo_40.png"
+				 x:Name="UnidentifiedPreviewFrameSourceInstance">
+	</BitmapImage>
 
 	<!--TODO: Optimize this view-->
 	<Style TargetType="{x:Type ScrollViewer}">
@@ -243,9 +257,17 @@
 																				   RadiusX="5"
 																				   RadiusY="5"
 																				   Height="{TemplateBinding Height}"
-																				   Fill="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel8}}"
+																				   Fill="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel15}}"
 																				   SnapsToDevicePixels="True"
 																				   Width="{TemplateBinding Width}" />
+																		<ControlTemplate.Triggers>
+																			<Trigger Property="IsEnabled"
+																					 Value="False">
+																				<Setter Property="Fill"
+																						TargetName="rectangle"
+																						Value="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel8}}" />
+																			</Trigger>
+																		</ControlTemplate.Triggers>
 																	</ControlTemplate>
 																</Setter.Value>
 															</Setter>
@@ -261,12 +283,17 @@
 											<Setter TargetName="border"
 													Property="Background"
 													Value="Transparent" />
+											<Setter TargetName="PART_Track"
+													Property="IsEnabled"
+													Value="False" />
 										</DataTrigger>
 										<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}"
 													 Value="True">
 											<Setter TargetName="border"
 													Property="Background"
-													Value="Transparent" />
+													Value="{StaticResource ResourceKey={x:Static local:Definitions.BackgroundLevel8}}" />
+											<Setter Property="Cursor"
+													Value="Hand" />
 										</DataTrigger>
 									</ControlTemplate.Triggers>
 								</ControlTemplate>

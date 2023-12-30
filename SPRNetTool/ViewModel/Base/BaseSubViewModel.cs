@@ -22,7 +22,7 @@
             ViewModelOwner = owner;
         }
 
-        void IArtWizViewModel.OnCreate(IArtWizViewModelOwner owner)
+        void IArtWizViewModel.OnArtWizViewModelOwnerCreate(IArtWizViewModelOwner owner)
         {
             OnCreate(owner);
         }

@@ -1,0 +1,1584 @@
+﻿using SPRNetTool.Utils;
+using SPRNetTool.View.Base;
+using SPRNetTool.View.Widgets;
+using SPRNetTool.ViewModel.Base;
+using SPRNetTool.ViewModel.Widgets;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
+
+namespace SPRNetTool.View
+{
+    /// <summary>
+    /// Interaction logic for TestWin.xaml
+    /// </summary>
+    public partial class TestWin : Window
+    {
+        CustomObservableCollection<IFramePreviewerViewModel> collection;
+        private double contextMenuPosX;
+        private double contextMenuPosY;
+
+        public TestWin()
+        {
+            InitializeComponent();
+
+            collection = new CustomObservableCollection<IFramePreviewerViewModel>();
+            for (int i = 0; i < 100; i++)
+            {
+                collection.Add(new FrameViewModel() { Index = i.ToString() });
+            }
+            myPanel.SetUpSource(collection);
+            Loaded += TestWin_Loaded;
+        }
+
+        private void TestWin_Loaded(object sender, RoutedEventArgs e)
+        {
+            var p = NativeMethods.GetDeviceCaps();
+            PresentationSource source = PresentationSource.FromVisual(this);
+
+            // Kiểm tra nếu PresentationSource không null
+            if (source != null)
+            {
+                // Lấy giá trị ScaleX và ScaleY từ TransformToDevice
+                double dpiX = 96.0 * source.CompositionTarget.TransformToDevice.M11;
+                double dpiY = 96.0 * source.CompositionTarget.TransformToDevice.M22;
+
+                // In giá trị DPI
+                MessageBox.Show($"DPI X: {dpiX}, DPI Y: {dpiY}");
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            PresentationSource source = PresentationSource.FromVisual(this);
+
+            // Kiểm tra nếu PresentationSource không null
+            if (source != null)
+            {
+                // Lấy giá trị ScaleX và ScaleY từ TransformToDevice
+                double dpiX = 96.0 * source.CompositionTarget.TransformToDevice.M11;
+                double dpiY = 96.0 * source.CompositionTarget.TransformToDevice.M22;
+
+                // In giá trị DPI
+                MessageBox.Show($"DPI X: {dpiX}, DPI Y: {dpiY}");
+            }
+        }
+
+        private void IncreaseFrameDistance(object sender, RoutedEventArgs e)
+        {
+            myPanel.SetFrameDistance(10);
+        }
+
+        private void DecreaseFrameDistance(object sender, RoutedEventArgs e)
+        {
+            myPanel.SetFrameDistance(-10);
+        }
+
+        private void myPanel_OnPreviewFrameIndexSwitched(object sender, FrameLineEventArgs args)
+        {
+            collection.SwitchItem(args.SwitchedFrame1Index, args.SwitchedFrame2Index); ;
+            args.Handled = true;
+        }
+
+        private void InsertFrameTo1Index(object sender, RoutedEventArgs e)
+        {
+            collection.Insert(1, new FrameViewModel());
+        }
+
+        private void myPanel_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            contextMenuPosX = e.CursorLeft;
+            contextMenuPosY = e.CursorTop;
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var newFrameIndex = myPanel.GetItemContainerIndexBaseOnRelativePositionToPanel(contextMenuPosX);
+        }
+    }
+
+    public class FrameViewModel : BaseViewModel, IFramePreviewerViewModel
+    {
+        private ImageSource _defaultSrc;
+        private ImageSource? _imgSrc;
+        private int _globalWidth = 80;
+        private int _globalHeight = 50;
+        private int _height = 30;
+        private int _width = 30;
+        private int _frameOffsetX = 5;
+        private int _frameOffsetY = 5;
+        private string _index;
+        private int _globalOffsetX = 5;
+        private int _globalOffsetY = 5;
+        public FrameViewModel()
+        {
+            _defaultSrc = (BitmapImage)Definitions.Instance![Definitions.UnidentifiedPreviewFrameSource];
+        }
+
+        public ImageSource PreviewImageSource
+        {
+            get => _imgSrc ?? _defaultSrc;
+            set
+            {
+                _imgSrc = value;
+                Invalidate();
+            }
+        }
+        public int FrameHeight
+        {
+            get => _height;
+            set
+            {
+                _height = value;
+                Invalidate();
+            }
+        }
+        public int FrameWidth
+        {
+            get => _width;
+            set
+            {
+                _width = value;
+                Invalidate();
+            }
+        }
+
+        public int FrameOffsetX
+        {
+            get => _frameOffsetX;
+            set
+            {
+                _frameOffsetX = value;
+                Invalidate();
+            }
+        }
+
+        public int FrameOffsetY
+        {
+            get => _frameOffsetY;
+            set
+            {
+                _frameOffsetY = value;
+                Invalidate();
+            }
+        }
+
+        public int GlobalWidth
+        {
+            get => _globalWidth;
+            set
+            {
+                _globalWidth = value;
+                Invalidate();
+            }
+        }
+        public int GlobalHeight
+        {
+            get => _globalHeight;
+            set
+            {
+                _globalHeight = value;
+                Invalidate();
+            }
+        }
+
+        public string Index
+        {
+            get
+            {
+                return _index;
+            }
+            set
+            {
+                _index = value;
+                Invalidate();
+            }
+        }
+
+        public int GlobalOffsetX
+        {
+            get => _globalOffsetX;
+            set
+            {
+                _globalOffsetX = value;
+                Invalidate();
+            }
+        }
+        public int GlobalOffsetY
+        {
+            get => _globalOffsetY;
+            set
+            {
+                _globalOffsetY = value;
+                Invalidate();
+            }
+        }
+        public void OnArtWizViewModelOwnerCreate(IArtWizViewModelOwner owner)
+        {
+        }
+
+        public void OnDestroy()
+        {
+        }
+    }
+
+    public enum ScrollTypes
+    {
+        NONE, RIGHT, LEFT
+    }
+
+    // Must set CanContentScroll = true of ScrollViewer owner
+    // to overide IScrollInfo
+    public class FrameLineEditorVirtualizingPanel : Canvas, IScrollInfo
+    {
+        public delegate void FameLineHandler(object sender, FrameLineEventArgs args);
+        public delegate void FameLineMouseEventHandler(object sender, MouseButtonEventArgs args);
+
+        public event FameLineHandler? OnPreviewFrameIndexSwitched;
+        public event FameLineMouseEventHandler? OnFramePreviewerMouseClick;
+
+        public static readonly DependencyProperty IsSpeedBoostProperty =
+            DependencyProperty.Register(
+                "IsSpeedBoost",
+                typeof(bool),
+                typeof(FrameLineEditorVirtualizingPanel),
+            new FrameworkPropertyMetadata(defaultValue: default(bool),
+                flags: FrameworkPropertyMetadataOptions.AffectsRender));
+
+
+        public bool IsSpeedBoost
+        {
+            get { return (bool)GetValue(IsSpeedBoostProperty); }
+            private set { SetValue(IsSpeedBoostProperty, value); }
+        }
+
+        public static readonly DependencyProperty AutoScrollOptProperty =
+            DependencyProperty.Register(
+                "AutoScrollOpt",
+                typeof(ScrollTypes),
+                typeof(FrameLineEditorVirtualizingPanel),
+            new FrameworkPropertyMetadata(defaultValue: default(ScrollTypes),
+                flags: FrameworkPropertyMetadataOptions.AffectsRender));
+
+
+        public ScrollTypes AutoScrollOpt
+        {
+            get { return (ScrollTypes)GetValue(AutoScrollOptProperty); }
+            private set { SetValue(AutoScrollOptProperty, value); }
+        }
+        #region ScrollInfo
+        private ScrollViewer? _scrollOwner;
+        public bool CanHorizontallyScroll { get; set; }
+        public bool CanVerticallyScroll { get; set; }
+        public double ExtentHeight { get; set; }
+        public double ExtentWidth { get; set; }
+
+        public double HorizontalOffset { get; private set; }
+        public ScrollViewer? ScrollOwner
+        {
+            get
+            {
+                return _scrollOwner;
+            }
+            set
+            {
+                _scrollOwner = value;
+                ScrollBar? findHorizontalScrollBar(UIElement? ui)
+                {
+                    if (ui is Decorator cast)
+                    {
+                        return findHorizontalScrollBar(cast.Child);
+                    }
+                    else if (ui is Panel cast2)
+                    {
+                        foreach (UIElement child in cast2.Children)
+                        {
+                            var cache = findHorizontalScrollBar((UIElement)child);
+                            if (cache != null)
+                            {
+                                return cache;
+                            }
+                        }
+                    }
+                    else if (ui is ContentControl cast3)
+                    {
+                        var child = cast3.Content as UIElement;
+                        if (child == null)
+                            return null;
+                        return findHorizontalScrollBar(child);
+                    }
+
+                    if (ui is ScrollBar cast4 && cast4.Orientation == Orientation.Horizontal)
+                    {
+                        return cast4;
+                    }
+                    return null;
+                }
+                //var uiElement = _scrollOwner?.Template.LoadContent() as UIElement;
+                //_horizontalScrollBar = findHorizontalScrollBar(uiElement);
+            }
+        }
+        public double VerticalOffset { get; private set; }
+        public double ViewportHeight { get; private set; }
+        public double ViewportWidth { get; private set; }
+
+        public void LineDown()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LineLeft()
+        {
+            SetHorizontalOffset(HorizontalOffset - 20);
+        }
+
+        public void LineRight()
+        {
+            SetHorizontalOffset(HorizontalOffset + 20);
+        }
+
+        public void LineUp()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Rect MakeVisible(Visual visual, Rect rectangle)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MouseWheelDown()
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                SetFrameDistance(-5);
+            }
+            else if (Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                SetHorizontalOffset(HorizontalOffset - 50);
+            }
+            else
+            {
+                SetHorizontalOffset(HorizontalOffset - 5);
+            }
+        }
+
+        public void MouseWheelLeft()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MouseWheelRight()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MouseWheelUp()
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                SetFrameDistance(5);
+            }
+            else if (Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                SetHorizontalOffset(HorizontalOffset + 50);
+            }
+            else
+            {
+                SetHorizontalOffset(HorizontalOffset + 5);
+            }
+        }
+
+        public void PageDown()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PageLeft()
+        {
+            var mP = Mouse.GetPosition(this);
+            var ratX = mP.X / this.ActualWidth;
+            var newOffset = ratX * (ExtentWidth - ViewportWidth);
+            SetHorizontalOffset(newOffset);
+        }
+
+        public void PageRight()
+        {
+            var mP = Mouse.GetPosition(this);
+            var ratX = mP.X / this.ActualWidth;
+            var newOffset = ratX * (ExtentWidth - ViewportWidth);
+            SetHorizontalOffset(newOffset);
+        }
+
+        public void PageUp()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetHorizontalOffset(double offset)
+        {
+            if (offset < 0 || ViewportWidth >= ExtentWidth)
+            {
+                offset = 0;
+            }
+            else
+            {
+                if (offset + ViewportWidth >= ExtentWidth)
+                {
+                    offset = ExtentWidth - ViewportWidth;
+                }
+            }
+
+            HorizontalOffset = offset;
+
+            ScrollOwner?.InvalidateScrollInfo();
+
+            InvalidateMeasure();
+        }
+
+        public void SetVerticalOffset(double offset)
+        {
+        }
+        #endregion
+
+
+        protected class FrameItemController
+        {
+            public FrameItemController(FrameLineEditorVirtualizingPanel panelOwner)
+            {
+                this.panelOwner = panelOwner;
+            }
+            public int StartVisibleItemIndex { get; private set; }
+
+            public int VisibleItemCount
+            {
+                get
+                {
+                    return viewCache.Count;
+                }
+            }
+            public int LastVisibleItemIndex
+            {
+                get
+                {
+                    return viewCache.Count == 0 ? -1 : viewCache.Last().Index;
+                }
+            }
+            public int FirstVisibleItemIndex
+            {
+                get
+                {
+                    return viewCache.Count == 0 ? -1 : viewCache.First().Index;
+                }
+            }
+            public class ViewCache
+            {
+                public FramePreviewer View { get; set; }
+
+                // Vị trí hiển thị thực tế của view khi hiển thị trên màn hình
+                public int Index { get; set; }
+                public ViewCache(FramePreviewer view, int index)
+                {
+                    View = view;
+                    Index = index;
+                }
+
+                public Rect ContentCanvasPosition { get; set; }
+                public Rect MainPanelPosition { get; set; }
+            }
+
+            private FrameLineEditorVirtualizingPanel panelOwner;
+            private Collection<IFramePreviewerViewModel>? itemSourceCache;
+            private Collection<ViewCache> viewCache = new Collection<ViewCache>();
+            private Dictionary<FramePreviewer, ViewCache> viewCacheMap = new Dictionary<FramePreviewer, ViewCache>();
+            private Dictionary<int, ViewCache> viewCacheIndexMap = new Dictionary<int, ViewCache>();
+            private int endVisibleItemIndex;
+            private int visibleItemCount;
+            private Size desiredItemContainerSize;
+
+            public static ViewCache CreateViewCache(FramePreviewer itemContainer, int index)
+            {
+                return new ViewCache(itemContainer, index);
+            }
+
+            public void SetUpVisibleSection(int newStartVisibleItemIndex,
+                int newEndVisibleItemIndex,
+                out List<ViewCache> addedCaches,
+                out List<ViewCache> removedCaches)
+            {
+                if (itemSourceCache == null) { throw new Exception(); }
+                addedCaches = new List<ViewCache>();
+                removedCaches = new List<ViewCache>();
+
+                var newVisibleItemCount = newEndVisibleItemIndex - newStartVisibleItemIndex + 1;
+                if (newEndVisibleItemIndex > itemSourceCache.Count - 1)
+                {
+                    newEndVisibleItemIndex = itemSourceCache.Count - 1;
+                    newStartVisibleItemIndex = newEndVisibleItemIndex - newVisibleItemCount + 1;
+                    newStartVisibleItemIndex = newStartVisibleItemIndex >= 0 ? newStartVisibleItemIndex : 0;
+                }
+
+                if (newVisibleItemCount > itemSourceCache.Count)
+                {
+                    newVisibleItemCount = itemSourceCache.Count;
+                }
+#if DEBUG
+                Debug.Assert(newVisibleItemCount <= itemSourceCache.Count);
+                Debug.Assert(newEndVisibleItemIndex < itemSourceCache.Count);
+                Debug.Assert(newStartVisibleItemIndex >= 0);
+#endif
+                // Add or clean item container if visible section is changed
+                if (newVisibleItemCount > visibleItemCount)
+                {
+                    for (int i = 0; i < newVisibleItemCount - visibleItemCount; i++)
+                    {
+                        var lastItemIndex = LastVisibleItemIndex;
+
+                        if (itemSourceCache.Count > 0 && lastItemIndex >= itemSourceCache.Count - 1)
+                        {
+                            // Add item from the left
+                            var firstItemIndex = FirstVisibleItemIndex;
+                            FramePreviewer newFrame = GenerateItemContainer(firstItemIndex - 1);
+                            var newViewCache = FrameItemController.CreateViewCache(newFrame, firstItemIndex - 1);
+                            InsertNewCacheToFront(newViewCache);
+                            addedCaches.Add(newViewCache);
+                        }
+                        else
+                        {
+                            // Add new item container
+                            FramePreviewer newFrame = GenerateItemContainer(lastItemIndex + 1);
+                            var newViewCache = FrameItemController.CreateViewCache(newFrame, lastItemIndex + 1);
+                            AddNewCacheToBack(newViewCache);
+                            addedCaches.Add(newViewCache);
+                        }
+                    }
+
+                }
+                else if (newVisibleItemCount < visibleItemCount)
+                {
+                    //  Clean old item container
+                    for (int i = 0; i < visibleItemCount - newVisibleItemCount; i++)
+                    {
+                        var lastCache = RemoveLastCache();
+                        if (lastCache != null)
+                        {
+                            removedCaches.Add(lastCache);
+                        }
+
+                    }
+                }
+#if DEBUG
+                AssertForDebug();
+#endif
+
+                //Switch container, and assign viewmodel to item container
+                if (newStartVisibleItemIndex > StartVisibleItemIndex)
+                {
+                    BringFirstToLast(newStartVisibleItemIndex - StartVisibleItemIndex);
+                }
+                else if (newEndVisibleItemIndex < endVisibleItemIndex)
+                {
+                    BringLastToFirst(StartVisibleItemIndex - newStartVisibleItemIndex);
+                }
+
+#if DEBUG
+                AssertForDebug();
+#endif
+
+                //Apply to cache
+                StartVisibleItemIndex = newStartVisibleItemIndex;
+                endVisibleItemIndex = newEndVisibleItemIndex;
+                visibleItemCount = newVisibleItemCount;
+            }
+
+            public void SetupItemSource(Collection<IFramePreviewerViewModel>? itemSource)
+            {
+                itemSourceCache = itemSource;
+                viewCache.Clear();
+                viewCacheIndexMap.Clear();
+                viewCacheMap.Clear();
+            }
+
+            public void InsertNewCacheToFront(ViewCache newCache)
+            {
+                viewCache.Insert(0, newCache);
+                viewCacheMap.Add(newCache.View, newCache);
+                viewCacheIndexMap.Add(newCache.Index, newCache);
+            }
+
+            public void AddNewCacheToBack(ViewCache newCache)
+            {
+                viewCache.Add(newCache);
+                viewCacheMap.Add(newCache.View, newCache);
+                viewCacheIndexMap.Add(newCache.Index, newCache);
+            }
+
+            public ViewCache? RemoveLastCache()
+            {
+                var lastIndex = viewCache.Count - 1;
+                if (lastIndex >= 0)
+                {
+                    var lastItem = viewCache[lastIndex];
+                    viewCache.RemoveAt(lastIndex);
+                    viewCacheMap.Remove(lastItem.View);
+                    viewCacheIndexMap.Remove(lastItem.Index);
+                    return lastItem;
+                }
+                return null;
+            }
+
+            public ViewCache? this[FramePreviewer frame]
+            {
+                get
+                {
+                    if (!viewCacheMap.ContainsKey(frame))
+                    {
+                        return null;
+                    }
+                    return viewCacheMap[frame];
+                }
+                set
+                {
+                    if (value != null)
+                        viewCacheMap[frame] = value;
+                    else
+                        viewCacheMap.Remove(frame);
+                }
+            }
+
+            public ViewCache? GetItemContainerBaseOnRelativePositionToPanel(Rect relativePanelPos, int excludedViewIndex)
+            {
+                foreach (var c in viewCache)
+                {
+                    if (excludedViewIndex != c.Index && relativePanelPos.IntersectsWith(c.MainPanelPosition))
+                    {
+                        return c;
+                    }
+                }
+                return null;
+            }
+
+            public int GetItemContainerIndexBaseOnRelativePositionToPanel(double relativePanelPosX, double frameDistance)
+            {
+                foreach (var c in viewCache)
+                {
+                    if (relativePanelPosX <= c.MainPanelPosition.Right + frameDistance &&
+                        relativePanelPosX >= c.MainPanelPosition.Left)
+                    {
+                        return c.Index;
+                    }
+                }
+                return -1;
+            }
+
+            public void BringFirstToLast(int numberItemToBring)
+            {
+                var lastItemIndex = LastVisibleItemIndex;
+
+                for (int i = 0; i < numberItemToBring; i++)
+                {
+                    var oldElement = viewCache[0];
+                    viewCache.RemoveAt(0);
+                    viewCacheIndexMap.Remove(oldElement.Index);
+                    oldElement.Index = lastItemIndex + 1 + i;
+                    if (oldElement.Index < itemSourceCache?.Count)
+                        oldElement.View.ViewModel = itemSourceCache[oldElement.Index];
+                    viewCache.Add(oldElement);
+                    viewCacheIndexMap.Add(oldElement.Index, oldElement);
+                }
+            }
+
+            public void BringLastToFirst(int numberItemToBring)
+            {
+                var firstItemIndex = FirstVisibleItemIndex;
+
+                for (int i = 0; i < numberItemToBring; i++)
+                {
+                    var lastIndex = viewCache.Count - 1;
+                    var oldElement = viewCache[lastIndex];
+                    viewCache.RemoveAt(lastIndex);
+                    viewCacheIndexMap.Remove(oldElement.Index);
+
+                    oldElement.Index = firstItemIndex - 1 - i;
+
+                    oldElement.View.ViewModel = itemSourceCache?[oldElement.Index];
+                    viewCache.Insert(0, oldElement);
+                    viewCacheIndexMap.Add(oldElement.Index, oldElement);
+                }
+            }
+
+            public void ArrangeViewCache(Size arrangeSize,
+                Size desiredItemContainerSize,
+                double frameDistance,
+                double horizontalOffset,
+                double containerMarginLeft)
+            {
+                for (int i = 0; i < viewCache.Count; i++)
+                {
+                    var frame = viewCache[i].View;
+#if DEBUG
+                    if (frame.Tag == "false")
+                    {
+                        if (viewCache[i].Index % 3 == 0)
+                        {
+                            frame.Background = new SolidColorBrush(Colors.Black);
+                        }
+                        else if (viewCache[i].Index % 3 == 1)
+                        {
+                            frame.Background = new SolidColorBrush(Colors.OliveDrab);
+                        }
+                        else if (viewCache[i].Index % 3 == 2)
+                        {
+                            frame.Background = new SolidColorBrush(Colors.DarkBlue);
+                        }
+
+                        frame.Tag = viewCache[i].Index;
+                    }
+#endif
+
+                    var left = viewCache[i].Index *
+                        (desiredItemContainerSize.Width + frameDistance);
+                    Canvas.SetLeft(frame, left);
+                    viewCache[i].ContentCanvasPosition = new Rect(left + containerMarginLeft,
+                        0,
+                        desiredItemContainerSize.Width,
+                        desiredItemContainerSize.Height);
+                    viewCache[i].MainPanelPosition = new Rect(left - horizontalOffset + containerMarginLeft,
+                        (arrangeSize.Height - desiredItemContainerSize.Height) / 2,
+                        desiredItemContainerSize.Width,
+                        desiredItemContainerSize.Height);
+                }
+            }
+
+            public void SetDesiredItemContainerSize(Size newSize)
+            {
+                desiredItemContainerSize = newSize;
+                foreach (var v in viewCache)
+                {
+                    v.View.Height = newSize.Height;
+                    v.View.Width = newSize.Width;
+                }
+            }
+
+            public void AssertForDebug()
+            {
+                // Đảm bảo index trong view cache luôn the thứ tự tăng dần
+                for (int i = 0; i < viewCache.Count - 1; i++)
+                {
+                    Debug.Assert(viewCache[i + 1].Index - viewCache[i].Index == 1);
+                }
+                foreach (var kp in viewCacheIndexMap)
+                {
+                    Debug.Assert(kp.Key == kp.Value.Index);
+
+                    // đảm bảo index trong viewCache tương ứng với index của item trên item source
+                    Debug.Assert(kp.Value.View.ViewModel == itemSourceCache![kp.Value.Index]);
+                }
+
+                // Đảm bảo map và cache size luôn bằng nhau
+                Debug.Assert(viewCacheMap.Count == viewCache.Count);
+            }
+
+            private FramePreviewer GenerateItemContainer(int viewModelIdex)
+            {
+                var newFrame = GenerateItemContainer();
+                if (itemSourceCache != null)
+                {
+                    newFrame.ViewModel = itemSourceCache[viewModelIdex];
+                }
+                return newFrame;
+            }
+
+            private FramePreviewer GenerateItemContainer()
+            {
+                Debug.Assert(!desiredItemContainerSize.IsEmpty);
+                var newFrame = new FramePreviewer();
+#if DEBUG
+                newFrame.Tag = "false";
+#endif
+
+                newFrame.PanelOwner = panelOwner;
+                newFrame.Height = desiredItemContainerSize.Height;
+                newFrame.Width = desiredItemContainerSize.Width;
+                return newFrame;
+            }
+
+            public bool SwitchFrameWithAnimation(int oldIndex,
+                int newIndex,
+                IFramePreviewerViewModel oldItem,
+                IFramePreviewerViewModel newItem,
+                double frameDistance,
+                out DoubleAnimation?[]? switchFrameAnimations,
+                out FramePreviewer? oldItemContainer,
+                out FramePreviewer? newItemContainer)
+            {
+                viewCacheIndexMap.TryGetValue(oldIndex, out ViewCache? oldItemViewCache);
+                viewCacheIndexMap.TryGetValue(newIndex, out ViewCache? newItemViewCache);
+                switchFrameAnimations = null;
+                oldItemContainer = null;
+                newItemContainer = null;
+                // Nếu cả 2 đều bằng null, có nghĩa là vị trí switch nằm ngoài vị trí hiển thị
+                // Nên case này không cần xử lý
+                if (newItemViewCache == null && oldItemViewCache == null)
+                {
+                    return false;
+                }
+
+                Debug.Assert(oldItemViewCache != null || newItemViewCache != null);
+
+                if (oldItemViewCache == null)
+                {
+                    oldItemViewCache = new ViewCache(GenerateItemContainer(), oldIndex);
+                    oldItemViewCache.ContentCanvasPosition = newItemViewCache!.ContentCanvasPosition;
+                    oldItemViewCache.MainPanelPosition = newItemViewCache!.MainPanelPosition;
+                    oldItemViewCache.View.ViewModel = oldItem;
+                    viewCacheMap.Add(oldItemViewCache.View, oldItemViewCache);
+                }
+
+                if (newItemViewCache == null)
+                {
+                    newItemViewCache = new ViewCache(GenerateItemContainer(), newIndex);
+                    newItemViewCache.View.ViewModel = newItem;
+                    newItemViewCache.ContentCanvasPosition = oldItemViewCache!.ContentCanvasPosition;
+                    newItemViewCache.MainPanelPosition = oldItemViewCache!.MainPanelPosition;
+                    viewCacheMap.Add(newItemViewCache.View, newItemViewCache);
+                }
+
+                var oldViewCacheIndex = viewCache.IndexOf(oldItemViewCache);
+                var newViewCacheIndex = viewCache.IndexOf(newItemViewCache);
+
+                oldItemViewCache.Index = newIndex;
+                newItemViewCache.Index = oldIndex;
+
+                oldItemContainer = oldItemViewCache.View;
+                newItemContainer = newItemViewCache.View;
+
+                var anim1 = ReArrangeItemContainerWithAnimation(oldIndex, oldItemViewCache, frameDistance);
+                var anim2 = ReArrangeItemContainerWithAnimation(newIndex, newItemViewCache, frameDistance);
+                switchFrameAnimations = new DoubleAnimation?[] { anim1, anim2 };
+                if (oldViewCacheIndex != -1)
+                {
+                    viewCache[oldViewCacheIndex] = newItemViewCache;
+                    viewCacheIndexMap.Remove(oldIndex);
+                    viewCacheIndexMap.Add(newItemViewCache.Index, newItemViewCache);
+                }
+                else
+                {
+                    viewCacheMap.Remove(newItemViewCache.View);
+                }
+
+                if (newViewCacheIndex != -1)
+                {
+                    viewCache[newViewCacheIndex] = oldItemViewCache;
+                    viewCacheIndexMap.Remove(newIndex);
+                    viewCacheIndexMap.Add(oldItemViewCache.Index, oldItemViewCache);
+                }
+                else
+                {
+                    viewCacheMap.Remove(oldItemViewCache.View);
+                }
+
+                return true;
+            }
+
+            public bool InsertFrameWithAnimation(int insertedIndex,
+                IFramePreviewerViewModel newItem,
+                double frameDistance,
+                out DoubleAnimation?[]? insertFrameAnimations,
+                out FramePreviewer? oldItemContainer,
+                out FramePreviewer? newItemContainer)
+            {
+                viewCacheIndexMap.TryGetValue(insertedIndex, out ViewCache? oldViewCache);
+                insertFrameAnimations = null;
+                newItemContainer = null;
+                oldItemContainer = null;
+                // Nếu oldViewCache bằng null, có nghĩa là vị trí inserted nằm ngoài vị trí hiển thị
+                // Nên case này không cần xử lý
+                if (itemSourceCache == null || oldViewCache == null && itemSourceCache?.Count > 0)
+                {
+                    return false;
+                }
+
+                var lastItemContainerIndex = viewCache.Last().Index;
+
+                insertFrameAnimations = new DoubleAnimation[lastItemContainerIndex - insertedIndex + 1];
+                for (int i = 0; i < lastItemContainerIndex - insertedIndex + 1; i++)
+                {
+                    var viewCache = viewCacheIndexMap[i + insertedIndex];
+                    viewCacheIndexMap.Remove(i + insertedIndex);
+                    viewCache.Index += 1;
+                    insertFrameAnimations[i] =
+                        ReArrangeItemContainerWithAnimation(i + insertedIndex, viewCache, frameDistance);
+
+                }
+
+                var newItemViewCache = new ViewCache(GenerateItemContainer(), insertedIndex);
+                newItemViewCache.ContentCanvasPosition = oldViewCache?.ContentCanvasPosition ?? new Rect();
+                newItemViewCache.MainPanelPosition = oldViewCache?.MainPanelPosition ?? new Rect();
+                newItemViewCache.View.ViewModel = newItem;
+                SetLeft(newItemViewCache.View, oldViewCache != null ? GetLeft(oldViewCache.View) : 0);
+
+                var oldIndexOnViewCache = oldViewCache == null ? 0 : viewCache.IndexOf(oldViewCache);
+                var itemNeedToRemove = viewCache[viewCache.Count - 1];
+                viewCache.Insert(oldIndexOnViewCache, newItemViewCache);
+                viewCache.RemoveAt(viewCache.Count - 1);
+                viewCacheMap.Remove(itemNeedToRemove.View);
+                viewCacheMap.Add(newItemViewCache.View, newItemViewCache);
+
+                for (int i = 0; i < viewCache.Count - oldIndexOnViewCache; i++)
+                {
+                    viewCacheIndexMap.Add(viewCache[oldIndexOnViewCache + i].Index,
+                        viewCache[oldIndexOnViewCache + i]);
+                }
+
+                newItemContainer = newItemViewCache.View;
+                oldItemContainer = itemNeedToRemove.View;
+
+                return true;
+            }
+
+            private DoubleAnimation? ReArrangeItemContainerWithAnimation(int oldIndex,
+                ViewCache view,
+                double frameDistance)
+            {
+                if (desiredItemContainerSize.IsEmpty == true) return null;
+
+                var fromLeft = oldIndex *
+                       (desiredItemContainerSize.Width + frameDistance);
+                var toLeft = view.Index *
+                       (desiredItemContainerSize.Width + frameDistance);
+                Canvas.SetLeft(view.View, fromLeft);
+
+                DoubleAnimation xAnim = new DoubleAnimation(fromLeft, toLeft, TimeSpan.FromSeconds(0.1));
+                Storyboard.SetTarget(xAnim, view.View);
+                Storyboard.SetTargetProperty(xAnim, new PropertyPath("(Canvas.Left)"));
+                xAnim.Completed += (s, e) =>
+                {
+                    Canvas.SetLeft(view.View, toLeft);
+                };
+                xAnim.FillBehavior = FillBehavior.Stop;
+                return xAnim;
+            }
+        }
+
+        private int CACHE_SIZE { get; } = 2;
+        private double autoScrollAreaWidth { get; set; } = 50;
+        private double speedUpScrollAreaWidth { get; set; } = 50;
+        private double frameDistance { get; set; } = 30;
+        private Rect autoScrollRightRect { get; set; }
+        private Rect speedUpScrollRightRect { get; set; }
+        private Rect autoScrollLeftRect { get; set; }
+        private Rect speedUpScrollLeftRect { get; set; }
+        private bool IsItemContainerAnimationStarted { get; set; }
+
+        private Collection<IFramePreviewerViewModel>? itemSourceCache;
+        private SemaphoreSlim autoScrollSemaphore = new SemaphoreSlim(1, 1);
+        private Canvas? contentContainerCanvas;
+        private FrameItemController itemController;
+        private FramePreviewer? cacheItemContainerForMeasure;
+        private Size desiredItemContainerSize;
+        public FrameLineEditorVirtualizingPanel()
+        {
+            itemController = new FrameItemController(this);
+        }
+        #region public API
+        public Size PanelConstraint { get; private set; }
+
+        public int GetCurrentViewCacheIndex(FramePreviewer itemContainer)
+        {
+            return itemController[itemContainer]?.Index ?? -1;
+        }
+
+        public void RaiseFrameClickedEvent(FramePreviewer clickedFrame, MouseButtonEventArgs e)
+        {
+            itemController[clickedFrame]?.Apply(it => OnFramePreviewerMouseClick?.Invoke(it, e));
+        }
+
+        public void RaisePreviewFrameSwitchEvent(int oldIndex, int newIndex)
+        {
+            var arg = FrameLineEventArgs.CreateSwitchEvent(oldIndex, newIndex);
+            OnPreviewFrameIndexSwitched?.Invoke(this, arg);
+
+            if (arg.Handled)
+            {
+                return;
+            }
+
+            // TODO: may implement switch logic if not using observable collection
+        }
+
+        public void SetUpSource(Collection<IFramePreviewerViewModel> itemSource)
+        {
+            itemSource.IfIs<INotifyCollectionChanged>(it =>
+            {
+                it.CollectionChanged += OnItemCollectionChanged;
+            });
+            itemSourceCache?.IfIs<INotifyCollectionChanged>(it =>
+            {
+                it.CollectionChanged -= OnItemCollectionChanged;
+            });
+            itemSourceCache = itemSource;
+            cacheItemContainerForMeasure = null;
+            itemController.SetupItemSource(itemSource);
+            InvalidateMeasure();
+        }
+
+        public async void EnableAutoHorizontalScroll(bool isEnable, bool isLeft)
+        {
+            if (!isEnable && autoScrollSemaphore.CurrentCount == 1)
+            {
+                return;
+            }
+            if (autoScrollSemaphore.CurrentCount == 0)
+            {
+                if (!isEnable)
+                {
+                    AutoScrollOpt = ScrollTypes.NONE;
+                    autoScrollSemaphore.Release();
+                }
+                return;
+            }
+            await autoScrollSemaphore.WaitAsync();
+
+            var defaultOffset = 6;
+            var targetOffset = defaultOffset;
+            if (isLeft)
+            {
+                AutoScrollOpt = ScrollTypes.LEFT;
+
+                while (HorizontalOffset > 0
+                   && autoScrollSemaphore.CurrentCount == 0)
+                {
+                    var mp = Mouse.GetPosition(this);
+                    if (speedUpScrollLeftRect.Contains(mp))
+                    {
+                        targetOffset += 1;
+                        IsSpeedBoost = true;
+                    }
+                    else
+                    {
+                        IsSpeedBoost = false;
+                        targetOffset = defaultOffset;
+                    }
+                    SetHorizontalOffset(HorizontalOffset - targetOffset);
+                    await Task.Delay(10);
+                }
+            }
+            else
+            {
+                AutoScrollOpt = ScrollTypes.RIGHT;
+
+                while (HorizontalOffset < ExtentWidth
+                    && autoScrollSemaphore.CurrentCount == 0)
+                {
+                    var mp = Mouse.GetPosition(this);
+                    if (speedUpScrollRightRect.Contains(mp))
+                    {
+                        targetOffset += 1;
+                        IsSpeedBoost = true;
+                    }
+                    else
+                    {
+                        IsSpeedBoost = false;
+                        targetOffset = defaultOffset;
+                    }
+                    SetHorizontalOffset(HorizontalOffset + targetOffset);
+                    await Task.Delay(10);
+                }
+
+            }
+            if (autoScrollSemaphore.CurrentCount == 0)
+            {
+                AutoScrollOpt = ScrollTypes.NONE;
+                autoScrollSemaphore.Release();
+            }
+        }
+
+        public void GetItemContainerPositionRelativeToPanel(FramePreviewer itemContainer, out double left, out double top)
+        {
+            left = 0; top = 0;
+            var cacheItem = itemController[itemContainer];
+            if (cacheItem == null) return;
+            left = cacheItem.MainPanelPosition.Left;
+            top = cacheItem.MainPanelPosition.Top;
+        }
+
+        public FramePreviewer? GetItemContainerBaseOnRelativePositionToPanel(Rect relativePanelPos, int excludedViewIndex)
+        {
+            return itemController.GetItemContainerBaseOnRelativePositionToPanel(relativePanelPos, excludedViewIndex)?.View;
+        }
+
+        public int GetItemContainerIndexBaseOnRelativePositionToPanel(double relativePanelPosX)
+        {
+            return itemController.GetItemContainerIndexBaseOnRelativePositionToPanel(relativePanelPosX, frameDistance);
+        }
+
+        public ScrollTypes IsRectInAutoScrollArea(Rect rect)
+        {
+            if (rect.IntersectsWith(autoScrollRightRect))
+                return ScrollTypes.RIGHT;
+            if (rect.IntersectsWith(autoScrollLeftRect))
+                return ScrollTypes.LEFT;
+            return ScrollTypes.NONE;
+        }
+
+        public void SetFrameDistance(double offset)
+        {
+            frameDistance += offset;
+            if (frameDistance < 0)
+            {
+                frameDistance = 0;
+            }
+
+            // Calculate new Horizontal offset to remain display effect
+            if (cacheItemContainerForMeasure != null
+                && itemSourceCache != null
+                && contentContainerCanvas != null
+                && itemSourceCache.Count > 0
+                && HorizontalOffset != 0)
+            {
+                var frameWidth = desiredItemContainerSize.Width;
+                var slotSize = frameWidth + frameDistance;
+                HorizontalOffset = (itemController.StartVisibleItemIndex + CACHE_SIZE / 2) * slotSize;
+            }
+            InvalidateMeasure();
+        }
+        #endregion
+        private void OnItemCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            //TODO: Implement collection changed
+            switch (e)
+            {
+                case CustomNotifyCollectionChangedEventArgs cast:
+                    if (cast.IsSwitchAction)
+                    {
+                        SwitchFrame(oldIndex: cast.Switched1stIndex,
+                            newIndex: cast.Switched2ndIndex,
+                            oldItem: itemSourceCache![cast.Switched2ndIndex],
+                            newItem: itemSourceCache![cast.Switched1stIndex]);
+                    }
+                    return;
+                case NotifyCollectionChangedEventArgs:
+                    if (e.Action == NotifyCollectionChangedAction.Remove)
+                    {
+                        var sizeChanged = e.OldItems?.Count ?? 0;
+                        for (int i = e.OldStartingIndex; i < e.OldStartingIndex + sizeChanged; i++)
+                        {
+                            //Controller.RemoveFrame((uint)i);
+                        }
+                    }
+                    else if (e.Action == NotifyCollectionChangedAction.Add)
+                    {
+                        var sizeChanged = e.NewItems?.Count ?? 0;
+                        for (int i = e.NewStartingIndex; i < e.NewStartingIndex + sizeChanged; i++)
+                        {
+                            if (e.NewItems != null)
+                            {
+                                var itemIndex = i - e.NewStartingIndex;
+                                var vm = (IFramePreviewerViewModel)e.NewItems[itemIndex]!;
+                                InsertFrame(i, vm);
+                            }
+                        }
+                    }
+                    return;
+            }
+        }
+
+
+        protected override Size MeasureOverride(Size constraint)
+        {
+            var isShouldMeasureItemContainer = PanelConstraint != constraint;
+            PanelConstraint = constraint;
+
+            if (IsItemContainerAnimationStarted)
+            {
+                return base.MeasureOverride(constraint);
+            }
+
+            if (contentContainerCanvas != null
+                && itemSourceCache != null
+                && itemSourceCache.Count > 0)
+            {
+                // Each item container should have same width
+                if (cacheItemContainerForMeasure == null)
+                {
+                    cacheItemContainerForMeasure = new FramePreviewer();
+                    cacheItemContainerForMeasure.ViewModel = itemSourceCache[0];
+                }
+
+                if (isShouldMeasureItemContainer)
+                {
+                    cacheItemContainerForMeasure.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    var desiredSize = cacheItemContainerForMeasure.DesiredSize;
+                    var actualHeight = desiredSize.Height;
+                    var actualWidth = desiredSize.Width;
+                    if (actualHeight > PanelConstraint.Height / 2)
+                    {
+                        actualHeight = PanelConstraint.Height / 2;
+                        var rat = desiredSize.Width / desiredSize.Height;
+                        actualWidth = rat * actualHeight;
+                    }
+                    SetDesiredItemContainerSize(new Size(actualWidth, actualHeight));
+                }
+
+                ComputeExtentAndViewport(constraint, desiredItemContainerSize.Width);
+                var slotSzie = desiredItemContainerSize.Width + frameDistance;
+
+                // Case 3: Fit to the screen
+                // |      |
+                // |[][][]|
+                // |      |
+                //
+                // [] : this is represented as an item
+                // | : screen edge
+
+                // Case 1:
+                // |     |
+                // |[ ][ |]
+                // |     |
+                //
+                // [] : this is represented as an item
+                // | : screen edge
+                var realVisibleItemCount1 = Math.Ceiling(constraint.Width / slotSzie);
+
+                // Case 2:
+                // |     |
+                //[|][][ |]
+                // |     |
+                //
+                // [] : this is represented as an item
+                // | : screen edge
+                var realVisibleItemCount2 = constraint.Width % slotSzie > 1 ? realVisibleItemCount1 + 1 : realVisibleItemCount1;
+
+                var newVisibleItemCount = (int)realVisibleItemCount2 + CACHE_SIZE;
+
+
+                var newStartVisibleItemIndex = (int)(Math.Floor(HorizontalOffset / slotSzie) - CACHE_SIZE / 2);
+                newStartVisibleItemIndex = newStartVisibleItemIndex >= 0 ? newStartVisibleItemIndex : 0;
+                var newEndVisibleItemIndex = newStartVisibleItemIndex + newVisibleItemCount - 1;
+
+                itemController.SetUpVisibleSection(newStartVisibleItemIndex, newEndVisibleItemIndex,
+                    out List<FrameItemController.ViewCache> addedCaches,
+                    out List<FrameItemController.ViewCache> removedCaches);
+                foreach (var cache in addedCaches)
+                {
+                    contentContainerCanvas.Children.Add(cache.View);
+                }
+                foreach (var cache in removedCaches)
+                {
+                    contentContainerCanvas.Children.Remove(cache.View);
+                }
+
+                Debug.WriteLine("ExtentWidth=" + ExtentWidth);
+                Debug.WriteLine("HorizontalOffset=" + HorizontalOffset);
+                Debug.WriteLine("constraintWidth=" + constraint.Width);
+                Debug.WriteLine("realVisibleItemCount=" + realVisibleItemCount2);
+                Debug.WriteLine("newVisibleItemCount=" + newVisibleItemCount);
+                Debug.WriteLine("newStartVisibleItemIndex=" + newStartVisibleItemIndex);
+                Debug.WriteLine("newEndVisibleItemIndex=" + newEndVisibleItemIndex);
+                Debug.WriteLine("==================");
+            }
+            return base.MeasureOverride(constraint);
+        }
+
+        public new void BeginStoryboard(Storyboard storyboard)
+        {
+            storyboard.Completed += (s, e) =>
+            {
+                IsItemContainerAnimationStarted = false;
+                InvalidateMeasure();
+            };
+            IsItemContainerAnimationStarted = true;
+            base.BeginStoryboard(storyboard);
+
+        }
+
+
+
+        protected override Size ArrangeOverride(Size arrangeSize)
+        {
+            if (IsItemContainerAnimationStarted)
+            {
+                return base.ArrangeOverride(arrangeSize);
+            }
+            Debug.Assert(itemController.VisibleItemCount == contentContainerCanvas!.Children.Count);
+            // Đảm bảo map và cache size luôn bằng nhau
+
+            SetLeft(contentContainerCanvas, -HorizontalOffset);
+            SetTop(contentContainerCanvas, (arrangeSize.Height - (desiredItemContainerSize.Height)) / 2);
+            autoScrollRightRect = new Rect(arrangeSize.Width - autoScrollAreaWidth,
+                0,
+                autoScrollAreaWidth,
+                arrangeSize.Height);
+            autoScrollLeftRect = new Rect(0,
+                0,
+                autoScrollAreaWidth,
+                arrangeSize.Height);
+
+            speedUpScrollLeftRect = new Rect(0,
+                arrangeSize.Height / 2 - speedUpScrollAreaWidth / 2,
+                speedUpScrollAreaWidth,
+                speedUpScrollAreaWidth);
+            speedUpScrollRightRect = new Rect(arrangeSize.Width - speedUpScrollAreaWidth,
+                arrangeSize.Height / 2 - speedUpScrollAreaWidth / 2,
+                speedUpScrollAreaWidth,
+                speedUpScrollAreaWidth);
+
+            itemController.ArrangeViewCache(arrangeSize,
+                desiredItemContainerSize, frameDistance, HorizontalOffset, contentContainerCanvas.Margin.Left);
+
+            return base.ArrangeOverride(arrangeSize);
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+            contentContainerCanvas = new Canvas();
+            contentContainerCanvas.Margin = new Thickness(15, 0, 15, 0);
+            Children.Add(contentContainerCanvas);
+        }
+
+        protected void ComputeExtentAndViewport(Size pixelMeasuredViewportSize, double frameWidth)
+        {
+            ViewportHeight = pixelMeasuredViewportSize.Height;
+            ExtentHeight = 0;
+            var slotSize = frameWidth + frameDistance;
+            if (contentContainerCanvas != null && itemSourceCache != null)
+            {
+                var actualWidth = itemSourceCache.Count * slotSize - frameDistance
+                    + contentContainerCanvas.Margin.Left + contentContainerCanvas.Margin.Right;
+                ViewportWidth = pixelMeasuredViewportSize.Width;
+                ExtentWidth = actualWidth;
+                ExtentWidth = ExtentWidth > 0 ? ExtentWidth : 0;
+                if (HorizontalOffset + ViewportWidth > ExtentWidth)
+                {
+                    HorizontalOffset = ExtentWidth - ViewportWidth;
+                    HorizontalOffset = HorizontalOffset >= 0 ? HorizontalOffset : 0;
+                }
+            }
+            ScrollOwner?.InvalidateScrollInfo();
+        }
+
+        private void SwitchFrame(int oldIndex,
+            int newIndex,
+            IFramePreviewerViewModel oldItem,
+            IFramePreviewerViewModel newItem)
+        {
+            var res = itemController.SwitchFrameWithAnimation(oldIndex,
+                newIndex,
+                oldItem,
+                newItem,
+                frameDistance,
+                out DoubleAnimation?[]? anims,
+                out FramePreviewer? oldItemContainer,
+                out FramePreviewer? newItemContainer);
+
+            if (res && oldItemContainer != null && newItemContainer != null)
+            {
+                if (contentContainerCanvas?.Children.Contains(newItemContainer) == false)
+                {
+                    contentContainerCanvas.Children.Add(newItemContainer);
+                }
+
+                if (contentContainerCanvas?.Children.Contains(oldItemContainer) == false)
+                {
+                    contentContainerCanvas.Children.Add(oldItemContainer);
+                }
+
+                var animationStoryboard = new Storyboard();
+                animationStoryboard.FillBehavior = FillBehavior.Stop;
+                anims?.FoEach(it => it?.Apply(it => animationStoryboard.Children.Add(it)));
+                animationStoryboard.Completed += (s, e) =>
+                {
+                    if (itemController[oldItemContainer] == null)
+                    {
+                        contentContainerCanvas?.Children.Remove(oldItemContainer);
+                    }
+                    else if (itemController[newItemContainer] == null)
+                    {
+                        contentContainerCanvas?.Children.Remove(newItemContainer);
+                    }
+                };
+                this?.BeginStoryboard(animationStoryboard);
+            }
+        }
+
+        private void InsertFrame(int insertedIndex,
+           IFramePreviewerViewModel newItem)
+        {
+            var res = itemController.InsertFrameWithAnimation(insertedIndex,
+                newItem,
+                frameDistance,
+                out DoubleAnimation?[]? anims,
+                out FramePreviewer? oldItemContainer,
+                out FramePreviewer? newItemContainer);
+
+            if (res && oldItemContainer != null && newItemContainer != null)
+            {
+                contentContainerCanvas?.Children.Add(newItemContainer);
+                var animationStoryboard = new Storyboard();
+                animationStoryboard.FillBehavior = FillBehavior.Stop;
+                anims?.FoEach(it => it?.Apply(it => animationStoryboard.Children.Add(it)));
+
+                animationStoryboard.Completed += (s, e) =>
+                {
+                    contentContainerCanvas?.Children.Remove(oldItemContainer);
+#if DEBUG
+                    itemController.AssertForDebug();
+#endif
+                };
+                BeginStoryboard(animationStoryboard);
+            }
+
+        }
+
+        //        private void RemoveFrame(int removedIndex,
+        //           IFramePreviewerViewModel oldItem)
+        //        {
+        //            viewCacheIndexMap.TryGetValue(removedIndex, out ViewCache? oldViewCache);
+
+        //            // Nếu oldViewCache bằng null, có nghĩa là vị trí inserted nằm ngoài vị trí hiển thị
+        //            // Nên case này không cần xử lý
+        //            if (itemSourceCache == null || oldViewCache == null)
+        //            {
+        //                return;
+        //            }
+
+        //            var animationStoryboard = new Storyboard();
+        //            var lastItemContainerCache = viewCache.Last();
+        //            var lastItemContainerIndex = lastItemContainerCache.Index;
+
+        //            for (int i = 0; i < lastItemContainerIndex - removedIndex + 1; i++)
+        //            {
+        //                var viewCache = viewCacheIndexMap[i + removedIndex];
+        //                viewCacheIndexMap.Remove(i + removedIndex);
+        //                if (i != 0)
+        //                {
+        //                    viewCache.Index -= 1;
+        //                    var anim = ReArrangeItemContainerWithAnimation(i + removedIndex, viewCache);
+        //                    animationStoryboard.Children.Add(anim);
+        //                }
+        //            }
+        //            animationStoryboard.FillBehavior = FillBehavior.Stop;
+
+        //            if (lastItemContainerIndex <= itemSourceCache.Count - 1)
+        //            {
+        //                var newItemViewCache = viewCacheIndexMap[removedIndex];
+        //                newItemViewCache.ContentCanvasPosition = lastItemContainerCache.ContentCanvasPosition;
+        //                newItemViewCache.MainPanelPosition = lastItemContainerCache.MainPanelPosition;
+        //                newItemViewCache.View.ViewModel = itemSourceCache[lastItemContainerIndex];
+        //                SetLeft(newItemViewCache.View, oldViewCache != null ? GetLeft(lastItemContainerCache.View) : 0);
+        //            }
+        //            else
+        //            {
+        //            }
+
+
+        //            //            animationStoryboard.Completed += (s, e) =>
+        //            //            {
+        //            //                // Apply to cache, remove redundant view
+        //            //                var oldIndexOnViewCache = oldViewCache == null ? 0 : viewCache.IndexOf(oldViewCache);
+        //            //                var itemNeedToRemove = viewCache[viewCache.Count - 1];
+        //            //                viewCache.Insert(oldIndexOnViewCache, newItemViewCache);
+        //            //                viewCache.RemoveAt(viewCache.Count - 1);
+        //            //                viewCacheMap.Remove(itemNeedToRemove.View);
+        //            //                viewCacheMap.Add(newItemViewCache.View, newItemViewCache);
+        //            //                for (int i = 0; i < viewCache.Count - oldIndexOnViewCache; i++)
+        //            //                {
+        //            //                    viewCacheIndexMap.Add(viewCache[oldIndexOnViewCache + i].Index,
+        //            //                        viewCache[oldIndexOnViewCache + i]);
+        //            //                }
+        //            //                contentContainerCanvas?.Children.Remove(itemNeedToRemove.View);
+
+        //            //                IsItemContainerAnimationStarted = false;
+        //            //#if DEBUG
+        //            //                // Đảm bảo index trong view cache luôn the thứ tự tăng dần
+        //            //                for (int i = 0; i < viewCache.Count - 1; i++)
+        //            //                {
+        //            //                    Debug.Assert(viewCache[i + 1].Index - viewCache[i].Index == 1);
+        //            //                }
+        //            //                foreach (var vc in viewCache)
+        //            //                {
+        //            //                    Debug.Assert(viewCacheMap.ContainsKey(vc.View));
+        //            //                    Debug.Assert(viewCacheMap[vc.View] == vc);
+        //            //                    Debug.Assert(viewCacheIndexMap[vc.Index] == vc);
+        //            //                }
+        //            //                foreach (var kp in viewCacheIndexMap)
+        //            //                {
+        //            //                    Debug.Assert(kp.Key == kp.Value.Index);
+        //            //                }
+        //            //                // Đảm bảo map và cache size luôn bằng nhau
+        //            //                Debug.Assert(viewCacheMap.Count == viewCache.Count);
+        //            //                Debug.Assert(viewCache.Count == contentContainerCanvas!.Children.Count);
+        //            //#endif
+        //            //                InvalidateMeasure();
+        //            //            };
+        //            IsItemContainerAnimationStarted = true;
+        //            contentContainerCanvas?.BeginStoryboard(animationStoryboard);
+        //        }
+
+
+
+        private void SetDesiredItemContainerSize(Size newSize)
+        {
+            if (desiredItemContainerSize != newSize)
+            {
+                itemController.SetDesiredItemContainerSize(newSize);
+            }
+            desiredItemContainerSize = newSize;
+        }
+    }
+
+    public class FrameLineEventArgs
+    {
+        public static FrameLineEventArgs CreateSwitchEvent(int switchedFrame1Index, int switchedFrame2Index)
+        {
+            return new FrameLineEventArgs(switchedFrame1Index, switchedFrame2Index);
+        }
+
+        public static FrameLineEventArgs CreateAddingNewFrameEvent(int newFrameIndex)
+        {
+            var arg = new FrameLineEventArgs();
+            arg.NewFrameIndex = newFrameIndex;
+            return arg;
+        }
+
+        public static FrameLineEventArgs CreateRemovingOldFrameEvent(int oldFrameIndex)
+        {
+            var arg = new FrameLineEventArgs();
+            arg.OldFrameIndex = oldFrameIndex;
+            return arg;
+        }
+
+
+        private FrameLineEventArgs(int switchedFrame1Index, int switchedFrame2Index)
+        {
+            SwitchedFrame1Index = switchedFrame1Index;
+            SwitchedFrame2Index = switchedFrame2Index;
+        }
+
+        private FrameLineEventArgs()
+        {
+        }
+
+        public bool Handled { get; set; }
+        public int SwitchedFrame1Index { get; private set; } = -1;
+        public int SwitchedFrame2Index { get; private set; } = -1;
+        public int NewFrameIndex { get; private set; } = -1;
+        public int OldFrameIndex { get; private set; } = -1;
+
+    }
+
+}

@@ -42,7 +42,7 @@ namespace SPRNetTool.View.Base
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            ViewModel.IfIs<IArtWizViewModel>((it) => it.OnCreate(this));
+            ViewModel.IfIs<IArtWizViewModel>((it) => it.OnArtWizViewModelOwnerCreate(this));
         }
 
         protected MenuItem? _sprWorkSpaceItem;

@@ -29,7 +29,7 @@ namespace SPRNetTool.View.Base
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            DataContext.IfIs<IArtWizViewModel>((it) => it.OnCreate(this));
+            DataContext.IfIs<IArtWizViewModel>((it) => it.OnArtWizViewModelOwnerCreate(this));
         }
 
         ~BasePageViewer()

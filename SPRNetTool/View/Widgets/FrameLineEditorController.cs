@@ -1,7 +1,9 @@
 ﻿using SPRNetTool.LogUtil;
 using SPRNetTool.Utils;
+using SPRNetTool.ViewModel.Widgets;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,6 +30,7 @@ namespace SPRNetTool.View.Widgets
         public Point Position { get => currentPost; }
 
         public Ellipse MainEllipse { get; private set; }
+        public FramePreviewer FramePreviewer { get; private set; }
         public Canvas ContainerCanvas { get; private set; }
         public Ellipse? DraggedMouseEllipse { get; private set; }
         public uint CurrentIndex { get; private set; }
@@ -43,11 +46,14 @@ namespace SPRNetTool.View.Widgets
         private TextBlock contentView;
         private uint initIndex;
         private uint frameCount;
-        private EllipseController(Canvas ownerCanvas, uint index, uint frameCount)
+        private EllipseController(Canvas ownerCanvas, uint index, uint frameCount, IFramePreviewerViewModel frameViewModel)
         {
             this.initIndex = index;
             this.CurrentIndex = index;
             this.frameCount = frameCount;
+
+            FramePreviewer = new FramePreviewer();
+            FramePreviewer.ViewModel = frameViewModel;
             MainEllipse = new Ellipse()
             {
                 MinWidth = 5,
@@ -66,6 +72,7 @@ namespace SPRNetTool.View.Widgets
             ContainerCanvas = new Canvas();
             ContainerCanvas.Children.Add(MainEllipse);
             ContainerCanvas.Children.Add(contentView);
+            ContainerCanvas.Children.Add(FramePreviewer);
             ContainerCanvas.MouseLeftButtonDown += ContainerCanvas_MouseLeftButtonDown;
             ContainerCanvas.MouseLeave += ContainerCanvas_MouseLeave;
             ContainerCanvas.MouseEnter += ContainerCanvas_MouseEnter;
@@ -97,9 +104,9 @@ namespace SPRNetTool.View.Widgets
             ContainerCanvas.MouseMove -= ContainerCanvas_MouseMove;
         }
 
-        public static EllipseController CreateController(Canvas ownerCanvas, uint index, uint frameCount)
+        public static EllipseController CreateController(Canvas ownerCanvas, uint index, uint frameCount, IFramePreviewerViewModel frameViewModel)
         {
-            return new EllipseController(ownerCanvas, index, frameCount);
+            return new EllipseController(ownerCanvas, index, frameCount, frameViewModel);
         }
 
         public void SetDragEllipseEnter(bool isEnter, EllipseController dragEnteredEllipse)
@@ -577,7 +584,7 @@ namespace SPRNetTool.View.Widgets
 
         private void ContextMenuController_PreviewAddingNewFrame(int newIndex, double cursorX, double cursorY)
         {
-            InsertFrameWithRoutedEvent((uint)newIndex);
+            InsertFrameWithRoutedEvent((uint)newIndex, null);
         }
 
         private void ContainerScroll_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -725,11 +732,12 @@ namespace SPRNetTool.View.Widgets
             }
         }
 
-        public void SetTotalFrameCount(uint frameCount)
+        public void SetTotalFrameCount(Collection<IFramePreviewerViewModel>? framePreviewerViewModelSource)
         {
+            var frameCount = framePreviewerViewModelSource?.Count ?? 0;
             if (ellipseControllersCache.Count != frameCount)
             {
-                calculatedFrameLineMinimumWidth = CaculateFrameLineMinimumWidth(frameCount);
+                calculatedFrameLineMinimumWidth = CaculateFrameLineMinimumWidth((uint)frameCount);
                 if (containerCanvas.ActualWidth < calculatedFrameLineMinimumWidth)
                 {
                     containerCanvas.Width = calculatedFrameLineMinimumWidth;
@@ -737,10 +745,11 @@ namespace SPRNetTool.View.Widgets
             }
 
             ClearAllEllipse();
-            for (uint i = 0; i < frameCount; i++)
+            for (uint i = 0; i < frameCount && framePreviewerViewModelSource != null; i++)
             {
-                var index = i;
-                var controller = CreateAndSetupController(i, frameCount);
+                var controller = CreateAndSetupController(i,
+                    (uint)frameCount,
+                    framePreviewerViewModelSource[(int)i]);
                 containerCanvas.Children.Add(controller.ContainerCanvas);
                 ellipseControllersCache.Add(controller);
             }
@@ -773,17 +782,17 @@ namespace SPRNetTool.View.Widgets
             InternalRemoveFrame(frameIndex);
         }
 
-        public void InsertFrame(uint frameIndex)
+        public void InsertFrame(uint frameIndex, IFramePreviewerViewModel framePreviewerViewModel)
         {
             if (frameIndex > ellipseControllersCache.Count)
             {
                 throw new Exception();
             }
 
-            InternalInsertFrame(frameIndex);
+            InternalInsertFrame(frameIndex, framePreviewerViewModel);
         }
 
-        public void InsertFrameWithRoutedEvent(uint frameIndex)
+        public void InsertFrameWithRoutedEvent(uint frameIndex, IFramePreviewerViewModel? framePreviewerViewModel)
         {
             if (frameIndex > ellipseControllersCache.Count)
             {
@@ -792,15 +801,15 @@ namespace SPRNetTool.View.Widgets
 
             var args = FrameLineEventArgs.CreateAddingNewFrameEvent((int)frameIndex);
             OnPreviewAddingFrame?.Invoke(this, args);
-            if (args.Handled)
+            if (args.Handled || framePreviewerViewModel == null)
             {
                 return;
             }
 
-            InternalInsertFrame(frameIndex);
+            InternalInsertFrame(frameIndex, framePreviewerViewModel);
         }
 
-        public void AddNewFrame()
+        public void AddNewFrame(IFramePreviewerViewModel framePreviewerViewModel)
         {
             var frameIndex = ellipseControllersCache.Count;
 
@@ -812,7 +821,8 @@ namespace SPRNetTool.View.Widgets
             }
 
             var controller = CreateAndSetupController((uint)frameIndex,
-                (uint)ellipseControllersCache.Count + 1);
+                (uint)ellipseControllersCache.Count + 1,
+                framePreviewerViewModel);
 
             containerCanvas.Children.Add(controller.ContainerCanvas);
             ellipseControllersCache.Add(controller);
@@ -845,9 +855,9 @@ namespace SPRNetTool.View.Widgets
 
         #endregion
 
-        private EllipseController CreateAndSetupController(uint index, uint frameCount)
+        private EllipseController CreateAndSetupController(uint index, uint frameCount, IFramePreviewerViewModel framePreviewerViewModel)
         {
-            var controller = EllipseController.CreateController(ownerCanvas: containerCanvas, index, frameCount);
+            var controller = EllipseController.CreateController(ownerCanvas: containerCanvas, index, frameCount, framePreviewerViewModel);
             controller.OnDraggingMouseEllipse += Controller_OnDraggingMouseEllipse;
             controller.OnDraggingMouseUpEnteredEllipse += Controller_OnDraggingMouseUpEnteredEllipse;
             controller.PreviewRemovingEllipse += Controller_PreviewRemovingEllipse;
@@ -872,9 +882,11 @@ namespace SPRNetTool.View.Widgets
             InternalRemoveFrame(frameIndex);
         }
 
-        private void InternalInsertFrame(uint frameIndex)
+        private void InternalInsertFrame(uint frameIndex, IFramePreviewerViewModel framePreviewerViewModel)
         {
-            var controller = CreateAndSetupController(frameIndex, (uint)ellipseControllersCache.Count + 1);
+            var controller = CreateAndSetupController(frameIndex,
+                (uint)ellipseControllersCache.Count + 1,
+                framePreviewerViewModel);
 
             containerCanvas.Children.Add(controller.ContainerCanvas);
             ellipseControllersCache.Insert((int)frameIndex, controller);

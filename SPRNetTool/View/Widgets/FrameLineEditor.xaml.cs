@@ -82,9 +82,9 @@ namespace SPRNetTool.View.Widgets
         public static readonly DependencyProperty FrameSourceProperty =
             DependencyProperty.Register(
                 "FrameSource",
-                typeof(IEnumerable<IFrameViewModel>),
+                typeof(IEnumerable<IFramePreviewerViewModel>),
                 typeof(FrameLineEditor),
-            new FrameworkPropertyMetadata(defaultValue: default(IEnumerable<IFrameViewModel>),
+            new FrameworkPropertyMetadata(defaultValue: default(IEnumerable<IFramePreviewerViewModel>),
                 flags: FrameworkPropertyMetadataOptions.AffectsRender,
                 new PropertyChangedCallback(OnFrameSourceChangeCallback)));
 
@@ -92,8 +92,8 @@ namespace SPRNetTool.View.Widgets
         {
             d.IfIs<FrameLineEditor>(it =>
             {
-                it.SetUpFrameSource(e.NewValue as IEnumerable<IFrameViewModel>);
-                e.OldValue.IfIs<IEnumerable<IFrameViewModel>>(source => it.DisposeFrameSource(source));
+                it.SetUpFrameSource(e.NewValue as IEnumerable<IFramePreviewerViewModel>);
+                e.OldValue.IfIs<IEnumerable<IFramePreviewerViewModel>>(source => it.DisposeFrameSource(source));
             });
         }
 
@@ -111,11 +111,11 @@ namespace SPRNetTool.View.Widgets
             Controller = new FrameLineController(ScrView, MainCanvas, 0);
         }
 
-        private void SetUpFrameSource(IEnumerable<IFrameViewModel>? frameSource)
+        private void SetUpFrameSource(IEnumerable<IFramePreviewerViewModel>? frameSource)
         {
             if (frameSource == null)
             {
-                Controller.SetTotalFrameCount(0);
+                Controller.SetTotalFrameCount(null);
             }
             else
             {
@@ -124,15 +124,15 @@ namespace SPRNetTool.View.Widgets
                     it.CollectionChanged += FrameSourceCollectionChanged;
                 });
 
-                frameSource.IfIs<Collection<IFrameViewModel>>(it =>
+                frameSource.IfIs<Collection<IFramePreviewerViewModel>>(it =>
                 {
-                    Controller.SetTotalFrameCount((uint)it.Count);
+                    Controller.SetTotalFrameCount(it);
                 });
             }
 
         }
 
-        private void DisposeFrameSource(IEnumerable<IFrameViewModel> frameSource)
+        private void DisposeFrameSource(IEnumerable<IFramePreviewerViewModel> frameSource)
         {
             frameSource.IfIs<INotifyCollectionChanged>(it =>
             {
@@ -164,7 +164,12 @@ namespace SPRNetTool.View.Widgets
                         var sizeChanged = e.NewItems?.Count ?? 0;
                         for (int i = e.NewStartingIndex; i < e.NewStartingIndex + sizeChanged; i++)
                         {
-                            Controller.InsertFrame((uint)i);
+                            if (e.NewItems != null)
+                            {
+                                var itemIndex = i - e.NewStartingIndex;
+                                var vm = (IFramePreviewerViewModel)e.NewItems[itemIndex]!;
+                                Controller.InsertFrame((uint)i, vm);
+                            }
                         }
                     }
                     return;

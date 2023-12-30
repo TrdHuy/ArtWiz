@@ -11,6 +11,7 @@ namespace SPRNetTool
         public static ResourceKey BackgroundColorLevel5 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundColorLevel8 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundColorLevel10 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundColorLevel15 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundColorLevel0 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundColorLevel0_1 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundColorLevel1 { get; } = CreateResourceKey();
@@ -25,6 +26,7 @@ namespace SPRNetTool
         public static ResourceKey BackgroundLevel5 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundLevel8 { get; } = CreateResourceKey();
         public static ResourceKey BackgroundLevel10 { get; } = CreateResourceKey();
+        public static ResourceKey BackgroundLevel15 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundLevel0 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundLevel0_1 { get; } = CreateResourceKey();
         public static ResourceKey ForegroundLevel1 { get; } = CreateResourceKey();
@@ -57,15 +59,27 @@ namespace SPRNetTool
         public static ResourceKey SprWorkSpaceIconGeometry { get; } = CreateResourceKey();
         public static ResourceKey ArtWizLogoGeometry { get; } = CreateResourceKey();
         public static ResourceKey ArtWizTextLogoGeometry { get; } = CreateResourceKey();
-
+        public static ResourceKey RightArrowIconGeometry { get; } = CreateResourceKey();
+        public static ResourceKey LeftArrowIconGeometry { get; } = CreateResourceKey();
+        
         public static ResourceKey ArtWizDefaultWindowStyle { get; } = CreateResourceKey();
+        public static ResourceKey UnidentifiedPreviewFrameSource { get; } = CreateResourceKey();
 
-        public static Definitions? Instance;
+        public static Definitions? Instance { get; private set; }
 
         public Definitions()
         {
             InitializeComponent();
             Instance = this;
+        }
+        protected override void OnGettingValue(object key, ref object value, out bool canCache)
+        {
+            base.OnGettingValue(key, ref value, out canCache);
+            if (key.Equals(UnidentifiedPreviewFrameSource) &&
+                UnidentifiedPreviewFrameSourceInstance?.IsFrozen == false)
+            {
+                UnidentifiedPreviewFrameSourceInstance.Freeze();
+            }
         }
 
         private static ComponentResourceKey CreateResourceKey([CallerMemberName] string? caller = null)

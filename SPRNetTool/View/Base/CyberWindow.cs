@@ -75,6 +75,9 @@ namespace SPRNetTool.View.Base
             /// </summary>
             private const int WM_SIZE = 0x0005;
 
+            private const int WM_GETDPISCALEDSIZE = 0x02E4;
+            private const int WM_DPICHANGED = 0x02E0;
+
             /// <summary>
             /// System parameter info
             /// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa
@@ -177,6 +180,19 @@ namespace SPRNetTool.View.Base
             {
                 switch (msg)
                 {
+                    case WM_DPICHANGED:
+                        {
+                            int newDpiX = (int)(wParam.ToInt32() & 0xFFFF);
+                            int newDpiY = (int)((wParam.ToInt32() >> 16) & 0xFFFF);
+
+                            int a = 0;
+                            break;
+                        }
+                    case WM_GETDPISCALEDSIZE:
+                        {
+                            int a = 0;
+                            break;
+                        }
                     case WM_EXITSIZEMOVE:
                         {
                             RECT cyberRect = new RECT();
@@ -184,7 +200,6 @@ namespace SPRNetTool.View.Base
 
                             int MONITOR_DEFAULTTONEAREST = 0x00000002;
                             IntPtr monitor = NativeMethods.MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-
                             if (monitor != IntPtr.Zero)
                             {
                                 MONITORINFO monitorInfo = new MONITORINFO();
@@ -528,6 +543,13 @@ namespace SPRNetTool.View.Base
 
             var dpiX = GetDeviceCaps(hdc, LOGPIXELSX);
             var dpiY = GetDeviceCaps(hdc, LOGPIXELSY);
+            return new Point(dpiX, dpiX);
+        }
+
+        public static Point GetDeviceCaps(IntPtr dv)
+        {
+            var dpiX = GetDeviceCaps(dv, LOGPIXELSX);
+            var dpiY = GetDeviceCaps(dv, LOGPIXELSY);
             return new Point(dpiX, dpiX);
         }
 
