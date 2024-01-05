@@ -79,13 +79,13 @@ body:
 
         <!-- # Or drag and drop the log file and delete the above detail part. -->
         
-  - type: input
-    id: feature-branch
+  - type: dropdown
+    id: browsers
     attributes:
-      label: 'Select Feature Branch'
-      description: 'Choose the branch you want this feature to be implemented on.'
-      options: 
-        - Enhancement
-        - New Feature
-        - Bug Fix
-        - Other
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
