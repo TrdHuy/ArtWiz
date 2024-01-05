@@ -82,7 +82,10 @@ body:
   - type: dropdown
     id: browsers
     attributes:
-      label: What browsers are you seeing the problem on?
+      label: What browsers are you seeing the problem on?  ${{ vars.ISSUE_TEMPLATE_BRANCH_LIST }}
       multiple: true
       options: 
-        ${{ vars.ISSUE_TEMPLATE_BRANCH_LIST }}
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
