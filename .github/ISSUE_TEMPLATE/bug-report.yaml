@@ -55,7 +55,13 @@ body:
       placeholder: "Example: 10.0.19043.1288"
     validations:
       required: true
-
+      
+  - type: input
+    attributes:
+      label: Occurred branch name
+      description: For dev
+      placeholder: "Example: feature_abv_a_p1"
+    
   - type: textarea
     id: logs
     attributes:
@@ -78,14 +84,4 @@ body:
 
 
         <!-- # Or drag and drop the log file and delete the above detail part. -->
-        
-  - type: dropdown
-    id: browsers
-    attributes:
-      label: What browsers are you seeing the problem on?  ${{ vars.ISSUE_TEMPLATE_BRANCH_LIST }}
-      multiple: true
-      options: 
-        - Firefox
-        - Chrome
-        - Safari
-        - Microsoft Edge
+
