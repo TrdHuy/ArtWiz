@@ -1,5 +1,5 @@
 name: "\U0001F41E Bug Report"
-description: Create a bug report to help us improve Flow Launcher
+description: Create a bug report to help us improve ArtWiz
 title: "BUG: "
 labels: ["bug"]
 
@@ -15,7 +15,7 @@ body:
         - label: >
             I have checked that this issue has not already been reported.
         - label: >
-            I am using the latest version of Flow Launcher.
+            I am using the latest version of ArtWiz.
         
   - type: textarea
     attributes:
@@ -42,7 +42,7 @@ body:
 
   - type: input
     attributes:
-      label: Flow Launcher Version
+      label: ArtWiz Version
       description: Go to "Settings" => "About". If you are using a prerelease version please append the build number.
       placeholder: "Example: 1.11.0"
     validations:
@@ -78,3 +78,14 @@ body:
 
 
         <!-- # Or drag and drop the log file and delete the above detail part. -->
+        
+  - type: input
+    id: feature-branch
+    attributes:
+      label: 'Select Feature Branch'
+      description: 'Choose the branch you want this feature to be implemented on.'
+      options: 
+        - Enhancement
+        - New Feature
+        - Bug Fix
+        - Other
