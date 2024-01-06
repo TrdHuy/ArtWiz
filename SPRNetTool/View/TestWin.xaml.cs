@@ -91,7 +91,15 @@ namespace SPRNetTool.View
             collection.SwitchItem(args.SwitchedFrame1Index, args.SwitchedFrame2Index); ;
             args.Handled = true;
         }
+        private void RemoveFrameAt1Index(object sender, RoutedEventArgs e)
+        {
+            collection.RemoveAt(1);
+        }
 
+        private void RemoveFrameAt10Index(object sender, RoutedEventArgs e)
+        {
+            collection.RemoveAt(10);
+        }
         private void InsertFrameTo1Index(object sender, RoutedEventArgs e)
         {
             collection.Insert(1, new FrameViewModel());
@@ -999,6 +1007,94 @@ namespace SPRNetTool.View
                 return true;
             }
 
+            public bool RemoveFrameWithAnimation(int removeIndex,
+              double frameDistance,
+              out DoubleAnimation?[]? removeFrameAnimations,
+              out FramePreviewer? oldItemContainer,
+              out FramePreviewer? newItemContainer)
+            {
+                viewCacheIndexMap.TryGetValue(removeIndex, out ViewCache? oldViewCache);
+                removeFrameAnimations = null;
+                newItemContainer = null;
+                oldItemContainer = null;
+                // Nếu oldViewCache bằng null, có nghĩa là vị trí inserted nằm ngoài vị trí hiển thị
+                // Nên case này không cần xử lý
+                if (itemSourceCache == null || oldViewCache == null && itemSourceCache?.Count > 0
+                    && removeIndex > endVisibleItemIndex)
+                {
+                    return false;
+                }
+
+                if (removeIndex < StartVisibleItemIndex)
+                {
+                    removeFrameAnimations = new DoubleAnimation[viewCaches.Count];
+                    for (int i = 0; i < viewCaches.Count; i++)
+                    {
+                        var viewCache = viewCaches[i];
+                        viewCacheIndexMap.Remove(viewCache.Index);
+                        viewCache.Index -= 1;
+                        removeFrameAnimations[i] =
+                            ReArrangeItemContainerWithAnimation(viewCache.Index + 1, viewCache, frameDistance);
+                    }
+                    StartVisibleItemIndex -= 1;
+                    endVisibleItemIndex -= 1;
+
+                    for (int i = 0; i < viewCaches.Count; i++)
+                        viewCacheIndexMap.Add(viewCaches[i].Index, viewCaches[i]);
+                }
+                else
+                {
+                    var lastItemContainerIndex = viewCaches.Last().Index;
+
+                    removeFrameAnimations = new DoubleAnimation[lastItemContainerIndex - removeIndex];
+
+                    var removedCache = viewCacheIndexMap[removeIndex];
+                    viewCaches.Remove(removedCache);
+                    viewCacheIndexMap.Remove(removeIndex);
+                    viewCacheMap.Remove(removedCache.View);
+
+                    List<ViewCache> tempList = new List<ViewCache>();
+                    for (int i = 1; i < lastItemContainerIndex - removeIndex + 1; i++)
+                    {
+                        var viewCache = viewCacheIndexMap[i + removeIndex];
+                        viewCacheIndexMap.Remove(i + removeIndex);
+                        viewCache.Index -= 1;
+                        removeFrameAnimations[i - 1] =
+                            ReArrangeItemContainerWithAnimation(i + removeIndex, viewCache, frameDistance);
+                        tempList.Add(viewCache);
+                    }
+                    foreach (var item in tempList)
+                    {
+                        viewCacheIndexMap.Add(item.Index, item);
+                    }
+
+                    ViewCache newItemViewCache;
+
+                    if (endVisibleItemIndex >= itemSourceCache!.Count)
+                    {
+                        StartVisibleItemIndex -= 1;
+                        endVisibleItemIndex -= 1;
+                        newItemViewCache = new ViewCache(GenerateItemContainer(StartVisibleItemIndex), StartVisibleItemIndex);
+                        viewCaches.Insert(0, newItemViewCache);
+                        viewCacheMap.Add(newItemViewCache.View, newItemViewCache);
+                        viewCacheIndexMap.Add(newItemViewCache.Index, newItemViewCache);
+                    }
+                    else
+                    {
+                        newItemViewCache = new ViewCache(GenerateItemContainer(endVisibleItemIndex), endVisibleItemIndex);
+                        viewCaches.Add(newItemViewCache);
+                        viewCacheMap.Add(newItemViewCache.View, newItemViewCache);
+                        viewCacheIndexMap.Add(newItemViewCache.Index, newItemViewCache);
+                    }
+                    ArrangeItemContainer(newItemViewCache, frameDistance);
+                    newItemContainer = newItemViewCache.View;
+                    oldItemContainer = removedCache.View;
+                }
+
+
+                return true;
+            }
+
             private DoubleAnimation? ReArrangeItemContainerWithAnimation(int oldIndex,
                 ViewCache view,
                 double frameDistance)
@@ -1020,6 +1116,14 @@ namespace SPRNetTool.View
                 };
                 xAnim.FillBehavior = FillBehavior.Stop;
                 return xAnim;
+            }
+
+            private void ArrangeItemContainer(ViewCache view,
+                double frameDistance)
+            {
+                var toLeft = view.Index *
+                       (desiredItemContainerSize.Width + frameDistance);
+                Canvas.SetLeft(view.View, toLeft);
             }
         }
 
@@ -1226,7 +1330,7 @@ namespace SPRNetTool.View
                         var sizeChanged = e.OldItems?.Count ?? 0;
                         for (int i = e.OldStartingIndex; i < e.OldStartingIndex + sizeChanged; i++)
                         {
-                            //Controller.RemoveFrame((uint)i);
+                            RemoveFrame(i);
                         }
                     }
                     else if (e.Action == NotifyCollectionChangedAction.Add)
@@ -1511,92 +1615,51 @@ namespace SPRNetTool.View
 
         }
 
-        //        private void RemoveFrame(int removedIndex,
-        //           IFramePreviewerViewModel oldItem)
-        //        {
-        //            viewCacheIndexMap.TryGetValue(removedIndex, out ViewCache? oldViewCache);
+        private void RemoveFrame(int removedIndex)
+        {
+            var res = itemController.RemoveFrameWithAnimation(removedIndex,
+                frameDistance,
+                out DoubleAnimation?[]? anims,
+                out FramePreviewer? oldItemContainer,
+                out FramePreviewer? newItemContainer);
 
-        //            // Nếu oldViewCache bằng null, có nghĩa là vị trí inserted nằm ngoài vị trí hiển thị
-        //            // Nên case này không cần xử lý
-        //            if (itemSourceCache == null || oldViewCache == null)
-        //            {
-        //                return;
-        //            }
+            if (res && oldItemContainer != null)
+            {
+                contentContainerCanvas?.Children.Remove(oldItemContainer);
 
-        //            var animationStoryboard = new Storyboard();
-        //            var lastItemContainerCache = viewCache.Last();
-        //            var lastItemContainerIndex = lastItemContainerCache.Index;
+                if (newItemContainer != null)
+                {
+                    contentContainerCanvas?.Children.Add(newItemContainer);
+                }
+                var animationStoryboard = new Storyboard();
+                animationStoryboard.FillBehavior = FillBehavior.Stop;
+                anims?.FoEach(it => it?.Apply(it => animationStoryboard.Children.Add(it)));
 
-        //            for (int i = 0; i < lastItemContainerIndex - removedIndex + 1; i++)
-        //            {
-        //                var viewCache = viewCacheIndexMap[i + removedIndex];
-        //                viewCacheIndexMap.Remove(i + removedIndex);
-        //                if (i != 0)
-        //                {
-        //                    viewCache.Index -= 1;
-        //                    var anim = ReArrangeItemContainerWithAnimation(i + removedIndex, viewCache);
-        //                    animationStoryboard.Children.Add(anim);
-        //                }
-        //            }
-        //            animationStoryboard.FillBehavior = FillBehavior.Stop;
+                animationStoryboard.Completed += (s, e) =>
+                {
+                    contentContainerCanvas?.Children.Remove(oldItemContainer);
+#if DEBUG
+                    itemController.AssertForDebug();
+#endif
+                };
+                BeginStoryboard(animationStoryboard);
+            }
+            else if (res && anims != null)
+            {
+                var animationStoryboard = new Storyboard();
+                animationStoryboard.FillBehavior = FillBehavior.Stop;
+                anims?.FoEach(it => it?.Apply(it => animationStoryboard.Children.Add(it)));
 
-        //            if (lastItemContainerIndex <= itemSourceCache.Count - 1)
-        //            {
-        //                var newItemViewCache = viewCacheIndexMap[removedIndex];
-        //                newItemViewCache.ContentCanvasPosition = lastItemContainerCache.ContentCanvasPosition;
-        //                newItemViewCache.MainPanelPosition = lastItemContainerCache.MainPanelPosition;
-        //                newItemViewCache.View.ViewModel = itemSourceCache[lastItemContainerIndex];
-        //                SetLeft(newItemViewCache.View, oldViewCache != null ? GetLeft(lastItemContainerCache.View) : 0);
-        //            }
-        //            else
-        //            {
-        //            }
+                animationStoryboard.Completed += (s, e) =>
+                {
+#if DEBUG
+                    itemController.AssertForDebug();
+#endif
+                };
+                BeginStoryboard(animationStoryboard);
+            }
 
-
-        //            //            animationStoryboard.Completed += (s, e) =>
-        //            //            {
-        //            //                // Apply to cache, remove redundant view
-        //            //                var oldIndexOnViewCache = oldViewCache == null ? 0 : viewCache.IndexOf(oldViewCache);
-        //            //                var itemNeedToRemove = viewCache[viewCache.Count - 1];
-        //            //                viewCache.Insert(oldIndexOnViewCache, newItemViewCache);
-        //            //                viewCache.RemoveAt(viewCache.Count - 1);
-        //            //                viewCacheMap.Remove(itemNeedToRemove.View);
-        //            //                viewCacheMap.Add(newItemViewCache.View, newItemViewCache);
-        //            //                for (int i = 0; i < viewCache.Count - oldIndexOnViewCache; i++)
-        //            //                {
-        //            //                    viewCacheIndexMap.Add(viewCache[oldIndexOnViewCache + i].Index,
-        //            //                        viewCache[oldIndexOnViewCache + i]);
-        //            //                }
-        //            //                contentContainerCanvas?.Children.Remove(itemNeedToRemove.View);
-
-        //            //                IsItemContainerAnimationStarted = false;
-        //            //#if DEBUG
-        //            //                // Đảm bảo index trong view cache luôn the thứ tự tăng dần
-        //            //                for (int i = 0; i < viewCache.Count - 1; i++)
-        //            //                {
-        //            //                    Debug.Assert(viewCache[i + 1].Index - viewCache[i].Index == 1);
-        //            //                }
-        //            //                foreach (var vc in viewCache)
-        //            //                {
-        //            //                    Debug.Assert(viewCacheMap.ContainsKey(vc.View));
-        //            //                    Debug.Assert(viewCacheMap[vc.View] == vc);
-        //            //                    Debug.Assert(viewCacheIndexMap[vc.Index] == vc);
-        //            //                }
-        //            //                foreach (var kp in viewCacheIndexMap)
-        //            //                {
-        //            //                    Debug.Assert(kp.Key == kp.Value.Index);
-        //            //                }
-        //            //                // Đảm bảo map và cache size luôn bằng nhau
-        //            //                Debug.Assert(viewCacheMap.Count == viewCache.Count);
-        //            //                Debug.Assert(viewCache.Count == contentContainerCanvas!.Children.Count);
-        //            //#endif
-        //            //                InvalidateMeasure();
-        //            //            };
-        //            IsItemContainerAnimationStarted = true;
-        //            contentContainerCanvas?.BeginStoryboard(animationStoryboard);
-        //        }
-
-
+        }
 
         private void SetDesiredItemContainerSize(Size newSize)
         {

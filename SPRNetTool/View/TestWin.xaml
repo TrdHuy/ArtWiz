@@ -169,6 +169,10 @@
 					Click="InsertFrameTo1Index" />
 			<Button Content="Insert Frame to 10"
 					Click="InsertFrameTo10Index" />
+			<Button Content="Remove Frame at 1"
+					Click="RemoveFrameAt1Index" />
+			<Button Content="Remove Frame at 10"
+					Click="RemoveFrameAt10Index" />
 		</WrapPanel>
 	</Grid>
 </Window>
