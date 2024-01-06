@@ -173,6 +173,8 @@
 					Click="RemoveFrameAt1Index" />
 			<Button Content="Remove Frame at 10"
 					Click="RemoveFrameAt10Index" />
+			<Button Content="Remove Frame at last"
+					Click="RemoveFrameAtLastIndex" />
 		</WrapPanel>
 	</Grid>
 </Window>
