@@ -157,7 +157,7 @@
 			</local:FrameLineEditorVirtualizingPanel>
 		</ScrollViewer>
 
-		<StackPanel Grid.Row="1"
+		<WrapPanel Grid.Row="1"
 					Orientation="Horizontal">
 			<Button Content="T1"
 					Click="Button_Click" />
@@ -165,8 +165,10 @@
 					Click="IncreaseFrameDistance" />
 			<Button Content="Decrease Distance"
 					Click="DecreaseFrameDistance" />
-			<Button Content="Insert Frame"
+			<Button Content="Insert Frame to 1"
 					Click="InsertFrameTo1Index" />
-		</StackPanel>
+			<Button Content="Insert Frame to 10"
+					Click="InsertFrameTo10Index" />
+		</WrapPanel>
 	</Grid>
 </Window>

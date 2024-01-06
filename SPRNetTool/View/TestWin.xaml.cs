@@ -97,6 +97,10 @@ namespace SPRNetTool.View
             collection.Insert(1, new FrameViewModel());
         }
 
+        private void InsertFrameTo10Index(object sender, RoutedEventArgs e)
+        {
+            collection.Insert(10, new FrameViewModel());
+        }
         private void myPanel_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
             contextMenuPosX = e.CursorLeft;
@@ -466,21 +470,21 @@ namespace SPRNetTool.View
             {
                 get
                 {
-                    return viewCache.Count;
+                    return viewCaches.Count;
                 }
             }
             public int LastVisibleItemIndex
             {
                 get
                 {
-                    return viewCache.Count == 0 ? -1 : viewCache.Last().Index;
+                    return viewCaches.Count == 0 ? -1 : viewCaches.Last().Index;
                 }
             }
             public int FirstVisibleItemIndex
             {
                 get
                 {
-                    return viewCache.Count == 0 ? -1 : viewCache.First().Index;
+                    return viewCaches.Count == 0 ? -1 : viewCaches.First().Index;
                 }
             }
             public class ViewCache
@@ -501,7 +505,7 @@ namespace SPRNetTool.View
 
             private FrameLineEditorVirtualizingPanel panelOwner;
             private Collection<IFramePreviewerViewModel>? itemSourceCache;
-            private Collection<ViewCache> viewCache = new Collection<ViewCache>();
+            private Collection<ViewCache> viewCaches = new Collection<ViewCache>();
             private Dictionary<FramePreviewer, ViewCache> viewCacheMap = new Dictionary<FramePreviewer, ViewCache>();
             private Dictionary<int, ViewCache> viewCacheIndexMap = new Dictionary<int, ViewCache>();
             private int endVisibleItemIndex;
@@ -586,11 +590,71 @@ namespace SPRNetTool.View
                 //Switch container, and assign viewmodel to item container
                 if (newStartVisibleItemIndex > StartVisibleItemIndex)
                 {
-                    BringFirstToLast(newStartVisibleItemIndex - StartVisibleItemIndex);
+                    var numberItemToBring = newStartVisibleItemIndex - StartVisibleItemIndex;
+                    var lastItemIndex = LastVisibleItemIndex;
+
+                    // Trong trường hợp click thẳng trên thanh scroll thì lượng numberItemToBring có thể quá lớn dẫn tới
+                    // performance issue
+                    if (numberItemToBring > viewCaches.Count)
+                    {
+                        viewCacheIndexMap.Clear();
+                        for (int i = 0; i < newEndVisibleItemIndex - newStartVisibleItemIndex + 1; i++)
+                        {
+                            viewCaches[i].Index = newStartVisibleItemIndex + i;
+                            viewCaches[i].View.ViewModel = itemSourceCache?[newStartVisibleItemIndex + i];
+                            viewCacheIndexMap.Add(viewCaches[i].Index, viewCaches[i]);
+                        }
+                    }
+                    else if (numberItemToBring <= viewCaches.Count)
+                    {
+                        for (int i = 0; i < numberItemToBring; i++)
+                        {
+                            var oldElement = viewCaches[0];
+                            viewCaches.RemoveAt(0);
+                            viewCacheIndexMap.Remove(oldElement.Index);
+                            oldElement.Index = lastItemIndex + 1 + i;
+                            if (oldElement.Index < itemSourceCache?.Count)
+                                oldElement.View.ViewModel = itemSourceCache[oldElement.Index];
+                            viewCaches.Add(oldElement);
+                            viewCacheIndexMap.Add(oldElement.Index, oldElement);
+                        }
+                    }
                 }
                 else if (newEndVisibleItemIndex < endVisibleItemIndex)
                 {
-                    BringLastToFirst(StartVisibleItemIndex - newStartVisibleItemIndex);
+                    var numberItemToBring = StartVisibleItemIndex - newStartVisibleItemIndex;
+                    var firstItemIndex = FirstVisibleItemIndex;
+
+                    // Trong trường hợp click thẳng trên thanh scroll thì lượng numberItemToBring có thể quá lớn dẫn tới
+                    // performance issue
+                    if (numberItemToBring > viewCaches.Count)
+                    {
+                        viewCacheIndexMap.Clear();
+                        for (int i = 0; i < newEndVisibleItemIndex - newStartVisibleItemIndex + 1; i++)
+                        {
+                            viewCaches[i].Index = newStartVisibleItemIndex + i;
+                            viewCaches[i].View.ViewModel = itemSourceCache?[newStartVisibleItemIndex + i];
+                            viewCacheIndexMap.Add(viewCaches[i].Index, viewCaches[i]);
+                        }
+                    }
+                    else if (numberItemToBring <= viewCaches.Count)
+                    {
+                        for (int i = 0; i < numberItemToBring; i++)
+                        {
+                            var lastIndex = viewCaches.Count - 1;
+                            var oldElement = viewCaches[lastIndex];
+                            viewCaches.RemoveAt(lastIndex);
+                            viewCacheIndexMap.Remove(oldElement.Index);
+
+                            oldElement.Index = firstItemIndex - 1 - i;
+
+                            oldElement.View.ViewModel = itemSourceCache?[oldElement.Index];
+                            viewCaches.Insert(0, oldElement);
+                            viewCacheIndexMap.Add(oldElement.Index, oldElement);
+                        }
+
+                    }
+
                 }
 
 #if DEBUG
@@ -606,32 +670,32 @@ namespace SPRNetTool.View
             public void SetupItemSource(Collection<IFramePreviewerViewModel>? itemSource)
             {
                 itemSourceCache = itemSource;
-                viewCache.Clear();
+                viewCaches.Clear();
                 viewCacheIndexMap.Clear();
                 viewCacheMap.Clear();
             }
 
             public void InsertNewCacheToFront(ViewCache newCache)
             {
-                viewCache.Insert(0, newCache);
+                viewCaches.Insert(0, newCache);
                 viewCacheMap.Add(newCache.View, newCache);
                 viewCacheIndexMap.Add(newCache.Index, newCache);
             }
 
             public void AddNewCacheToBack(ViewCache newCache)
             {
-                viewCache.Add(newCache);
+                viewCaches.Add(newCache);
                 viewCacheMap.Add(newCache.View, newCache);
                 viewCacheIndexMap.Add(newCache.Index, newCache);
             }
 
             public ViewCache? RemoveLastCache()
             {
-                var lastIndex = viewCache.Count - 1;
+                var lastIndex = viewCaches.Count - 1;
                 if (lastIndex >= 0)
                 {
-                    var lastItem = viewCache[lastIndex];
-                    viewCache.RemoveAt(lastIndex);
+                    var lastItem = viewCaches[lastIndex];
+                    viewCaches.RemoveAt(lastIndex);
                     viewCacheMap.Remove(lastItem.View);
                     viewCacheIndexMap.Remove(lastItem.Index);
                     return lastItem;
@@ -660,7 +724,7 @@ namespace SPRNetTool.View
 
             public ViewCache? GetItemContainerBaseOnRelativePositionToPanel(Rect relativePanelPos, int excludedViewIndex)
             {
-                foreach (var c in viewCache)
+                foreach (var c in viewCaches)
                 {
                     if (excludedViewIndex != c.Index && relativePanelPos.IntersectsWith(c.MainPanelPosition))
                     {
@@ -672,7 +736,7 @@ namespace SPRNetTool.View
 
             public int GetItemContainerIndexBaseOnRelativePositionToPanel(double relativePanelPosX, double frameDistance)
             {
-                foreach (var c in viewCache)
+                foreach (var c in viewCaches)
                 {
                     if (relativePanelPosX <= c.MainPanelPosition.Right + frameDistance &&
                         relativePanelPosX >= c.MainPanelPosition.Left)
@@ -683,79 +747,43 @@ namespace SPRNetTool.View
                 return -1;
             }
 
-            public void BringFirstToLast(int numberItemToBring)
-            {
-                var lastItemIndex = LastVisibleItemIndex;
-
-                for (int i = 0; i < numberItemToBring; i++)
-                {
-                    var oldElement = viewCache[0];
-                    viewCache.RemoveAt(0);
-                    viewCacheIndexMap.Remove(oldElement.Index);
-                    oldElement.Index = lastItemIndex + 1 + i;
-                    if (oldElement.Index < itemSourceCache?.Count)
-                        oldElement.View.ViewModel = itemSourceCache[oldElement.Index];
-                    viewCache.Add(oldElement);
-                    viewCacheIndexMap.Add(oldElement.Index, oldElement);
-                }
-            }
-
-            public void BringLastToFirst(int numberItemToBring)
-            {
-                var firstItemIndex = FirstVisibleItemIndex;
-
-                for (int i = 0; i < numberItemToBring; i++)
-                {
-                    var lastIndex = viewCache.Count - 1;
-                    var oldElement = viewCache[lastIndex];
-                    viewCache.RemoveAt(lastIndex);
-                    viewCacheIndexMap.Remove(oldElement.Index);
-
-                    oldElement.Index = firstItemIndex - 1 - i;
-
-                    oldElement.View.ViewModel = itemSourceCache?[oldElement.Index];
-                    viewCache.Insert(0, oldElement);
-                    viewCacheIndexMap.Add(oldElement.Index, oldElement);
-                }
-            }
-
             public void ArrangeViewCache(Size arrangeSize,
                 Size desiredItemContainerSize,
                 double frameDistance,
                 double horizontalOffset,
                 double containerMarginLeft)
             {
-                for (int i = 0; i < viewCache.Count; i++)
+                for (int i = 0; i < viewCaches.Count; i++)
                 {
-                    var frame = viewCache[i].View;
+                    var frame = viewCaches[i].View;
 #if DEBUG
                     if (frame.Tag == "false")
                     {
-                        if (viewCache[i].Index % 3 == 0)
+                        if (viewCaches[i].Index % 3 == 0)
                         {
                             frame.Background = new SolidColorBrush(Colors.Black);
                         }
-                        else if (viewCache[i].Index % 3 == 1)
+                        else if (viewCaches[i].Index % 3 == 1)
                         {
                             frame.Background = new SolidColorBrush(Colors.OliveDrab);
                         }
-                        else if (viewCache[i].Index % 3 == 2)
+                        else if (viewCaches[i].Index % 3 == 2)
                         {
                             frame.Background = new SolidColorBrush(Colors.DarkBlue);
                         }
 
-                        frame.Tag = viewCache[i].Index;
+                        frame.Tag = viewCaches[i].Index;
                     }
 #endif
 
-                    var left = viewCache[i].Index *
+                    var left = viewCaches[i].Index *
                         (desiredItemContainerSize.Width + frameDistance);
                     Canvas.SetLeft(frame, left);
-                    viewCache[i].ContentCanvasPosition = new Rect(left + containerMarginLeft,
+                    viewCaches[i].ContentCanvasPosition = new Rect(left + containerMarginLeft,
                         0,
                         desiredItemContainerSize.Width,
                         desiredItemContainerSize.Height);
-                    viewCache[i].MainPanelPosition = new Rect(left - horizontalOffset + containerMarginLeft,
+                    viewCaches[i].MainPanelPosition = new Rect(left - horizontalOffset + containerMarginLeft,
                         (arrangeSize.Height - desiredItemContainerSize.Height) / 2,
                         desiredItemContainerSize.Width,
                         desiredItemContainerSize.Height);
@@ -765,7 +793,7 @@ namespace SPRNetTool.View
             public void SetDesiredItemContainerSize(Size newSize)
             {
                 desiredItemContainerSize = newSize;
-                foreach (var v in viewCache)
+                foreach (var v in viewCaches)
                 {
                     v.View.Height = newSize.Height;
                     v.View.Width = newSize.Width;
@@ -775,9 +803,9 @@ namespace SPRNetTool.View
             public void AssertForDebug()
             {
                 // Đảm bảo index trong view cache luôn the thứ tự tăng dần
-                for (int i = 0; i < viewCache.Count - 1; i++)
+                for (int i = 0; i < viewCaches.Count - 1; i++)
                 {
-                    Debug.Assert(viewCache[i + 1].Index - viewCache[i].Index == 1);
+                    Debug.Assert(viewCaches[i + 1].Index - viewCaches[i].Index == 1);
                 }
                 foreach (var kp in viewCacheIndexMap)
                 {
@@ -788,7 +816,7 @@ namespace SPRNetTool.View
                 }
 
                 // Đảm bảo map và cache size luôn bằng nhau
-                Debug.Assert(viewCacheMap.Count == viewCache.Count);
+                Debug.Assert(viewCacheMap.Count == viewCaches.Count);
             }
 
             private FramePreviewer GenerateItemContainer(int viewModelIdex)
@@ -856,8 +884,8 @@ namespace SPRNetTool.View
                     viewCacheMap.Add(newItemViewCache.View, newItemViewCache);
                 }
 
-                var oldViewCacheIndex = viewCache.IndexOf(oldItemViewCache);
-                var newViewCacheIndex = viewCache.IndexOf(newItemViewCache);
+                var oldViewCacheIndex = viewCaches.IndexOf(oldItemViewCache);
+                var newViewCacheIndex = viewCaches.IndexOf(newItemViewCache);
 
                 oldItemViewCache.Index = newIndex;
                 newItemViewCache.Index = oldIndex;
@@ -870,7 +898,7 @@ namespace SPRNetTool.View
                 switchFrameAnimations = new DoubleAnimation?[] { anim1, anim2 };
                 if (oldViewCacheIndex != -1)
                 {
-                    viewCache[oldViewCacheIndex] = newItemViewCache;
+                    viewCaches[oldViewCacheIndex] = newItemViewCache;
                     viewCacheIndexMap.Remove(oldIndex);
                     viewCacheIndexMap.Add(newItemViewCache.Index, newItemViewCache);
                 }
@@ -881,7 +909,7 @@ namespace SPRNetTool.View
 
                 if (newViewCacheIndex != -1)
                 {
-                    viewCache[newViewCacheIndex] = oldItemViewCache;
+                    viewCaches[newViewCacheIndex] = oldItemViewCache;
                     viewCacheIndexMap.Remove(newIndex);
                     viewCacheIndexMap.Add(oldItemViewCache.Index, oldItemViewCache);
                 }
@@ -906,45 +934,67 @@ namespace SPRNetTool.View
                 oldItemContainer = null;
                 // Nếu oldViewCache bằng null, có nghĩa là vị trí inserted nằm ngoài vị trí hiển thị
                 // Nên case này không cần xử lý
-                if (itemSourceCache == null || oldViewCache == null && itemSourceCache?.Count > 0)
+                if (itemSourceCache == null || oldViewCache == null && itemSourceCache?.Count > 0
+                    && insertedIndex > endVisibleItemIndex)
                 {
                     return false;
                 }
 
-                var lastItemContainerIndex = viewCache.Last().Index;
-
-                insertFrameAnimations = new DoubleAnimation[lastItemContainerIndex - insertedIndex + 1];
-                for (int i = 0; i < lastItemContainerIndex - insertedIndex + 1; i++)
+                if (insertedIndex < StartVisibleItemIndex)
                 {
-                    var viewCache = viewCacheIndexMap[i + insertedIndex];
-                    viewCacheIndexMap.Remove(i + insertedIndex);
-                    viewCache.Index += 1;
-                    insertFrameAnimations[i] =
-                        ReArrangeItemContainerWithAnimation(i + insertedIndex, viewCache, frameDistance);
+                    insertFrameAnimations = new DoubleAnimation[viewCaches.Count];
+                    for (int i = 0; i < viewCaches.Count; i++)
+                    {
+                        var viewCache = viewCaches[i];
+                        viewCacheIndexMap.Remove(viewCache.Index);
+                        viewCache.Index += 1;
+                        insertFrameAnimations[i] =
+                            ReArrangeItemContainerWithAnimation(viewCache.Index - 1, viewCache, frameDistance);
+                    }
+                    StartVisibleItemIndex += 1;
+                    endVisibleItemIndex += 1;
 
+                    for (int i = 0; i < viewCaches.Count; i++)
+                        viewCacheIndexMap.Add(viewCaches[i].Index, viewCaches[i]);
+                }
+                else
+                {
+                    var lastItemContainerIndex = viewCaches.Last().Index;
+
+                    insertFrameAnimations = new DoubleAnimation[lastItemContainerIndex - insertedIndex + 1];
+                    for (int i = 0; i < lastItemContainerIndex - insertedIndex + 1; i++)
+                    {
+                        var viewCache = viewCacheIndexMap[i + insertedIndex];
+                        viewCacheIndexMap.Remove(i + insertedIndex);
+                        viewCache.Index += 1;
+                        insertFrameAnimations[i] =
+                            ReArrangeItemContainerWithAnimation(i + insertedIndex, viewCache, frameDistance);
+
+                    }
+
+                    var newItemViewCache = new ViewCache(GenerateItemContainer(), insertedIndex);
+                    newItemViewCache.ContentCanvasPosition = oldViewCache?.ContentCanvasPosition ?? new Rect();
+                    newItemViewCache.MainPanelPosition = oldViewCache?.MainPanelPosition ?? new Rect();
+                    newItemViewCache.View.ViewModel = newItem;
+                    SetLeft(newItemViewCache.View, oldViewCache != null ? GetLeft(oldViewCache.View) : 0);
+
+                    var oldIndexOnViewCache = oldViewCache == null ? 0 : viewCaches.IndexOf(oldViewCache);
+                    var itemNeedToRemove = viewCaches[viewCaches.Count - 1];
+                    viewCaches.Insert(oldIndexOnViewCache, newItemViewCache);
+                    viewCaches.RemoveAt(viewCaches.Count - 1);
+                    viewCacheMap.Remove(itemNeedToRemove.View);
+                    viewCacheMap.Add(newItemViewCache.View, newItemViewCache);
+
+                    for (int i = 0; i < viewCaches.Count - oldIndexOnViewCache; i++)
+                    {
+                        viewCacheIndexMap.Add(viewCaches[oldIndexOnViewCache + i].Index,
+                            viewCaches[oldIndexOnViewCache + i]);
+                    }
+
+                    newItemContainer = newItemViewCache.View;
+                    oldItemContainer = itemNeedToRemove.View;
                 }
 
-                var newItemViewCache = new ViewCache(GenerateItemContainer(), insertedIndex);
-                newItemViewCache.ContentCanvasPosition = oldViewCache?.ContentCanvasPosition ?? new Rect();
-                newItemViewCache.MainPanelPosition = oldViewCache?.MainPanelPosition ?? new Rect();
-                newItemViewCache.View.ViewModel = newItem;
-                SetLeft(newItemViewCache.View, oldViewCache != null ? GetLeft(oldViewCache.View) : 0);
-
-                var oldIndexOnViewCache = oldViewCache == null ? 0 : viewCache.IndexOf(oldViewCache);
-                var itemNeedToRemove = viewCache[viewCache.Count - 1];
-                viewCache.Insert(oldIndexOnViewCache, newItemViewCache);
-                viewCache.RemoveAt(viewCache.Count - 1);
-                viewCacheMap.Remove(itemNeedToRemove.View);
-                viewCacheMap.Add(newItemViewCache.View, newItemViewCache);
-
-                for (int i = 0; i < viewCache.Count - oldIndexOnViewCache; i++)
-                {
-                    viewCacheIndexMap.Add(viewCache[oldIndexOnViewCache + i].Index,
-                        viewCache[oldIndexOnViewCache + i]);
-                }
-
-                newItemContainer = newItemViewCache.View;
-                oldItemContainer = itemNeedToRemove.View;
 
                 return true;
             }
@@ -1435,6 +1485,23 @@ namespace SPRNetTool.View
                 animationStoryboard.Completed += (s, e) =>
                 {
                     contentContainerCanvas?.Children.Remove(oldItemContainer);
+#if DEBUG
+                    itemController.AssertForDebug();
+#endif
+                };
+                BeginStoryboard(animationStoryboard);
+            }
+            else if (res &&
+                oldItemContainer == null &&
+                newItemContainer == null &&
+                anims != null)
+            {
+                var animationStoryboard = new Storyboard();
+                animationStoryboard.FillBehavior = FillBehavior.Stop;
+                anims?.FoEach(it => it?.Apply(it => animationStoryboard.Children.Add(it)));
+
+                animationStoryboard.Completed += (s, e) =>
+                {
 #if DEBUG
                     itemController.AssertForDebug();
 #endif
