@@ -118,6 +118,8 @@ namespace SPRNetTool.View
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             var newFrameIndex = myPanel.GetItemContainerIndexBaseOnRelativePositionToPanel(contextMenuPosX);
+            collection.Insert(newFrameIndex > 0 ? newFrameIndex : 0, new FrameViewModel());
+
         }
 
         private void RemoveFrameAtLastIndex(object sender, RoutedEventArgs e)
@@ -1309,10 +1311,16 @@ namespace SPRNetTool.View
                 if (relativePanelPosX <= c.MainPanelPosition.Right + frameDistance &&
                     relativePanelPosX >= c.MainPanelPosition.Left)
                 {
+                    if (itemSourceCache != null &&
+                        c.Index == itemSourceCache.Count - 1 && 
+                        relativePanelPosX > c.MainPanelPosition.Right)
+                    {
+                        return itemSourceCache.Count;
+                    }
                     return c.Index;
                 }
             }
-            return -1;
+            return 0;
         }
 
         public void ArrangeViewCache(Size arrangeSize,
@@ -1347,6 +1355,7 @@ namespace SPRNetTool.View
                 var left = viewCaches[i].Index *
                     (desiredItemContainerSize.Width + frameDistance);
                 Canvas.SetLeft(frame, left);
+
                 viewCaches[i].ContentCanvasPosition = new Rect(left + containerMarginLeft,
                     0,
                     desiredItemContainerSize.Width,
