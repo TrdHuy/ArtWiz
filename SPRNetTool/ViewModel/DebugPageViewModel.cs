@@ -956,7 +956,7 @@ namespace SPRNetTool.ViewModel
                 Invalidate();
             }
         }
-        string IFramePreviewerViewModel.Index { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        string IFramePreviewerViewModel.Index { get => "1"; set { } }
 
         public int GlobalOffsetX
         {

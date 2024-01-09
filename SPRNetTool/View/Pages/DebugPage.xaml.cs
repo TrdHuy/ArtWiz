@@ -808,10 +808,10 @@ namespace SPRNetTool.View.Pages
 
         private void OnEllipseMouseClick(object sender, MouseButtonEventArgs args)
         {
-            sender.IfIs<EllipseController>(it =>
-            {
-                commandVM?.OnFramePointerClick(it.CurrentIndex);
-            });
+            //sender.IfIs<EllipseController>(it =>
+            //{
+            //    commandVM?.OnFramePointerClick(it.CurrentIndex);
+            //});
         }
 
         private void PaletteEditorPreviewColorItemChange(object sender, PaletteEditorEventChangedArgs arg)

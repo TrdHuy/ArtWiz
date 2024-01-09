@@ -7,6 +7,7 @@
 			 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
 			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
 			 xmlns:def="clr-namespace:SPRNetTool"
+			 xmlns:wg="clr-namespace:SPRNetTool.View.Widgets"
 			 d:DesignHeight="450"
 			 d:DesignWidth="800">
 
@@ -16,155 +17,138 @@
 
 	<ScrollViewer x:Name="ScrView"
 				  Grid.Row="1"
-				  Width="auto"
+				  HorizontalScrollBarVisibility="Auto"
+				  VerticalScrollBarVisibility="Disabled"
 				  Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
-				  Height="auto"
-				  VerticalScrollBarVisibility="Auto"
-				  HorizontalScrollBarVisibility="Auto">
+				  CanContentScroll="True">
 		<ScrollViewer.Resources>
 			<sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">8</sys:Double>
 		</ScrollViewer.Resources>
-		<Canvas x:Name="MainCanvas"
-				Height="auto"
-				Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
-				Width="auto">
-			<Canvas.ContextMenu>
-				<ContextMenu Name="cm"
-							 StaysOpen="true">
-					<MenuItem Header="File" />
-					<MenuItem Header="Save" />
-					<MenuItem Header="SaveAs" />
-					<MenuItem Header="Recent Files">
-						<MenuItem Header="ReadMe.txt" />
-						<MenuItem Header="Schedule.xls" />
-					</MenuItem>
-				</ContextMenu>
-			</Canvas.ContextMenu>
+		<wg:FrameLineEditorVirtualizingPanel Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
+											 x:Name="myPanel">
+			<wg:FrameLineEditorVirtualizingPanel.Resources>
+				<cvt:FormulaConverter x:Key="FormulaConverter" />
+				<cvt:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter" />
+				<cvt:BoolToObjectConverter x:Key="BoolToObjectConverter" />
+			</wg:FrameLineEditorVirtualizingPanel.Resources>
+
 			<Line X1="0"
-				  X2="{Binding ElementName=MainCanvas, Path=ActualWidth}"
-				  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
-				  StrokeThickness="2">
+				  X2="{Binding ElementName=myPanel, Path=ActualWidth}"
+				  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel15}}"
+				  StrokeThickness="1">
 				<Line.Y1>
 					<MultiBinding Converter="{StaticResource FormulaConverter}"
 								  ConverterParameter=" 0.5 * {0}">
 						<Binding Path="ActualHeight"
-								 ElementName="MainCanvas"/>
+								 ElementName="myPanel" />
 					</MultiBinding>
 				</Line.Y1>
 				<Line.Y2>
 					<MultiBinding Converter="{StaticResource FormulaConverter}"
 								  ConverterParameter="0.5 * {0}">
 						<Binding Path="ActualHeight"
-								 ElementName="MainCanvas" />
+								 ElementName="myPanel" />
 					</MultiBinding>
 				</Line.Y2>
 			</Line>
 
-			<!--<Ellipse MinWidth="5"
-			 MinHeight="5"
-			 Width="20"
-			 Height="20"
-			 Stroke="#FF2BC8C8"
-			 StrokeThickness="0"
-			 Canvas.Left="0">
-		<Ellipse.Style>
-			<Style TargetType="Ellipse">
-				<Setter Property="Fill"
-						Value="Black" />
+			<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+				  Panel.ZIndex="1"
+				  Height="50"
+				  Stretch="Uniform"
+				  Data="{StaticResource ResourceKey={x:Static def:Definitions.LeftArrowIconGeometry}}">
+				<Path.Opacity>
+					<Binding ElementName="myPanel"
+							 Path="IsSpeedBoost"
+							 Converter="{StaticResource BoolToObjectConverter}">
+						<Binding.ConverterParameter>
+							<x:Array Type="{x:Type sys:Object}">
+								<!--Compare ob-->
+								<sys:Boolean>true</sys:Boolean>
+								<!--Default value if condition false-->
+								<sys:Double>0.4</sys:Double>
+								<!--Expected value if condition true-->
+								<sys:Double>0.8</sys:Double>
+							</x:Array>
+						</Binding.ConverterParameter>
+					</Binding>
+				</Path.Opacity>
+				<Path.Visibility>
+					<Binding ElementName="myPanel"
+							 Path="AutoScrollOpt"
+							 Converter="{StaticResource ObjectToVisibilityConverter}">
+						<Binding.ConverterParameter>
+							<x:Array Type="{x:Type sys:Object}">
+								<cvt:InvisibleType>HIDDEN</cvt:InvisibleType>
+								<wg:ScrollTypes>LEFT</wg:ScrollTypes>
+							</x:Array>
+						</Binding.ConverterParameter>
+					</Binding>
+				</Path.Visibility>
+				<Canvas.Top>
+					<MultiBinding Converter="{StaticResource FormulaConverter}"
+								  ConverterParameter="0.5 * {0} - {1} * 0.5">
+						<Binding Path="ActualHeight"
+								 ElementName="myPanel" />
+						<Binding Path="ActualHeight"
+								 RelativeSource="{RelativeSource Mode=Self}" />
+					</MultiBinding>
+				</Canvas.Top>
+			</Path>
 
-				<Style.Triggers>
-
-					<Trigger Property="IsMouseOver"
-							 Value="True">
-						<Setter Property="Fill"
-								Value="Aqua" />
-					</Trigger>
-					<EventTrigger RoutedEvent="MouseEnter">
-						<BeginStoryboard>
-							<Storyboard>
-								<ColorAnimation Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"
-												To="#FF0D4447"
-												Duration="0:0:0.1" />
-								<DoubleAnimation Storyboard.TargetProperty="(Ellipse.StrokeThickness)"
-												 To="2"
-												 Duration="0:0:0.1" />
-								<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.Cursor)">
-									<DiscreteObjectKeyFrame KeyTime="0"
-															Value="{x:Static Cursors.Hand}" />
-								</ObjectAnimationUsingKeyFrames>
-							</Storyboard>
-						</BeginStoryboard>
-					</EventTrigger>
-					<EventTrigger RoutedEvent="MouseLeave">
-						<BeginStoryboard>
-							<Storyboard>
-								<ColorAnimation Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"
-												To="Black"
-												Duration="0:0:0.1" />
-								<DoubleAnimation Storyboard.TargetProperty="(Ellipse.StrokeThickness)"
-												 To="0"
-												 Duration="0:0:0.1" />
-								<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.Cursor)">
-									<DiscreteObjectKeyFrame KeyTime="0"
-															Value="{x:Static Cursors.Arrow}" />
-								</ObjectAnimationUsingKeyFrames>
-							</Storyboard>
-						</BeginStoryboard>
-					</EventTrigger>
-
-				</Style.Triggers>
-
-			</Style>
-		</Ellipse.Style>
-		<Canvas.Top>
-			<MultiBinding Converter="{StaticResource FormulaConverter}"
-						  ConverterParameter="0.5 * {0} - {1} / 2">
-				<Binding Path="ActualHeight"
-						 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
-				<Binding Path="ActualHeight"
-						 RelativeSource="{RelativeSource Mode=Self}" />
-			</MultiBinding>
-		</Canvas.Top>
-	</Ellipse>
-
-	<Ellipse MinWidth="5"
-			 MinHeight="5"
-			 Width="20"
-			 Height="20"
-			 Stroke="#FF2BC8C8"
-			 StrokeThickness="0"
-			 Fill="Aqua"
-			 Canvas.Left="40">
-		<Canvas.Top>
-			<MultiBinding Converter="{StaticResource FormulaConverter}"
-						  ConverterParameter="0.5 * {0} - {1} / 2">
-				<Binding Path="ActualHeight"
-						 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
-				<Binding Path="ActualHeight"
-						 RelativeSource="{RelativeSource Mode=Self}" />
-			</MultiBinding>
-		</Canvas.Top>
-	</Ellipse>
-
-	<Ellipse MinWidth="5"
-			 MinHeight="5"
-			 Width="20"
-			 Height="20"
-			 Stroke="#FF2BC8C8"
-			 StrokeThickness="0"
-			 Fill="Aqua"
-			 Canvas.Left="80">
-		<Canvas.Top>
-			<MultiBinding Converter="{StaticResource FormulaConverter}"
-						  ConverterParameter="0.5 * {0} - {1} / 2">
-				<Binding Path="ActualHeight"
-						 RelativeSource="{RelativeSource AncestorType={x:Type Canvas}, Mode=FindAncestor}" />
-				<Binding Path="ActualHeight"
-						 RelativeSource="{RelativeSource Mode=Self}" />
-			</MultiBinding>
-		</Canvas.Top>
-	</Ellipse>-->
-		</Canvas>
+			<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}"
+				  Panel.ZIndex="1"
+				  Height="50"
+				  Stretch="Uniform"
+				  Data="{StaticResource ResourceKey={x:Static def:Definitions.RightArrowIconGeometry}}">
+				<Path.Opacity>
+					<Binding ElementName="myPanel"
+							 Path="IsSpeedBoost"
+							 Converter="{StaticResource BoolToObjectConverter}">
+						<Binding.ConverterParameter>
+							<x:Array Type="{x:Type sys:Object}">
+								<!--Compare ob-->
+								<sys:Boolean>true</sys:Boolean>
+								<!--Default value if condition false-->
+								<sys:Double>0.4</sys:Double>
+								<!--Expected value if condition true-->
+								<sys:Double>0.8</sys:Double>
+							</x:Array>
+						</Binding.ConverterParameter>
+					</Binding>
+				</Path.Opacity>
+				<Path.Visibility>
+					<Binding ElementName="myPanel"
+							 Path="AutoScrollOpt"
+							 Converter="{StaticResource ObjectToVisibilityConverter}">
+						<Binding.ConverterParameter>
+							<x:Array Type="{x:Type sys:Object}">
+								<cvt:InvisibleType>HIDDEN</cvt:InvisibleType>
+								<wg:ScrollTypes>RIGHT</wg:ScrollTypes>
+							</x:Array>
+						</Binding.ConverterParameter>
+					</Binding>
+				</Path.Visibility>
+				<Canvas.Left>
+					<MultiBinding Converter="{StaticResource FormulaConverter}"
+								  ConverterParameter="1 * {0} - {1}">
+						<Binding Path="ActualWidth"
+								 ElementName="myPanel" />
+						<Binding Path="ActualWidth"
+								 RelativeSource="{RelativeSource Mode=Self}" />
+					</MultiBinding>
+				</Canvas.Left>
+				<Canvas.Top>
+					<MultiBinding Converter="{StaticResource FormulaConverter}"
+								  ConverterParameter="0.5 * {0} - {1} / 2">
+						<Binding Path="ActualHeight"
+								 ElementName="myPanel" />
+						<Binding Path="ActualHeight"
+								 RelativeSource="{RelativeSource Mode=Self}" />
+					</MultiBinding>
+				</Canvas.Top>
+			</Path>
+			</wg:FrameLineEditorVirtualizingPanel>
 	</ScrollViewer>
 
 </UserControl>

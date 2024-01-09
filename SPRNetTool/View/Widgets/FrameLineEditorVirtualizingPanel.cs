@@ -1,7 +1,4 @@
 ﻿using SPRNetTool.Utils;
-using SPRNetTool.View.Base;
-using SPRNetTool.View.Widgets;
-using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.Widgets;
 using System;
 using System.Collections.Generic;
@@ -9,249 +6,18 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
+using System.Windows.Media;
+using System.Windows;
 
-namespace SPRNetTool.View
+namespace SPRNetTool.View.Widgets
 {
-    /// <summary>
-    /// Interaction logic for TestWin.xaml
-    /// </summary>
-    public partial class TestWin : Window
-    {
-        CustomObservableCollection<IFramePreviewerViewModel> collection;
-        private double contextMenuPosX;
-        private double contextMenuPosY;
-
-        public TestWin()
-        {
-            InitializeComponent();
-
-            collection = new CustomObservableCollection<IFramePreviewerViewModel>();
-            for (int i = 0; i < 7; i++)
-            {
-                collection.Add(new FrameViewModel() { Index = i.ToString() });
-            }
-            myPanel.SetUpSource(collection);
-            Loaded += TestWin_Loaded;
-        }
-
-        private void TestWin_Loaded(object sender, RoutedEventArgs e)
-        {
-            var p = NativeMethods.GetDeviceCaps();
-            PresentationSource source = PresentationSource.FromVisual(this);
-
-            // Kiểm tra nếu PresentationSource không null
-            if (source != null)
-            {
-                // Lấy giá trị ScaleX và ScaleY từ TransformToDevice
-                double dpiX = 96.0 * source.CompositionTarget.TransformToDevice.M11;
-                double dpiY = 96.0 * source.CompositionTarget.TransformToDevice.M22;
-
-                // In giá trị DPI
-                MessageBox.Show($"DPI X: {dpiX}, DPI Y: {dpiY}");
-            }
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            PresentationSource source = PresentationSource.FromVisual(this);
-
-            // Kiểm tra nếu PresentationSource không null
-            if (source != null)
-            {
-                // Lấy giá trị ScaleX và ScaleY từ TransformToDevice
-                double dpiX = 96.0 * source.CompositionTarget.TransformToDevice.M11;
-                double dpiY = 96.0 * source.CompositionTarget.TransformToDevice.M22;
-
-                // In giá trị DPI
-                MessageBox.Show($"DPI X: {dpiX}, DPI Y: {dpiY}");
-            }
-        }
-
-        private void IncreaseFrameDistance(object sender, RoutedEventArgs e)
-        {
-            myPanel.SetFrameDistance(10);
-        }
-
-        private void DecreaseFrameDistance(object sender, RoutedEventArgs e)
-        {
-            myPanel.SetFrameDistance(-10);
-        }
-
-        private void myPanel_OnPreviewFrameIndexSwitched(object sender, FrameLineEventArgs args)
-        {
-            collection.SwitchItem(args.SwitchedFrame1Index, args.SwitchedFrame2Index); ;
-            args.Handled = true;
-        }
-        private void RemoveFrameAt1Index(object sender, RoutedEventArgs e)
-        {
-            collection.RemoveAt(0);
-        }
-
-        private void RemoveFrameAt10Index(object sender, RoutedEventArgs e)
-        {
-            collection.RemoveAt(10);
-        }
-        private void InsertFrameTo1Index(object sender, RoutedEventArgs e)
-        {
-            collection.Insert(1, new FrameViewModel());
-        }
-
-        private void InsertFrameTo10Index(object sender, RoutedEventArgs e)
-        {
-            collection.Insert(10, new FrameViewModel());
-        }
-
-
-        private void RemoveFrameAtLastIndex(object sender, RoutedEventArgs e)
-        {
-            collection.RemoveAt(collection.Count - 1);
-        }
-
-        private void myPanel_OnPreviewFrameIndexRemoved(object sender, FrameLineEventArgs args)
-        {
-            collection.RemoveAt(args.OldFrameIndex);
-        }
-
-        private void myPanel_OnPreviewFrameIndexInserted(object sender, FrameLineEventArgs args)
-        {
-            collection.Insert(args.NewFrameIndex, new FrameViewModel());
-        }
-    }
-
-    public class FrameViewModel : BaseViewModel, IFramePreviewerViewModel
-    {
-        private ImageSource _defaultSrc;
-        private ImageSource? _imgSrc;
-        private int _globalWidth = 80;
-        private int _globalHeight = 50;
-        private int _height = 30;
-        private int _width = 30;
-        private int _frameOffsetX = 5;
-        private int _frameOffsetY = 5;
-        private string _index;
-        private int _globalOffsetX = 5;
-        private int _globalOffsetY = 5;
-        public FrameViewModel()
-        {
-            _defaultSrc = (BitmapImage)Definitions.Instance![Definitions.UnidentifiedPreviewFrameSource];
-        }
-
-        public ImageSource PreviewImageSource
-        {
-            get => _imgSrc ?? _defaultSrc;
-            set
-            {
-                _imgSrc = value;
-                Invalidate();
-            }
-        }
-        public int FrameHeight
-        {
-            get => _height;
-            set
-            {
-                _height = value;
-                Invalidate();
-            }
-        }
-        public int FrameWidth
-        {
-            get => _width;
-            set
-            {
-                _width = value;
-                Invalidate();
-            }
-        }
-
-        public int FrameOffsetX
-        {
-            get => _frameOffsetX;
-            set
-            {
-                _frameOffsetX = value;
-                Invalidate();
-            }
-        }
-
-        public int FrameOffsetY
-        {
-            get => _frameOffsetY;
-            set
-            {
-                _frameOffsetY = value;
-                Invalidate();
-            }
-        }
-
-        public int GlobalWidth
-        {
-            get => _globalWidth;
-            set
-            {
-                _globalWidth = value;
-                Invalidate();
-            }
-        }
-        public int GlobalHeight
-        {
-            get => _globalHeight;
-            set
-            {
-                _globalHeight = value;
-                Invalidate();
-            }
-        }
-
-        public string Index
-        {
-            get
-            {
-                return _index;
-            }
-            set
-            {
-                _index = value;
-                Invalidate();
-            }
-        }
-
-        public int GlobalOffsetX
-        {
-            get => _globalOffsetX;
-            set
-            {
-                _globalOffsetX = value;
-                Invalidate();
-            }
-        }
-        public int GlobalOffsetY
-        {
-            get => _globalOffsetY;
-            set
-            {
-                _globalOffsetY = value;
-                Invalidate();
-            }
-        }
-        public void OnArtWizViewModelOwnerCreate(IArtWizViewModelOwner owner)
-        {
-        }
-
-        public void OnDestroy()
-        {
-        }
-    }
-
     public enum ScrollTypes
     {
         NONE, RIGHT, LEFT
@@ -748,6 +514,7 @@ namespace SPRNetTool.View
                 {
                     cacheItemContainerForMeasure = new FramePreviewer();
                     cacheItemContainerForMeasure.ViewModel = itemSourceCache[0];
+                    isShouldMeasureItemContainer = true;
                 }
 
                 if (isShouldMeasureItemContainer)

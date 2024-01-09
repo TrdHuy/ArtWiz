@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
-using static SPRNetTool.View.Widgets.FrameLineController;
+using static SPRNetTool.View.Widgets.FrameLineEditorVirtualizingPanel;
 
 namespace SPRNetTool.View.Widgets
 {
@@ -19,7 +19,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                it.Controller.OnPreviewFrameIndexSwitched += handler;
+                //it.Controller.OnPreviewFrameIndexSwitched += handler;
             });
         }
 
@@ -27,7 +27,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                it.Controller.OnPreviewFrameIndexSwitched -= handler;
+                //it.Controller.OnPreviewFrameIndexSwitched -= handler;
             });
         }
 
@@ -35,7 +35,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                it.Controller.OnPreviewAddingFrame += handler;
+                //it.Controller.OnPreviewAddingFrame += handler;
             });
         }
 
@@ -43,7 +43,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                it.Controller.OnPreviewAddingFrame -= handler;
+                //it.Controller.OnPreviewAddingFrame -= handler;
             });
         }
 
@@ -51,7 +51,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                it.Controller.OnPreviewRemovingFrame += handler;
+                //it.Controller.OnPreviewRemovingFrame += handler;
             });
         }
 
@@ -59,7 +59,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                it.Controller.OnPreviewRemovingFrame -= handler;
+                //it.Controller.OnPreviewRemovingFrame -= handler;
             });
         }
 
@@ -67,7 +67,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                it.Controller.OnEllipseMouseClick += handler;
+                //it.Controller.OnEllipseMouseClick += handler;
             });
         }
 
@@ -75,7 +75,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                it.Controller.OnEllipseMouseClick -= handler;
+                //it.Controller.OnEllipseMouseClick -= handler;
             });
         }
 
@@ -103,33 +103,15 @@ namespace SPRNetTool.View.Widgets
             set { SetValue(FrameSourceProperty, value); }
         }
 
-        private FrameLineController Controller;
 
         public FrameLineEditor()
         {
             InitializeComponent();
-            Controller = new FrameLineController(ScrView, MainCanvas, 0);
         }
 
         private void SetUpFrameSource(IEnumerable<IFramePreviewerViewModel>? frameSource)
         {
-            if (frameSource == null)
-            {
-                Controller.SetTotalFrameCount(null);
-            }
-            else
-            {
-                frameSource.IfIs<INotifyCollectionChanged>(it =>
-                {
-                    it.CollectionChanged += FrameSourceCollectionChanged;
-                });
-
-                frameSource.IfIs<Collection<IFramePreviewerViewModel>>(it =>
-                {
-                    Controller.SetTotalFrameCount(it);
-                });
-            }
-
+            frameSource?.IfIs<Collection<IFramePreviewerViewModel>>(it => myPanel.SetUpSource(it));
         }
 
         private void DisposeFrameSource(IEnumerable<IFramePreviewerViewModel> frameSource)
@@ -142,39 +124,6 @@ namespace SPRNetTool.View.Widgets
 
         private void FrameSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (e)
-            {
-                case CustomNotifyCollectionChangedEventArgs cast:
-                    if (cast.IsSwitchAction)
-                    {
-                        Controller.SwitchFrame(cast.Switched1stIndex, cast.Switched2ndIndex);
-                    }
-                    return;
-                case NotifyCollectionChangedEventArgs:
-                    if (e.Action == NotifyCollectionChangedAction.Remove)
-                    {
-                        var sizeChanged = e.OldItems?.Count ?? 0;
-                        for (int i = e.OldStartingIndex; i < e.OldStartingIndex + sizeChanged; i++)
-                        {
-                            Controller.RemoveFrame((uint)i);
-                        }
-                    }
-                    else if (e.Action == NotifyCollectionChangedAction.Add)
-                    {
-                        var sizeChanged = e.NewItems?.Count ?? 0;
-                        for (int i = e.NewStartingIndex; i < e.NewStartingIndex + sizeChanged; i++)
-                        {
-                            if (e.NewItems != null)
-                            {
-                                var itemIndex = i - e.NewStartingIndex;
-                                var vm = (IFramePreviewerViewModel)e.NewItems[itemIndex]!;
-                                Controller.InsertFrame((uint)i, vm);
-                            }
-                        }
-                    }
-                    return;
-            }
-
         }
 
     }
