@@ -23,15 +23,9 @@
 					  CanContentScroll="True">
 			<local:FrameLineEditorVirtualizingPanel Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
 													x:Name="myPanel"
-													ContextMenuOpening="myPanel_ContextMenuOpening"
+													OnPreviewFrameIndexInserted="myPanel_OnPreviewFrameIndexInserted"
+													OnPreviewFrameIndexRemoved="myPanel_OnPreviewFrameIndexRemoved"
 													OnPreviewFrameIndexSwitched="myPanel_OnPreviewFrameIndexSwitched">
-				<Canvas.ContextMenu>
-					<ContextMenu Name="cm"
-								 StaysOpen="False">
-						<MenuItem Header="Insert new frame"
-								  Click="MenuItem_Click"/>
-					</ContextMenu>
-				</Canvas.ContextMenu>
 				<local:FrameLineEditorVirtualizingPanel.Resources>
 					<cvt:FormulaConverter x:Key="FormulaConverter" />
 					<cvt:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter" />

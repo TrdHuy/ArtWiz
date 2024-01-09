@@ -13,6 +13,15 @@
 			 MouseLeftButtonDown="OnMouseLeftButtonDown"
 			 d:DesignHeight="450"
 			 d:DesignWidth="800">
+	<UserControl.ContextMenu>
+		<ContextMenu Name="cm"
+					 StaysOpen="False">
+			<MenuItem Header="Remove frame" 
+					  Click="RemoveMenuItemClicked"/>
+			<MenuItem Header="Insert frame"
+					  Click="InsertMenuItemClicked" />
+		</ContextMenu>
+	</UserControl.ContextMenu>
 	<UserControl.Style>
 		<Style TargetType="UserControl">
 			<Style.Triggers>
@@ -29,6 +38,14 @@
 							Value="1" />
 					<Setter Property="BorderBrush"
 							Value="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel15}}" />
+				</DataTrigger>
+
+				<DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsMouseOver}"
+							 Value="true">
+					<Setter Property="BorderThickness"
+							Value="2" />
+					<Setter Property="BorderBrush"
+							Value="{StaticResource ResourceKey={x:Static def:Definitions.ForegroundLevel1}}" />
 				</DataTrigger>
 			</Style.Triggers>
 		</Style>

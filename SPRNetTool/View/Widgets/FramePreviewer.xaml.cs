@@ -49,28 +49,6 @@ namespace SPRNetTool.View.Widgets
             InitializeComponent();
         }
 
-        //protected override Size MeasureOverride(Size constraint)
-        //{
-        //    var realConstraint = PanelOwner?.PanelConstraint ?? constraint;
-
-        //    var desiredSize = base.MeasureOverride(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        //    var actualHeight = desiredSize.Height;
-        //    var actualWidth = desiredSize.Width;
-        //    if (desiredSize.Height > realConstraint.Height / 2)
-        //    {
-        //        actualHeight = realConstraint.Height / 2;
-        //        var rat = desiredSize.Width / desiredSize.Height;
-        //        actualWidth = rat * actualHeight;
-        //    }
-
-        //    var actualSize = new Size(actualWidth, actualHeight);
-        //    return actualSize;
-        //}
-
-        //protected override Size ArrangeOverride(Size arrangeBounds)
-        //{
-        //    return base.ArrangeOverride(arrangeBounds);
-        //}
 
         private bool isMouseHolded = false;
         private bool isMousePressed = false;
@@ -206,6 +184,18 @@ namespace SPRNetTool.View.Widgets
             tempFrame.CaptureMouse();
             tempFrame.Cursor = Cursors.Hand;
             tempFrameForDragging = tempFrame;
+        }
+
+        private void RemoveMenuItemClicked(object sender, RoutedEventArgs e)
+        {
+            var currentViewCacheIndex = PanelOwner?.GetCurrentViewCacheIndex(this) ?? 0;
+            PanelOwner?.RaisePreviewFrameRemoveEvent(currentViewCacheIndex);
+        }
+
+        private void InsertMenuItemClicked(object sender, RoutedEventArgs e)
+        {
+            var currentViewCacheIndex = PanelOwner?.GetCurrentViewCacheIndex(this) ?? 0;
+            PanelOwner?.RaisePreviewFrameInsertEvent(currentViewCacheIndex);
         }
     }
 }

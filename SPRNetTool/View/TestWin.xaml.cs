@@ -109,22 +109,21 @@ namespace SPRNetTool.View
         {
             collection.Insert(10, new FrameViewModel());
         }
-        private void myPanel_ContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-            contextMenuPosX = e.CursorLeft;
-            contextMenuPosY = e.CursorTop;
-        }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            var newFrameIndex = myPanel.GetItemContainerIndexBaseOnRelativePositionToPanel(contextMenuPosX);
-            collection.Insert(newFrameIndex > 0 ? newFrameIndex : 0, new FrameViewModel());
-
-        }
 
         private void RemoveFrameAtLastIndex(object sender, RoutedEventArgs e)
         {
             collection.RemoveAt(collection.Count - 1);
+        }
+
+        private void myPanel_OnPreviewFrameIndexRemoved(object sender, FrameLineEventArgs args)
+        {
+            collection.RemoveAt(args.OldFrameIndex);
+        }
+
+        private void myPanel_OnPreviewFrameIndexInserted(object sender, FrameLineEventArgs args)
+        {
+            collection.Insert(args.NewFrameIndex, new FrameViewModel());
         }
     }
 
@@ -266,6 +265,8 @@ namespace SPRNetTool.View
         public delegate void FameLineMouseEventHandler(object sender, MouseButtonEventArgs args);
 
         public event FameLineHandler? OnPreviewFrameIndexSwitched;
+        public event FameLineHandler? OnPreviewFrameIndexRemoved;
+        public event FameLineHandler? OnPreviewFrameIndexInserted;
         public event FameLineMouseEventHandler? OnFramePreviewerMouseClick;
 
         public static readonly DependencyProperty IsSpeedBoostProperty =
@@ -487,12 +488,16 @@ namespace SPRNetTool.View
         private SemaphoreSlim autoScrollSemaphore = new SemaphoreSlim(1, 1);
         private Canvas? contentContainerCanvas;
         private FrameItemController itemController;
+        private FramePanelMenuContextController menuContextController;
         private FramePreviewer? cacheItemContainerForMeasure;
         private Size desiredItemContainerSize;
+
         public FrameLineEditorVirtualizingPanel()
         {
             itemController = new FrameItemController(this);
+            menuContextController = new FramePanelMenuContextController(this);
         }
+
         #region public API
         public Size PanelConstraint { get; private set; }
 
@@ -505,6 +510,33 @@ namespace SPRNetTool.View
         {
             itemController[clickedFrame]?.Apply(it => OnFramePreviewerMouseClick?.Invoke(it, e));
         }
+
+        public void RaisePreviewFrameInsertEvent(int newIndex)
+        {
+            var arg = FrameLineEventArgs.CreateAddingNewFrameEvent(newIndex);
+            OnPreviewFrameIndexInserted?.Invoke(this, arg);
+
+            if (arg.Handled)
+            {
+                return;
+            }
+
+            // TODO: may implement insert logic if not using observable collection
+        }
+
+        public void RaisePreviewFrameRemoveEvent(int oldIndex)
+        {
+            var arg = FrameLineEventArgs.CreateRemovingOldFrameEvent(oldIndex);
+            OnPreviewFrameIndexRemoved?.Invoke(this, arg);
+
+            if (arg.Handled)
+            {
+                return;
+            }
+
+            // TODO: may implement remove logic if not using observable collection
+        }
+
 
         public void RaisePreviewFrameSwitchEvent(int oldIndex, int newIndex)
         {
@@ -1739,6 +1771,35 @@ namespace SPRNetTool.View
         }
     }
 
+    internal class FramePanelMenuContextController
+    {
+        private double contextMenuPosX;
+        private double contextMenuPosY;
+        private FrameLineEditorVirtualizingPanel owner;
+        public FramePanelMenuContextController(FrameLineEditorVirtualizingPanel panelOwner)
+        {
+            owner = panelOwner;
+            var menu = new ContextMenu();
+            panelOwner.ContextMenuOpening += OnMenuOpenning;
+            MenuItem insertItem = new MenuItem();
+            insertItem.Header = "Insert frame";
+            insertItem.Click += OnInsertFrameClick;
+            menu.Items.Add(insertItem);
+            panelOwner.ContextMenu = menu;
+        }
+
+        private void OnMenuOpenning(object sender, ContextMenuEventArgs e)
+        {
+            contextMenuPosX = e.CursorLeft;
+            contextMenuPosY = e.CursorTop;
+        }
+
+        private void OnInsertFrameClick(object sender, RoutedEventArgs e)
+        {
+            var newFrameIndex = owner.GetItemContainerIndexBaseOnRelativePositionToPanel(contextMenuPosX);
+            owner.RaisePreviewFrameInsertEvent(newFrameIndex);
+        }
+    }
 
     public class FrameLineEventArgs
     {
