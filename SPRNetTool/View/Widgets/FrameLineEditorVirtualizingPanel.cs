@@ -329,6 +329,7 @@ namespace SPRNetTool.View.Widgets
             });
             itemSourceCache = itemSource;
             cacheItemContainerForMeasure = null;
+            contentContainerCanvas?.Children.Clear();
             itemController.SetupItemSource(itemSource);
             InvalidateMeasure();
         }
