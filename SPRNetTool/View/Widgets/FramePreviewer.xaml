@@ -59,6 +59,11 @@
 		<Canvas ClipToBounds="True"
 				Height="{Binding ElementName=UC_Container, Path=ViewModel.GlobalHeight}"
 				Width="{Binding ElementName=UC_Container, Path=ViewModel.GlobalWidth}">
+			<Path Fill="Aqua"
+				  Data="{StaticResource ResourceKey={x:Static def:Definitions.UnidentifiedPreviewFrameSourceGeometry}}"
+				  Stretch="Uniform"
+				  Height="100"
+				  Width="100" />
 			<Canvas Canvas.Left="{Binding ElementName=UC_Container, Path=ViewModel.GlobalOffsetX}"
 					Canvas.Top="{Binding ElementName=UC_Container, Path=ViewModel.GlobalOffsetY}">
 				<Image Canvas.Left="{Binding ElementName=UC_Container, Path=ViewModel.FrameOffsetX}"
@@ -68,13 +73,13 @@
 					   Stretch="Uniform"
 					   Source="{Binding ElementName=UC_Container, Path=ViewModel.PreviewImageSource}" />
 
-				<TextBlock Foreground="White"
+				<!--<TextBlock Foreground="White"
 						   FontSize="15"
 						   Text="{Binding ElementName=UC_Container, Path=Tag}" />
 				<TextBlock Foreground="White"
 						   FontSize="15"
 						   Canvas.Top="30"
-						   Text="{Binding ElementName=UC_Container, Path=ViewModel.Index}" />
+						   Text="{Binding ElementName=UC_Container, Path=ViewModel.Index}" />-->
 			</Canvas>
 
 		</Canvas>

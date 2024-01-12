@@ -63,7 +63,7 @@ namespace SPRNetTool
         public static ResourceKey LeftArrowIconGeometry { get; } = CreateResourceKey();
         
         public static ResourceKey ArtWizDefaultWindowStyle { get; } = CreateResourceKey();
-        public static ResourceKey UnidentifiedPreviewFrameSource { get; } = CreateResourceKey();
+        public static ResourceKey UnidentifiedPreviewFrameSourceGeometry { get; } = CreateResourceKey();
 
         public static Definitions? Instance { get; private set; }
 
@@ -72,14 +72,10 @@ namespace SPRNetTool
             InitializeComponent();
             Instance = this;
         }
+
         protected override void OnGettingValue(object key, ref object value, out bool canCache)
         {
             base.OnGettingValue(key, ref value, out canCache);
-            if (key.Equals(UnidentifiedPreviewFrameSource) &&
-                UnidentifiedPreviewFrameSourceInstance?.IsFrozen == false)
-            {
-                UnidentifiedPreviewFrameSourceInstance.Freeze();
-            }
         }
 
         private static ComponentResourceKey CreateResourceKey([CallerMemberName] string? caller = null)

@@ -407,12 +407,25 @@ namespace SPRNetTool.ViewModel
                                 break;
                             }
 
-                            if (collectionChangedArg.Event.HasFlag(TOTAL_FRAME_COUNT_CHANGED))
+                            if (collectionChangedArg.Event.HasFlag(TOTAL_FRAME_COUNT_CHANGED) &&
+                                castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED) &&
+                                IsSpr)
                             {
                                 var newSrc = new CustomObservableCollection<IFramePreviewerViewModel>();
+                                var head = castArgs.CurrentSprFileHead!;
                                 for (int i = 0; i < collectionChangedArg.FrameCount; i++)
                                 {
-                                    newSrc.Add(new FrameViewModel(this));
+                                    newSrc.Add(new FrameViewModel(this)
+                                    {
+                                        GlobalHeight = castArgs.CurrentSprFileHead?.GlobalHeight ?? 0,
+                                        GlobalWidth = castArgs.CurrentSprFileHead?.GlobalWidth ?? 0,
+                                        GlobalOffsetX = castArgs.CurrentSprFileHead?.OffX ?? 0,
+                                        GlobalOffsetY = castArgs.CurrentSprFileHead?.OffY ?? 0,
+                                        FrameHeight = castArgs.SprFrameData?.frameHeight ?? 0,
+                                        FrameWidth = castArgs.SprFrameData?.frameWidth ?? 0,
+                                        FrameOffsetY = castArgs.SprFrameData?.frameOffY ?? 0,
+                                        FrameOffsetX = castArgs.SprFrameData?.frameOffX ?? 0,
+                                    }); ;
                                 }
                                 FramesSource = newSrc;
                             }
@@ -875,7 +888,6 @@ namespace SPRNetTool.ViewModel
 
     public class FrameViewModel : BaseSubViewModel, IFramePreviewerViewModel
     {
-        private ImageSource _defaultSrc;
         private ImageSource? _imgSrc;
         private int _globalWidth = 100;
         private int _globalHeight = 100;
@@ -887,12 +899,11 @@ namespace SPRNetTool.ViewModel
         private int _globalOffsetY = 50;
         public FrameViewModel(BaseParentsViewModel parents) : base(parents)
         {
-            _defaultSrc = (BitmapImage)Definitions.Instance![Definitions.UnidentifiedPreviewFrameSource];
         }
 
-        public ImageSource PreviewImageSource
+        public ImageSource? PreviewImageSource
         {
-            get => _imgSrc ?? _defaultSrc;
+            get => _imgSrc;
             set
             {
                 _imgSrc = value;

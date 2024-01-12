@@ -5,7 +5,7 @@ namespace SPRNetTool.ViewModel.Widgets
 {
     public interface IFramePreviewerViewModel : IArtWizViewModel
     {
-        ImageSource PreviewImageSource { get; set; }
+        ImageSource? PreviewImageSource { get; set; }
         int FrameHeight { get; set; }
         int FrameWidth { get; set; }
         int GlobalWidth { get; set; }
