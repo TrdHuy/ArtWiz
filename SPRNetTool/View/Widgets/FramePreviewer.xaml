@@ -12,6 +12,7 @@
 			 MouseLeftButtonUp="OnMouseUp"
 			 MouseLeftButtonDown="OnMouseLeftButtonDown"
 			 d:DesignHeight="450"
+			 Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
 			 d:DesignWidth="800">
 	<UserControl.ContextMenu>
 		<ContextMenu Name="cm"
@@ -25,6 +26,11 @@
 	<UserControl.Style>
 		<Style TargetType="UserControl">
 			<Style.Triggers>
+				<DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsMouseOver}"
+							 Value="true">
+					<Setter Property="Cursor"
+							Value="Hand" />
+				</DataTrigger>
 				<DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsIntersected}"
 							 Value="true">
 					<Setter Property="BorderThickness"
@@ -51,39 +57,51 @@
 		</Style>
 	</UserControl.Style>
 	<UserControl.Resources>
+		<cvt:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 		<cvt:FormulaConverter x:Key="FormulaConverter" />
 	</UserControl.Resources>
-	
-	<Viewbox Stretch="Uniform"
-			 x:Name="MainViewBox">
-		<Canvas ClipToBounds="True"
-				Height="{Binding ElementName=UC_Container, Path=ViewModel.GlobalHeight}"
-				Width="{Binding ElementName=UC_Container, Path=ViewModel.GlobalWidth}">
-			<Path Fill="Aqua"
-				  Data="{StaticResource ResourceKey={x:Static def:Definitions.UnidentifiedPreviewFrameSourceGeometry}}"
-				  Stretch="Uniform"
-				  Height="100"
-				  Width="100" />
-			<Canvas Canvas.Left="{Binding ElementName=UC_Container, Path=ViewModel.GlobalOffsetX}"
-					Canvas.Top="{Binding ElementName=UC_Container, Path=ViewModel.GlobalOffsetY}">
-				<Image Canvas.Left="{Binding ElementName=UC_Container, Path=ViewModel.FrameOffsetX}"
-					   Canvas.Top="{Binding ElementName=UC_Container, Path=ViewModel.FrameOffsetY}"
-					   Height="{Binding ElementName=UC_Container, Path=ViewModel.FrameHeight}"
-					   Width="{Binding ElementName=UC_Container, Path=ViewModel.FrameWidth}"
-					   Stretch="Uniform"
-					   Source="{Binding ElementName=UC_Container, Path=ViewModel.PreviewImageSource}" />
 
-				<!--<TextBlock Foreground="White"
-						   FontSize="15"
-						   Text="{Binding ElementName=UC_Container, Path=Tag}" />
-				<TextBlock Foreground="White"
-						   FontSize="15"
-						   Canvas.Top="30"
-						   Text="{Binding ElementName=UC_Container, Path=ViewModel.Index}" />-->
+	<Grid>
+		<Path Fill="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel10}}"
+			  Data="{StaticResource ResourceKey={x:Static def:Definitions.UnidentifiedPreviewFrameSourceGeometry}}"
+			  Stretch="Uniform"
+			  Visibility="{Binding ElementName=UC_Container, Path=ViewModel.PreviewImageSource, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}">
+			<Path.Height>
+				<MultiBinding Converter="{StaticResource FormulaConverter}"
+							  ConverterParameter="0.3 * {0}">
+					<Binding Path="ActualHeight"
+							 ElementName="UC_Container" />
+				</MultiBinding>
+			</Path.Height>
+		</Path>
+		<Viewbox Stretch="Uniform"
+				 x:Name="MainViewBox">
+			<Canvas ClipToBounds="True"
+					Height="{Binding ElementName=UC_Container, Path=ViewModel.GlobalHeight}"
+					Width="{Binding ElementName=UC_Container, Path=ViewModel.GlobalWidth}">
+
+				<Canvas Canvas.Left="{Binding ElementName=UC_Container, Path=ViewModel.GlobalOffsetX}"
+						Canvas.Top="{Binding ElementName=UC_Container, Path=ViewModel.GlobalOffsetY}">
+					<Image Canvas.Left="{Binding ElementName=UC_Container, Path=ViewModel.FrameOffsetX}"
+						   Canvas.Top="{Binding ElementName=UC_Container, Path=ViewModel.FrameOffsetY}"
+						   Height="{Binding ElementName=UC_Container, Path=ViewModel.FrameHeight}"
+						   Width="{Binding ElementName=UC_Container, Path=ViewModel.FrameWidth}"
+						   Stretch="Uniform"
+						   Source="{Binding ElementName=UC_Container, Path=ViewModel.PreviewImageSource}" />
+
+					<!--<TextBlock Foreground="White"
+					   FontSize="15"
+					   Text="{Binding ElementName=UC_Container, Path=Tag}" />
+			<TextBlock Foreground="White"
+					   FontSize="15"
+					   Canvas.Top="30"
+					   Text="{Binding ElementName=UC_Container, Path=ViewModel.Index}" />-->
+				</Canvas>
+
 			</Canvas>
-
-		</Canvas>
-	</Viewbox>
+		</Viewbox>
+	</Grid>
+	
 
 	<!--<Viewbox Stretch="Uniform"
 			 x:Name="MainViewBox">

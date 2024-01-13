@@ -377,12 +377,27 @@ namespace SPRNetTool.ViewModel
                             {
                                 IsPlayingAnimation = true;
                                 CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
+                                if (IsSpr &&
+                                    FramesSource != null &&
+                                    FramesSource.Count > 0)
+                                {
+                                    FramesSource[(int)BitmapDisplayManager.GetCurrentDisplayFrameIndex()]
+                                        .PreviewImageSource = castArgs.CurrentDisplayingSource;
+                                }
+
                             }, dispatcherPriority);
                         }
                         else if (castArgs.IsPlayingAnimation == false)
                         {
                             IsPlayingAnimation = false;
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
+                            if (IsSpr &&
+                                FramesSource != null &&
+                                FramesSource.Count > 0)
+                            {
+                                FramesSource[(int)BitmapDisplayManager.GetCurrentDisplayFrameIndex()]
+                                    .PreviewImageSource = castArgs.CurrentDisplayingSource;
+                            }
                         }
                     }
                     else
@@ -397,6 +412,15 @@ namespace SPRNetTool.ViewModel
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
                             PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
                             PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
+                            if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED) &&
+                                IsSpr &&
+                                FramesSource != null &&
+                                FramesSource.Count > 0 &&
+                                BitmapDisplayManager.GetCurrentDisplayFrameIndex() < FramesSource.Count)
+                            {
+                                FramesSource[(int)BitmapDisplayManager.GetCurrentDisplayFrameIndex()]
+                                    .PreviewImageSource = castArgs.CurrentDisplayingSource;
+                            }
                         }
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_COLLECTION_CHANGED))
@@ -428,6 +452,11 @@ namespace SPRNetTool.ViewModel
                                     }); ;
                                 }
                                 FramesSource = newSrc;
+                                if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED))
+                                {
+                                    FramesSource[(int)BitmapDisplayManager.GetCurrentDisplayFrameIndex()]
+                                        .PreviewImageSource = castArgs.CurrentDisplayingSource;
+                                }
                             }
 
                             if (collectionChangedArg.Event.HasFlag(FRAME_SWITCHED) && FramesSource != null)
@@ -447,7 +476,22 @@ namespace SPRNetTool.ViewModel
                                 {
                                     ViewModelOwner?.ViewDispatcher.Invoke(() =>
                                     {
-                                        FramesSource.Insert(collectionChangedArg.NewFrameIndex, new FrameViewModel(this));
+                                        var newFrameVM = new FrameViewModel(this);
+                                        if (castArgs.Event.HasAllFlagsOf(CURRENT_DISPLAYING_SOURCE_CHANGED,
+                                            SPR_FILE_HEAD_CHANGED,
+                                            SPR_FRAME_DATA_CHANGED))
+                                        {
+                                            newFrameVM.PreviewImageSource = castArgs.CurrentDisplayingSource;
+                                            newFrameVM.GlobalHeight = castArgs.CurrentSprFileHead?.GlobalHeight ?? 0;
+                                            newFrameVM.GlobalWidth = castArgs.CurrentSprFileHead?.GlobalWidth ?? 0;
+                                            newFrameVM.GlobalOffsetX = castArgs.CurrentSprFileHead?.OffX ?? 0;
+                                            newFrameVM.GlobalOffsetY = castArgs.CurrentSprFileHead?.OffY ?? 0;
+                                            newFrameVM.FrameOffsetX = castArgs.SprFrameData?.frameOffX ?? 0;
+                                            newFrameVM.FrameOffsetY = castArgs.SprFrameData?.frameOffY ?? 0;
+                                            newFrameVM.FrameHeight = castArgs.SprFrameData?.frameHeight ?? 0;
+                                            newFrameVM.FrameWidth = castArgs.SprFrameData?.frameWidth ?? 0;
+                                        }
+                                        FramesSource.Insert(collectionChangedArg.NewFrameIndex, newFrameVM);
                                     });
                                 }
                                 else

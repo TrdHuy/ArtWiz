@@ -831,6 +831,11 @@ namespace SPRNetTool.View.Pages
                 });
             });
         }
+
+        private void OnEllipseMouseClick(object sender, FameLineMouseEventArgs args)
+        {
+            commandVM?.OnFramePointerClick((uint)args.FrameIndex);
+        }
     }
 }
 

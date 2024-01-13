@@ -25,7 +25,7 @@
 			<sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">8</sys:Double>
 		</ScrollViewer.Resources>
 		<wg:FrameLineEditorVirtualizingPanel Background="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel2}}"
-											 x:Name="myPanel">
+											 x:Name="FrameLinePanel">
 			<wg:FrameLineEditorVirtualizingPanel.Resources>
 				<cvt:FormulaConverter x:Key="FormulaConverter" />
 				<cvt:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter" />
@@ -33,21 +33,21 @@
 			</wg:FrameLineEditorVirtualizingPanel.Resources>
 
 			<Line X1="0"
-				  X2="{Binding ElementName=myPanel, Path=ActualWidth}"
+				  X2="{Binding ElementName=FrameLinePanel, Path=ActualWidth}"
 				  Stroke="{StaticResource ResourceKey={x:Static def:Definitions.BackgroundLevel15}}"
 				  StrokeThickness="1">
 				<Line.Y1>
 					<MultiBinding Converter="{StaticResource FormulaConverter}"
 								  ConverterParameter=" 0.5 * {0}">
 						<Binding Path="ActualHeight"
-								 ElementName="myPanel" />
+								 ElementName="FrameLinePanel" />
 					</MultiBinding>
 				</Line.Y1>
 				<Line.Y2>
 					<MultiBinding Converter="{StaticResource FormulaConverter}"
 								  ConverterParameter="0.5 * {0}">
 						<Binding Path="ActualHeight"
-								 ElementName="myPanel" />
+								 ElementName="FrameLinePanel" />
 					</MultiBinding>
 				</Line.Y2>
 			</Line>
@@ -58,7 +58,7 @@
 				  Stretch="Uniform"
 				  Data="{StaticResource ResourceKey={x:Static def:Definitions.LeftArrowIconGeometry}}">
 				<Path.Opacity>
-					<Binding ElementName="myPanel"
+					<Binding ElementName="FrameLinePanel"
 							 Path="IsSpeedBoost"
 							 Converter="{StaticResource BoolToObjectConverter}">
 						<Binding.ConverterParameter>
@@ -74,7 +74,7 @@
 					</Binding>
 				</Path.Opacity>
 				<Path.Visibility>
-					<Binding ElementName="myPanel"
+					<Binding ElementName="FrameLinePanel"
 							 Path="AutoScrollOpt"
 							 Converter="{StaticResource ObjectToVisibilityConverter}">
 						<Binding.ConverterParameter>
@@ -89,7 +89,7 @@
 					<MultiBinding Converter="{StaticResource FormulaConverter}"
 								  ConverterParameter="0.5 * {0} - {1} * 0.5">
 						<Binding Path="ActualHeight"
-								 ElementName="myPanel" />
+								 ElementName="FrameLinePanel" />
 						<Binding Path="ActualHeight"
 								 RelativeSource="{RelativeSource Mode=Self}" />
 					</MultiBinding>
@@ -102,7 +102,7 @@
 				  Stretch="Uniform"
 				  Data="{StaticResource ResourceKey={x:Static def:Definitions.RightArrowIconGeometry}}">
 				<Path.Opacity>
-					<Binding ElementName="myPanel"
+					<Binding ElementName="FrameLinePanel"
 							 Path="IsSpeedBoost"
 							 Converter="{StaticResource BoolToObjectConverter}">
 						<Binding.ConverterParameter>
@@ -118,7 +118,7 @@
 					</Binding>
 				</Path.Opacity>
 				<Path.Visibility>
-					<Binding ElementName="myPanel"
+					<Binding ElementName="FrameLinePanel"
 							 Path="AutoScrollOpt"
 							 Converter="{StaticResource ObjectToVisibilityConverter}">
 						<Binding.ConverterParameter>
@@ -133,7 +133,7 @@
 					<MultiBinding Converter="{StaticResource FormulaConverter}"
 								  ConverterParameter="1 * {0} - {1}">
 						<Binding Path="ActualWidth"
-								 ElementName="myPanel" />
+								 ElementName="FrameLinePanel" />
 						<Binding Path="ActualWidth"
 								 RelativeSource="{RelativeSource Mode=Self}" />
 					</MultiBinding>
@@ -142,7 +142,7 @@
 					<MultiBinding Converter="{StaticResource FormulaConverter}"
 								  ConverterParameter="0.5 * {0} - {1} / 2">
 						<Binding Path="ActualHeight"
-								 ElementName="myPanel" />
+								 ElementName="FrameLinePanel" />
 						<Binding Path="ActualHeight"
 								 RelativeSource="{RelativeSource Mode=Self}" />
 					</MultiBinding>

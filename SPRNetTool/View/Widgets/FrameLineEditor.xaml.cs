@@ -19,7 +19,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                //it.Controller.OnPreviewFrameIndexSwitched += handler;
+                it.FrameLinePanel.OnPreviewFrameIndexSwitched += handler;
             });
         }
 
@@ -27,7 +27,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                //it.Controller.OnPreviewFrameIndexSwitched -= handler;
+                it.FrameLinePanel.OnPreviewFrameIndexSwitched -= handler;
             });
         }
 
@@ -35,7 +35,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                //it.Controller.OnPreviewAddingFrame += handler;
+                it.FrameLinePanel.OnPreviewFrameIndexInserted += handler;
             });
         }
 
@@ -43,7 +43,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                //it.Controller.OnPreviewAddingFrame -= handler;
+                it.FrameLinePanel.OnPreviewFrameIndexInserted -= handler;
             });
         }
 
@@ -51,7 +51,7 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                //it.Controller.OnPreviewRemovingFrame += handler;
+                it.FrameLinePanel.OnPreviewFrameIndexRemoved += handler;
             });
         }
 
@@ -59,23 +59,23 @@ namespace SPRNetTool.View.Widgets
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                //it.Controller.OnPreviewRemovingFrame -= handler;
+                it.FrameLinePanel.OnPreviewFrameIndexRemoved -= handler;
             });
         }
 
-        public static void AddOnEllipseMouseClickHandler(DependencyObject element, FameLineMouseEventHandler handler)
+        public static void AddOnFramePreviewerMouseClickHandler(DependencyObject element, FameLineMouseEventHandler handler)
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                //it.Controller.OnEllipseMouseClick += handler;
+                it.FrameLinePanel.OnFramePreviewerMouseClick += handler;
             });
         }
 
-        public static void RemoveOnEllipseMouseClickHandler(DependencyObject element, FameLineMouseEventHandler handler)
+        public static void RemoveOnFramePreviewerMouseClickHandler(DependencyObject element, FameLineMouseEventHandler handler)
         {
             element.IfIs<FrameLineEditor>(it =>
             {
-                //it.Controller.OnEllipseMouseClick -= handler;
+                it.FrameLinePanel.OnFramePreviewerMouseClick -= handler;
             });
         }
 
@@ -111,7 +111,7 @@ namespace SPRNetTool.View.Widgets
 
         private void SetUpFrameSource(IEnumerable<IFramePreviewerViewModel>? frameSource)
         {
-            frameSource?.IfIs<Collection<IFramePreviewerViewModel>>(it => myPanel.SetUpSource(it));
+            frameSource?.IfIs<Collection<IFramePreviewerViewModel>>(it => FrameLinePanel.SetUpSource(it));
         }
 
         private void DisposeFrameSource(IEnumerable<IFramePreviewerViewModel> frameSource)

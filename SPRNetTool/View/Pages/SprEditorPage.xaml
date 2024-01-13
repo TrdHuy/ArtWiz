@@ -127,7 +127,7 @@
 									OnPreviewFrameIndexSwitched="OnPreviewFrameIndexSwitched"
 									OnPreviewAddingFrame="OnPreviewAddingFrame"
 									OnPreviewRemovingFrame="OnPreviewRemovingFrame"
-									OnEllipseMouseClick="OnEllipseMouseClick"
+									OnFramePreviewerMouseClick="OnFramePreviewerMouseClick"
 									FrameSource="{Binding FramesSource}" />
 			</wg:BitmapViewer.Footer>
 		</wg:BitmapViewer>

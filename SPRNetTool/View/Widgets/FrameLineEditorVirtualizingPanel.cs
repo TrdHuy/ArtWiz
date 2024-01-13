@@ -28,7 +28,7 @@ namespace SPRNetTool.View.Widgets
     public class FrameLineEditorVirtualizingPanel : Canvas, IScrollInfo
     {
         public delegate void FameLineHandler(object sender, FrameLineEventArgs args);
-        public delegate void FameLineMouseEventHandler(object sender, MouseButtonEventArgs args);
+        public delegate void FameLineMouseEventHandler(object sender, FameLineMouseEventArgs args);
 
         public event FameLineHandler? OnPreviewFrameIndexSwitched;
         public event FameLineHandler? OnPreviewFrameIndexRemoved;
@@ -274,7 +274,9 @@ namespace SPRNetTool.View.Widgets
 
         public void RaiseFrameClickedEvent(FramePreviewer clickedFrame, MouseButtonEventArgs e)
         {
-            itemController[clickedFrame]?.Apply(it => OnFramePreviewerMouseClick?.Invoke(it, e));
+            var fameLineMouseEventHandler = new FameLineMouseEventArgs(GetCurrentViewCacheIndex(clickedFrame),
+                e.MouseDevice, e.Timestamp, e.ChangedButton);
+            itemController[clickedFrame]?.Apply(it => OnFramePreviewerMouseClick?.Invoke(it, fameLineMouseEventHandler));
         }
 
         public void RaisePreviewFrameInsertEvent(int newIndex)
@@ -329,6 +331,7 @@ namespace SPRNetTool.View.Widgets
             });
             itemSourceCache = itemSource;
             cacheItemContainerForMeasure = null;
+            desiredItemContainerSize = Size.Empty;
             contentContainerCanvas?.Children.Clear();
             itemController.SetupItemSource(itemSource);
             InvalidateMeasure();
@@ -1047,9 +1050,13 @@ namespace SPRNetTool.View.Widgets
         public void SetupItemSource(Collection<IFramePreviewerViewModel>? itemSource)
         {
             itemSourceCache = itemSource;
+            realLastVisibleItemIndex = 0;
+            RealInitialVisibleItemIndex = 0;
+            expectedLastVisibleItemIndex = 0;
             viewCaches.Clear();
             viewCacheIndexMap.Clear();
             viewCacheMap.Clear();
+            desiredItemContainerSize = Size.Empty;
         }
 
         public void InsertNewCacheToFront(ViewCache newCache)
@@ -1152,18 +1159,18 @@ namespace SPRNetTool.View.Widgets
 #if DEBUG
                 if (frame.Tag == "false")
                 {
-                    if (viewCaches[i].Index % 3 == 0)
-                    {
-                        frame.Background = new SolidColorBrush(Colors.Black);
-                    }
-                    else if (viewCaches[i].Index % 3 == 1)
-                    {
-                        frame.Background = new SolidColorBrush(Colors.OliveDrab);
-                    }
-                    else if (viewCaches[i].Index % 3 == 2)
-                    {
-                        frame.Background = new SolidColorBrush(Colors.DarkBlue);
-                    }
+                    //if (viewCaches[i].Index % 3 == 0)
+                    //{
+                    //    frame.Background = new SolidColorBrush(Colors.Black);
+                    //}
+                    //else if (viewCaches[i].Index % 3 == 1)
+                    //{
+                    //    frame.Background = new SolidColorBrush(Colors.OliveDrab);
+                    //}
+                    //else if (viewCaches[i].Index % 3 == 2)
+                    //{
+                    //    frame.Background = new SolidColorBrush(Colors.DarkBlue);
+                    //}
 
                     frame.Tag = viewCaches[i].Index;
                 }
@@ -1609,4 +1616,14 @@ namespace SPRNetTool.View.Widgets
 
     }
 
+    public class FameLineMouseEventArgs : MouseButtonEventArgs
+    {
+        public int FrameIndex { get; private set; }
+        public FameLineMouseEventArgs(int frameIndex, MouseDevice mouse, int timestamp, MouseButton button)
+            : base(mouse, timestamp, button)
+        {
+            FrameIndex = frameIndex;
+        }
+    }
 }
+
