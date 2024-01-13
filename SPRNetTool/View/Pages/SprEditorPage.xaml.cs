@@ -96,12 +96,9 @@ namespace SPRNetTool.View.Pages
         }
 
 
-        private void OnEllipseMouseClick(object sender, MouseButtonEventArgs args)
+        private void OnFramePreviewerMouseClick(object sender, FameLineMouseEventArgs args)
         {
-            sender.IfIs<EllipseController>(it =>
-            {
-                commandVM?.OnFramePointerClick(it.CurrentIndex);
-            });
+            commandVM?.OnFramePointerClick((uint)args.FrameIndex);
         }
 
         private void PaletteEditorPreviewColorItemChange(object sender, PaletteEditorEventChangedArgs arg)
@@ -235,5 +232,6 @@ namespace SPRNetTool.View.Pages
                 }
             });
         }
+
     }
 }

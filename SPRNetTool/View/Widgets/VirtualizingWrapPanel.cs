@@ -349,7 +349,9 @@ namespace SPRNetTool.View.Widgets
             m_offset.Y = offset;
 
             if (ScrollOwner != null)
+            {
                 ScrollOwner.InvalidateScrollInfo();
+            }
 
             //_trans.Y = -offset;
 

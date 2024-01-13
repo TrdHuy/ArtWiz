@@ -7,12 +7,12 @@ namespace SPRNetTool.ViewModel.Base
         private List<BaseSubViewModel> subViewModels = new List<BaseSubViewModel>();
         protected IArtWizViewModelOwner? ViewModelOwner { get; private set; }
         protected bool IsViewModelDestroyed { get; private set; } = false;
-        void IArtWizViewModel.OnCreate(IArtWizViewModelOwner owner)
+        void IArtWizViewModel.OnArtWizViewModelOwnerCreate(IArtWizViewModelOwner owner)
         {
             ViewModelOwner = owner;
             foreach (var vm in subViewModels)
             {
-                ((IArtWizViewModel)vm).OnCreate(owner);
+                ((IArtWizViewModel)vm).OnArtWizViewModelOwnerCreate(owner);
             }
         }
 
