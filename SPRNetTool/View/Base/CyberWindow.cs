@@ -182,15 +182,12 @@ namespace SPRNetTool.View.Base
                 {
                     case WM_DPICHANGED:
                         {
-                            int newDpiX = (int)(wParam.ToInt32() & 0xFFFF);
-                            int newDpiY = (int)((wParam.ToInt32() >> 16) & 0xFFFF);
-
-                            int a = 0;
+                            //TODO: Implement DPI change
                             break;
                         }
                     case WM_GETDPISCALEDSIZE:
                         {
-                            int a = 0;
+                            //TODO: Implement DPI change
                             break;
                         }
                     case WM_EXITSIZEMOVE:
