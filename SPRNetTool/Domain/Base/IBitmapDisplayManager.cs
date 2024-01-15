@@ -20,6 +20,7 @@ namespace SPRNetTool.Domain.Base
 
         void StopSprAnimation();
 
+        uint GetCurrentDisplayFrameIndex();
 
         void SetNewColorToPalette(uint paletteIndex, Color newColor);
 

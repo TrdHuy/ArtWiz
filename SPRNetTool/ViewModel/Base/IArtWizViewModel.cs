@@ -2,7 +2,7 @@
 {
     public interface IArtWizViewModel
     {
-        void OnCreate(IArtWizViewModelOwner owner);
+        void OnArtWizViewModelOwnerCreate(IArtWizViewModelOwner owner);
 
         void OnDestroy();
 

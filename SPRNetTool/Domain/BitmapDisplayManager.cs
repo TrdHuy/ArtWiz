@@ -46,6 +46,11 @@ namespace SPRNetTool.Domain
         private BitmapSourceCache DisplayedBitmapSourceCache { get; } = new BitmapSourceCache();
 
         #region public interface
+        uint IBitmapDisplayManager.GetCurrentDisplayFrameIndex()
+        {
+            return DisplayedBitmapSourceCache.CurrentFrameIndex ?? 0;
+        }
+
         void IBitmapDisplayManager.ResetSprWorkSpace()
         {
             SprWorkManager.ResetWorkSpace();

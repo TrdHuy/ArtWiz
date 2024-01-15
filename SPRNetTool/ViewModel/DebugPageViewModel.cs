@@ -5,6 +5,7 @@ using SPRNetTool.Utils;
 using SPRNetTool.ViewModel.Base;
 using SPRNetTool.ViewModel.CommandVM;
 using SPRNetTool.ViewModel.Widgets;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -30,7 +31,7 @@ namespace SPRNetTool.ViewModel
         private ObservableCollection<ColorItemViewModel> _orignalDisplayedColorSource = new ObservableCollection<ColorItemViewModel>();
         private ObservableCollection<OptimizedColorItemViewModel>? _optimizedDisplayedSource = null;
         private ObservableCollection<ColorItemViewModel>? _displayedRgbCompositeResultSource = null;
-        private CustomObservableCollection<IFrameViewModel>? _framesSource;
+        private CustomObservableCollection<IFramePreviewerViewModel>? _framesSource;
 
         private bool _isPlayingAnimation = false;
         private int _pixelWidth = 0;
@@ -59,7 +60,7 @@ namespace SPRNetTool.ViewModel
         }
 
         [Bindable(true)]
-        public CustomObservableCollection<IFrameViewModel>? FramesSource
+        public CustomObservableCollection<IFramePreviewerViewModel>? FramesSource
         {
             get
             {
@@ -376,12 +377,27 @@ namespace SPRNetTool.ViewModel
                             {
                                 IsPlayingAnimation = true;
                                 CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
+                                if (IsSpr &&
+                                    FramesSource != null &&
+                                    FramesSource.Count > 0)
+                                {
+                                    FramesSource[(int)BitmapDisplayManager.GetCurrentDisplayFrameIndex()]
+                                        .PreviewImageSource = castArgs.CurrentDisplayingSource;
+                                }
+
                             }, dispatcherPriority);
                         }
                         else if (castArgs.IsPlayingAnimation == false)
                         {
                             IsPlayingAnimation = false;
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
+                            if (IsSpr &&
+                                FramesSource != null &&
+                                FramesSource.Count > 0)
+                            {
+                                FramesSource[(int)BitmapDisplayManager.GetCurrentDisplayFrameIndex()]
+                                    .PreviewImageSource = castArgs.CurrentDisplayingSource;
+                            }
                         }
                     }
                     else
@@ -396,6 +412,15 @@ namespace SPRNetTool.ViewModel
                             CurrentlyDisplayedBitmapSource = castArgs.CurrentDisplayingSource;
                             PixelWidth = castArgs.CurrentDisplayingSource?.PixelWidth ?? 0;
                             PixelHeight = castArgs.CurrentDisplayingSource?.PixelHeight ?? 0;
+                            if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED) &&
+                                IsSpr &&
+                                FramesSource != null &&
+                                FramesSource.Count > 0 &&
+                                BitmapDisplayManager.GetCurrentDisplayFrameIndex() < FramesSource.Count)
+                            {
+                                FramesSource[(int)BitmapDisplayManager.GetCurrentDisplayFrameIndex()]
+                                    .PreviewImageSource = castArgs.CurrentDisplayingSource;
+                            }
                         }
 
                         if (castArgs.Event.HasFlag(SPR_FRAME_COLLECTION_CHANGED))
@@ -406,14 +431,32 @@ namespace SPRNetTool.ViewModel
                                 break;
                             }
 
-                            if (collectionChangedArg.Event.HasFlag(TOTAL_FRAME_COUNT_CHANGED))
+                            if (collectionChangedArg.Event.HasFlag(TOTAL_FRAME_COUNT_CHANGED) &&
+                                castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED) &&
+                                IsSpr)
                             {
-                                var newSrc = new CustomObservableCollection<IFrameViewModel>();
+                                var newSrc = new CustomObservableCollection<IFramePreviewerViewModel>();
+                                var head = castArgs.CurrentSprFileHead!;
                                 for (int i = 0; i < collectionChangedArg.FrameCount; i++)
                                 {
-                                    newSrc.Add(new FrameViewModel());
+                                    newSrc.Add(new FrameViewModel(this)
+                                    {
+                                        GlobalHeight = castArgs.CurrentSprFileHead?.GlobalHeight ?? 0,
+                                        GlobalWidth = castArgs.CurrentSprFileHead?.GlobalWidth ?? 0,
+                                        GlobalOffsetX = castArgs.CurrentSprFileHead?.OffX ?? 0,
+                                        GlobalOffsetY = castArgs.CurrentSprFileHead?.OffY ?? 0,
+                                        FrameHeight = castArgs.SprFrameData?.frameHeight ?? 0,
+                                        FrameWidth = castArgs.SprFrameData?.frameWidth ?? 0,
+                                        FrameOffsetY = castArgs.SprFrameData?.frameOffY ?? 0,
+                                        FrameOffsetX = castArgs.SprFrameData?.frameOffX ?? 0,
+                                    }); ;
                                 }
                                 FramesSource = newSrc;
+                                if (castArgs.Event.HasFlag(CURRENT_DISPLAYING_SOURCE_CHANGED))
+                                {
+                                    FramesSource[(int)BitmapDisplayManager.GetCurrentDisplayFrameIndex()]
+                                        .PreviewImageSource = castArgs.CurrentDisplayingSource;
+                                }
                             }
 
                             if (collectionChangedArg.Event.HasFlag(FRAME_SWITCHED) && FramesSource != null)
@@ -423,6 +466,7 @@ namespace SPRNetTool.ViewModel
 
                             if (collectionChangedArg.Event.HasFlag(FRAME_REMOVED) && FramesSource != null)
                             {
+                                FramesSource[collectionChangedArg.OldFrameIndex].OnDestroy();
                                 FramesSource.RemoveAt(collectionChangedArg.OldFrameIndex);
                             }
 
@@ -432,13 +476,28 @@ namespace SPRNetTool.ViewModel
                                 {
                                     ViewModelOwner?.ViewDispatcher.Invoke(() =>
                                     {
-                                        FramesSource.Insert(collectionChangedArg.NewFrameIndex, new FrameViewModel());
+                                        var newFrameVM = new FrameViewModel(this);
+                                        if (castArgs.Event.HasAllFlagsOf(CURRENT_DISPLAYING_SOURCE_CHANGED,
+                                            SPR_FILE_HEAD_CHANGED,
+                                            SPR_FRAME_DATA_CHANGED))
+                                        {
+                                            newFrameVM.PreviewImageSource = castArgs.CurrentDisplayingSource;
+                                            newFrameVM.GlobalHeight = castArgs.CurrentSprFileHead?.GlobalHeight ?? 0;
+                                            newFrameVM.GlobalWidth = castArgs.CurrentSprFileHead?.GlobalWidth ?? 0;
+                                            newFrameVM.GlobalOffsetX = castArgs.CurrentSprFileHead?.OffX ?? 0;
+                                            newFrameVM.GlobalOffsetY = castArgs.CurrentSprFileHead?.OffY ?? 0;
+                                            newFrameVM.FrameOffsetX = castArgs.SprFrameData?.frameOffX ?? 0;
+                                            newFrameVM.FrameOffsetY = castArgs.SprFrameData?.frameOffY ?? 0;
+                                            newFrameVM.FrameHeight = castArgs.SprFrameData?.frameHeight ?? 0;
+                                            newFrameVM.FrameWidth = castArgs.SprFrameData?.frameWidth ?? 0;
+                                        }
+                                        FramesSource.Insert(collectionChangedArg.NewFrameIndex, newFrameVM);
                                     });
                                 }
                                 else
                                 {
-                                    FramesSource = new CustomObservableCollection<IFrameViewModel>();
-                                    FramesSource.Insert(collectionChangedArg.NewFrameIndex, new FrameViewModel());
+                                    FramesSource = new CustomObservableCollection<IFramePreviewerViewModel>();
+                                    FramesSource.Insert(collectionChangedArg.NewFrameIndex, new FrameViewModel(this));
                                 }
                             }
 
@@ -871,8 +930,107 @@ namespace SPRNetTool.ViewModel
         #endregion
     }
 
-    public class FrameViewModel : IFrameViewModel
+    public class FrameViewModel : BaseSubViewModel, IFramePreviewerViewModel
     {
+        private ImageSource? _imgSrc;
+        private int _globalWidth = 100;
+        private int _globalHeight = 100;
+        private int _height = 30;
+        private int _width = 30;
+        private int _frameOffsetX = 5;
+        private int _frameOffsetY = 5;
+        private int _globalOffsetX = 50;
+        private int _globalOffsetY = 50;
+        public FrameViewModel(BaseParentsViewModel parents) : base(parents)
+        {
+        }
+
+        public ImageSource? PreviewImageSource
+        {
+            get => _imgSrc;
+            set
+            {
+                _imgSrc = value;
+                Invalidate();
+            }
+        }
+        public int FrameHeight
+        {
+            get => _height;
+            set
+            {
+                _height = value;
+                Invalidate();
+            }
+        }
+        public int FrameWidth
+        {
+            get => _width;
+            set
+            {
+                _width = value;
+                Invalidate();
+            }
+        }
+
+        public int FrameOffsetX
+        {
+            get => _frameOffsetX;
+            set
+            {
+                _frameOffsetX = value;
+                Invalidate();
+            }
+        }
+
+        public int FrameOffsetY
+        {
+            get => _frameOffsetY;
+            set
+            {
+                _frameOffsetY = value;
+                Invalidate();
+            }
+        }
+
+        public int GlobalWidth
+        {
+            get => _globalWidth;
+            set
+            {
+                _globalWidth = value;
+                Invalidate();
+            }
+        }
+        public int GlobalHeight
+        {
+            get => _globalHeight;
+            set
+            {
+                _globalHeight = value;
+                Invalidate();
+            }
+        }
+        string IFramePreviewerViewModel.Index { get => "1"; set { } }
+
+        public int GlobalOffsetX
+        {
+            get => _globalOffsetX;
+            set
+            {
+                _globalOffsetX = value;
+                Invalidate();
+            }
+        }
+        public int GlobalOffsetY
+        {
+            get => _globalOffsetY;
+            set
+            {
+                _globalOffsetY = value;
+                Invalidate();
+            }
+        }
     }
 
     public class PaletteEditorColorItemViewModel : BaseViewModel, IPaletteEditorColorItemViewModel

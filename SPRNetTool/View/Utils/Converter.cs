@@ -38,6 +38,67 @@ namespace SPRNetTool.View.Utils
         /// </summary>
         REVERSE_HIDDEN
     }
+    public class BoolToObjectConverter : IValueConverter
+    {
+        public object? Convert(object value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            object? compareOb = null;
+            object? expectedValue = null;
+            object? defaultValue = null;
+            parameter?.IfIs<object[]>(it =>
+            {
+                compareOb = it[0];
+                defaultValue = it[1];
+                expectedValue = it[2];
+            });
+
+            if (value.Equals(compareOb))
+            {
+                return expectedValue;
+            }
+            else
+            {
+                return defaultValue;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class ObjectToVisibilityConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            var invisibleType = InvisibleType.HIDDEN;
+            object? compareOb = null;
+            parameter?.IfIs<object[]>(it =>
+            {
+                invisibleType = (InvisibleType)it[0];
+                compareOb = it[1];
+            });
+
+            switch (invisibleType)
+            {
+                case InvisibleType.HIDDEN:
+                    return !value.Equals(compareOb) ? Visibility.Hidden : Visibility.Visible;
+                case InvisibleType.COLLAPSED:
+                    return !value.Equals(compareOb) ? Visibility.Collapsed : Visibility.Visible;
+                case InvisibleType.REVERSE_HIDDEN:
+                    return value.Equals(compareOb) ? Visibility.Hidden : Visibility.Visible;
+                case InvisibleType.REVERSE_COLLAPSED:
+                    return value.Equals(compareOb) ? Visibility.Collapsed : Visibility.Visible;
+            }
+            return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     public class BoolToVisibilityConverter : IValueConverter
     {
