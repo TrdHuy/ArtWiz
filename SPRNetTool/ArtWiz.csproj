@@ -58,7 +58,7 @@
     <Content Include="Resources\spr_global_background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <PackageReference Include="WizMachine" Version="0.0.0.5" />
+    <PackageReference Include="WizMachine" Version="0.0.0.7" />
     <Content Include="Resources\logo_40.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
