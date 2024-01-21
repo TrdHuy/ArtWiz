@@ -1,7 +1,7 @@
 ﻿using Moq;
-using SPRNetTool.Domain.Base;
-using SPRNetTool.Domain.Utils;
-using SPRNetTool.Utils;
+using ArtWiz.Domain.Base;
+using ArtWiz.Domain.Utils;
+using ArtWiz.Utils;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -9,9 +9,9 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 using WizMachine.Data;
-using static SPRNetTool.Utils.BitmapUtil;
+using static ArtWiz.Utils.BitmapUtil;
 
-namespace SPRNetToolTest.Utils
+namespace ArtWizTest.Utils
 {
     public class BitmapUtilTest
     {

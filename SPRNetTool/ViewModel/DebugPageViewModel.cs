@@ -1,10 +1,10 @@
-﻿using SPRNetTool.Domain;
-using SPRNetTool.Domain.Base;
-using SPRNetTool.Domain.Utils;
-using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Base;
-using SPRNetTool.ViewModel.CommandVM;
-using SPRNetTool.ViewModel.Widgets;
+﻿using ArtWiz.Domain;
+using ArtWiz.Domain.Base;
+using ArtWiz.Domain.Utils;
+using ArtWiz.Utils;
+using ArtWiz.ViewModel.Base;
+using ArtWiz.ViewModel.CommandVM;
+using ArtWiz.ViewModel.Widgets;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,10 +15,10 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
+using static ArtWiz.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
+using static ArtWiz.Domain.SprFrameCollectionChangedArg.ChangedEvent;
 
-namespace SPRNetTool.ViewModel
+namespace ArtWiz.ViewModel
 {
     public class DebugPageViewModel : BaseParentsViewModel, IDebugPageCommand
     {

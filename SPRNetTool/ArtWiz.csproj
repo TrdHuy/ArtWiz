@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -13,12 +13,15 @@
     <PlatformTarget>x64</PlatformTarget>
     <ApplicationIcon>logo.ico</ApplicationIcon>
 	<ApplicationManifest>app.manifest</ApplicationManifest>
+	<AssemblyName>ArtWiz</AssemblyName>
+	<RootNamespace>ArtWiz</RootNamespace>
+	<StartupObject>ArtWiz.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Data\**"/>
-    <EmbeddedResource Remove="Data\**"/>
-    <None Remove="Data\**"/>
-    <Page Remove="Data\**"/>
+    <Compile Remove="Data\**" />
+    <EmbeddedResource Remove="Data\**" />
+    <None Remove="Data\**" />
+    <Page Remove="Data\**" />
   </ItemGroup>
   <ItemGroup>
    <None Remove="Resources\12345.spr" />
@@ -32,7 +35,7 @@
     <None Remove="Resources\spr_viewer_background.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="logo.ico"/>
+    <Content Include="logo.ico" />
     <Content Include="Resources\bg.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -55,7 +58,7 @@
     <Content Include="Resources\spr_global_background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <PackageReference Include="WizMachine" Version="0.0.0.5" />
+    <PackageReference Include="WizMachine" Version="0.0.0.7" />
     <Content Include="Resources\logo_40.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

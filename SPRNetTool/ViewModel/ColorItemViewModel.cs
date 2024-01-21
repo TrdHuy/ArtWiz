@@ -1,9 +1,9 @@
-﻿using SPRNetTool.Domain.Base;
-using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Base;
+﻿using ArtWiz.Domain.Base;
+using ArtWiz.Utils;
+using ArtWiz.ViewModel.Base;
 using System.Windows.Media;
 
-namespace SPRNetTool.ViewModel
+namespace ArtWiz.ViewModel
 {
 
     public class ColorItemViewModel : BaseViewModel, IIndexableViewModel

@@ -1,14 +1,14 @@
-﻿using SPRNetTool.Domain;
-using SPRNetTool.Domain.Base;
-using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Base;
+﻿using ArtWiz.Domain;
+using ArtWiz.Domain.Base;
+using ArtWiz.Utils;
+using ArtWiz.ViewModel.Base;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Media;
-using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
+using static ArtWiz.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
+using static ArtWiz.Domain.SprPaletteChangedArg.ChangedEvent;
 
-namespace SPRNetTool.ViewModel.Widgets
+namespace ArtWiz.ViewModel.Widgets
 {
     internal class PaletteEditorViewModel : BaseSubViewModel, IPaletteEditorViewModel
     {

@@ -1,7 +1,7 @@
-﻿using SPRNetTool.ViewModel.Base;
+﻿using ArtWiz.ViewModel.Base;
 using System.Windows.Media.Imaging;
 
-namespace SPRNetTool.ViewModel.Widgets
+namespace ArtWiz.ViewModel.Widgets
 {
     public interface IBitmapViewerViewModel : IArtWizViewModel
     {

@@ -1,7 +1,7 @@
-﻿using SPRNetTool.Domain.Base;
-using SPRNetTool.Utils;
+﻿using ArtWiz.Domain.Base;
+using ArtWiz.Utils;
 
-namespace SPRNetTool.ViewModel.Base
+namespace ArtWiz.ViewModel.Base
 {
     public abstract class BaseViewModel : BaseNotifier, IDomainObserver, IDomainAccessors
     {

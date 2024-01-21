@@ -1,4 +1,4 @@
-﻿namespace SPRNetTool.Domain.Base
+﻿namespace ArtWiz.Domain.Base
 {
 
     public interface IDomainAdapter

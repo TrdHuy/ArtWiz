@@ -1,7 +1,7 @@
-﻿using SPRNetTool.Utils;
+﻿using ArtWiz.Utils;
 using System.Windows.Media;
 
-namespace SPRNetToolTest.Utils
+namespace ArtWizTest.Utils
 {
     internal class ExtensionTest
     {

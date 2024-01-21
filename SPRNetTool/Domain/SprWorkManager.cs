@@ -1,7 +1,7 @@
-﻿using SPRNetTool.Domain.Base;
+﻿using ArtWiz.Domain.Base;
 using WizMachine;
 
-namespace SPRNetTool.Domain
+namespace ArtWiz.Domain
 {
     public class SprWorkManager : BaseDomain, ISprWorkManager
     {

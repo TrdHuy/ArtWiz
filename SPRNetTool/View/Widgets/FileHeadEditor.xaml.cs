@@ -1,11 +1,11 @@
-﻿using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.CommandVM;
-using SPRNetTool.ViewModel.Widgets;
+﻿using ArtWiz.Utils;
+using ArtWiz.ViewModel.CommandVM;
+using ArtWiz.ViewModel.Widgets;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace SPRNetTool.View.Widgets
+namespace ArtWiz.View.Widgets
 {
     public enum FileHeadEditorTagId
     {

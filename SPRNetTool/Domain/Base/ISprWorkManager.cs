@@ -4,7 +4,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WizMachine.Data;
 
-namespace SPRNetTool.Domain.Base
+namespace ArtWiz.Domain.Base
 {
     public interface ISprWorkManager : IObservableDomain, IDomainAdapter
     {

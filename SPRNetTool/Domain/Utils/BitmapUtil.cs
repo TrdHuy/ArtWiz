@@ -1,5 +1,5 @@
-﻿using SPRNetTool.Domain.Base;
-using SPRNetTool.Utils;
+﻿using ArtWiz.Domain.Base;
+using ArtWiz.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WizMachine.Data;
 
-namespace SPRNetTool.Domain.Utils
+namespace ArtWiz.Domain.Utils
 {
     public static class BitmapUtil
     {

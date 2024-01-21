@@ -80,7 +80,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SPRNetTool\SPRNetTool.csproj" />
+    <ProjectReference Include="..\SPRNetTool\ArtWiz.csproj" />
   </ItemGroup>
 
   <ItemGroup>

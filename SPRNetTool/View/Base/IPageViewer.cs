@@ -1,4 +1,4 @@
-﻿namespace SPRNetTool.View.Base
+﻿namespace ArtWiz.View.Base
 {
     public interface IPageViewer : IViewerElement
     {

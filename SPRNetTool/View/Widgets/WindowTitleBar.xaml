@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="SPRNetTool.View.Widgets.WindowTitleBar"
+﻿<UserControl x:Class="ArtWiz.View.Widgets.WindowTitleBar"
 			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-			 xmlns:local="clr-namespace:SPRNetTool.View.Widgets"
-			 xmlns:def="clr-namespace:SPRNetTool"
-			 xmlns:bview="clr-namespace:SPRNetTool.View.Base"
+			 xmlns:local="clr-namespace:ArtWiz.View.Widgets"
+			 xmlns:def="clr-namespace:ArtWiz"
+			 xmlns:bview="clr-namespace:ArtWiz.View.Base"
 			 mc:Ignorable="d"
 			 d:DesignHeight="40"
 			 d:DesignWidth="800">
@@ -644,7 +644,7 @@
 					   Width="25"
 					   RenderOptions.BitmapScalingMode="HighQuality"
 					   SnapsToDevicePixels="True"
-					   Source="/SPRNetTool;component/resources/logo_500.png" />
+					   Source="/ArtWiz;component/resources/logo_500.png" />
 
 				<Menu x:Name="MainMenu"
 					  Background="{StaticResource ResourceKey={x:Static def:Definitions.MenuItemBackground}}"

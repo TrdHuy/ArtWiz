@@ -1,4 +1,4 @@
-﻿namespace SPRNetTool.ViewModel.Base
+﻿namespace ArtWiz.ViewModel.Base
 {
     public abstract class BaseSubViewModel : BaseViewModel, IArtWizViewModel
     {

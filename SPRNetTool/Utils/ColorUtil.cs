@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Media;
 
-namespace SPRNetTool.Utils
+namespace ArtWiz.Utils
 {
     public static class ColorUtil
     {

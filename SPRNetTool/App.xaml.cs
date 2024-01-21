@@ -1,8 +1,8 @@
-﻿using SPRNetTool.LogUtil;
+﻿using ArtWiz.LogUtil;
 using System.Windows;
 using WizMachine;
 
-namespace SPRNetTool
+namespace ArtWiz
 {
     /// <summary>
     /// Interaction logic for App.xaml

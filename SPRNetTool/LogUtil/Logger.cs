@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace SPRNetTool.LogUtil
+namespace ArtWiz.LogUtil
 {
     public class Logger
     {

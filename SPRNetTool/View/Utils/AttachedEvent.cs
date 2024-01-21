@@ -1,4 +1,4 @@
-﻿using SPRNetTool.LogUtil;
+﻿using ArtWiz.LogUtil;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-namespace SPRNetTool.View.Utils
+namespace ArtWiz.View.Utils
 {
 
     public delegate void MouseHoldEventHandler(object sender, MouseHoldEventArgs args);

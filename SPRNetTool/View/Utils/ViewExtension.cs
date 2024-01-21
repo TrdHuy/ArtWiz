@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 
-namespace SPRNetTool.View.Utils
+namespace ArtWiz.View.Utils
 {
     public static class ViewExtension
     {

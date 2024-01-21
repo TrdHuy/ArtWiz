@@ -1,9 +1,9 @@
 ﻿using Microsoft.Win32;
-using SPRNetTool.Utils;
-using SPRNetTool.View.Base;
-using SPRNetTool.View.Widgets;
-using SPRNetTool.ViewModel;
-using SPRNetTool.ViewModel.CommandVM;
+using ArtWiz.Utils;
+using ArtWiz.View.Base;
+using ArtWiz.View.Widgets;
+using ArtWiz.ViewModel;
+using ArtWiz.ViewModel.CommandVM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using static SPRNetTool.View.InputWindow;
-using static SPRNetTool.View.Widgets.PaletteEditor;
+using static ArtWiz.View.InputWindow;
+using static ArtWiz.View.Widgets.PaletteEditor;
 
-namespace SPRNetTool.View.Pages
+namespace ArtWiz.View.Pages
 {
     public enum SprEditorPageTagId
     {

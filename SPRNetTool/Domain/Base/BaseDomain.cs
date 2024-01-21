@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SPRNetTool.Domain.Base
+namespace ArtWiz.Domain.Base
 {
     public abstract class BaseDomain : IObservableDomain, IDomainAdapter, IDomainAccessors
     {

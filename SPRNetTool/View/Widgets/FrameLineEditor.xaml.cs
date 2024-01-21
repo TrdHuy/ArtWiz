@@ -1,14 +1,14 @@
-﻿using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Widgets;
+﻿using ArtWiz.Utils;
+using ArtWiz.ViewModel.Widgets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
-using static SPRNetTool.View.Widgets.FrameLineEditorVirtualizingPanel;
+using static ArtWiz.View.Widgets.FrameLineEditorVirtualizingPanel;
 
-namespace SPRNetTool.View.Widgets
+namespace ArtWiz.View.Widgets
 {
     /// <summary>
     /// Interaction logic for FrameLineEditor.xaml

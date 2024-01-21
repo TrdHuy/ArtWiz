@@ -6,7 +6,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace SPRNetTool.View.Widgets
+namespace ArtWiz.View.Widgets
 {
     public class OutlineTextBlock : Shape
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SPRNetTool.ViewModel.Base
+namespace ArtWiz.ViewModel.Base
 {
     public class BaseParentsViewModel : BaseViewModel, IArtWizViewModel
     {

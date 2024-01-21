@@ -1,12 +1,12 @@
-﻿using SPRNetTool.Domain;
-using SPRNetTool.Domain.Base;
-using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Base;
+﻿using ArtWiz.Domain;
+using ArtWiz.Domain.Base;
+using ArtWiz.Utils;
+using ArtWiz.ViewModel.Base;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
+using static ArtWiz.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
 
-namespace SPRNetTool.ViewModel.Widgets
+namespace ArtWiz.ViewModel.Widgets
 {
     public class BitmapViewerViewModel : BaseSubViewModel, IBitmapViewerViewModel
     {

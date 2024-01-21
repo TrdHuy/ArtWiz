@@ -1,7 +1,7 @@
-﻿using SPRNetTool.Utils;
-using SPRNetTool.View.Base;
-using SPRNetTool.View.Utils;
-using SPRNetTool.ViewModel.Base;
+﻿using ArtWiz.Utils;
+using ArtWiz.View.Base;
+using ArtWiz.View.Utils;
+using ArtWiz.ViewModel.Base;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,9 +9,9 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using static SPRNetTool.View.InputWindow;
+using static ArtWiz.View.InputWindow;
 
-namespace SPRNetTool.View
+namespace ArtWiz.View
 {
     public class InputWindowItemHeightConverter : IMultiValueConverter
     {

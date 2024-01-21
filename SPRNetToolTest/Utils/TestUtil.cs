@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using WizMachine.Data;
 
-namespace SPRNetToolTest.Utils
+namespace ArtWizTest.Utils
 {
     internal static class TestUtil
     {

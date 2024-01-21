@@ -1,16 +1,16 @@
-﻿<base:BasePageViewer x:Class="SPRNetTool.View.Pages.DebugPage"
+﻿<base:BasePageViewer x:Class="ArtWiz.View.Pages.DebugPage"
 					 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 					 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 					 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 					 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-					 xmlns:local="clr-namespace:SPRNetTool.View.Pages"
-					 xmlns:base="clr-namespace:SPRNetTool.View.Base"
-					 xmlns:cvt="clr-namespace:SPRNetTool.View.Utils"
-					 xmlns:wg="clr-namespace:SPRNetTool.View.Widgets"
+					 xmlns:local="clr-namespace:ArtWiz.View.Pages"
+					 xmlns:base="clr-namespace:ArtWiz.View.Base"
+					 xmlns:cvt="clr-namespace:ArtWiz.View.Utils"
+					 xmlns:wg="clr-namespace:ArtWiz.View.Widgets"
 					 mc:Ignorable="d"
 					 d:DesignWidth="800"
 					 MouseDown="BasePageViewer_MouseDown"
-					 xmlns:vm="clr-namespace:SPRNetTool.ViewModel">
+					 xmlns:vm="clr-namespace:ArtWiz.ViewModel">
 	<UserControl.DataContext>
 		<vm:DebugPageViewModel />
 	</UserControl.DataContext>
@@ -19,7 +19,7 @@
 		<cvt:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 		<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 		<FontFamily x:Key="FontAwsome">
-			/SPRNetTool;component/Resources/Font Awesome 6 Free-Solid-900.otf#Font Awesome 6 Free Solid
+			/ArtWiz;component/Resources/Font Awesome 6 Free-Solid-900.otf#Font Awesome 6 Free Solid
 		</FontFamily>
 		<Style x:Key="ListViewStyle"
 			   TargetType="{x:Type GridViewColumnHeader}">

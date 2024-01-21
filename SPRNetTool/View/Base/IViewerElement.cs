@@ -1,6 +1,6 @@
 ﻿using System.Windows.Threading;
 
-namespace SPRNetTool.View.Base
+namespace ArtWiz.View.Base
 {
     public interface IViewerElement
     {

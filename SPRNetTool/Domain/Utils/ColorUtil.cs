@@ -1,9 +1,9 @@
-﻿using SPRNetTool.Domain.Base;
+﻿using ArtWiz.Domain.Base;
 using System;
 using System.Windows.Media;
 using WizMachine.Data;
 
-namespace SPRNetTool.Domain.Utils
+namespace ArtWiz.Domain.Utils
 {
     public static class ColorUtil
     {

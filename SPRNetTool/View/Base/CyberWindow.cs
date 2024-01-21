@@ -1,4 +1,4 @@
-﻿using SPRNetTool.View.Widgets;
+﻿using ArtWiz.View.Widgets;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using WinInterop = System.Windows.Interop;
 
-namespace SPRNetTool.View.Base
+namespace ArtWiz.View.Base
 {
     public abstract class CyberWindow : Window
     {
