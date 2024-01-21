@@ -95,8 +95,10 @@ jobs:
         where msbuild
         msbuild -version
         where signtool
-        "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe"
-        
+        echo HUY1
+        dir "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\"
+        echo HUY2
+        dir "C:\Program Files (x86)\Windows Kits\10\bin\"
     ################### END CORE REGION #######################
 
 
