@@ -109,6 +109,7 @@ jobs:
           exit 1
         } else {
           Write-Host "Signtool 22000 found. Continuing the job."
+          exit 0
         }
 
         $signtoolPath = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.123456.0\x64\signtool.exe"
