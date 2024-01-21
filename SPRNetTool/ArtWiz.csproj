@@ -1,72 +1,87 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <UseWindowsForms>True</UseWindowsForms>
-    <AssemblyVersion>1.0.0.9</AssemblyVersion>
-    <FileVersion>1.0.0.9</FileVersion>
-    <Version>1.0.0.9</Version>
-    <PlatformTarget>x64</PlatformTarget>
-    <ApplicationIcon>logo.ico</ApplicationIcon>
-	<ApplicationManifest>app.manifest</ApplicationManifest>
-	<AssemblyName>ArtWiz</AssemblyName>
-	<RootNamespace>ArtWiz</RootNamespace>
-	<StartupObject>ArtWiz.App</StartupObject>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Data\**" />
-    <EmbeddedResource Remove="Data\**" />
-    <None Remove="Data\**" />
-    <Page Remove="Data\**" />
-  </ItemGroup>
-  <ItemGroup>
-   <None Remove="Resources\12345.spr" />
-    <None Remove="Resources\bg.jpg" />
-    <None Remove="Resources\bg2.jpg" />
-    <None Remove="Resources\cuukiem.spr" />
-    <None Remove="Resources\Font Awesome 6 Free-Solid-900.otf" />
-    <None Remove="Resources\logo_40.png" />
-    <None Remove="Resources\logo_500.png" />
-    <None Remove="Resources\spr_global_background.png" />
-    <None Remove="Resources\spr_viewer_background.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="logo.ico" />
-    <Content Include="Resources\bg.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\bg2.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\cuukiem.spr">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Font Awesome 6 Free-Solid-900.otf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\12345.spr">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\spr_global_background.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <PackageReference Include="WizMachine" Version="0.0.0.7" />
-    <Content Include="Resources\logo_40.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Resource Include="Resources\logo_500.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\spr_viewer_background.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<UseWindowsForms>True</UseWindowsForms>
+		<ProjectFullPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)'))</ProjectFullPath>
+		<SolutionDirectory>$([System.IO.Path]::GetFullPath('$(ProjectFullPath)\..'))</SolutionDirectory>
+		<AssemblyVersion>1.0.0.9</AssemblyVersion>
+		<FileVersion>1.0.0.9</FileVersion>
+		<Version>1.0.0.9</Version>
+		<PlatformTarget>x64</PlatformTarget>
+		<ApplicationIcon>logo.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<AssemblyName>ArtWiz</AssemblyName>
+		<RootNamespace>ArtWiz</RootNamespace>
+		<StartupObject>ArtWiz.App</StartupObject>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="Data\**" />
+		<EmbeddedResource Remove="Data\**" />
+		<None Remove="Data\**" />
+		<Page Remove="Data\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="Resources\12345.spr" />
+		<None Remove="Resources\bg.jpg" />
+		<None Remove="Resources\bg2.jpg" />
+		<None Remove="Resources\cuukiem.spr" />
+		<None Remove="Resources\Font Awesome 6 Free-Solid-900.otf" />
+		<None Remove="Resources\logo_40.png" />
+		<None Remove="Resources\logo_500.png" />
+		<None Remove="Resources\spr_global_background.png" />
+		<None Remove="Resources\spr_viewer_background.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="logo.ico" />
+		<Content Include="Resources\bg.jpg">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\bg2.jpg">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="Resources\cuukiem.spr">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\Font Awesome 6 Free-Solid-900.otf">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="Resources\12345.spr">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\spr_global_background.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<PackageReference Include="WizMachine" Version="0.0.0.7" />
+		<Content Include="Resources\logo_40.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Resource Include="Resources\logo_500.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\spr_viewer_background.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+	</ItemGroup>
+
+	<Target Name="CustomPublishTask" AfterTargets="Publish">
+		<PropertyGroup>
+			<PublishDirFullPath>$([System.IO.Path]::GetFullPath('$(PublishDir)'))</PublishDirFullPath>
+		</PropertyGroup>
+		<WriteLinesToFile
+		  File="$(SolutionDirectory)\publish-info.xml"
+		  Lines='&lt;PublishInfo&gt;&lt;PublishDir&gt;$(PublishDirFullPath)&lt;/PublishDir&gt;&lt;AssemblyName&gt;$(AssemblyName)&lt;/AssemblyName&gt;&lt;/PublishInfo&gt;'
+		  Overwrite="true"
+		  Encoding="UTF-8">
+		</WriteLinesToFile>
+		<Message Text="Publish information written to publish-info.xml" Importance="high" />
+	</Target>
 </Project>
