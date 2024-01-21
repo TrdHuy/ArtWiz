@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace SPRNetTool.ViewModel.Base
+namespace ArtWiz.ViewModel.Base
 {
     public interface IIndexableViewModel
     {

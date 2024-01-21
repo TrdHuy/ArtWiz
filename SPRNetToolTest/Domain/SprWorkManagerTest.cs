@@ -1,13 +1,13 @@
 ﻿using Moq;
-using SPRNetTool.Domain;
-using SPRNetTool.Domain.Base;
-using SPRNetTool.Domain.Utils;
-using SPRNetTool.Utils;
-using SPRNetToolTest.Utils;
+using ArtWiz.Domain;
+using ArtWiz.Domain.Base;
+using ArtWiz.Domain.Utils;
+using ArtWiz.Utils;
+using ArtWizTest.Utils;
 using WizMachine;
 using WizMachine.Data;
 
-namespace SPRNetToolTest.Domain
+namespace ArtWizTest.Domain
 {
     internal class SprWorkManagerTest
     {

@@ -1,7 +1,7 @@
-﻿using SPRNetTool.Domain.Base;
-using SPRNetTool.Domain.Utils;
-using SPRNetTool.LogUtil;
-using SPRNetTool.Utils;
+﻿using ArtWiz.Domain.Base;
+using ArtWiz.Domain.Utils;
+using ArtWiz.LogUtil;
+using ArtWiz.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WizMachine.Data;
-using static SPRNetTool.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprFrameCollectionChangedArg.ChangedEvent;
-using static SPRNetTool.Domain.SprPaletteChangedArg.ChangedEvent;
+using static ArtWiz.Domain.BitmapDisplayMangerChangedArg.ChangedEvent;
+using static ArtWiz.Domain.SprFrameCollectionChangedArg.ChangedEvent;
+using static ArtWiz.Domain.SprPaletteChangedArg.ChangedEvent;
 
-namespace SPRNetTool.Domain
+namespace ArtWiz.Domain
 {
     public class BitmapDisplayManager : BaseDomain, IBitmapDisplayManager
     {

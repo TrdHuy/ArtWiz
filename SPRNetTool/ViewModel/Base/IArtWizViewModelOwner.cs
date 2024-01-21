@@ -1,6 +1,6 @@
 ﻿using System.Windows.Threading;
 
-namespace SPRNetTool.ViewModel.Base
+namespace ArtWiz.ViewModel.Base
 {
     public interface IArtWizViewModelOwner
     {

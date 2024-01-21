@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using System.Windows.Media;
 
-namespace SPRNetTool.ViewModel.CommandVM
+namespace ArtWiz.ViewModel.CommandVM
 {
     public interface IDebugPageCommand
     {

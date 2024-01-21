@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace SPRNetTool.View.Widgets
+namespace ArtWiz.View.Widgets
 {
     public partial class IconToggle : UserControl
     {

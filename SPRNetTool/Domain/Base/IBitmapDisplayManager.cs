@@ -1,9 +1,9 @@
-﻿using SPRNetTool.Domain.Utils;
+﻿using ArtWiz.Domain.Utils;
 using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace SPRNetTool.Domain.Base
+namespace ArtWiz.Domain.Base
 {
     public interface IBitmapDisplayManager : IObservableDomain, IDomainAdapter
     {

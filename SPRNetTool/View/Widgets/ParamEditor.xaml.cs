@@ -1,9 +1,9 @@
-﻿using SPRNetTool.View.Utils;
+﻿using ArtWiz.View.Utils;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace SPRNetTool.View.Widgets
+namespace ArtWiz.View.Widgets
 {
     /// <summary>
     /// Interaction logic for ParamEditor.xaml

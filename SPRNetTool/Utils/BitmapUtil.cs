@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WizMachine.Data;
 
-namespace SPRNetTool.Utils
+namespace ArtWiz.Utils
 {
     public static class BitmapUtil
     {

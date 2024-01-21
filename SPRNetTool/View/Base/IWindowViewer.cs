@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace SPRNetTool.View.Base
+namespace ArtWiz.View.Base
 {
     public interface IWindowViewer : IViewerElement
     {

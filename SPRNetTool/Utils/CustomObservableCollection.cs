@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace SPRNetTool.Utils
+namespace ArtWiz.Utils
 {
     public class CustomNotifyCollectionChangedEventArgs : NotifyCollectionChangedEventArgs
     {

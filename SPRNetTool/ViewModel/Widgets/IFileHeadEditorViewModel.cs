@@ -1,7 +1,7 @@
-﻿using SPRNetTool.ViewModel.Base;
+﻿using ArtWiz.ViewModel.Base;
 using WizMachine.Data;
 
-namespace SPRNetTool.ViewModel.Widgets
+namespace ArtWiz.ViewModel.Widgets
 {
     public interface IFileHeadEditorViewModel : IArtWizViewModel
     {

@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Windows;
 
-namespace SPRNetTool
+namespace ArtWiz
 {
     public partial class Definitions : ResourceDictionary
     {

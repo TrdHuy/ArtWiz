@@ -1,11 +1,11 @@
-﻿using SPRNetTool.Utils;
+﻿using ArtWiz.Utils;
 using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace SPRNetTool.View.Widgets
+namespace ArtWiz.View.Widgets
 {
     public class TextContentUpdatedEventArgs
     {

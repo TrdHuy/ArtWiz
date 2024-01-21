@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace SPRNetTool.ViewModel.Base
+namespace ArtWiz.ViewModel.Base
 {
     public class BaseNotifier : INotifyPropertyChanged
     {

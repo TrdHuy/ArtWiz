@@ -1,11 +1,11 @@
-﻿using SPRNetTool.Utils;
-using SPRNetTool.View.Base;
-using SPRNetTool.View.Pages;
+﻿using ArtWiz.Utils;
+using ArtWiz.View.Base;
+using ArtWiz.View.Pages;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shell;
 
-namespace SPRNetTool.View
+namespace ArtWiz.View
 {
     public partial class MainWindow : BaseArtWizWindow
     {

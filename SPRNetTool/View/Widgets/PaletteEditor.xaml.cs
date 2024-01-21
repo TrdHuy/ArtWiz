@@ -1,5 +1,5 @@
-﻿using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Widgets;
+﻿using ArtWiz.Utils;
+using ArtWiz.ViewModel.Widgets;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace SPRNetTool.View.Widgets
+namespace ArtWiz.View.Widgets
 {
     /// <summary>
     /// Interaction logic for PaletteViewer.xaml

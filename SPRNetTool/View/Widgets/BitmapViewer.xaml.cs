@@ -1,5 +1,5 @@
-﻿using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Widgets;
+﻿using ArtWiz.Utils;
+using ArtWiz.ViewModel.Widgets;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,7 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace SPRNetTool.View.Widgets
+namespace ArtWiz.View.Widgets
 {
     /// <summary>
     /// Interaction logic for BitmapViewer.xaml
@@ -15,9 +15,9 @@ namespace SPRNetTool.View.Widgets
     public partial class BitmapViewer : UserControl
     {
         private ImageSource BlackBagroundImage { get; }
-           = new BitmapImage(new Uri(@"/SPRNetTool;component/resources/spr_global_background.png", UriKind.RelativeOrAbsolute));
+           = new BitmapImage(new Uri(@"/ArtWiz;component/resources/spr_global_background.png", UriKind.RelativeOrAbsolute));
         private ImageSource TransparentBagroundImage { get; }
-           = new BitmapImage(new Uri(@"/SPRNetTool;component/resources/spr_global_transparent_background.png", UriKind.RelativeOrAbsolute));
+           = new BitmapImage(new Uri(@"/ArtWiz;component/resources/spr_global_transparent_background.png", UriKind.RelativeOrAbsolute));
 
         public static readonly DependencyProperty FooterProperty =
            DependencyProperty.Register(

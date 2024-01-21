@@ -1,9 +1,9 @@
-﻿using SPRNetTool.View.Base;
+﻿using ArtWiz.View.Base;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace SPRNetTool.View
+namespace ArtWiz.View
 {
     /// <summary>
     /// Interaction logic for LoadingWindow.xaml

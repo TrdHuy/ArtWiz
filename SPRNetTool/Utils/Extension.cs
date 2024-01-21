@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace SPRNetTool.Utils
+namespace ArtWiz.Utils
 {
 
     public static class Extension

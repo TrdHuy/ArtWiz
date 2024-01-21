@@ -1,4 +1,4 @@
-﻿namespace SPRNetTool.ViewModel.Base
+﻿namespace ArtWiz.ViewModel.Base
 {
     public interface IArtWizViewModel
     {

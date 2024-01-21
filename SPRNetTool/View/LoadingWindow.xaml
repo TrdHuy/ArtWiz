@@ -1,4 +1,4 @@
-﻿<Window x:Class="SPRNetTool.View.LoadingWindow"
+﻿<Window x:Class="ArtWiz.View.LoadingWindow"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -31,7 +31,7 @@
 		<TextBlock Text="&#xf110;"
 				   x:Name="RotatingTextBlock"
 				   FontSize="50"
-				   FontFamily="/SPRNetTool;component/Resources/Font Awesome 6 Free-Solid-900.otf#Font Awesome 6 Free Solid"
+				   FontFamily="/ArtWiz;component/Resources/Font Awesome 6 Free-Solid-900.otf#Font Awesome 6 Free Solid"
 				   RenderTransformOrigin="0.5,0.5"
 				   Foreground="Green"
 				   FontWeight="ExtraBold">

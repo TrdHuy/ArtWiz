@@ -1,7 +1,7 @@
-﻿using SPRNetTool.Domain;
-using SPRNetTool.Domain.Base;
+﻿using ArtWiz.Domain;
+using ArtWiz.Domain.Base;
 
-namespace SPRNetToolTest.Domain
+namespace ArtWizTest.Domain
 {
     internal class BitmapDisplayManagerTest
     {

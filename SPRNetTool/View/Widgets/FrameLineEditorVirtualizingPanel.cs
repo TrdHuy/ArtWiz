@@ -1,5 +1,5 @@
-﻿using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Widgets;
+﻿using ArtWiz.Utils;
+using ArtWiz.ViewModel.Widgets;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,7 +16,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media;
 using System.Windows;
 
-namespace SPRNetTool.View.Widgets
+namespace ArtWiz.View.Widgets
 {
     public enum ScrollTypes
     {

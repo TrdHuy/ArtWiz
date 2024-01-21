@@ -1,8 +1,8 @@
-﻿using SPRNetTool.ViewModel.Base;
+﻿using ArtWiz.ViewModel.Base;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 
-namespace SPRNetTool.ViewModel.Widgets
+namespace ArtWiz.ViewModel.Widgets
 {
     public interface IPaletteEditorViewModel : IArtWizViewModel
     {

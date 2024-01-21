@@ -1,11 +1,11 @@
-﻿using SPRNetTool.Utils;
+﻿using ArtWiz.Utils;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace SPRNetTool.View.Utils
+namespace ArtWiz.View.Utils
 {
     public class RevertBoolConverter : IValueConverter
     {

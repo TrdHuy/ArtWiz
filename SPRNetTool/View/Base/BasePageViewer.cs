@@ -1,11 +1,11 @@
-﻿using SPRNetTool.Utils;
-using SPRNetTool.ViewModel.Base;
+﻿using ArtWiz.Utils;
+using ArtWiz.ViewModel.Base;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
-namespace SPRNetTool.View.Base
+namespace ArtWiz.View.Base
 {
     public abstract class BasePageViewer : UserControl, IPageViewer, IArtWizViewModelOwner
     {

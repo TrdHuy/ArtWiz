@@ -1,8 +1,8 @@
-﻿using SPRNetTool.Utils;
+﻿using ArtWiz.Utils;
 using System;
 using System.Collections.Generic;
 
-namespace SPRNetTool.Domain.Base
+namespace ArtWiz.Domain.Base
 {
     public interface IDomainAccessors
     {
