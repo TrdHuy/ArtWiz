@@ -99,20 +99,25 @@ jobs:
         dir "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\"
         echo HUY2
         dir "C:\Program Files (x86)\Windows Kits\10\bin\"
-
-        if not exist "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe" (
-          echo "Signtool not found. Exiting with an error."
+       
+    - name: Check if Signtool exists
+      shell: powershell
+      run: |
+        $signtoolPath = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe"
+        if (-Not (Test-Path $signtoolPath)) {
+          Write-Error "Signtool 22000 not found. Exiting with an error."
           exit 1
-        ) else (
-          echo "Signtool 22000 found. Continuing the job."
-        )
+        } else {
+          Write-Host "Signtool 22000 found. Continuing the job."
+        }
 
-        if not exist "C:\Program Files (x86)\Windows Kits\10\bin\10.0.12345.0\x64\signtool.exe" (
-          echo "Signtool 12345 not found. Exiting with an error."
+        $signtoolPath = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.123456.0\x64\signtool.exe"
+        if (-Not (Test-Path $signtoolPath)) {
+          Write-Error "Signtool 123456 not found. Exiting with an error."
           exit 1
-        ) else (
-          echo "Signtool found. Continuing the job."
-        )
+        } else {
+          Write-Host "Signtool 123456 found. Continuing the job."
+        }
     ################### END CORE REGION #######################
 
 
