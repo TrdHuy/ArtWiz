@@ -87,8 +87,8 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Test signtool
-      shell: cmd
       run: |
+        echo "Hello, this is a CMD command"
         where signtool
         
     ################### END CORE REGION #######################
