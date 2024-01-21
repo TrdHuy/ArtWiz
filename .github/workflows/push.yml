@@ -99,6 +99,20 @@ jobs:
         dir "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\"
         echo HUY2
         dir "C:\Program Files (x86)\Windows Kits\10\bin\"
+
+        if not exist "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe" (
+          echo "Signtool not found. Exiting with an error."
+          exit 1
+        ) else (
+          echo "Signtool 22000 found. Continuing the job."
+        )
+
+        if not exist "C:\Program Files (x86)\Windows Kits\10\bin\10.0.12345.0\x64\signtool.exe" (
+          echo "Signtool 12345 not found. Exiting with an error."
+          exit 1
+        ) else (
+          echo "Signtool found. Continuing the job."
+        )
     ################### END CORE REGION #######################
 
 
