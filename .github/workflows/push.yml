@@ -9,7 +9,7 @@ jobs:
     env:
      VERSION_UP_ISSUE_ID: 52
      BUILD_HEAVY_PUBLISH: false
-     PROJEFCT_PATH: SPRNetTool\SPRNetTool.csproj
+     PROJEFCT_PATH: SPRNetTool\ArtWiz.csproj
      # GIT_CONTEXT: ${{ toJson(github) }}
      
     steps:
@@ -127,8 +127,8 @@ jobs:
         (
         	echo @echo off
         	echo %samPath% init --sam-dir %samDir%
-        	echo dotnet clean SPRNetTool\SPRNetTool.csproj -c Release
-        	echo %samPath% scan --sam-dir %samDir% --source-path %projectPath% --language cs dotnet build SPRNetTool\SPRNetTool.csproj -c Release
+        	echo dotnet clean ${{ env.PROJEFCT_PATH }} -c Release
+        	echo %samPath% scan --sam-dir %samDir% --source-path %projectPath% --language cs dotnet build ${{ env.PROJEFCT_PATH }} -c Release
         	echo %samPath% analyze --sam-dir %samDir% --source-path %projectPath% --language cs 
         	echo %samPath% calculate --sam-dir %samDir% --source-path %projectPath% --language cs --scoring-metrics cc,dc,mcd,cbo,loc,ncs
         ) > arcrunner.bat
@@ -177,7 +177,7 @@ jobs:
       
     - name: Light publish
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
-      run: msbuild SPRNetTool\SPRNetTool.csproj /t:Publish /p:Configuration=Release /p:PublishDir=..\light_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
+      run: msbuild ${{ env.PROJEFCT_PATH }} /t:Publish /p:Configuration=Release /p:PublishDir=..\light_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
     - name: Zip light release
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
       run: Compress-Archive -Path 'light_publish' -DestinationPath 'light_publish.zip'
@@ -190,7 +190,7 @@ jobs:
         
     - name: Heavy publish
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID && env.BUILD_HEAVY_PUBLISH == 'true'
-      run: msbuild SPRNetTool\SPRNetTool.csproj /t:Publish /p:Configuration=Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:PublishDir=..\heavy_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
+      run: msbuild ${{ env.PROJEFCT_PATH }} /t:Publish /p:Configuration=Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:PublishDir=..\heavy_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
     - name: Zip heavy release
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID && env.BUILD_HEAVY_PUBLISH == 'true'
       run: Compress-Archive -Path 'heavy_publish' -DestinationPath 'heavy_publish.zip'
