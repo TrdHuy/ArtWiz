@@ -57,9 +57,9 @@ jobs:
     if: github.event.pull_request.base.ref == 'master' || github.event.pull_request.base.ref == 'dev'
     env:
       Solution_Name: SPRNetTool.sln                      # Replace with your solution name, i.e. MyWpfApp.sln.
-      Test_Project_Path: SPRNetToolTest\SPRNetToolTest.csproj              # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
+      Test_Project_Path: SPRNetToolTest\ArtWizTest.csproj              # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
       Wap_Project_Directory: SPRNetTool    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
-      Wap_Project_Path: SPRNetTool\SPRNetTool.csproj                # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+      Wap_Project_Path: SPRNetTool\ArtWiz.csproj                # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
 
     steps:
     - name: Checkout
