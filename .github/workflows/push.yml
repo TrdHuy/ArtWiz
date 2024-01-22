@@ -10,6 +10,13 @@ jobs:
      VERSION_UP_ISSUE_ID: 52
      BUILD_HEAVY_PUBLISH: false
      PROJEFCT_PATH: SPRNetTool\ArtWiz.csproj
+     GITHUB_TOKEN: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
+     REPO_OWNER: TrdHuy
+     BUILD_PLUGIN_REPO: _TrdBuildPlugin
+     SIGNING_CERT_FILE_NAME: SigningCert.pfx
+     CERT_PWD: ${{ secrets.CODE_SIGINING_CERT_PWD }}
+     PUBLISH_INFO_FILE_PATH: publish-info.xml
+     EXE_PATH: ArtWiz.exe
      # GIT_CONTEXT: ${{ toJson(github) }}
      
     steps:
@@ -203,18 +210,22 @@ jobs:
     
     ################### BUILD ARTIFACT #######################
     - name: Setup MSBuild.exe
-      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      #if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
       uses: microsoft/setup-msbuild@v1.0.2
     - name: Restore package
-      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      #if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
       run: dotnet restore ${{ env.PROJEFCT_PATH }}
       
     - name: Light publish
-      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      #if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
       run: msbuild ${{ env.PROJEFCT_PATH }} /t:Publish /p:Configuration=Release /p:PublishDir=..\light_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
-    #TODO: Sign package here
+    - name: Codesigning light
+      shell: pwsh
+      run: |
+        $result = & .\code_signing.ps1
+        echo result=$result
     - name: Zip light release
-      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+      #if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
       run: Compress-Archive -Path 'light_publish' -DestinationPath 'light_publish.zip'
     - name: Upload light_publish artifacts
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
@@ -226,7 +237,11 @@ jobs:
     - name: Heavy publish
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID && env.BUILD_HEAVY_PUBLISH == 'true'
       run: msbuild ${{ env.PROJEFCT_PATH }} /t:Publish /p:Configuration=Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:PublishDir=..\heavy_publish /p:DebugType=embedded /p:DebugSymbols=false /p:GenerateDependencyFile=false
-    #TODO: Sign package here
+    - name: Codesigning heavy
+      shell: pwsh
+      run: |
+        $result = & .\code_signing.ps1
+        echo result=$result
     - name: Zip heavy release
       if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID && env.BUILD_HEAVY_PUBLISH == 'true'
       run: Compress-Archive -Path 'heavy_publish' -DestinationPath 'heavy_publish.zip'
