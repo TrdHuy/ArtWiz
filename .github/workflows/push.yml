@@ -199,7 +199,7 @@ jobs:
       #if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
       run: Compress-Archive -Path 'light_publish' -DestinationPath 'light_publish.zip'
     - name: Upload light_publish artifacts
-      if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
+     # if: env.ISSUE_NUMBER == env.VERSION_UP_ISSUE_ID
       uses: actions/upload-artifact@v3
       with:
         name: light_publish.zip
