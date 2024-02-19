@@ -21,7 +21,7 @@ jobs:
      VERSION_UP_ISSUE_ID: 52
      VERSION_UP_COMMITER_NAME: ${{ vars.CICD_COMMITER_NAME }}
      BRANCH_NAME: dev
-     PROJECT_FILE_PATH: SPRNetTool/SPRNetTool.csproj
+     PROJECT_FILE_PATH: SPRNetTool/ArtWiz.csproj
      GITHUB_TOKEN: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
     steps:
       - name: Check have permission to run job
@@ -148,14 +148,14 @@ jobs:
                     'X-GitHub-Api-Version': '2022-11-28'
                 }
             })
-            console.log(targetBranchRes);
+            console.log(`targetBranchRes=${targetBranchRes}`);
             function generateBranchName() {
                 const now = new Date();
                 const branchName = `versionUpAutoBranch_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
                 return branchName;
             }
             const refsBranchName = generateBranchName();
-            console.log(refsBranchName);
+            console.log(`refsBranchName=${refsBranchName}`);
             const createRefRes = await octokit.request('POST /repos/{owner}/{repo}/git/refs', {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -165,7 +165,7 @@ jobs:
                     'X-GitHub-Api-Version': '2022-11-28'
                 }
             })
-            console.log(createRefRes);
+            console.log(`createRefRes=${createRefRes}`);
             const getContentRes = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -175,7 +175,7 @@ jobs:
                     'X-GitHub-Api-Version': '2022-11-28'
                 }
             })
-            console.log(getContentRes);
+            console.log(`getContentRes=${getContentRes}`);
             const xmlContent = Buffer.from(getContentRes.data.content, 'base64').toString('utf-8');
             console.log('File content:', xmlContent);
             const sha = getContentRes.data.sha;
