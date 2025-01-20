@@ -53,6 +53,9 @@
                                 <Setter Property="Foreground" Value="White"/>
                                 <Setter Property="VerticalAlignment" Value="Top"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPopupWindow}" Value="true">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
                             <Trigger Property="IsMouseOver"
 									 Value="True">
 								<Setter Property="Height"
@@ -271,7 +274,6 @@
                     <Setter Property="BorderThickness" Value="0,0,0,0"/>
                     <Setter Property="BorderBrush" Value="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_1}}"/>
                     <Setter Property="Background" Value="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_1}}"/>
-
                 </DataTrigger>
             </Style.Triggers>
         </Style>
