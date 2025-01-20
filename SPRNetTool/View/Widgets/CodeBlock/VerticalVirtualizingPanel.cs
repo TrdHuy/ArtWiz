@@ -43,7 +43,17 @@ namespace ArtWiz.View.Widgets.CodeBlock
 
         public static readonly DependencyProperty ScrollOwnerProperty =
         DependencyProperty.Register("ScrollOwner", typeof(ScrollViewer),
-            typeof(VerticalVirtualizingPanel), new PropertyMetadata(null));
+            typeof(VerticalVirtualizingPanel), new PropertyMetadata(null, OnScrollOwnerChanged));
+
+        private static void OnScrollOwnerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is VerticalVirtualizingPanel panel)
+            {
+                var oldScrollView = e.OldValue as ScrollViewer;
+                var newScrollView = e.NewValue as ScrollViewer;
+                panel.OnScrollOwnerChanged(oldScrollView, newScrollView);
+            }
+        }
 
         #endregion
 
@@ -54,7 +64,8 @@ namespace ArtWiz.View.Widgets.CodeBlock
         private double _extentWidth;
         private double _viewportHeight;
         private double _viewportWidth;
-        private Size _desiredItemSize = Size.Empty; // Default each item size
+        protected Size _constraintSize { get; private set; } = Size.Empty;
+        protected Size _desiredItemSize { get; private set; } = Size.Empty; // Default each item size
         private ViewCacheManagement _viewCacheManager;
         private System.Collections.IEnumerable? _itemsSource { get; set; } // Backing collection for the panel
         private System.Collections.IList? _itemsSourceAsList { get; set; } // Backing collection for the panel
@@ -68,7 +79,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
         #endregion
 
         #region Virtualizing Panel Implementation
-        public FrameworkElement CreateItemView()
+        public virtual FrameworkElement CreateItemView()
         {
             ContentPresenter presenter = new()
             {
@@ -97,7 +108,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
             private set
             {
                 _verticalOffset = Math.Max(0, Math.Min(value, ExtentHeight - ViewportHeight));
-                ScrollOwner?.InvalidateScrollInfo();
+                //ScrollOwner?.InvalidateScrollInfo();
                 InvalidateMeasure();
             }
         }
@@ -108,7 +119,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
             private set
             {
                 _horizontalOffset = Math.Max(0, Math.Min(value, ExtentWidth - ViewportWidth));
-                ScrollOwner?.InvalidateScrollInfo();
+                //ScrollOwner?.InvalidateScrollInfo();
                 InvalidateMeasure();
             }
         }
@@ -166,7 +177,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
             }
             _viewCacheManager.SetupItemSource(_itemsSourceAsList);
             PART_ContentCanvasContainer.Children.Clear();
-            MeasureDesiredItemSize(forceMeasure: true);
+            MeasureDesiredItemSize(_constraintSize, forceMeasure: true);
 
             InvalidateMeasure();
             ScrollOwner?.InvalidateScrollInfo();
@@ -257,10 +268,19 @@ namespace ArtWiz.View.Widgets.CodeBlock
         {
             try
             {
-                MeasureDesiredItemSize();
+                _constraintSize = constraint;
+                MeasureDesiredItemSize(_constraintSize);
                 _viewportHeight = constraint.Height;
                 _viewportWidth = constraint.Width;
-                _extentHeight = (_itemsSourceAsList?.Count ?? 0) * _desiredItemSize.Height;
+
+                if (_desiredItemSize != Size.Empty)
+                {
+                    _extentHeight = (_itemsSourceAsList?.Count ?? 0) * _desiredItemSize.Height;
+                }
+                else
+                {
+                    _extentHeight = (_itemsSourceAsList?.Count ?? 0) * DEFAULT_ITEM_SIZE_HEIGHT;
+                }
 
                 // Update ScrollViewer info
                 ScrollOwner?.InvalidateScrollInfo();
@@ -330,7 +350,12 @@ namespace ArtWiz.View.Widgets.CodeBlock
         //protected override Visual GetVisualChild(int index) => _viewCache[index];
         #endregion
 
-        protected void MeasureDesiredItemSize(bool forceMeasure = false)
+        protected virtual void OnScrollOwnerChanged(ScrollViewer? oldViewer, ScrollViewer? newViewer)
+        {
+
+        }
+
+        protected void MeasureDesiredItemSize(Size constraintSize, bool forceMeasure = false)
         {
             // Khi trong item source không có item, thì không nên measure item size
             if (!forceMeasure && _desiredItemSize != Size.Empty
@@ -342,7 +367,12 @@ namespace ArtWiz.View.Widgets.CodeBlock
             var itemForMeasure = CreateItemView();
             itemForMeasure.DataContext = _itemsSourceAsList[0];
             itemForMeasure.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            _desiredItemSize = itemForMeasure.DesiredSize;
+            SetDesiredItemSize(constraintSize, itemForMeasure.DesiredSize);
+        }
+
+        protected virtual void SetDesiredItemSize(Size constraintSize, Size desiredSize)
+        {
+            _desiredItemSize = desiredSize;
             _viewCacheManager.SetDesiredItemContainerSize(_desiredItemSize);
         }
     }
@@ -633,8 +663,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
             for (int i = 0; i < viewCaches.Count; i++)
             {
                 var frame = viewCaches[i].View;
-                var left = viewCaches[i].Index *
-                    (desiredItemContainerSize.Width + frameDistance);
+                var left = 0;
                 var top = viewCaches[i].Index * (desiredItemContainerSize.Height + frameDistance);
                 Canvas.SetLeft(frame, left);
                 Canvas.SetTop(frame, top);

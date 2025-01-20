@@ -1,21 +1,92 @@
 ﻿<local:VerticalVirtualizingPanel x:Class="ArtWiz.View.Widgets.CodeBlock.CodeBlock"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:ArtWiz.View.Widgets.CodeBlock"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+								 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+								 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+								 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+								 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+								 xmlns:local="clr-namespace:ArtWiz.View.Widgets.CodeBlock"
+								 mc:Ignorable="d"
+								 d:DesignHeight="450"
+								 d:DesignWidth="800">
+	<local:VerticalVirtualizingPanel.Resources>
+		<SolidColorBrush x:Key="TextBox.MouseOver.Border"
+						 Color="#FF7EB4EA" />
+		<SolidColorBrush x:Key="TextBox.Focus.Border"
+						 Color="#FF569DE5" />
+		<ControlTemplate x:Key="TextBoxTemplate1"
+						 TargetType="{x:Type TextBoxBase}">
+			<Border x:Name="border"
+					Background="{TemplateBinding Background}"
+					BorderBrush="{TemplateBinding BorderBrush}"
+					BorderThickness="{TemplateBinding BorderThickness}"
+					SnapsToDevicePixels="True">
+				<ScrollViewer x:Name="PART_ContentHost"
+							  Focusable="false"
+							  HorizontalScrollBarVisibility="Hidden"
+							  VerticalScrollBarVisibility="Hidden" />
+			</Border>
+			<ControlTemplate.Triggers>
+				<Trigger Property="IsEnabled"
+						 Value="false">
+					<Setter Property="Opacity"
+							TargetName="border"
+							Value="0.56" />
+				</Trigger>
+				<Trigger Property="IsMouseOver"
+						 Value="true">
+					<Setter Property="BorderBrush"
+							TargetName="border"
+							Value="{StaticResource TextBox.MouseOver.Border}" />
+				</Trigger>
+				<Trigger Property="IsKeyboardFocused"
+						 Value="true">
+					<Setter Property="BorderBrush"
+							TargetName="border"
+							Value="{StaticResource TextBox.Focus.Border}" />
+				</Trigger>
+			</ControlTemplate.Triggers>
+		</ControlTemplate>
+	</local:VerticalVirtualizingPanel.Resources>
+	<local:VerticalVirtualizingPanel.ItemTemplate>
+		<DataTemplate>
+			<Border BorderBrush="Gray"
+					Background="Black"
+					Height="{Binding LineHeight}"
+					BorderThickness="0,0,0,0">
+				<TextBlock Text="{Binding LineIndex}"
+						   FontSize="14"
+						   VerticalAlignment="Center"
+						   HorizontalAlignment="Right"
+						   Foreground="White" />
+			</Border>
+		</DataTemplate>
+	</local:VerticalVirtualizingPanel.ItemTemplate>
+
 	<Grid>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition />
+			<ColumnDefinition Width="10" />
+			<ColumnDefinition Width="50" />
+			<ColumnDefinition Width="10" />
 			<ColumnDefinition />
 		</Grid.ColumnDefinitions>
-		<Canvas Background="Aqua"
+		<Canvas Background="#303030"
+				Grid.Column="1"
 				x:Name="MainCanvasContainer">
 			<Canvas x:Name="ContentCanvasContainer">
 
 			</Canvas>
 		</Canvas>
+
+		<TextBox Template="{DynamicResource TextBoxTemplate1}"
+				 Name="ContentTextBox"
+				 Background="DarkGray"
+				 Foreground="Black"
+				 Grid.Column="3"
+				 SelectionChanged="ContentTextBox_SelectionChanged"
+				 AcceptsReturn="True"
+				 AcceptsTab="True"
+				 BorderThickness="0"
+				 VerticalScrollBarVisibility="Hidden"
+				 TextChanged="ContentTextBox_TextChanged"
+				 PreviewMouseWheel="ContentTextBox_PreviewMouseWheel" />
 	</Grid>
 </local:VerticalVirtualizingPanel>
