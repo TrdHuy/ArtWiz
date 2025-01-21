@@ -15,6 +15,7 @@ using static ArtWiz.View.Widgets.CodeBlock.ViewCacheManagement;
 
 namespace ArtWiz.View.Widgets.CodeBlock
 {
+
     public interface IVirtualizingPanel
     {
         FrameworkElement CreateItemView();
@@ -61,9 +62,9 @@ namespace ArtWiz.View.Widgets.CodeBlock
         private double _verticalOffset;
         private double _horizontalOffset;
         private double _extentHeight;
-        private double _extentWidth;
+        protected double _extentWidth;
         private double _viewportHeight;
-        private double _viewportWidth;
+        protected double _viewportWidth;
         protected Size _constraintSize { get; private set; } = Size.Empty;
         protected Size _desiredItemSize { get; private set; } = Size.Empty; // Default each item size
         private ViewCacheManagement _viewCacheManager;
@@ -325,7 +326,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
         {
             try
             {
-                Canvas.SetLeft(PART_ContentCanvasContainer, -HorizontalOffset);
+                //Canvas.SetLeft(PART_ContentCanvasContainer, -HorizontalOffset);
                 Canvas.SetTop(PART_ContentCanvasContainer, -VerticalOffset);
 
                 _viewCacheManager.ArrangeViewCache(arrangeSize, _desiredItemSize, 0, HorizontalOffset, 0);
@@ -624,7 +625,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
 
 #if DEBUG
             AssertForDebug(RealInitialVisibleItemIndex, realLastVisibleItemIndex, newStartVisibleItemIndex, newEndVisibleItemIndex);
-            PrintDebugLog(logTraceForDebug, newStartVisibleItemIndex, newEndVisibleItemIndex);
+            //PrintDebugLog(logTraceForDebug, newStartVisibleItemIndex, newEndVisibleItemIndex);
 #endif
             //Apply to cache
             RealInitialVisibleItemIndex = newStartVisibleItemIndex;

@@ -21,8 +21,9 @@
 					SnapsToDevicePixels="True">
 				<ScrollViewer x:Name="PART_ContentHost"
 							  Focusable="false"
-							  HorizontalScrollBarVisibility="Hidden"
-							  VerticalScrollBarVisibility="Hidden" />
+							  HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
+							  VerticalScrollBarVisibility="Hidden">
+				</ScrollViewer>
 			</Border>
 			<ControlTemplate.Triggers>
 				<Trigger Property="IsEnabled"
@@ -48,12 +49,13 @@
 	</local:VerticalVirtualizingPanel.Resources>
 	<local:VerticalVirtualizingPanel.ItemTemplate>
 		<DataTemplate>
-			<Border BorderBrush="Gray"
+			<Border d:DataContext="{d:DesignInstance Type=local:LineNumberViewModel, IsDesignTimeCreatable=True}"
+					BorderBrush="Gray"
 					Background="Black"
 					Height="{Binding LineHeight}"
 					BorderThickness="0,0,0,0">
 				<TextBlock Text="{Binding LineIndex}"
-						   FontSize="14"
+						   FontSize="13"
 						   VerticalAlignment="Center"
 						   HorizontalAlignment="Right"
 						   Foreground="White" />
@@ -86,7 +88,9 @@
 				 AcceptsTab="True"
 				 BorderThickness="0"
 				 VerticalScrollBarVisibility="Hidden"
+				 HorizontalScrollBarVisibility="Hidden"
 				 TextChanged="ContentTextBox_TextChanged"
 				 PreviewMouseWheel="ContentTextBox_PreviewMouseWheel" />
+
 	</Grid>
 </local:VerticalVirtualizingPanel>
