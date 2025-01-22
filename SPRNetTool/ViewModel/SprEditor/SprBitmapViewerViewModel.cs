@@ -133,7 +133,6 @@ namespace ArtWiz.ViewModel.SprEditor
                             });
                         }
 
-
                         if (castArgs.IsPlayingAnimation == true)
                         {
                             var dispatcherPriority = DispatcherPriority.Background;
