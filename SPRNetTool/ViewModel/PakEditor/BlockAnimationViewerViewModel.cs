@@ -3,8 +3,10 @@ using ArtWiz.Domain;
 using ArtWiz.ViewModel.Base;
 using ArtWiz.ViewModel.Widgets;
 using System.Windows.Threading;
-using static ArtWiz.Domain.BitmapDisplayMangerChangedArg.SprAnimationChangedEvent;
 using System.ComponentModel;
+using ArtWiz.Utils;
+using static ArtWiz.Domain.BitmapDisplayMangerChangedArg.SprAnimationChangedEvent;
+
 
 namespace ArtWiz.ViewModel.PakEditor
 {
@@ -70,6 +72,17 @@ namespace ArtWiz.ViewModel.PakEditor
             switch (args)
             {
                 case SprAnimationChangedArg castArgs:
+                    if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))
+                    {
+                        castArgs.SprFrameData?.Apply(it =>
+                        {
+                            FrameHeight = it.modifiedFrameRGBACache.frameHeight;
+                            FrameWidth = it.modifiedFrameRGBACache.frameWidth;
+                            FrameOffX = it.modifiedFrameRGBACache.frameOffX;
+                            FrameOffY = it.modifiedFrameRGBACache.frameOffY;
+                        });
+                    }
+
                     if (castArgs.Event.HasFlag(IS_PLAYING_ANIMATION_CHANGED) && IsSpr)
                     {
                         if (castArgs.IsPlayingAnimation == true)
