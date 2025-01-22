@@ -902,19 +902,19 @@
 				Value="Transparent" />
 		<Setter Property="WindowStyle"
 				Value="None" />
-		<Setter Property="ResizeMode"
+        <Setter Property="ResizeMode"
 				Value="CanResizeWithGrip" />
 
-		<Setter Property="Template">
+        <Setter Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type Window}">
-					<Border x:Name="MainBorderContainer"
+                <ControlTemplate TargetType="{x:Type Window}">
+                    <Border x:Name="MainBorderContainer"
 							Width="{TemplateBinding Width}"
 							Height="{TemplateBinding Height}"
 							Background="Transparent">
 
-						<Border.LayoutTransform>
-							<ScaleTransform x:Name="MainBorderCtn_ScaleTransform"
+                        <Border.LayoutTransform>
+                            <ScaleTransform x:Name="MainBorderCtn_ScaleTransform"
 											ScaleX="1"
 											ScaleY="1" />
 						</Border.LayoutTransform>
@@ -962,10 +962,10 @@
 						</Border>
 					</Border>
 				</ControlTemplate>
+
 			</Setter.Value>
 		</Setter>
 	</Style>
-
 	<Style x:Key="{x:Static local:Definitions.MenuParentStyle}"
 		   TargetType="MenuItem">
 		<Setter Property="WindowChrome.IsHitTestVisibleInChrome"
