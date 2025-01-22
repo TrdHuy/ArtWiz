@@ -7,7 +7,6 @@ using System.ComponentModel;
 using ArtWiz.Utils;
 using static ArtWiz.Domain.BitmapDisplayMangerChangedArg.SprAnimationChangedEvent;
 
-
 namespace ArtWiz.ViewModel.PakEditor
 {
     public class BlockAnimationViewerViewModel : BitmapViewerViewModel, ISprAnimationCallback
@@ -72,6 +71,7 @@ namespace ArtWiz.ViewModel.PakEditor
             switch (args)
             {
                 case SprAnimationChangedArg castArgs:
+
                     if (castArgs.Event.HasFlag(SPR_FRAME_DATA_CHANGED))
                     {
                         castArgs.SprFrameData?.Apply(it =>
