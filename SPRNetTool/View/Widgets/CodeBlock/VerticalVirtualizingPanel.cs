@@ -21,6 +21,33 @@ namespace ArtWiz.View.Widgets.CodeBlock
         FrameworkElement CreateItemView();
     }
 
+    internal class VerticalVirtualzingContainerSizeController
+    {
+        private Canvas? mMainCanvasContainer;
+        public void SetUp(Canvas mainCanvasContainer)
+        {
+            if (mMainCanvasContainer != null)
+                Dispose();
+            mMainCanvasContainer = mainCanvasContainer;
+            mMainCanvasContainer.SizeChanged += MMainCanvasContainer_SizeChanged;
+        }
+        public double ViewportHeightMeasuredByCanvasContainer { get; private set; }
+        public double ViewportWidthMeasuredByCanvasContainer { get; private set; }
+        public bool IsPanelStable { get; private set; }
+
+        private void MMainCanvasContainer_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            IsPanelStable = true;
+            ViewportHeightMeasuredByCanvasContainer = ((Canvas)sender).ActualHeight;
+            ViewportWidthMeasuredByCanvasContainer = ((Canvas)sender).ActualWidth;
+        }
+
+        public void Dispose()
+        {
+            if (mMainCanvasContainer != null)
+                mMainCanvasContainer.SizeChanged -= MMainCanvasContainer_SizeChanged;
+        }
+    }
     /// <summary>
     /// Interaction logic for CustomVerticalVirtualizingPanel.xaml
     /// </summary>
@@ -59,6 +86,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
         #endregion
 
         #region Fields
+        private VerticalVirtualzingContainerSizeController mPanelSizeController;
         private double _verticalOffset;
         private double _horizontalOffset;
         private double _extentHeight;
@@ -76,6 +104,19 @@ namespace ArtWiz.View.Widgets.CodeBlock
         public VerticalVirtualizingPanel()
         {
             _viewCacheManager = new ViewCacheManagement(this);
+            mPanelSizeController = new VerticalVirtualzingContainerSizeController();
+            Loaded += VerticalVirtualizingPanel_Loaded;
+            Unloaded += VerticalVirtualizingPanel_Unloaded;
+        }
+
+        private void VerticalVirtualizingPanel_Unloaded(object sender, RoutedEventArgs e)
+        {
+            mPanelSizeController.Dispose();
+        }
+
+        private void VerticalVirtualizingPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            mPanelSizeController.SetUp(PART_MainCanvasContainer);
         }
         #endregion
 
@@ -269,6 +310,17 @@ namespace ArtWiz.View.Widgets.CodeBlock
         {
             try
             {
+                if (double.IsInfinity(constraint.Height))
+                {
+                    if (mPanelSizeController.IsPanelStable)
+                    {
+                        constraint.Height = mPanelSizeController.ViewportHeightMeasuredByCanvasContainer;
+                    }
+                    else
+                    {
+                        constraint.Height = 0;
+                    }
+                }
                 _constraintSize = constraint;
                 MeasureDesiredItemSize(_constraintSize);
                 _viewportHeight = constraint.Height;
@@ -783,7 +835,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
 
         public void AssertForDebug(int oldStartIndex, int oldEndIndex, int newStartIndex, int newEndIndex)
         {
-            if (itemSourceCache != null)
+            if (itemSourceCache != null && itemSourceCache.Count > 0)
             {
                 Debug.Assert(RealInitialVisibleItemIndex >= 0);
                 Debug.Assert(realLastVisibleItemIndex < itemSourceCache.Count);

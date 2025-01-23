@@ -87,11 +87,11 @@ namespace ArtWiz.ViewModel.PakEditor
         }
 
         [Bindable(true)]
-        public string BlockType
+        public PakBlockType BlockType
         {
             get
             {
-                return IsSpr ? "SPR" : "unknown";
+                return IsSpr ? PakBlockType.SPR : PakBlockType.UNKNOWN;
             }
         }
 
