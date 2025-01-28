@@ -261,7 +261,7 @@ namespace ArtWiz.ViewModel.PakEditor
                     }
                     else
                     {
-
+                        pIVM.CurrentSelectedPakBlock.StartLoadingBlockData();
                     }
                 }
                 else

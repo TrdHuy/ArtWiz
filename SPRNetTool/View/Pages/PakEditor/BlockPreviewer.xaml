@@ -67,7 +67,7 @@
 					</Binding.ConverterParameter>
 				</Binding>
 			</ScrollViewer.Visibility>
-			<wgcb:CodeBlock />
+			<wgcb:CodeBlock Text="{Binding TextData}"/>
 		</ScrollViewer>
 
 		<StackPanel Grid.Row="1"
