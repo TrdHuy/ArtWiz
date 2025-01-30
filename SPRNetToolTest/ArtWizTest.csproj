@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<ProjectFullPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)'))</ProjectFullPath>
@@ -88,6 +88,6 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="DezoneBuildPlugin" Version="8.7.0" />
+		<PackageReference Include="DezoneBuildPlugin" Version="8.8.0" />
 	</ItemGroup>
 </Project>
