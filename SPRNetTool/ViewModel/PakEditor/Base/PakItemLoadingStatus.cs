@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ArtWiz.ViewModel.PakEditor.Base
+{
+    internal enum PakItemLoadingStatus
+    {
+        NONE,
+        ERROR,
+        PREPARING,
+        LOADING,
+        LOADED,
+    }
+}
