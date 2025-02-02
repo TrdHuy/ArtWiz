@@ -32,6 +32,17 @@ namespace ArtWiz.ViewModel.PakEditor
         public bool IsSpr { get; private set; }
 
         [Bindable(true)]
+        public string TextData
+        {
+            get => _stringBlockData;
+            set
+            {
+                _stringBlockData = value;
+                Invalidate();
+            }
+        }
+
+        [Bindable(true)]
         public Visibility SprInfoPanelCollapseButtonVisibility
         {
             get => _sprInfoPanelCollapseButtonVisibility;
@@ -163,6 +174,12 @@ namespace ArtWiz.ViewModel.PakEditor
             frameRGBAs = this._frameData;
         }
 
+        public void OnParseTextSuccessfully(string blockId, string text)
+        {
+            TextData = text;
+            _viewModelManager.EnqueueLoadedSuccessfullyBlockData(this);
+        }
+
         public void OnParseSprSuccessfully(string blockId, SprFileHead sprFileHead, FrameRGBA[] frameData, BitmapSource bitmapSource)
         {
             var s = new BitmapSource[sprFileHead.FrameCounts];
@@ -200,6 +217,7 @@ namespace ArtWiz.ViewModel.PakEditor
             _frameData = null;
             _frameSource = null;
             BitmapViewerVM = new BitmapViewerViewModel(this);
+            TextData = "";
         }
     }
 
