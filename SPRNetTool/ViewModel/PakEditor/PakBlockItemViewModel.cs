@@ -219,8 +219,6 @@ namespace ArtWiz.ViewModel.PakEditor
             BitmapViewerVM = new BitmapViewerViewModel(this);
             TextData = "";
         }
-
-        
     }
 
 }
