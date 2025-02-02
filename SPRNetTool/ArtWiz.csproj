@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net6.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<ProjectFullPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)'))</ProjectFullPath>
@@ -239,6 +239,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="DezoneBuildPlugin" Version="8.7.0" />
+	  <PackageReference Include="DezoneBuildPlugin" Version="8.8.0" />
 	</ItemGroup>
 </Project>
