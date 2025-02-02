@@ -351,7 +351,7 @@ namespace ArtWiz.ViewModel.PakEditor
                     }
                 }
 
-                if (pakBlock.BlockType == "SPR")
+                if (pakBlock.BlockType == PakBlockType.SPR)
                 {
                     outputPath = Path.Combine(outputPath, pakBlock.BlockName + ".spr");
                 }
