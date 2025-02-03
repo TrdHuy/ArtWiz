@@ -20,6 +20,7 @@ using System.IO;
 using ArtWiz.LogUtil;
 using System.Windows.Forms;
 using ArtWiz.ViewModel.PakEditor;
+using ArtWiz.View.Widgets;
 
 namespace ArtWiz.View.Pages.PakEditor
 {
@@ -31,6 +32,23 @@ namespace ArtWiz.View.Pages.PakEditor
         public BlockPreviewer()
         {
             InitializeComponent();
+            DataContextChanged += OnDataContextChanged;
+        }
+
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (this.DataContext is PakBlockItemViewModel vm)
+            {
+                if (vm.IsSpr)
+                {
+                    System.Windows.Data.Binding binding = new System.Windows.Data.Binding(nameof(BlockAnimationViewerViewModel.IsPlayingAnimation))
+                    {
+                        Source = vm.BitmapViewerVM,
+                        Mode = BindingMode.TwoWay
+                    };
+                    PlayingAnimationButton.SetBinding(IconToggle.IsCheckedProperty, binding);
+                }
+            }
         }
 
         private void OnButtonClick(object sender, RoutedEventArgs e)
