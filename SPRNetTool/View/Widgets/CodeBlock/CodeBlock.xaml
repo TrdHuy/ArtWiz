@@ -4,6 +4,7 @@
 								 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 								 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 								 xmlns:local="clr-namespace:ArtWiz.View.Widgets.CodeBlock"
+								 xmlns:def="clr-namespace:ArtWiz"
 								 mc:Ignorable="d"
 								 FontFamily="Cascadia Code"
 								 FontSize="20"
@@ -67,12 +68,12 @@
 
 	<Grid>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="10" />
+			<ColumnDefinition Width="0" />
 			<ColumnDefinition Width="50" />
 			<ColumnDefinition Width="10" />
 			<ColumnDefinition />
 		</Grid.ColumnDefinitions>
-		<Canvas Background="#303030"
+		<Canvas Background="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_1}}"
 				Grid.Column="1"
 				x:Name="MainCanvasContainer">
 			<Canvas x:Name="ContentCanvasContainer">

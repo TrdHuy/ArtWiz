@@ -26,7 +26,7 @@
 			<RowDefinition />
 		</Grid.RowDefinitions>
 
-		<wg:BitmapViewer ToolBoxMargin="0,0,10,0"
+		<!--<wg:BitmapViewer ToolBoxMargin="0,0,10,0"
 						 Margin="10,40"
 						 ToolBoxIconSize="40"
 						 ToolBoxWidth="60"
@@ -53,10 +53,15 @@
 					</Binding.ConverterParameter>
 				</Binding>
 			</wg:BitmapViewer.Visibility>
-		</wg:BitmapViewer>
+		</wg:BitmapViewer>-->
 
-		<ScrollViewer CanContentScroll="True">
-			<ScrollViewer.Visibility>
+		<Border BorderThickness="3"
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_5}}"
+				CornerRadius="10"
+				Margin="50"
+				cvt:BorderClipHelper.IsUseClipGeometry="True">
+			
+			<Border.Visibility>
 				<Binding Path="BlockType"
 						 Converter="{StaticResource ObjectToVisibilityConverter}">
 					<Binding.ConverterParameter>
@@ -66,9 +71,13 @@
 						</x:Array>
 					</Binding.ConverterParameter>
 				</Binding>
-			</ScrollViewer.Visibility>
-			<wgcb:CodeBlock Text="{Binding TextData}"/>
-		</ScrollViewer>
+			</Border.Visibility>
+			<Border Background="Gray">
+
+				<!--<wgcb:CodeBlock Text="{Binding TextData}" />-->
+			</Border>
+		</Border>
+
 
 		<StackPanel Grid.Row="1"
 					Margin="10,0">
@@ -109,7 +118,7 @@
 								   CollapseButtonVisibility="{Binding SprInfoPanelCollapseButtonVisibility}"
 								   FixedHeaderBackground="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_1}}">
 				<wg:CollapsibleControl.ExtraHeaderContent>
-					<wg:IconToggle x:Name="PlayingAnimationButton" 
+					<wg:IconToggle x:Name="PlayingAnimationButton"
 								   Tag="{x:Static local:PakEditorPageId.PlaySprAnimation}"
 								   IsEllipse="False"
 								   Visibility="{Binding SprInfoPanelCollapseButtonVisibility}"
