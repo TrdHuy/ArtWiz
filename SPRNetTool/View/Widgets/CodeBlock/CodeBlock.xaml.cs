@@ -423,7 +423,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
         {
             mCodeBlockTextBoxDraggingController = codeBlockTextBoxDraggingController;
             _textBox = codeBlockTextBoxDraggingController.CodeBlockTextBox;
-            _caretPen = new Pen(Brushes.Red, 2);
+            _caretPen = new Pen((Brush)Application.Current.FindResource(Definitions.ButtonAndIconBrushLevel0), 2);
             // Ẩn caret cũ
             _textBox.CaretBrush = new SolidColorBrush(Colors.Transparent);
 

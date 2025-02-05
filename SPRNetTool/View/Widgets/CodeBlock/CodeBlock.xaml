@@ -7,7 +7,7 @@
 								 xmlns:def="clr-namespace:ArtWiz"
 								 mc:Ignorable="d"
 								 FontFamily="Cascadia Code"
-								 FontSize="20"
+								 FontSize="14"
 								 d:DesignHeight="450"
 								 d:DesignWidth="800">
 	<local:VerticalVirtualizingPanel.Resources>
@@ -54,14 +54,14 @@
 		<DataTemplate>
 			<Border d:DataContext="{d:DesignInstance Type=local:LineNumberViewModel, IsDesignTimeCreatable=True}"
 					BorderBrush="Gray"
-					Background="Black"
+					Background="Transparent"
 					Height="{Binding LineHeight}"
 					BorderThickness="0,0,0,0">
 				<TextBlock Text="{Binding LineIndex}"
 						   FontSize="13"
 						   VerticalAlignment="Center"
 						   HorizontalAlignment="Right"
-						   Foreground="White" />
+						   Foreground="{StaticResource ResourceKey={x:Static def:Definitions.TextForegroundBrushLevel0_5}}" />
 			</Border>
 		</DataTemplate>
 	</local:VerticalVirtualizingPanel.ItemTemplate>
@@ -69,23 +69,37 @@
 	<Grid>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="0" />
-			<ColumnDefinition Width="50" />
-			<ColumnDefinition Width="10" />
+			<ColumnDefinition Width="35" />
+			<ColumnDefinition Width="20" />
 			<ColumnDefinition />
 		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="10"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
 		<Canvas Background="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_1}}"
 				Grid.Column="1"
+				Grid.Row="1"
 				x:Name="MainCanvasContainer">
 			<Canvas x:Name="ContentCanvasContainer">
 
 			</Canvas>
 		</Canvas>
-
+		<Rectangle Grid.Row="0"
+				   Grid.Column="3"
+				   Fill="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0}}"/>
+		<Border Grid.Column="2"
+				Grid.RowSpan="2"
+				BorderThickness="0,0,1,0"
+				Background="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_1}}"
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_10}}"/>
 		<TextBox Template="{DynamicResource TextBoxTemplate1}"
 				 Name="ContentTextBox"
-				 Background="DarkGray"
-				 Foreground="Black"
+				 Grid.Row="1"
+				 Background="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0}}"
 				 Grid.Column="3"
+				 SelectionBrush="{StaticResource ResourceKey={x:Static def:Definitions.ButtonAndIconBrushLevel0}}"
+				 Foreground="{StaticResource ResourceKey={x:Static def:Definitions.TextForegroundBrushLevel0}}"
 				 SelectionChanged="ContentTextBox_SelectionChanged"
 				 AcceptsReturn="True"
 				 AcceptsTab="True"
