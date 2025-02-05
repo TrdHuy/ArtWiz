@@ -1,0 +1,66 @@
+﻿<Window x:Class="ArtWiz.View.NotificationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:def="clr-namespace:ArtWiz"
+        Width="400"
+        mc:Ignorable="d"
+        Title="NotificationWindow"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        AllowsTransparency="True"
+        >
+
+
+    <Window.Resources>
+        <Style x:Key="CancelButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource {x:Static def:Definitions.PanelBackgroundLevel0_10}}"/>
+            <Setter Property="Foreground" Value="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0}}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Margin" Value="0,5,5,0"/>
+        </Style>
+        
+        <Style x:Key="ConfirmButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource {x:Static def:Definitions.ButtonAndIconBrushLevel1}}"/>
+            <Setter Property="Foreground" Value="{StaticResource {x:Static def:Definitions.PanelBackgroundLevel0}}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Margin" Value="5,5,0,0"/>
+        </Style>
+        
+    </Window.Resources>
+
+    <Border Background="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_1}}" 
+            CornerRadius="10" 
+            BorderThickness="1" 
+            BorderBrush="Green"
+            Padding="20">
+        <StackPanel>
+            <TextBlock Text="{Binding NotificationTitle}"
+                       FontSize="18" 
+                       FontWeight="Bold" 
+                       Margin="0,0,0,10" 
+                       Foreground="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0}}"/>
+
+            <TextBlock Text="{Binding NotificationMessage}"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,20" 
+                       Foreground="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0_5}}"/>
+
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Right">
+                <Button Content="Dismiss" 
+                        Style="{StaticResource CancelButtonStyle}"
+                        Click="CancelButton_Click"/>
+
+                <Button Content="Take Action" 
+                        Style="{StaticResource ConfirmButtonStyle}"
+                        Click="ConfirmButton_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>
