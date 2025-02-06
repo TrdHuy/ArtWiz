@@ -164,7 +164,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
 
         private void CodeBlock_Loaded(object sender, RoutedEventArgs e)
         {
-            Text = "1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n";
+            //Text = "1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n1\n2\n3\n4\n5\n";
             if (mTextBoxScrollViewer != null)
                 mTextBoxScrollViewer.ScrollChanged += CodeTextBoxScrollViewer_ScrollChanged;
             AttachCustomCaret();

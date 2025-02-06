@@ -26,8 +26,10 @@ namespace ArtWiz.Domain.Base
         public const string BITMAP_SOURCE_EXTRA = "BitmapSourceExtra";
         public const string FRAME_DATA_EXTRA = "FrameDataExtra";
         public const string BLOCK_ID_EXTRA = "BlockIdExtra";
+        public const string PARSED_TEXT_EXTRA = "ParsedTextExtra";
         Dispatcher ViewDispatcher { get; }
         void OnParseSprSuccessfully(string blockId, SprFileHead sprFileHead, FrameRGBA[] frameData, BitmapSource bitmapSource);
+        void OnParseTextSuccessfully(string blockId, string text);
     }
     public interface IRemovePakFileCallback : IJobExecutor
     {

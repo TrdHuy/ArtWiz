@@ -1,9 +1,11 @@
 ﻿using ArtWiz.Domain.Base;
 using ArtWiz.Domain.Utils;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -52,22 +54,35 @@ namespace ArtWiz.Domain
                 var blockData = _pakWorkManagerService.ReadBlockDataFromPakByBlockId(blockId);
                 if (blockData != null)
                 {
-                    SprUtil.ParseSprData(blockData,
+                    var isSpr = SprUtil.IsSprBlock(blockData);
+                    if (isSpr)
+                    {
+                        SprUtil.ParseSprData(blockData,
                         out SprFileHead fileHead, out _,
                         out _,
                         out FrameRGBA[] frameData);
-                    var frameIndex = 0;
-                    var frameInfo = frameData[frameIndex];
-                    var callbackData = new Dictionary<string, object>();
-                    var source = ArtWiz.Utils.BitmapUtil.GetBitmapFromRGBArray(frameInfo.originDecodedBGRAData
-                        , frameInfo.frameWidth
-                        , frameInfo.frameHeight, PixelFormats.Bgra32);
-                    source.Freeze();
-                    callbackData.Add(IParseBlockDataCallback.FRAME_DATA_EXTRA, frameData);
-                    callbackData.Add(IParseBlockDataCallback.BITMAP_SOURCE_EXTRA, source);
-                    callbackData.Add(IParseBlockDataCallback.SPR_FILE_HEAD_EXTRA, fileHead);
-                    callbackData.Add(IParseBlockDataCallback.BLOCK_ID_EXTRA, blockId);
-                    NotifyParseBlockDataObserver(parseBlockDataCallback, "PARSE_BLOCK_SUCCESS", callbackData);
+                        var frameIndex = 0;
+                        var frameInfo = frameData[frameIndex];
+                        var callbackData = new Dictionary<string, object>();
+                        var source = ArtWiz.Utils.BitmapUtil.GetBitmapFromRGBArray(frameInfo.originDecodedBGRAData
+                            , frameInfo.frameWidth
+                            , frameInfo.frameHeight, PixelFormats.Bgra32);
+                        source.Freeze();
+                        callbackData.Add(IParseBlockDataCallback.FRAME_DATA_EXTRA, frameData);
+                        callbackData.Add(IParseBlockDataCallback.BITMAP_SOURCE_EXTRA, source);
+                        callbackData.Add(IParseBlockDataCallback.SPR_FILE_HEAD_EXTRA, fileHead);
+                        callbackData.Add(IParseBlockDataCallback.BLOCK_ID_EXTRA, blockId);
+                        NotifyParseBlockDataObserver(parseBlockDataCallback, "PARSE_BLOCK_SUCCESS", callbackData);
+                    }
+                    else
+                    {
+                        string text = Encoding.UTF8.GetString(blockData);
+                        var callbackData = new Dictionary<string, object>();
+                        callbackData.Add(IParseBlockDataCallback.BLOCK_ID_EXTRA, blockId);
+                        callbackData.Add(IParseBlockDataCallback.PARSED_TEXT_EXTRA, text);
+                        NotifyParseBlockDataObserver(parseBlockDataCallback, "PARSE_BLOCK_TEXT_SUCCESS", callbackData);
+
+                    }
                 }
             });
 
@@ -207,6 +222,11 @@ namespace ArtWiz.Domain
                         var bitmapSource = (BitmapSource)callbackData[IParseBlockDataCallback.BITMAP_SOURCE_EXTRA];
                         var blockId = (string)callbackData[IParseBlockDataCallback.BLOCK_ID_EXTRA];
                         parseBlockCallback.OnParseSprSuccessfully(blockId, fileHead, frameData, bitmapSource);
+                        break;
+                    case "PARSE_BLOCK_TEXT_SUCCESS":
+                        blockId = (string)callbackData[IParseBlockDataCallback.BLOCK_ID_EXTRA];
+                        var textData = (string)callbackData[IParseBlockDataCallback.PARSED_TEXT_EXTRA];
+                        parseBlockCallback.OnParseTextSuccessfully(blockId, textData);
                         break;
                     case "FINISH_JOB":
                         parseBlockCallback.OnFinishJob();
