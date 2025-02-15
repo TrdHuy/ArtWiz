@@ -1,14 +1,13 @@
 ﻿using ArtWiz.ViewModel.Base;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ArtWiz.ViewModel
 {
-    class AccountRegisterWindowViewModel : BaseParentsViewModel
+    class ArtWizWindowViewModel : BaseParentsViewModel
     {
 
         private bool _isTitleBarHide;
@@ -22,7 +21,7 @@ namespace ArtWiz.ViewModel
             }
         }
 
-        public AccountRegisterWindowViewModel()
+        public ArtWizWindowViewModel()
         {
             IsTitleBarHide = true;
         }
