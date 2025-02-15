@@ -177,6 +177,11 @@ namespace ArtWiz.View.Widgets.CodeBlock
                 ScrollOwner.ScrollToVerticalOffset(e.VerticalOffset);
             }
 
+            if (e.HorizontalChange != 0)
+            {
+                ScrollOwner.ScrollToHorizontalOffset(e.HorizontalOffset);
+            }
+
             //var caretRect = ContentTextBox.GetRectFromCharacterIndex(ContentTextBox.CaretIndex);
             //var lineHeight = caretRect.Height;
             //var absoluteCaretY = caretRect.Y + mTextBoxScrollViewer?.VerticalOffset ?? 0;
