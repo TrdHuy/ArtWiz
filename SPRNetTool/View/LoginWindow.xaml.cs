@@ -24,12 +24,12 @@ namespace ArtWiz.View
     /// </summary>
     public partial class LoginWindow : BaseArtWizWindow
     {
-        private LoginWindowViewModel _loginWindowViewModel;
+        private ArtWizWindowViewModel _loginWindowViewModel;
 
         public LoginWindow()
         {
             InitializeComponent();
-            _loginWindowViewModel = new LoginWindowViewModel();
+            _loginWindowViewModel = new ArtWizWindowViewModel();
             DataContext = _loginWindowViewModel;
         }
     }
