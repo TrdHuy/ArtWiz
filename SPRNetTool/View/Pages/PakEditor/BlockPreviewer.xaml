@@ -54,7 +54,7 @@
 				</Binding>
 			</wg:BitmapViewer.Visibility>
 		</wg:BitmapViewer>
-		
+
 		<ScrollViewer CanContentScroll="True">
 			<ScrollViewer.Visibility>
 				<Binding Path="BlockType"
@@ -109,10 +109,10 @@
 								   CollapseButtonVisibility="{Binding SprInfoPanelCollapseButtonVisibility}"
 								   FixedHeaderBackground="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_1}}">
 				<wg:CollapsibleControl.ExtraHeaderContent>
-					<wg:IconToggle Tag="{x:Static local:PakEditorPageId.PlaySprAnimation}"
+					<wg:IconToggle x:Name="PlayingAnimationButton" 
+								   Tag="{x:Static local:PakEditorPageId.PlaySprAnimation}"
 								   IsEllipse="False"
 								   Visibility="{Binding SprInfoPanelCollapseButtonVisibility}"
-								   IsChecked="{Binding BitmapViewerVM.IsPlayingAnimation}"
 								   HorizontalAlignment="Right"
 								   StrokeThickness="3"
 								   Click="OnButtonClick"
@@ -124,7 +124,8 @@
 								   Height="15"
 								   OnIconData="{StaticResource ResourceKey={x:Static def:Definitions.PlayIconGeometry}}"
 								   DefaultIconData="{StaticResource ResourceKey={x:Static def:Definitions.PauseIconGeometry}}"
-								   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.PauseIconGeometry}}" />
+								   OffIconData="{StaticResource ResourceKey={x:Static def:Definitions.PauseIconGeometry}}">
+					</wg:IconToggle>
 				</wg:CollapsibleControl.ExtraHeaderContent>
 				<wg:FileHeadEditor MinHeight="230"
 								   ViewModel="{Binding FileHeadEditorVM}" />
