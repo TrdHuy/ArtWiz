@@ -55,8 +55,308 @@
 			</wg:BitmapViewer.Visibility>
 		</wg:BitmapViewer>
 
-		<ScrollViewer CanContentScroll="True">
-			<ScrollViewer.Visibility>
+		<wg:ClippingBorder BorderThickness="2"
+				BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_5}}"
+				CornerRadius="5"
+				Margin="20,50,20,20">
+			<wg:ClippingBorder.Resources>
+				<Style TargetType="{x:Type ScrollViewer}">
+					<Setter Property="Template">
+						<Setter.Value>
+							<ControlTemplate TargetType="{x:Type ScrollViewer}">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="Auto" />
+									</Grid.ColumnDefinitions>
+									<Grid.RowDefinitions>
+										<RowDefinition Height="*" />
+										<RowDefinition Height="Auto" />
+									</Grid.RowDefinitions>
+
+									<Border Background="{TemplateBinding Background}"
+					Margin="{TemplateBinding Padding}"
+					Grid.RowSpan="1"
+					Grid.ColumnSpan="2">
+										<ScrollContentPresenter Name="PART_ScrollContentPresenter"
+										KeyboardNavigation.DirectionalNavigation="Local"
+										CanContentScroll="{TemplateBinding CanContentScroll}"
+										CanHorizontallyScroll="False"
+										CanVerticallyScroll="False" />
+
+									</Border>
+
+									<ScrollBar Name="PART_HorizontalScrollBar"
+					   Orientation="Horizontal"
+					   Grid.Row="1"
+					   BorderThickness="0"
+					   Maximum="{TemplateBinding ScrollableWidth}"
+					   ViewportSize="{TemplateBinding ViewportWidth}"
+					   Value="{TemplateBinding HorizontalOffset}"
+					   Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}">
+										<ScrollBar.Template>
+											<ControlTemplate TargetType="{x:Type ScrollBar}">
+												<Grid x:Name="Bg"
+							  SnapsToDevicePixels="True">
+													<Border x:Name="border"
+									BorderBrush="{TemplateBinding BorderBrush}"
+									BorderThickness="{TemplateBinding BorderThickness}"
+									Background="{TemplateBinding Background}"
+									Grid.Column="1" />
+													<Track x:Name="PART_Track"
+								   Grid.Column="1"
+								   IsEnabled="{TemplateBinding IsMouseOver}">
+														<Track.DecreaseRepeatButton>
+															<RepeatButton Command="ScrollBar.PageLeftCommand">
+																<RepeatButton.Style>
+																	<Style TargetType="{x:Type RepeatButton}">
+																		<Setter Property="OverridesDefaultStyle"
+														Value="True" />
+																		<Setter Property="Background"
+														Value="Transparent" />
+																		<Setter Property="Focusable"
+														Value="False" />
+																		<Setter Property="IsTabStop"
+														Value="False" />
+																		<Setter Property="Template">
+																			<Setter.Value>
+																				<ControlTemplate TargetType="{x:Type RepeatButton}">
+																					<Rectangle Fill="{TemplateBinding Background}"
+																	   Height="{TemplateBinding Height}"
+																	   Width="{TemplateBinding Width}" />
+																				</ControlTemplate>
+																			</Setter.Value>
+																		</Setter>
+																	</Style>
+																</RepeatButton.Style>
+															</RepeatButton>
+														</Track.DecreaseRepeatButton>
+														<Track.IncreaseRepeatButton>
+															<RepeatButton Command="ScrollBar.PageRightCommand">
+																<RepeatButton.Style>
+																	<Style TargetType="{x:Type RepeatButton}">
+																		<Setter Property="OverridesDefaultStyle"
+														Value="True" />
+																		<Setter Property="Background"
+														Value="Transparent" />
+																		<Setter Property="Focusable"
+														Value="False" />
+																		<Setter Property="IsTabStop"
+														Value="False" />
+																		<Setter Property="Template">
+																			<Setter.Value>
+																				<ControlTemplate TargetType="{x:Type RepeatButton}">
+																					<Rectangle Fill="{TemplateBinding Background}"
+																	   Height="{TemplateBinding Height}"
+																	   Width="{TemplateBinding Width}" />
+																				</ControlTemplate>
+																			</Setter.Value>
+																		</Setter>
+																	</Style>
+																</RepeatButton.Style>
+															</RepeatButton>
+														</Track.IncreaseRepeatButton>
+														<Track.Thumb>
+															<Thumb>
+																<Thumb.Style>
+																	<Style TargetType="{x:Type Thumb}">
+																		<Setter Property="OverridesDefaultStyle"
+														Value="True" />
+																		<Setter Property="IsTabStop"
+														Value="False" />
+																		<Setter Property="Template">
+																			<Setter.Value>
+																				<ControlTemplate TargetType="{x:Type Thumb}">
+																					<Rectangle x:Name="rectangle"
+																	   RadiusX="5"
+																	   RadiusY="5"
+																	   Height="{TemplateBinding Height}"
+																	   Fill="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_10}}"
+																	   SnapsToDevicePixels="True"
+																	   Width="{TemplateBinding Width}" />
+																					<ControlTemplate.Triggers>
+																						<Trigger Property="IsEnabled"
+																		 Value="False">
+																							<Setter Property="Fill"
+																			TargetName="rectangle"
+																			Value="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_3}}" />
+																						</Trigger>
+																					</ControlTemplate.Triggers>
+																				</ControlTemplate>
+																			</Setter.Value>
+																		</Setter>
+																	</Style>
+																</Thumb.Style>
+															</Thumb>
+														</Track.Thumb>
+													</Track>
+												</Grid>
+												<ControlTemplate.Triggers>
+													<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}"
+										 Value="False">
+														<Setter TargetName="border"
+										Property="Background"
+										Value="Transparent" />
+														<Setter TargetName="PART_Track"
+										Property="IsEnabled"
+										Value="False" />
+													</DataTrigger>
+													<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}"
+										 Value="True">
+														<Setter TargetName="border"
+										Property="Background"
+										Value="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_3}}" />
+														<Setter Property="Cursor"
+										Value="Hand" />
+													</DataTrigger>
+												</ControlTemplate.Triggers>
+											</ControlTemplate>
+										</ScrollBar.Template>
+									</ScrollBar>
+
+									<ScrollBar Name="PART_VerticalScrollBar"
+					   Grid.Column="1"
+					   Grid.RowSpan="2"
+					   Background="Transparent"
+					   Maximum="{TemplateBinding ScrollableHeight}"
+					   ViewportSize="{TemplateBinding ViewportHeight}"
+					   Value="{TemplateBinding VerticalOffset}"
+					   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}">
+										<ScrollBar.Template>
+											<ControlTemplate TargetType="{x:Type ScrollBar}">
+												<Grid x:Name="Bg"
+							  SnapsToDevicePixels="True">
+													<Border x:Name="border"
+									BorderBrush="{TemplateBinding BorderBrush}"
+									BorderThickness="0"
+									Background="{TemplateBinding Background}"
+									Grid.Row="1" />
+													<Track x:Name="PART_Track"
+								   IsDirectionReversed="True"
+								   IsEnabled="True"
+								   Grid.Row="1">
+														<Track.DecreaseRepeatButton>
+															<RepeatButton Command="ScrollBar.PageUpCommand">
+																<RepeatButton.Style>
+																	<Style TargetType="{x:Type RepeatButton}">
+																		<Setter Property="OverridesDefaultStyle"
+														Value="True" />
+																		<Setter Property="Background"
+														Value="Transparent" />
+																		<Setter Property="Focusable"
+														Value="False" />
+																		<Setter Property="IsTabStop"
+														Value="False" />
+																		<Setter Property="Template">
+																			<Setter.Value>
+																				<ControlTemplate TargetType="{x:Type RepeatButton}">
+																					<Rectangle Fill="{TemplateBinding Background}"
+																	   Height="{TemplateBinding Height}"
+																	   Width="{TemplateBinding Width}" />
+																				</ControlTemplate>
+																			</Setter.Value>
+																		</Setter>
+																	</Style>
+																</RepeatButton.Style>
+															</RepeatButton>
+														</Track.DecreaseRepeatButton>
+														<Track.IncreaseRepeatButton>
+															<RepeatButton Command="ScrollBar.PageDownCommand">
+																<RepeatButton.Style>
+																	<Style TargetType="{x:Type RepeatButton}">
+																		<Setter Property="OverridesDefaultStyle"
+														Value="True" />
+																		<Setter Property="Background"
+														Value="Transparent" />
+																		<Setter Property="Focusable"
+														Value="False" />
+																		<Setter Property="IsTabStop"
+														Value="False" />
+																		<Setter Property="Template">
+																			<Setter.Value>
+																				<ControlTemplate TargetType="{x:Type RepeatButton}">
+																					<Rectangle Fill="{TemplateBinding Background}"
+																	   Height="{TemplateBinding Height}"
+																	   Width="{TemplateBinding Width}" />
+																				</ControlTemplate>
+																			</Setter.Value>
+																		</Setter>
+																	</Style>
+																</RepeatButton.Style>
+															</RepeatButton>
+														</Track.IncreaseRepeatButton>
+														<Track.Thumb>
+															<Thumb>
+																<Thumb.Style>
+																	<Style TargetType="{x:Type Thumb}">
+																		<Setter Property="OverridesDefaultStyle"
+														Value="True" />
+																		<Setter Property="IsTabStop"
+														Value="False" />
+																		<Setter Property="Template">
+																			<Setter.Value>
+																				<ControlTemplate TargetType="{x:Type Thumb}">
+																					<Rectangle x:Name="rectangle"
+																	   RadiusX="5"
+																	   RadiusY="5"
+																	   Height="{TemplateBinding Height}"
+																	   Fill="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_3}}"
+																	   SnapsToDevicePixels="True"
+																	   Width="{TemplateBinding Width}" />
+																					<ControlTemplate.Triggers>
+																						<Trigger Property="IsEnabled"
+																		 Value="False">
+																							<Setter Property="Width"
+																			TargetName="rectangle"
+																			Value="6" />
+																							<Setter Property="RadiusX"
+																			TargetName="rectangle"
+																			Value="2" />
+																							<Setter Property="RadiusY"
+																			TargetName="rectangle"
+																			Value="2" />
+																							<Setter Property="HorizontalAlignment"
+																			TargetName="rectangle"
+																			Value="Right" />
+																						</Trigger>
+																					</ControlTemplate.Triggers>
+																				</ControlTemplate>
+																			</Setter.Value>
+																		</Setter>
+																	</Style>
+																</Thumb.Style>
+															</Thumb>
+														</Track.Thumb>
+													</Track>
+												</Grid>
+												<ControlTemplate.Triggers>
+													<MultiDataTrigger>
+														<MultiDataTrigger.Conditions>
+															<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}"
+											   Value="False" />
+														</MultiDataTrigger.Conditions>
+														<Setter TargetName="border"
+										Property="Background"
+										Value="Transparent" />
+														<Setter TargetName="PART_Track"
+										Property="IsEnabled"
+										Value="False" />
+													</MultiDataTrigger>
+
+
+												</ControlTemplate.Triggers>
+											</ControlTemplate>
+										</ScrollBar.Template>
+									</ScrollBar>
+
+								</Grid>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+				</Style>
+
+			</wg:ClippingBorder.Resources>
+			<wg:ClippingBorder.Visibility>
 				<Binding Path="BlockType"
 						 Converter="{StaticResource ObjectToVisibilityConverter}">
 					<Binding.ConverterParameter>
@@ -66,9 +366,13 @@
 						</x:Array>
 					</Binding.ConverterParameter>
 				</Binding>
-			</ScrollViewer.Visibility>
-			<wgcb:CodeBlock Text="{Binding TextData}"/>
-		</ScrollViewer>
+			</wg:ClippingBorder.Visibility>
+			<ScrollViewer CanContentScroll="True"
+						  HorizontalScrollBarVisibility="Auto">
+				<wgcb:CodeBlock Text="{Binding TextData}" />
+			</ScrollViewer>
+		</wg:ClippingBorder>
+
 
 		<StackPanel Grid.Row="1"
 					Margin="10,0">
@@ -108,8 +412,19 @@
 								   IsCollapse="True"
 								   CollapseButtonVisibility="{Binding SprInfoPanelCollapseButtonVisibility}"
 								   FixedHeaderBackground="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0_1}}">
+				<wg:CollapsibleControl.Visibility>
+					<Binding Path="BlockType"
+						 Converter="{StaticResource ObjectToVisibilityConverter}">
+						<Binding.ConverterParameter>
+							<x:Array Type="{x:Type sys:Object}">
+								<cvt:InvisibleType>COLLAPSED</cvt:InvisibleType>
+								<pakvmb:PakBlockType>SPR</pakvmb:PakBlockType>
+							</x:Array>
+						</Binding.ConverterParameter>
+					</Binding>
+				</wg:CollapsibleControl.Visibility>
 				<wg:CollapsibleControl.ExtraHeaderContent>
-					<wg:IconToggle x:Name="PlayingAnimationButton" 
+					<wg:IconToggle x:Name="PlayingAnimationButton"
 								   Tag="{x:Static local:PakEditorPageId.PlaySprAnimation}"
 								   IsEllipse="False"
 								   Visibility="{Binding SprInfoPanelCollapseButtonVisibility}"
