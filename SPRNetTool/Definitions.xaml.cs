@@ -89,6 +89,7 @@ namespace ArtWiz
         public static ResourceKey SlashEyeGeometry { get; } = CreateResourceKey();
         public static ResourceKey EyeGeometry { get; } = CreateResourceKey();
         public static ResourceKey MapGeometry { get; } = CreateResourceKey();
+        public static ResourceKey LoadingGeometry { get; } = CreateResourceKey();
 
         public static ResourceKey ArtWizDefaultWindowStyle { get; } = CreateResourceKey();
         public static ResourceKey UnidentifiedPreviewFrameSourceGeometry { get; } = CreateResourceKey();
