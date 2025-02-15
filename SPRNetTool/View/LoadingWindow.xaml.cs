@@ -1,9 +1,10 @@
 ﻿using ArtWiz.View.Base;
+using ArtWiz.ViewModel;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace ArtWiz.View.Base.Windows
+namespace ArtWiz.View
 {
     /// <summary>
     /// Interaction logic for LoadingWindow.xaml
@@ -12,6 +13,13 @@ namespace ArtWiz.View.Base.Windows
     {
         private double offsetX = 0d;
         private double offsetY = 0d;
+        public LoadingWindow()
+        {
+            InitializeComponent();
+            var ctx = new ArtWizWindowViewModel();
+            DataContext = ctx;
+        }
+
         public LoadingWindow(Window owner, string tilte = "Loading")
         {
             this.Owner = owner;
@@ -42,17 +50,23 @@ namespace ArtWiz.View.Base.Windows
             (Owner as IWindowViewer)?.DisableWindow(false);
         }
 
-        public async void Show(Func<Task> block, Action? callback = null, int delay = 1000)
+        public async void Show(Func<Action<double>, Task> block, Action? callback = null, int delay = 1000)
         {
             base.Show();
             offsetX = Left - Owner.Left;
             offsetY = Left - Owner.Left;
             await Task.Delay(delay);
-            await block.Invoke();
+            await block.Invoke(OnProgressBarChanged);
             callback?.Invoke();
             this.Close();
         }
 
-
+        private void OnProgressBarChanged(double progress)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                TaskProgressbar.Value = progress;
+            });
+        }
     }
 }

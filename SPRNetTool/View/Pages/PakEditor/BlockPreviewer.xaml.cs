@@ -14,7 +14,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using ArtWiz.View.Base.Windows;
 using ArtWiz.View.Base;
 using System.IO;
 using ArtWiz.LogUtil;
@@ -91,8 +90,9 @@ namespace ArtWiz.View.Pages.PakEditor
                                         }
                                     }
                                     LoadingWindow l = new LoadingWindow(w, "Extracting block!");
-                                    l.Show(block: async () =>
+                                    l.Show(block: async (notifyProgressChanged) =>
                                     {
+                                        notifyProgressChanged(100);
                                         await Task.Run(() =>
                                         {
                                             (ppVM as IPakPageCommand).OnExtractCurrentSelectedBlock();
