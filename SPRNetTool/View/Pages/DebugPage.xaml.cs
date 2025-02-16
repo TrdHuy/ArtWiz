@@ -526,7 +526,7 @@ namespace ArtWiz.View.Pages
             var SavingTitle = "Lưu với định dạng";
             var SavingDes = "Save";
             List<string> SavingOptions = new List<string>() { "jpg", "png", "spr", "bin" };
-            var inputSrc = builder.AddRadioOptions(SavingTitle, SavingDes, SavingOptions).Build();
+            var inputSrc = builder.AddInlineRadioOptions(SavingTitle, SavingDes, SavingOptions).Build();
             var checkedContent = "";
             InputWindow inputWindow = new InputWindow(inputSrc, ownerWindow, (res) =>
             {

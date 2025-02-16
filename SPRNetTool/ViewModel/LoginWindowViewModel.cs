@@ -11,20 +11,32 @@ namespace ArtWiz.ViewModel
     class LoginWindowViewModel : BaseParentsViewModel
     {
 
-        private bool _isTitleBarHide;
-        public bool IsTitleBarHide
+        private bool _isTitleBarHidden;
+        public bool IsTitleBarHidden
         {
-            get { return _isTitleBarHide; }
+            get { return _isTitleBarHidden; }
             set
             {
-                _isTitleBarHide = value;
-                Invalidate(nameof(IsTitleBarHide));
+                _isTitleBarHidden = value;
+                Invalidate();
+            }
+        }
+
+
+        private bool _isCloseButtonUsedOnlyOnTitleBar;
+        public bool IsCloseButtonUsedOnlyOnTitleBar
+        {
+            get { return _isCloseButtonUsedOnlyOnTitleBar; }
+            set
+            {
+                _isCloseButtonUsedOnlyOnTitleBar = value;
+                Invalidate();
             }
         }
 
         public LoginWindowViewModel()
         {
-            IsTitleBarHide = true;
+            IsCloseButtonUsedOnlyOnTitleBar = true;
         }
 
     }

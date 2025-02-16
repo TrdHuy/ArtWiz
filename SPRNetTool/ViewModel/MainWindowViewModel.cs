@@ -11,5 +11,10 @@ namespace ArtWiz.ViewModel
                 return DeviceConfigManager.IsDebugMode();
             }
         }
+
+        public MainWindowViewModel()
+        {
+            IsCloseButtonUsedOnlyOnTitleBar = false;
+        }
     }
 }

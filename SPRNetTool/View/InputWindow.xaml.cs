@@ -1,6 +1,7 @@
 ﻿using ArtWiz.Utils;
 using ArtWiz.View.Base;
 using ArtWiz.View.Utils;
+using ArtWiz.ViewModel;
 using ArtWiz.ViewModel.Base;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace ArtWiz.View
     /// <summary>
     /// Interaction logic for InputWindow.xaml
     /// </summary>
-    public partial class InputWindow : Window
+    public partial class InputWindow : BaseArtWizWindow
     {
 
         public enum ContentType
@@ -134,9 +135,9 @@ namespace ArtWiz.View
                 return this;
             }
 
-            public InputBuilder AddRadioOptions(string title, string description, List<string> content)
+            public InputBuilder AddInlineRadioOptions(string title, string description, List<string> optionsContent)
             {
-                options.Add(new RadioInputOption(title, description, content));
+                options.Add(new RadioInputOption(title, description, optionsContent));
                 return this;
             }
             public List<InputOption> Build() { return options; }
@@ -251,6 +252,7 @@ namespace ArtWiz.View
         private Action<Dictionary<string, object>>? AgreeButtonClicked;
         private Action? CancelButtonClicked;
         private Res curRes = Res.CANCEL;
+        private ArtWizWindowViewModel mInputWindowViewModel;
 
         public InputWindow(
             List<InputBuilder.InputOption> src
@@ -261,6 +263,10 @@ namespace ArtWiz.View
             InitializeComponent();
             if (src.Count == 0) throw new Exception("Source is empty");
             Owner = owner;
+
+            mInputWindowViewModel = new ArtWizWindowViewModel();
+            mInputWindowViewModel.IsTitleBarHidden = true;
+            DataContext = mInputWindowViewModel;
 
             AgreeButtonClicked = agreeButtonClicked;
             CancelButtonClicked = cancelButtonClicked;

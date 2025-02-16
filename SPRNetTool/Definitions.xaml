@@ -8,6 +8,7 @@
 					xmlns:cvt="clr-namespace:ArtWiz.View.Utils">
 	<cvt:RevertBoolConverter x:Key="RevertBoolConverter" />
 	<cvt:NotNullConverter x:Key="NotNullConverter" />
+	<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 	<FontFamily x:Key="{x:Static local:Definitions.FontAwsome}">
 		/ArtWiz;component/Resources/Font Awesome 6 Free-Solid-900.otf#Font Awesome 6 Free Solid
 	</FontFamily>
@@ -902,19 +903,19 @@
 				Value="Transparent" />
 		<Setter Property="WindowStyle"
 				Value="None" />
-        <Setter Property="ResizeMode"
+		<Setter Property="ResizeMode"
 				Value="CanResizeWithGrip" />
 
-        <Setter Property="Template">
+		<Setter Property="Template">
 			<Setter.Value>
-                <ControlTemplate TargetType="{x:Type Window}">
-                    <Border x:Name="MainBorderContainer"
+				<ControlTemplate TargetType="{x:Type Window}">
+					<Border x:Name="MainBorderContainer"
 							Width="{TemplateBinding Width}"
 							Height="{TemplateBinding Height}"
 							Background="Transparent">
 
-                        <Border.LayoutTransform>
-                            <ScaleTransform x:Name="MainBorderCtn_ScaleTransform"
+						<Border.LayoutTransform>
+							<ScaleTransform x:Name="MainBorderCtn_ScaleTransform"
 											ScaleX="1"
 											ScaleY="1" />
 						</Border.LayoutTransform>
@@ -931,6 +932,7 @@
 								<!--Title bar-->
 								<Grid x:Name="TitleBartGrid"
 									  Grid.Row="0"
+									  Visibility="{Binding IsTitleBarHidden, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}"
 									  Height="{Binding ElementName=WindowTitleBar, Path=WindowBarHeight}"
 									  Background="{StaticResource ResourceKey={x:Static local:Definitions.PanelBackgroundLevel0_4}}"
 									  VerticalAlignment="Stretch">
@@ -944,8 +946,22 @@
 									</Grid.ColumnDefinitions>
 
 									<wg:WindowTitleBar x:Name="WindowTitleBar"
-													   WindowBarHeight="69"
-													   Height="{Binding ElementName=WindowTitleBar, Path=WindowBarHeight}" />
+													   Height="{Binding ElementName=WindowTitleBar, Path=WindowBarHeight}">
+										<wg:WindowTitleBar.Style>
+											<Style TargetType="wg:WindowTitleBar">
+												<Setter Property="WindowBarHeight"
+														Value="69" />
+												<!-- Giá trị mặc định -->
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsCloseButtonUsedOnlyOnTitleBar}"
+																 Value="True">
+														<Setter Property="WindowBarHeight"
+																Value="40" />
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</wg:WindowTitleBar.Style>
+									</wg:WindowTitleBar>
 
 								</Grid>
 
