@@ -1,9 +1,8 @@
 ﻿using ArtWiz.ViewModel.Base;
 namespace ArtWiz.ViewModel
 {
-    internal class MainWindowViewModel : BaseParentsViewModel
+    internal class MainWindowViewModel : ArtWizWindowViewModel
     {
-
         public bool IsDebugMode
         {
             get

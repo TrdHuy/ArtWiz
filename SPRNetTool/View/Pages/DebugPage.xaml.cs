@@ -21,7 +21,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static ArtWiz.View.InputWindow;
 using static ArtWiz.View.Widgets.PaletteEditor;
-using ArtWiz.View.Base.Windows;
 using ArtWiz.ViewModel.SprEditor;
 
 namespace ArtWiz.View.Pages
@@ -103,11 +102,11 @@ namespace ArtWiz.View.Pages
                 if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".spr")
                 {
                     LoadingWindow l = new LoadingWindow(ownerWindow);
-                    l.Show(block: async () =>
+                    l.Show(block: async (notifyProgressChanged) =>
                     {
+                        notifyProgressChanged(100);
                         await (commandVM?.OnOpenImageFromFileClickAsync(imagePath) ?? Task.CompletedTask);
                         bmpSource = viewModel.CurrentlyDisplayedBitmapSource;
-
                         Debug.WriteLine($"WxH= {bmpSource?.PixelWidth * bmpSource?.PixelHeight}");
                     });
                 }
@@ -219,9 +218,11 @@ namespace ArtWiz.View.Pages
             if (res == Res.CANCEL) return;
 
             LoadingWindow l = new LoadingWindow(ownerWindow, "Optimizing!");
-            l.Show(block: async () =>
+            l.Show(block: async (notifyProgressChanged) =>
             {
                 if (viewModel.OriginalColorSource.Count == 0) return;
+
+                notifyProgressChanged(100);
                 await Task.Run(() =>
                 {
                     viewModel.OptimizeImageColor(colorSize: colorSize,
@@ -382,8 +383,9 @@ namespace ArtWiz.View.Pages
                             if (saveFileDialog.ShowDialog() == true)
                             {
                                 LoadingWindow l = new LoadingWindow(ownerWindow, "Saving to Spr file!");
-                                l.Show(block: async () =>
+                                l.Show(block: async (notifyProgressChanged) =>
                                 {
+                                    notifyProgressChanged(100);
                                     await Task.Run(() =>
                                     {
                                         commandVM?.OnSaveCurrentDisplayedBitmapSourceToSpr(Path.ChangeExtension(saveFileDialog.FileName, "spr"));
@@ -395,8 +397,9 @@ namespace ArtWiz.View.Pages
                     case DebugPageTagID.ImageInfo_ImportToNextFrameOfSprWorkSpace:
                         {
                             LoadingWindow l = new LoadingWindow(ownerWindow, "Exporting to next frame of SprWorkSpace!");
-                            l.Show(block: async () =>
+                            l.Show(block: async (notifyProgressChanged) =>
                             {
+                                notifyProgressChanged(100);
                                 await Task.Run(() =>
                                 {
                                     commandVM?.OnImportCurrentDisplaySourceToNextFrameOfSprWorkSpace();
@@ -549,13 +552,15 @@ namespace ArtWiz.View.Pages
             {
                 string filePath = saveFile.FileName;
                 LoadingWindow l = new LoadingWindow(ownerWindow, "Saving to " + checkedContent + " file!");
-                l.Show(block: async () =>
+                l.Show(block: async (notifyProgressChanged) =>
                 {
                     if (checkedContent == "jpg" || checkedContent == "png")
                     {
                         using (FileStream stream = new FileStream(filePath, FileMode.Create))
                         {
                             if (viewModel.CurrentlyDisplayedBitmapSource == null) return;
+
+                            notifyProgressChanged(100);
                             await Task.Run(() =>
                             {
                                 BitmapEncoder? encoder = null;
@@ -577,10 +582,12 @@ namespace ArtWiz.View.Pages
                     }
                     else if (checkedContent == "spr")
                     {
+                        notifyProgressChanged(100);
                         commandVM?.OnSaveCurrentWorkManagerToFileSprClicked(filePath);
                     }
                     else if (checkedContent == "bin")
                     {
+                        notifyProgressChanged(100);
                         using (FileStream fs = new FileStream(filePath, FileMode.Create))
                         {
                             var bmp = viewModel.CurrentlyDisplayedBitmapSource;
@@ -796,8 +803,9 @@ namespace ArtWiz.View.Pages
                     if (imagePaths.Length > 0)
                     {
                         LoadingWindow l = new LoadingWindow(ownerWindow, tilte: "Inserting new frame");
-                        l.Show(block: async () =>
+                        l.Show(block: async (notifyProgressChanged) =>
                         {
+                            notifyProgressChanged(100);
                             await Task.Run(() =>
                             {
                                 commandVM?.OnInsertFrameClicked((uint)args.NewFrameIndex, imagePaths);
@@ -827,8 +835,9 @@ namespace ArtWiz.View.Pages
         private void ReloadColorSourceClick(object sender, RoutedEventArgs e)
         {
             LoadingWindow l = new LoadingWindow(ownerWindow, tilte: "Reloading color source");
-            l.Show(block: async () =>
+            l.Show(block: async (notifyProgressChanged) =>
             {
+                notifyProgressChanged(100);
                 await Task.Run(() =>
                 {
                     commandVM?.OnReloadColorSourceClick();

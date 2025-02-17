@@ -9,7 +9,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace ArtWiz.View.Widgets.CodeBlock
-{ 
+{
 
     public class LineNumberViewModel : INotifyPropertyChanged
     {
@@ -175,6 +175,11 @@ namespace ArtWiz.View.Widgets.CodeBlock
             if (e.VerticalChange != 0)
             {
                 ScrollOwner.ScrollToVerticalOffset(e.VerticalOffset);
+            }
+
+            if (e.HorizontalChange != 0)
+            {
+                ScrollOwner.ScrollToHorizontalOffset(e.HorizontalOffset);
             }
 
             //var caretRect = ContentTextBox.GetRectFromCharacterIndex(ContentTextBox.CaretIndex);
@@ -418,7 +423,7 @@ namespace ArtWiz.View.Widgets.CodeBlock
         {
             mCodeBlockTextBoxDraggingController = codeBlockTextBoxDraggingController;
             _textBox = codeBlockTextBoxDraggingController.CodeBlockTextBox;
-            _caretPen = new Pen(Brushes.Red, 2);
+            _caretPen = new Pen((Brush)Application.Current.FindResource(Definitions.ButtonAndIconBrushLevel0), 2);
             // Ẩn caret cũ
             _textBox.CaretBrush = new SolidColorBrush(Colors.Transparent);
 
@@ -469,6 +474,8 @@ namespace ArtWiz.View.Widgets.CodeBlock
         {
             if (_textBox.IsFocused && _isCaretVisible)
             {
+                var textBoxVisibleRect = new Rect(0, 0, _textBox.ActualWidth, _textBox.ActualHeight);
+
                 if (mCodeBlockTextBoxDraggingController.SelectionLength > 0)
                 {
                     var caretIndex = _textBox.CaretIndex;
@@ -485,13 +492,19 @@ namespace ArtWiz.View.Widgets.CodeBlock
                     var caretAbsX = caretRect.X + _textBox.HorizontalOffset;
                     var caretAbsY = caretRect.Y + _textBox.VerticalOffset;
                     var caretHeight = caretRect.Height;
-                    dc.DrawLine(_caretPen, new Point(caretAbsX - _textBox.HorizontalOffset, caretAbsY - _textBox.VerticalOffset),
-                        new Point(caretAbsX - _textBox.HorizontalOffset, caretAbsY + caretHeight - _textBox.VerticalOffset));
+                    var topCaretPoint = new Point(caretAbsX - _textBox.HorizontalOffset, caretAbsY - _textBox.VerticalOffset);
+                    var botCaretPoint = new Point(caretAbsX - _textBox.HorizontalOffset, caretAbsY + caretHeight - _textBox.VerticalOffset);
+
+                    if (DoesLineIntersectRect(textBoxVisibleRect, topCaretPoint, botCaretPoint))
+                        dc.DrawLine(_caretPen, topCaretPoint, botCaretPoint);
                 }
                 else
                 {
-                    dc.DrawLine(_caretPen, new Point(_caretAbsX - _textBox.HorizontalOffset, _caretAbsY - _textBox.VerticalOffset),
-                        new Point(_caretAbsX - _textBox.HorizontalOffset, _caretAbsY + _caretHeight - _textBox.VerticalOffset));
+                    var topCaretPoint = new Point(_caretAbsX - _textBox.HorizontalOffset, _caretAbsY - _textBox.VerticalOffset);
+                    var botCaretPoint = new Point(_caretAbsX - _textBox.HorizontalOffset, _caretAbsY + _caretHeight - _textBox.VerticalOffset);
+
+                    if (DoesLineIntersectRect(textBoxVisibleRect, topCaretPoint, botCaretPoint))
+                        dc.DrawLine(_caretPen, topCaretPoint, botCaretPoint);
                 }
             }
         }
@@ -508,6 +521,14 @@ namespace ArtWiz.View.Widgets.CodeBlock
             _caretBlinkTimer.Stop();
             _isCaretVisible = false;
             InvalidateVisual();
+        }
+
+        private static bool DoesLineIntersectRect(Rect rect, Point p1, Point p2)
+        {
+            return rect.Contains(p1) || rect.Contains(p2);
+
+            // TODO: Vẫn có trường hợp 2 poin nằm ngoài rect nhưng đường thẳng sẽ cắt qua rect
+            // nhưng trường hợp này hiếm xảy ra với caret
         }
     }
 }

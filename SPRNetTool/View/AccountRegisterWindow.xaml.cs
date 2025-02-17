@@ -21,11 +21,11 @@ namespace ArtWiz.View
     /// </summary>
     public partial class AccountRegisterWindow : BaseArtWizWindow
     {
-        private AccountRegisterWindowViewModel _accountRegisterWindowViewModel;
+        private ArtWizWindowViewModel _accountRegisterWindowViewModel;
         public AccountRegisterWindow()
         {
             InitializeComponent();
-            _accountRegisterWindowViewModel = new AccountRegisterWindowViewModel();
+            _accountRegisterWindowViewModel = new ArtWizWindowViewModel();
             DataContext = _accountRegisterWindowViewModel;
         }
     }

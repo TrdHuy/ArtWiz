@@ -12,7 +12,6 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using static ArtWiz.View.InputWindow;
 using static ArtWiz.View.Widgets.PaletteEditor;
-using ArtWiz.View.Base.Windows;
 using ArtWiz.ViewModel.SprEditor;
 
 namespace ArtWiz.View.Pages
@@ -84,8 +83,9 @@ namespace ArtWiz.View.Pages
                     if (imagePaths.Length > 0)
                     {
                         LoadingWindow l = new LoadingWindow(ownerWindow, tilte: "Inserting new frame");
-                        l.Show(block: async () =>
+                        l.Show(block: async (notifyProgressChanged) =>
                         {
+                            notifyProgressChanged(100);
                             await Task.Run(() =>
                             {
                                 commandVM?.OnInsertFrameClicked((uint)args.NewFrameIndex, imagePaths);
@@ -137,8 +137,9 @@ namespace ArtWiz.View.Pages
                                 if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".spr")
                                 {
                                     LoadingWindow l = new LoadingWindow(ownerWindow);
-                                    l.Show(block: async () =>
+                                    l.Show(block: async (notifyProgressChanged) =>
                                     {
+                                        notifyProgressChanged(100);
                                         await (commandVM?.OnOpenImageFromFileClickAsync(imagePath) ?? Task.CompletedTask);
                                     });
                                 }
@@ -174,13 +175,14 @@ namespace ArtWiz.View.Pages
                             {
                                 string filePath = saveFile.FileName;
                                 LoadingWindow l = new LoadingWindow(ownerWindow, "Saving to " + checkedContent + " file!");
-                                l.Show(block: async () =>
+                                l.Show(block: async (notifyProgressChanged) =>
                                 {
                                     if (checkedContent == "jpg" || checkedContent == "png")
                                     {
                                         using (FileStream stream = new FileStream(filePath, FileMode.Create))
                                         {
                                             if (viewModel?.CurrentlyDisplayedBitmapSource == null) return;
+                                            notifyProgressChanged(100);
                                             await Task.Run(() =>
                                             {
                                                 BitmapEncoder? encoder = null;
@@ -218,8 +220,9 @@ namespace ArtWiz.View.Pages
                     case SprEditorPageTagId.ImportToSprWorkSpace:
                         {
                             LoadingWindow l = new LoadingWindow(ownerWindow, "Exporting to next frame of SprWorkSpace!");
-                            l.Show(block: async () =>
+                            l.Show(block: async (notifyProgressChanged) =>
                             {
+                                notifyProgressChanged(100);
                                 await Task.Run(() =>
                                 {
                                     commandVM?.OnImportCurrentDisplaySourceToNextFrameOfSprWorkSpace();

@@ -1,14 +1,13 @@
 ﻿using ArtWiz.ViewModel.Base;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ArtWiz.ViewModel
 {
-    class LoginWindowViewModel : BaseParentsViewModel
+    class ArtWizWindowViewModel : BaseParentsViewModel
     {
 
         private bool _isTitleBarHidden;
@@ -34,7 +33,7 @@ namespace ArtWiz.ViewModel
             }
         }
 
-        public LoginWindowViewModel()
+        public ArtWizWindowViewModel()
         {
             IsCloseButtonUsedOnlyOnTitleBar = true;
         }
