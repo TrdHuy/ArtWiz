@@ -94,8 +94,8 @@
 					  Height="20" />
 		</ControlTemplate>
 		<ControlTemplate TargetType="Control"
-						 x:Key="RadioInput">
-			<ItemsControl ItemsSource="{Binding RadioOptions}">
+						 x:Key="InlineRadioInput">
+			<ItemsControl ItemsSource="{Binding InlineRadioOptions}">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
 						<WrapPanel Orientation="Horizontal" />
@@ -105,11 +105,18 @@
 					<DataTemplate>
 						<RadioButton Content="{Binding .}"
 									 Margin="5"
-									 Checked="Radio_Checked"
+									 Checked="InlineRadio_Checked"
 									 GroupName="{Binding Path=DataContext.Title, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}}" />
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
+		</ControlTemplate>
+		<ControlTemplate TargetType="Control"
+						 x:Key="RadioInput">
+			<RadioButton Content="{Binding Title}"
+						 Margin="5"
+						 Checked="InlineRadio_Checked"
+						 GroupName="{Binding RadioOptionGroup}" />
 		</ControlTemplate>
 	</Window.Resources>
 
@@ -163,6 +170,18 @@
 													   ToolTip="{Binding Description}"
 													   Visibility="{Binding IsDisabled, Converter={StaticResource bcvt}}" />
 										</Grid>
+										<ControlTemplate.Triggers>
+											<DataTrigger Binding="{Binding ContentType}"
+														 Value="RADIO">
+												<Setter Property="Visibility"
+														Value="Hidden" />
+											</DataTrigger>
+											<DataTrigger Binding="{Binding ContentType}"
+														 Value="RADIO">
+												<Setter Property="Width"
+														Value="0" />
+											</DataTrigger>
+										</ControlTemplate.Triggers>
 									</ControlTemplate>
 								</Setter.Value>
 							</Setter>
@@ -215,6 +234,11 @@
 																		 Value="COMBO">
 																<Setter Property="Template"
 																		Value="{StaticResource ComboBoxInputItem}" />
+															</DataTrigger>
+															<DataTrigger Binding="{Binding ContentType}"
+																		 Value="INLINE_RADIO">
+																<Setter Property="Template"
+																		Value="{StaticResource InlineRadioInput}" />
 															</DataTrigger>
 															<DataTrigger Binding="{Binding ContentType}"
 																		 Value="RADIO">

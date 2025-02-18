@@ -39,7 +39,7 @@ namespace ArtWiz.View
 
         public enum ContentType
         {
-            TEXT, CHECKBOX, COMBO, RADIO
+            TEXT, CHECKBOX, COMBO, INLINE_RADIO, RADIO
         }
         public enum Res
         {
@@ -105,13 +105,22 @@ namespace ArtWiz.View
                     Callback = callback;
                 }
             }
-            public class RadioInputOption : InputOption
+            public class InlineRadioInputOption : InputOption
             {
                 public List<string> Options { get; private set; }
 
-                public RadioInputOption(string title, string description, List<string> options) : base(title, description)
+                public InlineRadioInputOption(string title, string description, List<string> options) : base(title, description)
                 {
                     Options = options;
+                }
+            }
+
+            public class RadioInputOption : InputOption
+            {
+                public string OptionGroup { get; }
+                public RadioInputOption(string title, string description, string optionGroup) : base(title, description)
+                {
+                    OptionGroup = optionGroup;
                 }
             }
 
@@ -137,7 +146,13 @@ namespace ArtWiz.View
 
             public InputBuilder AddInlineRadioOptions(string title, string description, List<string> optionsContent)
             {
-                options.Add(new RadioInputOption(title, description, optionsContent));
+                options.Add(new InlineRadioInputOption(title, description, optionsContent));
+                return this;
+            }
+
+            public InputBuilder AddRadioOptions(string title, string description, string optionGroup)
+            {
+                options.Add(new RadioInputOption(title, description, optionGroup));
                 return this;
             }
             public List<InputOption> Build() { return options; }
@@ -152,9 +167,10 @@ namespace ArtWiz.View
             private int _comboSelection = 0;
             private string _title = "";
             private string _description = "";
+            private string _radioOptionGroupd = "";
             private bool _checkContent = false;
             private ContentType _contentType = ContentType.TEXT;
-            private ObservableCollection<string>? _radioOptions = new ObservableCollection<string>();
+            private ObservableCollection<string>? _inlineRadioOptions = new ObservableCollection<string>();
 
             public string Title
             {
@@ -232,12 +248,22 @@ namespace ArtWiz.View
                 }
             }
 
-            public ObservableCollection<string>? RadioOptions
+            public ObservableCollection<string>? InlineRadioOptions
             {
-                get { return _radioOptions; }
+                get { return _inlineRadioOptions; }
                 set
                 {
-                    _radioOptions = value;
+                    _inlineRadioOptions = value;
+                    Invalidate();
+                }
+            }
+
+            public string RadioOptionGroup
+            {
+                get { return _radioOptionGroupd; }
+                set
+                {
+                    _radioOptionGroupd = value;
                     Invalidate();
                 }
             }
@@ -254,6 +280,32 @@ namespace ArtWiz.View
         private Res curRes = Res.CANCEL;
         private ArtWizWindowViewModel mInputWindowViewModel;
 
+#if DEBUG
+        public InputWindow()
+        {
+            InitializeComponent();
+
+            var builder = new InputBuilder();
+            var SavingTitle = "Lưu với định dạng";
+            var SavingDes = "Save";
+            List<string> SavingOptions = new List<string>() { "jpg", "png", "spr" };
+            var inputSrc = builder.AddRadioOptions("Opt1", SavingDes, "p1")
+                .AddRadioOptions("Opt1", SavingDes, "p1")
+                .Build();
+            var checkedContent = "";
+            Init(inputSrc, null, (res) =>
+            {
+                if (res != null)
+                {
+                    foreach (var item in res)
+                    {
+                        if (item.Key != null) checkedContent = Convert.ToString(item.Value);
+                        break;
+                    }
+                }
+            }, null);
+        }
+#endif
         public InputWindow(
             List<InputBuilder.InputOption> src
             , Window? owner = null
@@ -261,6 +313,11 @@ namespace ArtWiz.View
             , Action? cancelButtonClicked = null)
         {
             InitializeComponent();
+            Init(src, owner, agreeButtonClicked, cancelButtonClicked);
+        }
+
+        private void Init(List<InputBuilder.InputOption> src, Window? owner, Action<Dictionary<string, object>>? agreeButtonClicked, Action? cancelButtonClicked)
+        {
             if (src.Count == 0) throw new Exception("Source is empty");
             Owner = owner;
 
@@ -287,6 +344,8 @@ namespace ArtWiz.View
                                 return ContentType.COMBO;
                             case InputBuilder.CheckBoxInputOption:
                                 return ContentType.CHECKBOX;
+                            case InputBuilder.InlineRadioInputOption:
+                                return ContentType.INLINE_RADIO;
                             case InputBuilder.RadioInputOption:
                                 return ContentType.RADIO;
 
@@ -343,8 +402,17 @@ namespace ArtWiz.View
                         return null;
                     }),
 
-                    RadioOptions = item.IfIsThenLet<InputBuilder.RadioInputOption, ObservableCollection<string>>(it2 =>
-                             new ObservableCollection<string>(it2.Options))
+                    InlineRadioOptions = item.IfIsThenLet<InputBuilder.InlineRadioInputOption, ObservableCollection<string>>(it2 =>
+                             new ObservableCollection<string>(it2.Options)),
+                    RadioOptionGroup = item.Let((it) =>
+                    {
+                        switch (it)
+                        {
+                            case InputBuilder.RadioInputOption cast:
+                                return cast.OptionGroup;
+                        }
+                        return "";
+                    })
 
                 };
                 InputSource.Add(newItemVM);
@@ -392,7 +460,7 @@ namespace ArtWiz.View
                 {
                     newSource.Add(item.Title, item.ComboSelection);
                 }
-                else if (item.ContentType == ContentType.RADIO)
+                else if (item.ContentType == ContentType.INLINE_RADIO)
                 {
                     newSource.Add(item.Title, item.Content);
                 }
@@ -430,7 +498,7 @@ namespace ArtWiz.View
             }
         }
 
-        public void Radio_Checked(object sender, RoutedEventArgs e)
+        public void InlineRadio_Checked(object sender, RoutedEventArgs e)
         {
             var context = (sender as RadioButton)?.FindAncestor<ItemsControl>()?.DataContext as ItemViewModel;
             var content = (sender as RadioButton)?.Content;
