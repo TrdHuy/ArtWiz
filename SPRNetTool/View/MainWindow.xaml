@@ -12,6 +12,7 @@
 					   mc:Ignorable="d"
 					   FontFamily="Calibri"
 					   Height="900"
+					   BorderThickness="1"
 					   StateChanged="OnWindowStateChanged"
 					   d:DesignWidth="1440"
 					   BorderBrush="{StaticResource ResourceKey={x:Static def:Definitions.ButtonAndIconBrushLevel0_m8}}">

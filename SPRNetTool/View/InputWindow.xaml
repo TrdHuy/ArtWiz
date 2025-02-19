@@ -6,9 +6,11 @@
 					   xmlns:local="clr-namespace:ArtWiz.View"
 					   xmlns:cvt="clr-namespace:ArtWiz.View.Utils"
 					   xmlns:base="clr-namespace:ArtWiz.View.Base"
+					   xmlns:atp="clr-namespace:ArtWiz.View.Utils.AttachedProperties"
 					   SizeToContent="WidthAndHeight"
 					   xmlns:def="clr-namespace:ArtWiz"
-					   MinHeight="200"
+					   MinHeight="340"
+					   CornerRadius="8"
 					   Title="Select Options"
 					   WindowStartupLocation="CenterScreen"
 					   WindowStyle="None"
@@ -16,35 +18,163 @@
 					   FontFamily="{StaticResource ResourceKey={x:Static def:Definitions.FontFiraSans_Regular}}"
 					   Background="{StaticResource {x:Static def:Definitions.PanelBackgroundLevel0_1}}"
 					   BorderBrush="{StaticResource {x:Static def:Definitions.PanelBackgroundLevel0_10}}"
-					   BorderThickness="1"
-					   MinWidth="350">
-
-
+					   BorderThickness="1.5"
+					   MinWidth="510">
 	<Window.Resources>
+
+		<Style x:Key="OptionMarkFocusVisual">
+			<Setter Property="Control.Template">
+				<Setter.Value>
+					<ControlTemplate>
+						<Rectangle Margin="14,0,0,0"
+								   StrokeDashArray="1 2"
+								   Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+								   SnapsToDevicePixels="true"
+								   StrokeThickness="1" />
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<SolidColorBrush x:Key="RadioButton.Static.Glyph"
+						 Color="#FF212121" />
+		<SolidColorBrush x:Key="RadioButton.MouseOver.Background"
+						 Color="#FFF3F9FF" />
+		<SolidColorBrush x:Key="RadioButton.MouseOver.Border"
+						 Color="#FF5593FF" />
+		<SolidColorBrush x:Key="RadioButton.MouseOver.Glyph"
+						 Color="#FF212121" />
+		<SolidColorBrush x:Key="RadioButton.Pressed.Background"
+						 Color="#FFD9ECFF" />
+		<SolidColorBrush x:Key="RadioButton.Pressed.Border"
+						 Color="#FF3C77DD" />
+		<SolidColorBrush x:Key="RadioButton.Pressed.Glyph"
+						 Color="#FF212121" />
+		<SolidColorBrush x:Key="RadioButton.Disabled.Background"
+						 Color="#FFE6E6E6" />
+		<SolidColorBrush x:Key="RadioButton.Disabled.Border"
+						 Color="#FFBCBCBC" />
+		<SolidColorBrush x:Key="RadioButton.Disabled.Glyph"
+						 Color="#FF707070" />
+		<ControlTemplate x:Key="RadioButtonTemplate1"
+						 TargetType="{x:Type RadioButton}">
+			<Grid x:Name="templateRoot"
+				  Background="Transparent"
+				  SnapsToDevicePixels="True">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<Border x:Name="radioButtonBorder"
+						Background="{TemplateBinding Background}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="100"
+						HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+						Margin="1,1,8,1"
+						Height="20"
+						Width="20"
+						VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+					<Grid x:Name="markGrid"
+						  Margin="2">
+						<Ellipse x:Name="optionMark"
+								 Fill="{StaticResource RadioButton.Static.Glyph}"
+								 MinWidth="6"
+								 MinHeight="6"
+								 Opacity="0" />
+					</Grid>
+				</Border>
+				<ContentPresenter x:Name="contentPresenter"
+								  Grid.Column="1"
+								  Focusable="False"
+								  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								  Margin="{TemplateBinding Padding}"
+								  RecognizesAccessKey="True"
+								  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+								  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+			</Grid>
+			<ControlTemplate.Triggers>
+				<Trigger Property="HasContent"
+						 Value="true">
+					<Setter Property="FocusVisualStyle"
+							Value="{StaticResource OptionMarkFocusVisual}" />
+					<Setter Property="Padding"
+							Value="4,-1,0,0" />
+				</Trigger>
+				<Trigger Property="IsMouseOver"
+						 Value="true">
+					<Setter Property="Background"
+							TargetName="radioButtonBorder"
+							Value="{StaticResource RadioButton.MouseOver.Background}" />
+					<Setter Property="BorderBrush"
+							TargetName="radioButtonBorder"
+							Value="{StaticResource RadioButton.MouseOver.Border}" />
+					<Setter Property="Fill"
+							TargetName="optionMark"
+							Value="{StaticResource RadioButton.MouseOver.Glyph}" />
+				</Trigger>
+				<Trigger Property="IsEnabled"
+						 Value="false">
+					<Setter Property="Background"
+							TargetName="radioButtonBorder"
+							Value="{StaticResource RadioButton.Disabled.Background}" />
+					<Setter Property="BorderBrush"
+							TargetName="radioButtonBorder"
+							Value="{StaticResource RadioButton.Disabled.Border}" />
+					<Setter Property="Fill"
+							TargetName="optionMark"
+							Value="{StaticResource RadioButton.Disabled.Glyph}" />
+				</Trigger>
+				<Trigger Property="IsPressed"
+						 Value="true">
+					<Setter Property="Background"
+							TargetName="radioButtonBorder"
+							Value="{StaticResource RadioButton.Pressed.Background}" />
+					<Setter Property="BorderBrush"
+							TargetName="radioButtonBorder"
+							Value="{StaticResource RadioButton.Pressed.Border}" />
+					<Setter Property="Fill"
+							TargetName="optionMark"
+							Value="{StaticResource RadioButton.Pressed.Glyph}" />
+				</Trigger>
+				<Trigger Property="IsChecked"
+						 Value="true">
+					<Setter Property="Opacity"
+							TargetName="optionMark"
+							Value="1" />
+				</Trigger>
+				<Trigger Property="IsChecked"
+						 Value="{x:Null}">
+					<Setter Property="Opacity"
+							TargetName="optionMark"
+							Value="0.56" />
+				</Trigger>
+			</ControlTemplate.Triggers>
+		</ControlTemplate>
+
 		<local:InputWindowItemHeightConverter x:Key="tcvt" />
 		<cvt:BoolToVisibilityConverter x:Key="bcvt" />
 		<Style x:Key="HeaderTextStyle"
 			   TargetType="TextBlock">
 			<Setter Property="FontSize"
-					Value="20" />
+					Value="22" />
 			<Setter Property="FontWeight"
 					Value="Bold" />
 			<Setter Property="Foreground"
 					Value="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0}}" />
 			<Setter Property="Margin"
-					Value="0,0,0,10" />
+					Value="0,0,0,23" />
 		</Style>
 
 		<Style x:Key="DescriptionTextStyle"
 			   TargetType="TextBlock">
 			<Setter Property="FontSize"
-					Value="14" />
+					Value="16" />
 			<Setter Property="Foreground"
-					Value="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0}}" />
+					Value="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0_5}}" />
 			<Setter Property="TextWrapping"
 					Value="Wrap" />
 			<Setter Property="Margin"
-					Value="0,0,0,20" />
+					Value="0,0,0,30" />
 		</Style>
 
 		<Style x:Key="RadioButtonStyle"
@@ -114,10 +244,47 @@
 		<ControlTemplate TargetType="Control"
 						 x:Key="RadioInput">
 			<RadioButton Content="{Binding Title}"
-						 Margin="5"
+						 Template="{StaticResource RadioButtonTemplate1}"
+						 Foreground="{StaticResource ResourceKey={x:Static def:Definitions.TextForegroundBrushLevel0}}"
+						 FontSize="18"
+						 Margin="0,0,0,17"
+						 VerticalContentAlignment="Center"
+						 FontWeight="Bold"
 						 Checked="InlineRadio_Checked"
 						 GroupName="{Binding RadioOptionGroup}" />
 		</ControlTemplate>
+		<SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
+		<SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
+		<SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
+		<SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
+		<SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
+		<SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
+		<SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
+		<ControlTemplate x:Key="ButtonTemplate1" TargetType="{x:Type ButtonBase}">
+			<Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="true">
+				<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+			</Border>
+			<ControlTemplate.Triggers>
+				<Trigger Property="Button.IsDefaulted" Value="true">
+					<Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+				</Trigger>
+				<Trigger Property="IsMouseOver" Value="true">
+					<Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+					<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+				</Trigger>
+				<Trigger Property="IsPressed" Value="true">
+					<Setter Property="Background" TargetName="border" Value="{StaticResource Button.Pressed.Background}"/>
+					<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Pressed.Border}"/>
+				</Trigger>
+				<Trigger Property="IsEnabled" Value="false">
+					<Setter Property="Background" TargetName="border" Value="{StaticResource Button.Disabled.Background}"/>
+					<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Disabled.Border}"/>
+					<Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground}"/>
+				</Trigger>
+			</ControlTemplate.Triggers>
+		</ControlTemplate>
+
+
 	</Window.Resources>
 
 	<Grid>
@@ -153,6 +320,7 @@
 				<ListView x:Name="TitleListView"
 						  ScrollViewer.CanContentScroll="False"
 						  BorderThickness="0"
+						  Background="Transparent"
 						  ScrollViewer.VerticalScrollBarVisibility="Disabled">
 					<ListView.ItemContainerStyle>
 						<Style TargetType="ListViewItem">
@@ -198,6 +366,7 @@
 						  ScrollViewer.CanContentScroll="False"
 						  BorderThickness="0"
 						  MinWidth="300"
+						  Background="Transparent"
 						  Grid.Column="1"
 						  ScrollViewer.VerticalScrollBarVisibility="Disabled">
 					<ListView.ItemContainerStyle>
@@ -212,8 +381,7 @@
 												<Control.Height>
 													<MultiBinding Converter="{StaticResource tcvt}">
 														<Binding ElementName="TitleListView" />
-														<Binding ElementName="InputListView"
-																 Path="ItemsSource" />
+														<Binding ElementName="InputListView" />
 														<Binding Path="." />
 													</MultiBinding>
 												</Control.Height>
@@ -270,10 +438,11 @@
 				<Button Content="Confirm"
 						Style="{StaticResource ButtonStyle}"
 						Background="{StaticResource {x:Static def:Definitions.ButtonAndIconBrushLevel1}}"
-						Foreground="White"
+						Foreground="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0_10}}"
 						BorderThickness="0"
 						Click="ButtonAgreeClick" />
-				<Button Content="Cancel"
+				<Button Template="{DynamicResource ButtonTemplate1}" Content="Cancel"
+						atp:AttachedProperites.HoverBackground="Green"
 						Style="{StaticResource ButtonStyle}"
 						Background="Transparent"
 						Foreground="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0}}"

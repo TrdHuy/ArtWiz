@@ -5,6 +5,7 @@
 					xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
 					xmlns:local="clr-namespace:ArtWiz"
 					xmlns:def="clr-namespace:ArtWiz"
+					xmlns:baseView="clr-namespace:ArtWiz.View.Base"
 					xmlns:cvt="clr-namespace:ArtWiz.View.Utils">
 	<cvt:RevertBoolConverter x:Key="RevertBoolConverter" />
 	<cvt:NotNullConverter x:Key="NotNullConverter" />
@@ -124,6 +125,7 @@
 	<Color x:Key="{x:Static local:Definitions.TextForegroundColorLevel0}">#FFFFFFFF</Color>
 	<Color x:Key="{x:Static local:Definitions.TextForegroundColorLevel0_1}">#FFD9D9D9</Color>
 	<Color x:Key="{x:Static local:Definitions.TextForegroundColorLevel0_5}">#FF7B8797</Color>
+	<Color x:Key="{x:Static local:Definitions.TextForegroundColorLevel0_10}">#FF000000</Color>
 
 	<Color x:Key="{x:Static local:Definitions.ButtonAndIconColorLevel0}">#4FE79A</Color>
 	<Color x:Key="{x:Static local:Definitions.ButtonAndIconColorLevel0_1}">#6FEBAD</Color>
@@ -165,7 +167,9 @@
 					 x:Key="{x:Static local:Definitions.TextForegroundBrushLevel0_1}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.TextForegroundColorLevel0_5}}"
 					 x:Key="{x:Static local:Definitions.TextForegroundBrushLevel0_5}" />
-
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.TextForegroundColorLevel0_10}}"
+					 x:Key="{x:Static local:Definitions.TextForegroundBrushLevel0_10}" />
+	
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ButtonAndIconColorLevel0}}"
 					 x:Key="{x:Static local:Definitions.ButtonAndIconBrushLevel0}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ButtonAndIconColorLevel0_1}}"
@@ -897,10 +901,10 @@
 		</Setter>
 	</Style>
 
-	<Style TargetType="{x:Type Window}"
+	<Style TargetType="{x:Type baseView:BaseArtWizWindow}"
 		   x:Key="{x:Static local:Definitions.ArtWizDefaultWindowStyle}">
 		<Setter Property="AllowsTransparency"
-				Value="False" />
+				Value="True" />
 		<Setter Property="Background"
 				Value="Transparent" />
 		<Setter Property="WindowStyle"
@@ -910,8 +914,9 @@
 
 		<Setter Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type Window}">
+				<ControlTemplate TargetType="{x:Type baseView:BaseArtWizWindow}">
 					<Border x:Name="MainBorderContainer"
+							CornerRadius="20"
 							Width="{TemplateBinding Width}"
 							Height="{TemplateBinding Height}"
 							Background="Transparent">
@@ -921,11 +926,13 @@
 											ScaleX="1"
 											ScaleY="1" />
 						</Border.LayoutTransform>
-						<Border BorderThickness="1"
+						<Border BorderThickness="{TemplateBinding BorderThickness}"
+								CornerRadius="{TemplateBinding CornerRadius}"
+								Background="{TemplateBinding Background}"
 								BorderBrush="{StaticResource ResourceKey={x:Static local:Definitions.ButtonAndIconBrushLevel0}}"
 								x:Name="ContentBorder">
 							<Grid x:Name="ContentAndTitleGrid"
-								  Background="{TemplateBinding Background}">
+								  Background="Transparent">
 								<Grid.RowDefinitions>
 									<RowDefinition Height="Auto" />
 									<RowDefinition Height="*" />

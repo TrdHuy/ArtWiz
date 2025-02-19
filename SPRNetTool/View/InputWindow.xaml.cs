@@ -19,11 +19,18 @@ namespace ArtWiz.View
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             var refListView = values[0] as ListView;
-            var src = values[1] as ObservableCollection<ItemViewModel>;
+            var inputListView = values[1] as ListView;
+            var src = inputListView.ItemsSource as ObservableCollection<ItemViewModel>;
             var item = values[2] as ItemViewModel;
-            var index = src?.IndexOf(item) ?? 0;
-            var itemHeight = (refListView?.ItemContainerGenerator.ContainerFromIndex(index) as ListViewItem)?.DesiredSize.Height;
-            return itemHeight ?? 30d;
+
+            var index = src?.IndexOf(item) ?? -1;
+            if (index < 0 || item.ContentType == ContentType.RADIO)
+                return double.NaN;
+
+            var listViewItem = refListView?.ItemContainerGenerator.ContainerFromIndex(index) as ListViewItem;
+            var itemHeight = listViewItem?.DesiredSize.Height;
+
+            return itemHeight ?? double.NaN;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
