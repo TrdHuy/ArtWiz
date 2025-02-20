@@ -290,10 +290,10 @@ namespace ArtWiz.View
 #if DEBUG
         public InputWindow()
         {
+            // FOR TEST ONLY
             InitializeComponent();
 
             var builder = new InputBuilder();
-            var SavingTitle = "Lưu với định dạng";
             var SavingDes = "Save";
             List<string> SavingOptions = new List<string>() { "jpg", "png", "spr" };
             var inputSrc = builder.AddRadioOptions("Opt1", SavingDes, "p1")
@@ -310,20 +310,27 @@ namespace ArtWiz.View
                         break;
                     }
                 }
-            }, null);
+            }, null, "Test Header", "Test Body");
         }
 #endif
         public InputWindow(
             List<InputBuilder.InputOption> src
             , Window? owner = null
             , Action<Dictionary<string, object>>? agreeButtonClicked = null
-            , Action? cancelButtonClicked = null)
+            , Action? cancelButtonClicked = null
+            , string title = "Select your option!"
+            , string des = "Please choose from the following options to customize your experience within the ArtWiz app.")
         {
             InitializeComponent();
-            Init(src, owner, agreeButtonClicked, cancelButtonClicked);
+            Init(src, owner, agreeButtonClicked, cancelButtonClicked, title, des);
         }
 
-        private void Init(List<InputBuilder.InputOption> src, Window? owner, Action<Dictionary<string, object>>? agreeButtonClicked, Action? cancelButtonClicked)
+        private void Init(List<InputBuilder.InputOption> src,
+            Window? owner,
+            Action<Dictionary<string, object>>? agreeButtonClicked,
+            Action? cancelButtonClicked,
+            string title,
+            string des)
         {
             if (src.Count == 0) throw new Exception("Source is empty");
             Owner = owner;
@@ -431,6 +438,9 @@ namespace ArtWiz.View
             {
                 item.CheckChangedCallback?.Invoke(InputSource, Convert.ToBoolean(item.CheckContent));
             }
+
+            HeaderTextBlock.Text = title;
+            DescriptionTextBlock.Text = des;
         }
 
         public new Res Show()
@@ -470,6 +480,10 @@ namespace ArtWiz.View
                 else if (item.ContentType == ContentType.INLINE_RADIO)
                 {
                     newSource.Add(item.Title, item.Content);
+                }
+                else if (item.ContentType == ContentType.RADIO)
+                {
+                    newSource.Add(item.Title, item.Title);
                 }
 
             }
