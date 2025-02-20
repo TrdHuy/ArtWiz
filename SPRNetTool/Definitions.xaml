@@ -5,9 +5,11 @@
 					xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
 					xmlns:local="clr-namespace:ArtWiz"
 					xmlns:def="clr-namespace:ArtWiz"
+					xmlns:baseView="clr-namespace:ArtWiz.View.Base"
 					xmlns:cvt="clr-namespace:ArtWiz.View.Utils">
 	<cvt:RevertBoolConverter x:Key="RevertBoolConverter" />
 	<cvt:NotNullConverter x:Key="NotNullConverter" />
+	<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 	<FontFamily x:Key="{x:Static local:Definitions.FontAwsome}">
 		/ArtWiz;component/Resources/Font Awesome 6 Free-Solid-900.otf#Font Awesome 6 Free Solid
 	</FontFamily>
@@ -123,6 +125,7 @@
 	<Color x:Key="{x:Static local:Definitions.TextForegroundColorLevel0}">#FFFFFFFF</Color>
 	<Color x:Key="{x:Static local:Definitions.TextForegroundColorLevel0_1}">#FFD9D9D9</Color>
 	<Color x:Key="{x:Static local:Definitions.TextForegroundColorLevel0_5}">#FF7B8797</Color>
+	<Color x:Key="{x:Static local:Definitions.TextForegroundColorLevel0_10}">#FF000000</Color>
 
 	<Color x:Key="{x:Static local:Definitions.ButtonAndIconColorLevel0}">#4FE79A</Color>
 	<Color x:Key="{x:Static local:Definitions.ButtonAndIconColorLevel0_1}">#6FEBAD</Color>
@@ -164,7 +167,9 @@
 					 x:Key="{x:Static local:Definitions.TextForegroundBrushLevel0_1}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.TextForegroundColorLevel0_5}}"
 					 x:Key="{x:Static local:Definitions.TextForegroundBrushLevel0_5}" />
-
+	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.TextForegroundColorLevel0_10}}"
+					 x:Key="{x:Static local:Definitions.TextForegroundBrushLevel0_10}" />
+	
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ButtonAndIconColorLevel0}}"
 					 x:Key="{x:Static local:Definitions.ButtonAndIconBrushLevel0}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ButtonAndIconColorLevel0_1}}"
@@ -896,35 +901,38 @@
 		</Setter>
 	</Style>
 
-	<Style TargetType="{x:Type Window}"
+	<Style TargetType="{x:Type baseView:BaseArtWizWindow}"
 		   x:Key="{x:Static local:Definitions.ArtWizDefaultWindowStyle}">
 		<Setter Property="AllowsTransparency"
-				Value="False" />
+				Value="True" />
 		<Setter Property="Background"
 				Value="Transparent" />
 		<Setter Property="WindowStyle"
 				Value="None" />
-        <Setter Property="ResizeMode"
+		<Setter Property="ResizeMode"
 				Value="CanResizeWithGrip" />
 
-        <Setter Property="Template">
+		<Setter Property="Template">
 			<Setter.Value>
-                <ControlTemplate TargetType="{x:Type Window}">
-                    <Border x:Name="MainBorderContainer"
+				<ControlTemplate TargetType="{x:Type baseView:BaseArtWizWindow}">
+					<Border x:Name="MainBorderContainer"
+							CornerRadius="20"
 							Width="{TemplateBinding Width}"
 							Height="{TemplateBinding Height}"
 							Background="Transparent">
 
-                        <Border.LayoutTransform>
-                            <ScaleTransform x:Name="MainBorderCtn_ScaleTransform"
+						<Border.LayoutTransform>
+							<ScaleTransform x:Name="MainBorderCtn_ScaleTransform"
 											ScaleX="1"
 											ScaleY="1" />
 						</Border.LayoutTransform>
-						<Border BorderThickness="1"
+						<Border BorderThickness="{TemplateBinding BorderThickness}"
+								CornerRadius="{TemplateBinding CornerRadius}"
+								Background="{TemplateBinding Background}"
 								BorderBrush="{StaticResource ResourceKey={x:Static local:Definitions.ButtonAndIconBrushLevel0}}"
 								x:Name="ContentBorder">
 							<Grid x:Name="ContentAndTitleGrid"
-								  Background="{TemplateBinding Background}">
+								  Background="Transparent">
 								<Grid.RowDefinitions>
 									<RowDefinition Height="Auto" />
 									<RowDefinition Height="*" />
@@ -933,6 +941,7 @@
 								<!--Title bar-->
 								<Grid x:Name="TitleBartGrid"
 									  Grid.Row="0"
+									  Visibility="{Binding IsTitleBarHidden, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}"
 									  Height="{Binding ElementName=WindowTitleBar, Path=WindowBarHeight}"
 									  Background="{StaticResource ResourceKey={x:Static local:Definitions.PanelBackgroundLevel0_4}}"
 									  VerticalAlignment="Stretch">
@@ -946,8 +955,22 @@
 									</Grid.ColumnDefinitions>
 
 									<wg:WindowTitleBar x:Name="WindowTitleBar"
-													   WindowBarHeight="69"
-													   Height="{Binding ElementName=WindowTitleBar, Path=WindowBarHeight}" />
+													   Height="{Binding ElementName=WindowTitleBar, Path=WindowBarHeight}">
+										<wg:WindowTitleBar.Style>
+											<Style TargetType="wg:WindowTitleBar">
+												<Setter Property="WindowBarHeight"
+														Value="69" />
+												<!-- Giá trị mặc định -->
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsCloseButtonUsedOnlyOnTitleBar}"
+																 Value="True">
+														<Setter Property="WindowBarHeight"
+																Value="40" />
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</wg:WindowTitleBar.Style>
+									</wg:WindowTitleBar>
 
 								</Grid>
 

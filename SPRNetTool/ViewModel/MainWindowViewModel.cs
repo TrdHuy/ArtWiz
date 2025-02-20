@@ -13,7 +13,7 @@ namespace ArtWiz.ViewModel
 
         public MainWindowViewModel()
         {
-            IsTitleBarHide = false;
+            IsCloseButtonUsedOnlyOnTitleBar = false;
         }
     }
 }

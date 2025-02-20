@@ -15,7 +15,8 @@
 			<cvt:BoolToObjectConverter x:Key="BoolToObjectConverter" />
 			<cvt:FormulaConverter x:Key="FormulaConverter" />
 			<cvt:RevertBoolConverter x:Key="RevertBoolConverter" />
-
+			<cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+			
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

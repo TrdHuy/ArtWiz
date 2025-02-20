@@ -1,6 +1,7 @@
 ﻿using ArtWiz.Utils;
 using ArtWiz.ViewModel.Base;
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -8,6 +9,25 @@ namespace ArtWiz.View.Base
 {
     public abstract class BaseArtWizWindow : CyberWindow, IWindowViewer, IArtWizViewModelOwner
     {
+        #region Public properites
+        public static readonly DependencyProperty CornerRadiusProperty
+            = DependencyProperty.Register("CornerRadius", typeof(CornerRadius), typeof(BaseArtWizWindow),
+                                          new FrameworkPropertyMetadata(
+                                                new CornerRadius(),
+                                                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender),
+                                          new ValidateValueCallback(IsCornerRadiusValid));
+        private static bool IsCornerRadiusValid(object value)
+        {
+            CornerRadius cr = (CornerRadius)value;
+            return (cr.IsValid(false, false, false, false));
+        }
+
+        public CornerRadius CornerRadius
+        {
+            get { return (CornerRadius)GetValue(CornerRadiusProperty); }
+            set { SetValue(CornerRadiusProperty, value); }
+        }
+        #endregion
 
         public Dispatcher ViewElementDispatcher => Dispatcher;
 

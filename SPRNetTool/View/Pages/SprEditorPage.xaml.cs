@@ -149,10 +149,12 @@ namespace ArtWiz.View.Pages
                     case SprEditorPageTagId.SaveImageFile:
                         {
                             var builder = new InputBuilder();
-                            var SavingTitle = "Lưu với định dạng";
-                            var SavingDes = "Save";
                             List<string> SavingOptions = new List<string>() { "jpg", "png", "spr" };
-                            var inputSrc = builder.AddRadioOptions(SavingTitle, SavingDes, SavingOptions).Build();
+
+                            var inputSrc = builder.AddRadioOptions("jpg", "", "p1")
+                               .AddRadioOptions("png", "", "p1")
+                               .AddRadioOptions("spr", "", "p1")
+                               .Build();
                             var checkedContent = "";
                             InputWindow inputWindow = new InputWindow(inputSrc, ownerWindow, (res) =>
                             {
@@ -164,7 +166,7 @@ namespace ArtWiz.View.Pages
                                         break;
                                     }
                                 }
-                            });
+                            }, title: "Lưu với định dạng");
                             Res res = inputWindow.Show();
                             if (res == Res.CANCEL) return;
 
