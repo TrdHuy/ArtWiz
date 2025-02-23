@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+	  
+   
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract> <!-- Gói luôn thư viện native -->
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile> <!-- Giảm kích thước file -->
+    <DebugType>none</DebugType> <!-- Không xuất file .pdb -->
+  </PropertyGroup>
+
+</Project>
