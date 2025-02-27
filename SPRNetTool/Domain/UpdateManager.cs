@@ -25,7 +25,7 @@ namespace ArtWiz.Domain
         {
             try
             {
-                using (var client = new HttpClient())
+                using (var client = GetHttpClient())
                 {
                     string jsonData = await GetStringFromHttpUrl(UpdateInfoUrl, client);
                     Dictionary<string, UpdateInfo>? versionData;
@@ -71,48 +71,81 @@ namespace ArtWiz.Domain
             }
         }
 
-
-        public async Task DownloadAndApplyUpdateAsync(string updateUrl)
+        public async Task<string> DownloadAndApplyUpdateAsync(string downloadUrl)
         {
+            var tempDirectory = Path.Combine(Path.GetTempPath(), "Updater");
+            if (!Directory.Exists(tempDirectory))
+            {
+                Directory.CreateDirectory(tempDirectory);
+            }
+
+            string tempFilePath = Path.Combine(tempDirectory, "update.zip");
+
             try
             {
-                string tempFilePath = "update.zip";
-
-                using (var client = new HttpClient())
+                using (var client = GetHttpClient())
                 {
-                    using (var response = await client.GetAsync(updateUrl))
+                    using (var response = await client.GetAsync(downloadUrl))
                     using (var fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         await response.Content.CopyToAsync(fileStream);
                     }
-
-                    string extractPath = "update_temp";
-                    if (Directory.Exists(extractPath))
-                        Directory.Delete(extractPath, true);
-
-                    System.IO.Compression.ZipFile.ExtractToDirectory(tempFilePath, extractPath);
-
-                    foreach (string file in Directory.GetFiles(extractPath))
-                    {
-                        string destFile = Path.Combine(".", Path.GetFileName(file));
-                        File.Move(file, destFile, true);
-                    }
-
-                    Directory.Delete(extractPath, true);
                 }
 
+                return tempFilePath;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Update failed: {ex.Message}");
+                Console.WriteLine($"Download failed: {ex.Message}");
+                return string.Empty;
             }
         }
+
+        //public async Task DownloadAndApplyUpdateAsync(string updateUrl)
+        //{
+        //    try
+        //    {
+        //        string tempFilePath = "update.zip";
+
+        //        using (var client = new HttpClient())
+        //        {
+        //            using (var response = await client.GetAsync(updateUrl))
+        //            using (var fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+        //            {
+        //                await response.Content.CopyToAsync(fileStream);
+        //            }
+
+        //            string extractPath = "update_temp";
+        //            if (Directory.Exists(extractPath))
+        //                Directory.Delete(extractPath, true);
+
+        //            System.IO.Compression.ZipFile.ExtractToDirectory(tempFilePath, extractPath);
+
+        //            foreach (string file in Directory.GetFiles(extractPath))
+        //            {
+        //                string destFile = Path.Combine(".", Path.GetFileName(file));
+        //                File.Move(file, destFile, true);
+        //            }
+
+        //            Directory.Delete(extractPath, true);
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Update failed: {ex.Message}");
+        //    }
+        //}
 
         protected virtual async Task<string> GetStringFromHttpUrl(string url, HttpClient client)
         {
             return await client.GetStringAsync(url);
         }
 
+        protected virtual HttpClient GetHttpClient()
+        {
+            return new HttpClient();
+        }
         protected virtual string GetCurrentVersion()
         {
             return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? throw new Exception("Failed to get current assembly version!");

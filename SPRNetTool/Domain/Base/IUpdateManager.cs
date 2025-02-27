@@ -10,6 +10,6 @@ namespace ArtWiz.Domain.Base
     internal interface IUpdateManager
     {
         Task<UpdateResult> CheckForUpdateAsync();
-        Task DownloadAndApplyUpdateAsync(string updateUrl);
+        Task<string> DownloadAndApplyUpdateAsync(string updateUrl);
     }
 }
