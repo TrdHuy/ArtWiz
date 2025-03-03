@@ -1,9 +1,12 @@
 ﻿<Application x:Class="ArtUpdater.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:ArtUpdater"
-             StartupUri="MainWindow.xaml">
-    <Application.Resources>
-         
-    </Application.Resources>
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:local="clr-namespace:ArtUpdater"
+			 StartupUri="MainWindow.xaml">
+	<Application.Resources>
+		<ImageSource x:Key="ArtLogo_40">pack://application:,,,/Resource/logo_40.png</ImageSource>
+
+		<FontFamily x:Key="FiraSan">pack://application:,,,/Resource/Fonts/Fira_Sans/FiraSans-Regular.ttf#Fira Sans</FontFamily>
+		<FontFamily x:Key="FiraSan-Bold">pack://application:,,,/Resource/Fonts/Fira_Sans/FiraSans-Bold.ttf#Fira Sans</FontFamily>
+	</Application.Resources>
 </Application>

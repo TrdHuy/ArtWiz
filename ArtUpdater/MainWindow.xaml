@@ -1,12 +1,135 @@
 ﻿<Window x:Class="ArtUpdater.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ArtUpdater"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:local="clr-namespace:ArtUpdater"
+		xmlns:wg="clr-namespace:ArtUpdater.View"
+		xmlns:atp="clr-namespace:ArtUpdater.View.Atp"
+		mc:Ignorable="d"
+		WindowStyle="None"
+		ResizeMode="NoResize"
+		AllowsTransparency="True"
+		Title="MainWindow"
+		Background="Transparent"
+		FontFamily="{StaticResource FiraSan}"
+		Height="300"
+		Width="800">
+	<Window.Resources>
+		<SolidColorBrush x:Key="PanelBackgroundColorLevel0">#151515</SolidColorBrush>
+		<SolidColorBrush x:Key="PanelBackgroundColorLevel0_1">#1f1f1f</SolidColorBrush>
+		<SolidColorBrush x:Key="PanelBackgroundColorLevel0_10">#7A7A7A</SolidColorBrush>
+		<SolidColorBrush x:Key="TextForegroundColorLevel0_5">#FF7B8797</SolidColorBrush>
+		<SolidColorBrush x:Key="TextForegroundColorLevel0_10">#FF000000</SolidColorBrush>
+		<SolidColorBrush x:Key="ButtonAndIconColorLevel0">#4FE79A</SolidColorBrush>
+		<SolidColorBrush x:Key="ButtonAndIconColorLevel0_1">#6FEBAD</SolidColorBrush>
+		<SolidColorBrush x:Key="ButtonAndIconColorLevel0_m8">#149052</SolidColorBrush>
+		<SolidColorBrush x:Key="ButtonAndIconColorLevel1">#327E58</SolidColorBrush>
+		<SolidColorBrush x:Key="ButtonAndIconColorLevel2">#ed4d4d</SolidColorBrush>
+		<SolidColorBrush x:Key="ButtonAndIconColorLevel2_m8">#B03939</SolidColorBrush>
+		<SolidColorBrush x:Key="TextForegroundColorLevel0">#FFFFFFFF</SolidColorBrush>
 
-    </Grid>
+		<Style x:Key="ButtonStyle"
+			   TargetType="Button">
+			<Setter Property="Width"
+					Value="100" />
+			<Setter Property="Height"
+					Value="35" />
+			<Setter Property="Margin"
+					Value="5,0" />
+			<Setter Property="FontSize"
+					Value="14" />
+		</Style>
+	</Window.Resources>
+	<WindowChrome.WindowChrome>
+		<WindowChrome CaptionHeight="30"
+					  CornerRadius="4"
+					  GlassFrameThickness="0"
+					  NonClientFrameEdges="None"
+					  ResizeBorderThickness="5"
+					  UseAeroCaptionButtons="False" />
+	</WindowChrome.WindowChrome>
+
+	<Border CornerRadius="10"
+			BorderThickness="1.5"
+			BorderBrush="{StaticResource PanelBackgroundColorLevel0_10}"
+			Background="{StaticResource PanelBackgroundColorLevel0_1}">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<StackPanel Orientation="Vertical"
+						Grid.Row="1">
+
+				<StackPanel Orientation="Horizontal"
+							Margin="30,15">
+					<Image Height="40"
+						   Width="40"
+						   VerticalAlignment="Center"
+						   Source="{StaticResource ArtLogo_40}"></Image>
+
+					<TextBlock Text="Update"
+							   FontFamily="{StaticResource FiraSan}"
+							   x:Name="TitleContentTextBlock"
+							   FontWeight="Bold"
+							   FontSize="26"
+							   Margin="10,0"
+							   VerticalAlignment="Center"
+							   Foreground="{StaticResource ButtonAndIconColorLevel0}" />
+
+				</StackPanel>
+
+				<wg:SmoothProgressbar x:Name="TaskProgressbar"
+									  Height="30"
+									  Value="55"
+									  Margin="30,30,30,0"
+									  BorderThickness="0">
+				</wg:SmoothProgressbar>
+				<TextBlock Margin="30,15"
+						   FontSize="17"
+						   x:Name="ExtractDetailTextBlock"
+						   Foreground="{StaticResource TextForegroundColorLevel0_5}">
+					<Run Text="Extracting:"
+						 FontFamily="{StaticResource FiraSan-Bold}" />
+					<Run x:Name="ExtractingFileRun" />
+				</TextBlock>
+				<TextBlock Margin="30,15"
+						   FontSize="17"
+						   Visibility="Collapsed"
+						   x:Name="OtherTextBlock"
+						   Foreground="{StaticResource TextForegroundColorLevel0_5}">
+				</TextBlock>
+
+
+			</StackPanel>
+			<StackPanel Grid.Row="2"
+						Orientation="Horizontal"
+						HorizontalAlignment="Right"
+						Margin="0,20,30,30">
+				<Button Content="Hoàn thành"
+						x:Name="ConfirmButton"
+						Style="{StaticResource ButtonStyle}"
+						atp:AttachedProperites.OnButtonHoverForeground="{StaticResource TextForegroundColorLevel0_10}"
+						atp:AttachedProperites.OnButtonPressedBackground="{StaticResource ButtonAndIconColorLevel0_1}"
+						atp:AttachedProperites.OnButtonHoverBackground="{StaticResource ButtonAndIconColorLevel0}"
+						Background="{StaticResource ButtonAndIconColorLevel1}"
+						Foreground="{StaticResource TextForegroundColorLevel0_10}"
+						BorderThickness="0" 
+						Click="ConfirmButtonClicked"/>
+				<Button Content="Hủy cập nhật"
+						x:Name="CancelButton"
+						atp:AttachedProperites.OnButtonHoverForeground="{StaticResource TextForegroundColorLevel0_10}"
+						atp:AttachedProperites.OnButtonPressedBackground="{StaticResource ButtonAndIconColorLevel2}"
+						atp:AttachedProperites.OnButtonHoverBackground="{StaticResource ButtonAndIconColorLevel2_m8}"
+						Style="{StaticResource ButtonStyle}"
+						Background="Transparent"
+						Foreground="{StaticResource TextForegroundColorLevel0}"
+						BorderThickness="0"
+						BorderBrush="{StaticResource PanelBackgroundColorLevel0_10}" 
+						Click="CancelButtonClicked"/>
+			</StackPanel>
+		</Grid>
+	</Border>
 </Window>

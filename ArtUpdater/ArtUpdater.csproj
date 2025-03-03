@@ -14,4 +14,24 @@
 		<!-- Không tạo .deps.json -->
 		<CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
 	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Resource\Fonts\Fira_Sans\FiraSans-Bold.ttf" />
+	  <None Remove="Resource\Fonts\Fira_Sans\FiraSans-Regular.ttf" />
+	  <None Remove="Resource\logo_40.png" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="Resource\logo_40.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="Resource\Fonts\Fira_Sans\FiraSans-Bold.ttf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="Resource\Fonts\Fira_Sans\FiraSans-Regular.ttf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	</ItemGroup>
 </Project>

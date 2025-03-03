@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -16,6 +17,8 @@ namespace ArtUpdater.Utils
         public static StreamWriter LogWriter;
         private static FileStream _logFs;
         private string classTag;
+        private static readonly BlockingCollection<string> LogQueue = new(new ConcurrentQueue<string>());
+        private static readonly CancellationTokenSource Cts = new();
 
         static Logger()
         {
@@ -32,15 +35,48 @@ namespace ArtUpdater.Utils
 
             var filePath = LOG_FOLDER + @"\" + logFileName;
 
-            _logFs = new FileStream(filePath, FileMode.Append, FileAccess.Write);
-            LogWriter = new StreamWriter(_logFs);
+            _logFs = new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite);
+            LogWriter = new StreamWriter(_logFs)
+            {
+                AutoFlush = false
+            };
 
             AppDomain.CurrentDomain.ProcessExit -= CurrentDomain_ProcessExit;
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
             AppDomain.CurrentDomain.UnhandledException -= CurrentDomain_UnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+            Task.Run(() => ProcessLogQueue(Cts.Token));
         }
+
+        private static async Task ProcessLogQueue(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    if (LogQueue.TryTake(out var log, Timeout.Infinite, token))
+                    {
+                        LogWriter.WriteLine(log);
+                        if (LogQueue.Count == 0)
+                        {
+                            await LogWriter.FlushAsync(); // Chỉ flush khi không còn log trong hàng đợi
+                        }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+            }
+        }
+        private static void Log(string log)
+        {
+            Debug.WriteLine(log);
+            LogQueue.Add(log);
+        }
+
 
         public Logger(string tag)
         {
@@ -72,23 +108,20 @@ namespace ArtUpdater.Utils
         {
 #if DEBUG
             var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tD\t{PROJECT_TAG}\t{classTag}\t{caller}\t{message}";
-            Debug.WriteLine(log);
-            LogWriter.WriteLine(log);
+            Log(log);
 #endif
         }
 
         public void I(string message, [CallerMemberName] string caller = "")
         {
             var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tI\t{PROJECT_TAG}\t{classTag}\t{caller}\t{message}";
-            Debug.WriteLine(log);
-            LogWriter.WriteLine(log);
+            Log(log);
         }
 
         public void E(string message, [CallerMemberName] string caller = "")
         {
             var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tE\t{PROJECT_TAG}\t{classTag}\t{caller}\t{message}";
-            Debug.WriteLine(log);
-            LogWriter.WriteLine(log);
+            Log(log);
         }
 
 
@@ -98,23 +131,20 @@ namespace ArtUpdater.Utils
             {
 #if DEBUG
                 var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tD\t{PROJECT_TAG}\t{caller}\t{message}";
-                Debug.WriteLine(log);
-                LogWriter.WriteLine(log);
+                Log(log);
 #endif
             }
 
             public static void I(string message, [CallerMemberName] string caller = "")
             {
                 var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tI\t{PROJECT_TAG}\t{caller}\t{message}";
-                Debug.WriteLine(log);
-                LogWriter.WriteLine(log);
+                Log(log);
             }
 
             public static void E(string message, [CallerMemberName] string caller = "")
             {
                 var log = $"{DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss:fff")}\tE\t{PROJECT_TAG}\t{caller}\t{message}";
-                Debug.WriteLine(log);
-                LogWriter.WriteLine(log);
+                Log(log);
             }
         }
     }

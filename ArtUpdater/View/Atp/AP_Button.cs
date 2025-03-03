@@ -7,7 +7,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace ArtWiz.View.Utils.AttachedProperties
+namespace ArtUpdater.View.Atp
 {
     internal static partial class AttachedProperites
     {
@@ -81,7 +81,7 @@ namespace ArtWiz.View.Utils.AttachedProperties
                 button.Initialized -= Common_Button_Initialized;
                 button.Initialized += Common_Button_Initialized;
                 SetButtonCache(button, IS_OVERIDE_HOVER_BACKGROUND_KEY, true);
-
+                
                 button.MouseEnter -= Button_HoverBackground_MouseEnter;
                 button.MouseLeave -= Button_HoverBackground_MouseLeave;
 
@@ -132,7 +132,7 @@ namespace ArtWiz.View.Utils.AttachedProperties
                 button.Initialized -= Common_Button_Initialized;
                 button.Initialized += Common_Button_Initialized;
                 SetButtonCache(button, IS_OVERIDE_PRESSED_BACKGROUND_KEY, true);
-
+                
                 button.PreviewMouseDown -= Button_ClickBackground_MouseDown;
                 button.PreviewMouseUp -= Button_ClickBackground_MouseUp;
 
