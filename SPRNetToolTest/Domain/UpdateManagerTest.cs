@@ -30,11 +30,21 @@ namespace ArtWizTest.Domain
         [Test]
         public async Task Test_NullVersionData()
         {
-            var customUpdateManager = new UpdateManagerWithMockHttp(@"{
+
+            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/latest-version.json";
+            string mockJson = @"{
   ""latestVersion"": ""1.1.1.1"",
   ""downloadUrl"": ""https://artwiz.com/download"",
   ""releaseNotes"": ""Fix bugs and improve performance.""
-}", "1.5.3.0");
+}";
+
+            _mockHttp.When(mockUrl)
+                 .Respond(req => new HttpResponseMessage
+                 {
+                     StatusCode = HttpStatusCode.OK,
+                     Content = new StringContent(mockJson, Encoding.UTF8, "application/json")
+                 });
+            var customUpdateManager = new UpdateManagerWithMockMockHttpMessageHandler(_mockHttp);
             var result = await customUpdateManager.CheckForUpdateAsync();
             Assert.AreEqual(UpdateResultErrorCode.FAILED_TO_GET_VERSION_DATA_FROM_SERVER, result.ErrorCode);
         }
@@ -51,14 +61,22 @@ namespace ArtWizTest.Domain
         [Test]
         public async Task Test_BranchNotFound()
         {
-            var jsonData = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
+            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/latest-version.json";
+            string mockJson = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
             {
                 { "2.x", new UpdateInfo { LatestVersion = "2.1.0.0",
                     DownloadUrl = "https://mockupdate.com/update.zip",
                     ReleaseNotes = "New features" } }
             });
 
-            var customUpdateManager = new UpdateManagerWithMockHttp(jsonData, "1.5.3.0");
+            _mockHttp.When(mockUrl)
+                 .Respond(req => new HttpResponseMessage
+                 {
+                     StatusCode = HttpStatusCode.OK,
+                     Content = new StringContent(mockJson, Encoding.UTF8, "application/json")
+                 });
+
+            var customUpdateManager = new UpdateManagerWithMockMockHttpMessageHandler(_mockHttp);
             var result = await customUpdateManager.CheckForUpdateAsync();
             Assert.AreEqual(UpdateResultErrorCode.BRANCH_NOT_FOUND, result.ErrorCode);
         }
@@ -66,12 +84,22 @@ namespace ArtWizTest.Domain
         [Test]
         public async Task Test_NoUpdateAvailable()
         {
-            var jsonData = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
+
+            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/latest-version.json";
+            string mockJson = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
             {
                 { "1.x", new UpdateInfo { LatestVersion = "1.5.3.0", DownloadUrl = "", ReleaseNotes = "" } }
             });
 
-            var customUpdateManager = new UpdateManagerWithMockHttp(jsonData, "1.5.3.0");
+            _mockHttp.When(mockUrl)
+                 .Respond(req => new HttpResponseMessage
+                 {
+                     StatusCode = HttpStatusCode.OK,
+                     Content = new StringContent(mockJson, Encoding.UTF8, "application/json")
+                 });
+
+            var customUpdateManager = new UpdateManagerWithMockMockHttpMessageHandler(_mockHttp);
+            customUpdateManager.MockCurrentVersion = "1.5.3.0";
             var result = await customUpdateManager.CheckForUpdateAsync();
             Assert.IsFalse(result.IsNeedToUpdate);
         }
@@ -79,12 +107,20 @@ namespace ArtWizTest.Domain
         [Test]
         public async Task Test_UpdateAvailableButNotForced()
         {
-            var jsonData = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
+            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/latest-version.json";
+            string mockJson = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
             {
                 { "1.x", new UpdateInfo { LatestVersion = "1.5.3.1", DownloadUrl = "https://mockupdate.com/update.zip", ReleaseNotes = "Bug fix" } }
             });
 
-            var customUpdateManager = new UpdateManagerWithMockHttp(jsonData, "1.5.3.0");
+            _mockHttp.When(mockUrl)
+                 .Respond(req => new HttpResponseMessage
+                 {
+                     StatusCode = HttpStatusCode.OK,
+                     Content = new StringContent(mockJson, Encoding.UTF8, "application/json")
+                 });
+            var customUpdateManager = new UpdateManagerWithMockMockHttpMessageHandler(_mockHttp);
+            customUpdateManager.MockCurrentVersion = "1.5.3.0";
             var result = await customUpdateManager.CheckForUpdateAsync();
             Assert.IsTrue(result.IsNeedToUpdate);
             Assert.IsFalse(result.NeedToForceUpdate);
@@ -140,8 +176,9 @@ namespace ArtWizTest.Domain
         }
     }
 
-    public class UpdateManagerWithMockMockHttpMessageHandler: UpdateManager
+    public class UpdateManagerWithMockMockHttpMessageHandler : UpdateManager
     {
+        public string? MockCurrentVersion { get; set; } = null;
         private MockHttpMessageHandler _mockHttpMessageHandler;
         public UpdateManagerWithMockMockHttpMessageHandler(MockHttpMessageHandler mockHttpMessageHandler)
         {
@@ -155,27 +192,14 @@ namespace ArtWizTest.Domain
             else
                 return base.GetHttpClient();
         }
-    }
-    public class UpdateManagerWithMockHttp : UpdateManager
-    {
-        private readonly string _mockJson;
-        private readonly string _mockVersion;
-        private MockHttpMessageHandler? _mockHttpMessageHandler;
-        public UpdateManagerWithMockHttp(string mockJson, string mockVersion, MockHttpMessageHandler? mockHttpMessageHandler = null)
-        {
-            _mockJson = mockJson;
-            _mockVersion = mockVersion;
-            _mockHttpMessageHandler = mockHttpMessageHandler;
-        }
-
-        protected override async Task<string> GetStringFromHttpUrl(string url, HttpClient client)
-        {
-            return await Task.FromResult(_mockJson);
-        }
 
         protected override string GetCurrentVersion()
         {
-            return _mockVersion;
+            if (MockCurrentVersion != null)
+            {
+                return MockCurrentVersion;
+            }
+            return base.GetCurrentVersion();
         }
 
         protected override HttpClient GetHttpClient()

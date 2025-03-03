@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
@@ -92,6 +93,7 @@ namespace ArtWiz.Domain
                     }
                 }
 
+                StartUpdater("test", "test2");
                 return tempFilePath;
             }
             catch (Exception ex)
@@ -101,41 +103,33 @@ namespace ArtWiz.Domain
             }
         }
 
-        //public async Task DownloadAndApplyUpdateAsync(string updateUrl)
-        //{
-        //    try
-        //    {
-        //        string tempFilePath = "update.zip";
 
-        //        using (var client = new HttpClient())
-        //        {
-        //            using (var response = await client.GetAsync(updateUrl))
-        //            using (var fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
-        //            {
-        //                await response.Content.CopyToAsync(fileStream);
-        //            }
+        public void StartUpdater(string zipFilePath, string installPath)
+        {
+            string updaterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ArtUpdater.exe");
 
-        //            string extractPath = "update_temp";
-        //            if (Directory.Exists(extractPath))
-        //                Directory.Delete(extractPath, true);
+            if (!File.Exists(updaterPath))
+            {
+                Console.WriteLine("Updater.exe not found!");
+                return;
+            }
 
-        //            System.IO.Compression.ZipFile.ExtractToDirectory(tempFilePath, extractPath);
+            // Đảm bảo đường dẫn có dấu cách được xử lý đúng
+            string arguments = $"\"{zipFilePath}\" \"{installPath}\"";
 
-        //            foreach (string file in Directory.GetFiles(extractPath))
-        //            {
-        //                string destFile = Path.Combine(".", Path.GetFileName(file));
-        //                File.Move(file, destFile, true);
-        //            }
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = updaterPath,
+                Arguments = arguments,
+                UseShellExecute = false
+            });
 
-        //            Directory.Delete(extractPath, true);
-        //        }
+            // Thoát ứng dụng chính để Updater có thể ghi đè file
+            Environment.Exit(0);
+        }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Update failed: {ex.Message}");
-        //    }
-        //}
+
+
 
         protected virtual async Task<string> GetStringFromHttpUrl(string url, HttpClient client)
         {
@@ -146,6 +140,7 @@ namespace ArtWiz.Domain
         {
             return new HttpClient();
         }
+
         protected virtual string GetCurrentVersion()
         {
             return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? throw new Exception("Failed to get current assembly version!");
