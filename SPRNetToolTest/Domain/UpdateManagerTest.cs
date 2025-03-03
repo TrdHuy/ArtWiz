@@ -202,13 +202,6 @@ namespace ArtWizTest.Domain
             return base.GetCurrentVersion();
         }
 
-        protected override HttpClient GetHttpClient()
-        {
-            if (_mockHttpMessageHandler != null)
-                return new HttpClient(_mockHttpMessageHandler);
-            else
-                return base.GetHttpClient();
-        }
     }
 
     public class UpdateManagerWithFaultyHttp : UpdateManager
