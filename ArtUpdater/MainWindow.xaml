@@ -67,8 +67,103 @@
 							Margin="30,0">
 					<Image Height="40"
 						   Width="40"
+						   RenderTransformOrigin="0.4,0.53"
 						   VerticalAlignment="Center"
-						   Source="{StaticResource ArtLogo_40}"></Image>
+						   Source="{StaticResource ArtLogo_40}">
+						<Image.Resources>
+							<Storyboard x:Key="RotationStoryboard"
+										RepeatBehavior="Forever">
+
+								<DoubleAnimationUsingKeyFrames Storyboard.TargetName="RotatingTransform"
+															   Storyboard.TargetProperty="Angle"
+															   RepeatBehavior="Forever">
+									<!-- Xoay nhanh dần 3 vòng -->
+									<EasingDoubleKeyFrame KeyTime="0:0:1.0"
+														  Value="1080">
+										<EasingDoubleKeyFrame.EasingFunction>
+											<SineEase EasingMode="EaseOut" />
+										</EasingDoubleKeyFrame.EasingFunction>
+									</EasingDoubleKeyFrame>
+
+									<!-- Chậm dần 3 vòng -->
+									<EasingDoubleKeyFrame KeyTime="0:0:2.5"
+														  Value="2160">
+										<EasingDoubleKeyFrame.EasingFunction>
+											<SineEase EasingMode="EaseIn" />
+										</EasingDoubleKeyFrame.EasingFunction>
+									</EasingDoubleKeyFrame>
+
+									<!-- Xoay nhanh dần lại 3 vòng -->
+									<EasingDoubleKeyFrame KeyTime="0:0:3.5"
+														  Value="3240">
+										<EasingDoubleKeyFrame.EasingFunction>
+											<SineEase EasingMode="EaseOut" />
+										</EasingDoubleKeyFrame.EasingFunction>
+									</EasingDoubleKeyFrame>
+
+									<!-- Chậm dần lại 3 vòng -->
+									<EasingDoubleKeyFrame KeyTime="0:0:5.0"
+														  Value="4320">
+										<EasingDoubleKeyFrame.EasingFunction>
+											<SineEase EasingMode="EaseIn" />
+										</EasingDoubleKeyFrame.EasingFunction>
+									</EasingDoubleKeyFrame>
+								</DoubleAnimationUsingKeyFrames>
+								<!-- Animation quay tròn -->
+								<!--<DoubleAnimation Storyboard.TargetName="RotatingTransform"
+												 Storyboard.TargetProperty="Angle"
+												 From="0"
+												 To="360"
+												 Duration="0:0:0.6"
+												 RepeatBehavior="Forever" />-->
+								<!--<DoubleAnimation Storyboard.TargetName="RotatingTransform"
+												 Storyboard.TargetProperty="Angle"
+												 From="0"
+												 To="360"
+												 Duration="0:0:1.2"
+												 RepeatBehavior="Forever">
+									<DoubleAnimation.EasingFunction>
+										<SineEase EasingMode="EaseInOut" />
+									</DoubleAnimation.EasingFunction>
+								</DoubleAnimation>-->
+
+								<!--Animation phóng to & thu nhỏ-->
+								<!--<DoubleAnimation Storyboard.TargetName="ScalingTransform"
+												 Storyboard.TargetProperty="ScaleX"
+												 From="0.7"
+												 To="1"
+												 AutoReverse="True"
+												 RepeatBehavior="Forever"
+												 Duration="0:0:0.3" />
+
+								<DoubleAnimation Storyboard.TargetName="ScalingTransform"
+												 Storyboard.TargetProperty="ScaleY"
+												 From="0.7"
+												 To="1"
+												 AutoReverse="True"
+												 RepeatBehavior="Forever"
+												 Duration="0:0:0.3" />-->
+							</Storyboard>
+						</Image.Resources>
+
+						<!-- Tách riêng RotateTransform và ScaleTransform -->
+						<Image.RenderTransform>
+							<TransformGroup>
+								<RotateTransform x:Name="RotatingTransform" />
+								<ScaleTransform x:Name="ScalingTransform" />
+							</TransformGroup>
+						</Image.RenderTransform>
+
+						<Image.Triggers>
+							<EventTrigger RoutedEvent="Loaded">
+								<BeginStoryboard x:Name="RotationBeginStoryboard"
+												 Storyboard="{StaticResource RotationStoryboard}" />
+							</EventTrigger>
+							<EventTrigger RoutedEvent="Unloaded">
+								<StopStoryboard BeginStoryboardName="RotationBeginStoryboard" />
+							</EventTrigger>
+						</Image.Triggers>
+					</Image>
 
 					<TextBlock Text="Update"
 							   FontFamily="{StaticResource FiraSan}"
