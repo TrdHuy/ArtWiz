@@ -1,16 +1,10 @@
 ﻿using System.IO.Compression;
 using System.IO;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Diagnostics;
 using ArtUpdater.Utils;
+using System.Windows.Input;
+using System.Windows.Interop;
 
 namespace ArtUpdater
 {
@@ -19,10 +13,33 @@ namespace ArtUpdater
     /// </summary>
     public partial class MainWindow : Window, UpdaterCallback
     {
+        private const int WM_NCRBUTTONUP = 0x00A5; // Mã sự kiện chuột phải nhả ra
+        private const int HTCAPTION = 2; // Thanh tiêu đề (caption)
+
         public MainWindow()
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+            SourceInitialized += MainWindow_SourceInitialized;
+        }
+        private void MainWindow_SourceInitialized(object sender, EventArgs e)
+        {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            HwndSource hwndSource = HwndSource.FromHwnd(hwnd);
+            if (hwndSource != null)
+            {
+                hwndSource.AddHook(WndProc);
+            }
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == WM_NCRBUTTONUP && wParam.ToInt32() == HTCAPTION)
+            {
+                // Chặn sự kiện mở context menu trên vùng caption 
+                handled = true;
+            }
+            return IntPtr.Zero;
         }
 
         public void OnError(string step, string message)
@@ -49,6 +66,7 @@ namespace ArtUpdater
                 if (currentProgress == 1)
                 {
                     ConfirmButton.Visibility = Visibility.Visible;
+                    CancelButton.Visibility = Visibility.Collapsed;
                 }
                 TitleContentTextBlock.Text = step;
                 TaskProgressbar.Value = currentProgress * 100d;
@@ -56,6 +74,7 @@ namespace ArtUpdater
                 {
                     ExtractDetailTextBlock.Visibility = Visibility.Visible;
                     ExtractingFileRun.Text = fileExtractedPath;
+                    OtherTextBlock.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
@@ -71,8 +90,27 @@ namespace ArtUpdater
             {
                 OtherTextBlock.Visibility = Visibility.Visible;
                 ExtractDetailTextBlock.Visibility = Visibility.Collapsed;
-                OtherTextBlock.Text += message; 
+                OtherTextBlock.Text += message;
+            }, System.Windows.Threading.DispatcherPriority.Render);
+        }
 
+        public void OnCancelling(string message, string fileRestoredPath, double progress)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ExtractDetailTextBlock.Visibility = Visibility.Collapsed;
+                TitleContentTextBlock.Text = message;
+                OtherTextBlock.Visibility = Visibility.Visible;
+                OtherTextBlock.Text = $"Khôi phục file: {fileRestoredPath}";
+                TaskProgressbar.Value = progress * 100d;
+            }, System.Windows.Threading.DispatcherPriority.Render);
+        }
+        public void OnCancelled(string message)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ExtractDetailTextBlock.Visibility = Visibility.Collapsed;
+                OtherTextBlock.Visibility = Visibility.Collapsed;
             }, System.Windows.Threading.DispatcherPriority.Render);
         }
 
@@ -84,10 +122,7 @@ namespace ArtUpdater
                 // TODO Hiển thị không thể update
                 return;
             }
-            Task.Run(async () =>
-            {
-                await Updater.ApplyUpdate(App.ZipFilePath, App.InstallPath, this);
-            });
+            RunAppUpdater();
         }
 
         private void ConfirmButtonClicked(object sender, RoutedEventArgs e)
@@ -96,10 +131,10 @@ namespace ArtUpdater
             {
                 case Updater.ApplyUpdateStatus.None:
                 case Updater.ApplyUpdateStatus.Failed:
-                    Task.Run(async () =>
-                    {
-                        await Updater.ApplyUpdate(App.ZipFilePath, App.InstallPath, this);
-                    });
+                    RunAppUpdater();
+                    break;
+                case Updater.ApplyUpdateStatus.Success:
+                    this.Close();
                     break;
             }
         }
@@ -108,13 +143,34 @@ namespace ArtUpdater
         {
             switch (Updater.CurrentApplyUpdateStatus)
             {
+                case Updater.ApplyUpdateStatus.Cancelled:
                 case Updater.ApplyUpdateStatus.None:
                 case Updater.ApplyUpdateStatus.Failed:
                 case Updater.ApplyUpdateStatus.FailedButCanNotRetry:
                     this.Close();
                     break;
+                case Updater.ApplyUpdateStatus.Started:
+                    Updater.CancelAppUpdater();
+                    break;
             }
         }
+
+        private void TestButtonClick(object sender, RoutedEventArgs e)
+        {
+            RunAppUpdater();
+        }
+
+
+        private void RunAppUpdater()
+        {
+            Task.Run(async () =>
+            {
+                await Updater.ApplyUpdateAsync(App.ZipFilePath,
+                    App.InstallPath,
+                    this);
+            });
+        }
+
     }
 
 
@@ -127,6 +183,8 @@ namespace ArtUpdater
         void OnError(string step, string message);
 
         void OnWait(string message);
+        void OnCancelling(string message, string fileRestoredPath, double progress);
+        void OnCancelled(string message);
     }
 
 
@@ -136,22 +194,44 @@ namespace ArtUpdater
         {
             None,
             Started,
+            Cancelled,
             Failed,
             FailedButCanNotRetry,
             Success,
         }
         private static Logger mLogger = new Logger("Updater");
-        private static readonly SemaphoreSlim _updateLock = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim mUpdateLock = new SemaphoreSlim(1, 1);
+        private static CancellationTokenSource? mAppUpdaterCTS;
 
         public static ApplyUpdateStatus CurrentApplyUpdateStatus { get; private set; } = ApplyUpdateStatus.None;
 
-        public static async Task<bool> ApplyUpdate(string zipFilePath,
+
+        public static void CancelAppUpdater()
+        {
+            if (mAppUpdaterCTS != null && !mAppUpdaterCTS.IsCancellationRequested)
+            {
+                mAppUpdaterCTS.Cancel();
+                mAppUpdaterCTS.Dispose();
+                mAppUpdaterCTS = null;
+            }
+        }
+
+        public static async Task<bool> ApplyUpdateAsync(string zipFilePath,
             string installPath,
             UpdaterCallback callback,
             int delayOnEachExtractedFileMillisec = 300)
         {
+            if (mAppUpdaterCTS != null &&
+                mAppUpdaterCTS?.IsCancellationRequested == false)
+            {
+                return false;
+            }
+            mAppUpdaterCTS = new CancellationTokenSource();
+            var token = mAppUpdaterCTS.Token;
 
-            await _updateLock.WaitAsync(); // Chờ đến khi có thể chạy
+            await mUpdateLock.WaitAsync(token); // Chờ đến khi có thể chạy
+            List<string> movedFiles = new List<string>();
+            string backupPath = Path.Combine(installPath, "backup");
 
             try
             {
@@ -159,15 +239,13 @@ namespace ArtUpdater
                 if (!File.Exists(zipFilePath))
                 {
                     mLogger.E($"Update file {zipFilePath} not found!");
-                    CurrentApplyUpdateStatus = ApplyUpdateStatus.Failed;
+                    CurrentApplyUpdateStatus = ApplyUpdateStatus.FailedButCanNotRetry;
                     callback.OnError("Lỗi xác minh phiên bản cập nhật.",
                         "Không tìm thấy file cập nhật.");
                     return false;
                 }
 
-                string backupPath = Path.Combine(installPath, "backup");
                 string extractPath = Path.Combine(Path.GetTempPath(), "Updater_Extract");
-                List<string> movedFiles = new List<string>();
 
                 double currentProgress = 0d;
                 callback.OnProgressChanged("Đang xác minh phiên bản cập nhật.",
@@ -215,6 +293,10 @@ namespace ArtUpdater
                 double extractingFileIndex = 0;
                 while (filesToMove.Count > 0)
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException();
+                    }
                     extractingFileIndex++;
 
                     string file = filesToMove.Pop();
@@ -258,7 +340,9 @@ namespace ArtUpdater
                             CurrentApplyUpdateStatus = ApplyUpdateStatus.Failed;
                             callback.OnError("Đang cài đặt.",
                                 $"Không thể cập nhật file {destFile}. Vui lòng tắt các tiến trình liên quan và tiến hành cập nhật lại!");
-                            RevertMovedFiles(movedFiles, backupPath, installPath);
+                            await RevertMovedFiles(movedFiles,
+                                backupPath,
+                                installPath, 0);
                             return false;
                         }
                         else
@@ -269,13 +353,13 @@ namespace ArtUpdater
                             if (processes.Length > 0)
                             {
                                 callback.OnWait($"Vui lòng tắt tiến trình {processName} để tiếp tục cập nhật!");
-                                await processes[0].WaitForExitAsync(); // Chờ process bị kill
+                                await processes[0].WaitForExitAsync(token); // Chờ process bị kill
                                 filesToMove.Push(file);  // Thêm lại file vào hàng đợi để retry
                             }
                         }
                     }
 
-                    await Task.Delay(delayOnEachExtractedFileMillisec);
+                    await Task.Delay(delayOnEachExtractedFileMillisec, token);
                 }
 
                 // Cleanup
@@ -286,9 +370,22 @@ namespace ArtUpdater
 
                 mLogger.I("Update applied successfully!");
                 CurrentApplyUpdateStatus = ApplyUpdateStatus.Success;
-                callback.OnProgressChanged("Cập nhật thành công.",
-                                   1d, "");
+                callback.OnProgressChanged("Cập nhật thành công.", 1d, "");
                 return true;
+            }
+            catch (TaskCanceledException)
+            {
+                mLogger.E($"Abort install new version.");
+                CurrentApplyUpdateStatus = ApplyUpdateStatus.Cancelled;
+                callback.OnCancelling("Hủy cài đặt phiên bản cập nhật.", "", 0);
+                await RevertMovedFiles(movedFiles, backupPath, installPath,
+                    delayOnEachExtractedFileMillisec,
+                    fileRestoredCallback: (filePath, progress) =>
+                    {
+                        callback.OnCancelling("Hủy cài đặt phiên bản cập nhật.", filePath, progress);
+                    });
+                callback.OnCancelled("Hủy cài đặt phiên bản cập nhật.");
+                return false;
             }
             catch (Exception ex)
             {
@@ -298,21 +395,37 @@ namespace ArtUpdater
             }
             finally
             {
-                _updateLock.Release(); // Giải phóng Semaphore để luồng khác có thể chạy
+                mUpdateLock.Release(); // Giải phóng Semaphore để luồng khác có thể chạy
+                if (mAppUpdaterCTS != null)
+                {
+                    mAppUpdaterCTS.Dispose();
+                    mAppUpdaterCTS = null;
+                }
             }
         }
 
 
-        private static void RevertMovedFiles(List<string> movedFiles, string backupPath, string installPath)
+        private static async Task RevertMovedFiles(List<string> movedFiles,
+            string backupPath,
+            string installPath,
+            int delayOnEachExtractedFileMillisec,
+            Action<string, double>? fileRestoredCallback = null)
         {
+            double progress = 0d;
+            double index = 0;
             mLogger.I("Reverting moved files...");
             foreach (string file in movedFiles)
             {
+                index++;
                 string backupFile = Path.Combine(backupPath, Path.GetRelativePath(installPath, file));
                 if (File.Exists(backupFile))
                 {
                     File.Copy(backupFile, file, true);
+                    progress = index / movedFiles.Count;
+                    fileRestoredCallback?.Invoke(Path.GetRelativePath(installPath, file), progress);
                     mLogger.I($"Restored: {file}");
+
+                    await Task.Delay(delayOnEachExtractedFileMillisec);
                 }
             }
         }

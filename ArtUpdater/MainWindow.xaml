@@ -54,7 +54,7 @@
 			BorderThickness="1.5"
 			BorderBrush="{StaticResource PanelBackgroundColorLevel0_10}"
 			Background="{StaticResource PanelBackgroundColorLevel0_1}">
-		<Grid>
+		<Grid Margin="0,40,0,0">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="*" />
@@ -64,7 +64,7 @@
 						Grid.Row="1">
 
 				<StackPanel Orientation="Horizontal"
-							Margin="30,15">
+							Margin="30,0">
 					<Image Height="40"
 						   Width="40"
 						   VerticalAlignment="Center"
@@ -78,7 +78,6 @@
 							   Margin="10,0"
 							   VerticalAlignment="Center"
 							   Foreground="{StaticResource ButtonAndIconColorLevel0}" />
-
 				</StackPanel>
 
 				<wg:SmoothProgressbar x:Name="TaskProgressbar"
@@ -89,9 +88,11 @@
 				</wg:SmoothProgressbar>
 				<TextBlock Margin="30,15"
 						   FontSize="17"
+						   TextTrimming="CharacterEllipsis"
+						   HorizontalAlignment="Left"
 						   x:Name="ExtractDetailTextBlock"
 						   Foreground="{StaticResource TextForegroundColorLevel0_5}">
-					<Run Text="Extracting:"
+					<Run Text="Extracting: "
 						 FontFamily="{StaticResource FiraSan-Bold}" />
 					<Run x:Name="ExtractingFileRun" />
 				</TextBlock>
@@ -108,6 +109,9 @@
 						Orientation="Horizontal"
 						HorizontalAlignment="Right"
 						Margin="0,20,30,30">
+				<Button Content="Test"
+						Visibility="Collapsed"
+						Click="TestButtonClick" />
 				<Button Content="Hoàn thành"
 						x:Name="ConfirmButton"
 						Style="{StaticResource ButtonStyle}"
@@ -116,8 +120,8 @@
 						atp:AttachedProperites.OnButtonHoverBackground="{StaticResource ButtonAndIconColorLevel0}"
 						Background="{StaticResource ButtonAndIconColorLevel1}"
 						Foreground="{StaticResource TextForegroundColorLevel0_10}"
-						BorderThickness="0" 
-						Click="ConfirmButtonClicked"/>
+						BorderThickness="0"
+						Click="ConfirmButtonClicked" />
 				<Button Content="Hủy cập nhật"
 						x:Name="CancelButton"
 						atp:AttachedProperites.OnButtonHoverForeground="{StaticResource TextForegroundColorLevel0_10}"
@@ -127,8 +131,8 @@
 						Background="Transparent"
 						Foreground="{StaticResource TextForegroundColorLevel0}"
 						BorderThickness="0"
-						BorderBrush="{StaticResource PanelBackgroundColorLevel0_10}" 
-						Click="CancelButtonClicked"/>
+						BorderBrush="{StaticResource PanelBackgroundColorLevel0_10}"
+						Click="CancelButtonClicked" />
 			</StackPanel>
 		</Grid>
 	</Border>
