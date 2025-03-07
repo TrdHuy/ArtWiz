@@ -43,15 +43,13 @@
 	</Window.Resources>
 	<WindowChrome.WindowChrome>
 		<WindowChrome CaptionHeight="30"
-					  CornerRadius="4"
 					  GlassFrameThickness="0"
 					  NonClientFrameEdges="None"
 					  ResizeBorderThickness="5"
 					  UseAeroCaptionButtons="False" />
 	</WindowChrome.WindowChrome>
 
-	<Border CornerRadius="10"
-			BorderThickness="1.5"
+	<Border BorderThickness="1.5"
 			BorderBrush="{StaticResource PanelBackgroundColorLevel0_10}"
 			Background="{StaticResource PanelBackgroundColorLevel0_1}">
 		<Grid Margin="0,40,0,0">
@@ -67,6 +65,7 @@
 							Margin="30,0">
 					<Image Height="40"
 						   Width="40"
+						   x:Name="LogoImage"
 						   RenderTransformOrigin="0.4,0.53"
 						   VerticalAlignment="Center"
 						   Source="{StaticResource ArtLogo_40}">
@@ -169,10 +168,10 @@
 							   FontFamily="{StaticResource FiraSan}"
 							   x:Name="TitleContentTextBlock"
 							   FontWeight="Bold"
-							   FontSize="26"
+							   FontSize="19"
 							   Margin="10,0"
 							   VerticalAlignment="Center"
-							   Foreground="{StaticResource ButtonAndIconColorLevel0}" />
+							   Foreground="{StaticResource TextForegroundColorLevel0}" />
 				</StackPanel>
 
 				<wg:SmoothProgressbar x:Name="TaskProgressbar"
@@ -182,7 +181,7 @@
 									  BorderThickness="0">
 				</wg:SmoothProgressbar>
 				<TextBlock Margin="30,15"
-						   FontSize="17"
+						   FontSize="14"
 						   TextTrimming="CharacterEllipsis"
 						   HorizontalAlignment="Left"
 						   x:Name="ExtractDetailTextBlock"
@@ -192,7 +191,7 @@
 					<Run x:Name="ExtractingFileRun" />
 				</TextBlock>
 				<TextBlock Margin="30,15"
-						   FontSize="17"
+						   FontSize="14"
 						   Visibility="Collapsed"
 						   x:Name="OtherTextBlock"
 						   Foreground="{StaticResource TextForegroundColorLevel0_5}">

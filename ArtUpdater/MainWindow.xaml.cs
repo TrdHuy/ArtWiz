@@ -5,6 +5,7 @@ using System.Diagnostics;
 using ArtUpdater.Utils;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 
 namespace ArtUpdater
 {
@@ -15,13 +16,17 @@ namespace ArtUpdater
     {
         private const int WM_NCRBUTTONUP = 0x00A5; // Mã sự kiện chuột phải nhả ra
         private const int HTCAPTION = 2; // Thanh tiêu đề (caption)
+        private Storyboard mRotatingAnimation;
 
         public MainWindow()
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
             SourceInitialized += MainWindow_SourceInitialized;
+            mRotatingAnimation = (Storyboard)LogoImage.FindResource("RotationStoryboard");
         }
+
+        #region Native API
         private void MainWindow_SourceInitialized(object sender, EventArgs e)
         {
             IntPtr hwnd = new WindowInteropHelper(this).Handle;
@@ -41,11 +46,13 @@ namespace ArtUpdater
             }
             return IntPtr.Zero;
         }
+        #endregion
 
         public void OnError(string step, string message)
         {
             Dispatcher.Invoke(() =>
             {
+                StopLoadingAnimation();
                 TitleContentTextBlock.Text = step;
                 ExtractDetailTextBlock.Visibility = Visibility.Collapsed;
                 OtherTextBlock.Visibility = Visibility.Visible;
@@ -61,12 +68,14 @@ namespace ArtUpdater
             {
                 if (currentProgress < 1)
                 {
+                    StartLoadingAnimation();
                     ConfirmButton.Visibility = Visibility.Collapsed;
                 }
                 if (currentProgress == 1)
                 {
                     ConfirmButton.Visibility = Visibility.Visible;
                     CancelButton.Visibility = Visibility.Collapsed;
+                    StopLoadingAnimation();
                 }
                 TitleContentTextBlock.Text = step;
                 TaskProgressbar.Value = currentProgress * 100d;
@@ -111,6 +120,7 @@ namespace ArtUpdater
             {
                 ExtractDetailTextBlock.Visibility = Visibility.Collapsed;
                 OtherTextBlock.Visibility = Visibility.Collapsed;
+                StopLoadingAnimation();
             }, System.Windows.Threading.DispatcherPriority.Render);
         }
 
@@ -157,9 +167,49 @@ namespace ArtUpdater
 
         private void TestButtonClick(object sender, RoutedEventArgs e)
         {
-            RunAppUpdater();
+            var isActive = false;
+            try
+            {
+                isActive = mRotatingAnimation.GetCurrentState(LogoImage) == ClockState.Active;
+            }
+            catch (Exception ex) { }
+            if (isActive)
+            {
+                mRotatingAnimation.Stop(LogoImage);
+            }
+            else
+            {
+                mRotatingAnimation.Begin(LogoImage, true);
+            }
         }
 
+        private void StartLoadingAnimation()
+        {
+            var isActive = false;
+            try
+            {
+                isActive = mRotatingAnimation.GetCurrentState(LogoImage) == ClockState.Active;
+            }
+            catch (Exception ex) { }
+            if (!isActive)
+            {
+                mRotatingAnimation.Begin(LogoImage, true);
+            }
+        }
+
+        private void StopLoadingAnimation()
+        {
+            var isActive = false;
+            try
+            {
+                isActive = mRotatingAnimation.GetCurrentState(LogoImage) == ClockState.Active;
+            }
+            catch (Exception ex) { }
+            if (isActive)
+            {
+                mRotatingAnimation.Stop(LogoImage);
+            }
+        }
 
         private void RunAppUpdater()
         {
