@@ -39,9 +39,9 @@ namespace ArtUpdater
                
             }
             // FOR TEST ONLY 
-            ZipFilePath = "C:\\Users\\Hp\\Desktop\\temp\\git\\cuong.quoc\\ArtWiz\\SPRNetToolTest\\Resources\\ArtWiz.zip";
-            InstallPath = "C:\\Users\\Hp\\Desktop\\temp\\git\\cuong.quoc\\ArtWiz\\SPRNetToolTest\\bin\\Test";
-            PrioritySearchingProcess = new List<string> { "ArtWiz" };
+            //ZipFilePath = "D:\\Workspace\\Temp\\ArtWiz\\SPRNetToolTest\\Resources\\ArtWiz.zip";
+            //InstallPath = "D:\\Workspace\\Temp\\ArtWiz\\SPRNetTool\\bin\\x64\\Debug\\ForTestUpdater";
+            //PrioritySearchingProcess = new List<string> { "ArtWiz" };
         }
     }
 

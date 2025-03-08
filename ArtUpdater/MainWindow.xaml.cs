@@ -70,6 +70,7 @@ namespace ArtUpdater
                 {
                     StartLoadingAnimation();
                     ConfirmButton.Visibility = Visibility.Collapsed;
+                    CancelButton.Visibility = Visibility.Visible;
                 }
                 if (currentProgress == 1)
                 {
@@ -107,6 +108,7 @@ namespace ArtUpdater
         {
             Dispatcher.Invoke(() =>
             {
+                CancelButton.IsEnabled = false;
                 ExtractDetailTextBlock.Visibility = Visibility.Collapsed;
                 TitleContentTextBlock.Text = message;
                 OtherTextBlock.Visibility = Visibility.Visible;
@@ -118,6 +120,7 @@ namespace ArtUpdater
         {
             Dispatcher.Invoke(() =>
             {
+                CancelButton.IsEnabled = true;
                 ExtractDetailTextBlock.Visibility = Visibility.Collapsed;
                 OtherTextBlock.Visibility = Visibility.Collapsed;
                 StopLoadingAnimation();
@@ -167,20 +170,22 @@ namespace ArtUpdater
 
         private void TestButtonClick(object sender, RoutedEventArgs e)
         {
-            var isActive = false;
-            try
-            {
-                isActive = mRotatingAnimation.GetCurrentState(LogoImage) == ClockState.Active;
-            }
-            catch (Exception ex) { }
-            if (isActive)
-            {
-                mRotatingAnimation.Stop(LogoImage);
-            }
-            else
-            {
-                mRotatingAnimation.Begin(LogoImage, true);
-            }
+            //var isActive = false;
+            //try
+            //{
+            //    isActive = mRotatingAnimation.GetCurrentState(LogoImage) == ClockState.Active;
+            //}
+            //catch (Exception ex) { }
+            //if (isActive)
+            //{
+            //    mRotatingAnimation.Stop(LogoImage);
+            //}
+            //else
+            //{
+            //    mRotatingAnimation.Begin(LogoImage, true);
+            //}
+
+            RunAppUpdater();
         }
 
         private void StartLoadingAnimation()
@@ -271,6 +276,8 @@ namespace ArtUpdater
             UpdaterCallback callback,
             int delayOnEachExtractedFileMillisec = 300)
         {
+            await mUpdateLock.WaitAsync(); // Chờ đến khi có thể chạy
+
             if (mAppUpdaterCTS != null &&
                 mAppUpdaterCTS?.IsCancellationRequested == false)
             {
@@ -279,7 +286,6 @@ namespace ArtUpdater
             mAppUpdaterCTS = new CancellationTokenSource();
             var token = mAppUpdaterCTS.Token;
 
-            await mUpdateLock.WaitAsync(token); // Chờ đến khi có thể chạy
             List<string> movedFiles = new List<string>();
             string backupPath = Path.Combine(installPath, "backup");
 
@@ -432,9 +438,9 @@ namespace ArtUpdater
                     delayOnEachExtractedFileMillisec,
                     fileRestoredCallback: (filePath, progress) =>
                     {
-                        callback.OnCancelling("Hủy cài đặt phiên bản cập nhật.", filePath, progress);
+                        callback.OnCancelling("Đang khôi phục.", filePath, progress);
                     });
-                callback.OnCancelled("Hủy cài đặt phiên bản cập nhật.");
+                callback.OnCancelled("Khôi phục thành công.");
                 return false;
             }
             catch (Exception ex)
@@ -445,12 +451,12 @@ namespace ArtUpdater
             }
             finally
             {
-                mUpdateLock.Release(); // Giải phóng Semaphore để luồng khác có thể chạy
-                if (mAppUpdaterCTS != null)
+                if (mAppUpdaterCTS != null && !mAppUpdaterCTS.IsCancellationRequested)
                 {
                     mAppUpdaterCTS.Dispose();
                     mAppUpdaterCTS = null;
                 }
+                mUpdateLock.Release(); // Giải phóng Semaphore để luồng khác có thể chạy
             }
         }
 

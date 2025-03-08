@@ -11,6 +11,28 @@ namespace ArtUpdater.View.Atp
 {
     internal static partial class AttachedProperites
     {
+        #region DisableBackground
+        public static readonly DependencyProperty DisableBackgroundProperty =
+        DependencyProperty.RegisterAttached(
+            "DisableBackground",
+            typeof(Brush),
+            typeof(AttachedProperites),
+            new PropertyMetadata(null, OnButtonHoverForegroundChanged));
+
+        public static Brush GetDisableBackground(Button button) => (Brush)button.GetValue(OnButtonHoverForegroundProperty);
+        public static void SetDisableBackground(Button button, Brush value) => button.SetValue(OnButtonHoverForegroundProperty, value);
+
+        private static void OnDisableBackgroundChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is Button button)
+            {
+                button.Initialized -= Common_Button_Initialized;
+                button.Initialized += Common_Button_Initialized;
+            }
+        }
+
+        #endregion
+
 
         #region HoverForeground
         public static readonly DependencyProperty OnButtonHoverForegroundProperty =
@@ -81,7 +103,7 @@ namespace ArtUpdater.View.Atp
                 button.Initialized -= Common_Button_Initialized;
                 button.Initialized += Common_Button_Initialized;
                 SetButtonCache(button, IS_OVERIDE_HOVER_BACKGROUND_KEY, true);
-                
+
                 button.MouseEnter -= Button_HoverBackground_MouseEnter;
                 button.MouseLeave -= Button_HoverBackground_MouseLeave;
 
@@ -132,7 +154,7 @@ namespace ArtUpdater.View.Atp
                 button.Initialized -= Common_Button_Initialized;
                 button.Initialized += Common_Button_Initialized;
                 SetButtonCache(button, IS_OVERIDE_PRESSED_BACKGROUND_KEY, true);
-                
+
                 button.PreviewMouseDown -= Button_ClickBackground_MouseDown;
                 button.PreviewMouseUp -= Button_ClickBackground_MouseUp;
 
@@ -177,7 +199,7 @@ namespace ArtUpdater.View.Atp
         {
             if (sender is Button button)
             {
-                button.Template = CreateDefaultWpfButtonTemplate(
+                button.Template = CreateDefaultWpfButtonTemplate(button,
                     isOverideHoverBg: (bool)(GetButtonCache(button, IS_OVERIDE_PRESSED_BACKGROUND_KEY) ?? false),
                     isOverideOnPressedBg: (bool)(GetButtonCache(button, IS_OVERIDE_PRESSED_BACKGROUND_KEY) ?? false)
                     );
@@ -213,7 +235,7 @@ namespace ArtUpdater.View.Atp
                 : null;
         }
 
-        private static ControlTemplate CreateDefaultWpfButtonTemplate(bool isOverideOnPressedBg, bool isOverideHoverBg)
+        private static ControlTemplate CreateDefaultWpfButtonTemplate(Button target, bool isOverideOnPressedBg, bool isOverideHoverBg)
         {
             Trigger CreateTrigger(DependencyProperty property, object value, DependencyProperty targetProperty, object setValue, string targetName = null)
             {
@@ -234,7 +256,7 @@ namespace ArtUpdater.View.Atp
             var mouseOverBorder = new SolidColorBrush(Color.FromRgb(60, 127, 177));
             var pressedBackground = new SolidColorBrush(Color.FromRgb(196, 229, 246));
             var pressedBorder = new SolidColorBrush(Color.FromRgb(44, 98, 139));
-            var disabledBackground = new SolidColorBrush(Color.FromRgb(244, 244, 244));
+            var disabledBackground = (target.GetValue(DisableBackgroundProperty) as SolidColorBrush) ?? new SolidColorBrush(Color.FromRgb(244, 244, 244));
             var disabledBorder = new SolidColorBrush(Color.FromRgb(173, 178, 181));
             var disabledForeground = new SolidColorBrush(Color.FromRgb(131, 131, 131));
 

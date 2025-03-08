@@ -9,7 +9,6 @@
 		mc:Ignorable="d"
 		WindowStyle="None"
 		ResizeMode="NoResize"
-		AllowsTransparency="True"
 		Title="MainWindow"
 		Background="Transparent"
 		FontFamily="{StaticResource FiraSan}"
@@ -43,14 +42,14 @@
 	</Window.Resources>
 	<WindowChrome.WindowChrome>
 		<WindowChrome CaptionHeight="30"
-					  GlassFrameThickness="0"
 					  NonClientFrameEdges="None"
 					  ResizeBorderThickness="5"
 					  UseAeroCaptionButtons="False" />
 	</WindowChrome.WindowChrome>
 
 	<Border BorderThickness="1.5"
-			BorderBrush="{StaticResource PanelBackgroundColorLevel0_10}"
+			CornerRadius="0"
+			BorderBrush="#FF313131"
 			Background="{StaticResource PanelBackgroundColorLevel0_1}">
 		<Grid Margin="0,40,0,0">
 			<Grid.RowDefinitions>
@@ -204,7 +203,6 @@
 						HorizontalAlignment="Right"
 						Margin="0,20,30,30">
 				<Button Content="Test"
-						Visibility="Collapsed"
 						Click="TestButtonClick" />
 				<Button Content="Hoàn thành"
 						x:Name="ConfirmButton"
@@ -218,6 +216,7 @@
 						Click="ConfirmButtonClicked" />
 				<Button Content="Hủy cập nhật"
 						x:Name="CancelButton"
+						atp:AttachedProperites.DisableBackground="Transparent"
 						atp:AttachedProperites.OnButtonHoverForeground="{StaticResource TextForegroundColorLevel0_10}"
 						atp:AttachedProperites.OnButtonPressedBackground="{StaticResource ButtonAndIconColorLevel2}"
 						atp:AttachedProperites.OnButtonHoverBackground="{StaticResource ButtonAndIconColorLevel2_m8}"
