@@ -186,6 +186,7 @@
 						   x:Name="ExtractDetailTextBlock"
 						   Foreground="{StaticResource TextForegroundColorLevel0_5}">
 					<Run Text="Extracting: "
+						 x:Name="HeaderRun"
 						 FontFamily="{StaticResource FiraSan-Bold}" />
 					<Run x:Name="ExtractingFileRun" />
 				</TextBlock>
@@ -203,6 +204,8 @@
 						HorizontalAlignment="Right"
 						Margin="0,20,30,30">
 				<Button Content="Test"
+						x:Name="TestButton"
+						Visibility="Collapsed"
 						Click="TestButtonClick" />
 				<Button Content="Hoàn thành"
 						x:Name="ConfirmButton"

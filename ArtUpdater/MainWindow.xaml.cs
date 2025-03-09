@@ -6,6 +6,8 @@ using ArtUpdater.Utils;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Animation;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace ArtUpdater
 {
@@ -24,6 +26,10 @@ namespace ArtUpdater
             Loaded += MainWindow_Loaded;
             SourceInitialized += MainWindow_SourceInitialized;
             mRotatingAnimation = (Storyboard)LogoImage.FindResource("RotationStoryboard");
+
+#if DEBUG
+            TestButton.Visibility = Visibility.Visible;
+#endif
         }
 
         #region Native API
@@ -62,7 +68,9 @@ namespace ArtUpdater
             }, System.Windows.Threading.DispatcherPriority.Render);
         }
 
-        public void OnProgressChanged(string step, double currentProgress, string fileExtractedPath)
+        public void OnProgressChanged(string step, double currentProgress,
+            string extractedFilePath,
+            string copiedFilePath)
         {
             Dispatcher.Invoke(() =>
             {
@@ -80,10 +88,18 @@ namespace ArtUpdater
                 }
                 TitleContentTextBlock.Text = step;
                 TaskProgressbar.Value = currentProgress * 100d;
-                if (!string.IsNullOrEmpty(fileExtractedPath))
+                if (!string.IsNullOrEmpty(extractedFilePath))
                 {
+                    HeaderRun.Text = "Đã giải nén: ";
                     ExtractDetailTextBlock.Visibility = Visibility.Visible;
-                    ExtractingFileRun.Text = fileExtractedPath;
+                    ExtractingFileRun.Text = extractedFilePath;
+                    OtherTextBlock.Visibility = Visibility.Collapsed;
+                }
+                else if (!string.IsNullOrEmpty(copiedFilePath))
+                {
+                    HeaderRun.Text = "Đã sao chép: ";
+                    ExtractDetailTextBlock.Visibility = Visibility.Visible;
+                    ExtractingFileRun.Text = copiedFilePath;
                     OtherTextBlock.Visibility = Visibility.Collapsed;
                 }
                 else
@@ -233,7 +249,8 @@ namespace ArtUpdater
     {
         void OnProgressChanged(string step,
             double currentProgress,
-            string fileExtractedPath);
+            string extractedFilePath,
+            string copiedFilePath);
 
         void OnError(string step, string message);
 
@@ -305,16 +322,51 @@ namespace ArtUpdater
 
                 double currentProgress = 0d;
                 callback.OnProgressChanged("Đang xác minh phiên bản cập nhật.",
-                    currentProgress, "");
+                    currentProgress, "", "");
 
                 // Đếm số lượng file thực tế (bỏ qua thư mục)
                 int totalFiles;
+                VersionInfo? versionInfo = null;
+
+                // TODO: Đọc file version.json trong zip để nhận thông tin phiên bản
+                // extract ra targetExe path để chạy file sau khi cập nhật hoàn tất
                 using (ZipArchive archive = ZipFile.OpenRead(zipFilePath))
                 {
-                    totalFiles = archive.Entries.Count(e => !e.FullName.EndsWith("/"));
+                    var versionInfoPath = "version.json";
+                    ZipArchiveEntry textFileEntry = archive.Entries
+                        .FirstOrDefault(e => e.FullName.EndsWith(versionInfoPath,
+                        StringComparison.OrdinalIgnoreCase));
+                    if (textFileEntry != null)
+                    {
+                        using (StreamReader reader = new StreamReader(textFileEntry.Open()))
+                        {
+                            string content = reader.ReadToEnd();
+                            versionInfo = JsonSerializer.Deserialize<VersionInfo>(content);
+                        }
+                    }
+                    else
+                    {
+                        callback.OnError("Lỗi xác minh phiên bản cập nhật.",
+                            "Không tìm thấy version info.");
+                        return false;
+                    }
+
+                    if (versionInfo != null)
+                    {
+                        totalFiles = archive.Entries.Count(e => !e.FullName.EndsWith("/")
+                            && !versionInfo.ExcludedFiles.Contains(e.FullName));
+                    }
+                    else
+                    {
+                        callback.OnError("Lỗi xác minh phiên bản cập nhật.",
+                            "Không tìm thấy version info.");
+                        return false;
+                    }
                 }
 
                 mLogger.I($"Total files in update: {totalFiles}");
+
+                double totalProgress = totalFiles * 2;
 
                 // Backup thư mục cài đặt hiện tại
                 if (Directory.Exists(backupPath))
@@ -327,7 +379,34 @@ namespace ArtUpdater
                 Directory.CreateDirectory(extractPath);
 
                 // Giải nén file ZIP vào thư mục tạm
-                ZipFile.ExtractToDirectory(zipFilePath, extractPath);
+                using (ZipArchive archive = ZipFile.OpenRead(zipFilePath))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        if (!entry.FullName.EndsWith("/") && !versionInfo.ExcludedFiles.Contains(entry.FullName))
+                        {
+                            string destinationPath = Path.Combine(extractPath, entry.FullName);
+
+                            // Đảm bảo thư mục đích tồn tại
+                            string directoryPath = Path.GetDirectoryName(destinationPath);
+                            if (!Directory.Exists(directoryPath))
+                            {
+                                Directory.CreateDirectory(directoryPath);
+                            }
+
+                            // Giải nén file
+                            entry.ExtractToFile(destinationPath, true);
+
+                            currentProgress++;
+                            callback.OnProgressChanged("Đang cài đặt.",
+                                currentProgress / totalProgress,
+                                extractedFilePath: entry.FullName,
+                                copiedFilePath: "");
+                            await Task.Delay(delayOnEachExtractedFileMillisec / 2, token);
+                        }
+                    }
+
+                }
 
                 // Đếm số file đã giải nén (bỏ qua thư mục)
                 int extractedFiles = Directory.GetFiles(extractPath, "*", SearchOption.AllDirectories).Length;
@@ -346,14 +425,15 @@ namespace ArtUpdater
                 Stack<string> filesToMove = new Stack<string>(
                     Directory.GetFiles(extractPath, "*", SearchOption.AllDirectories)
                         .Reverse());
-                double extractingFileIndex = 0;
+
+                // Cop file từ thư mục giải nén sang thư mục cài đặt
                 while (filesToMove.Count > 0)
                 {
                     if (token.IsCancellationRequested)
                     {
                         throw new TaskCanceledException();
                     }
-                    extractingFileIndex++;
+                    currentProgress++;
 
                     string file = filesToMove.Pop();
                     string relativeFilePath = Path.GetRelativePath(extractPath, file);
@@ -382,7 +462,9 @@ namespace ArtUpdater
                         File.Move(file, destFile, true);
                         movedFiles.Add(destFile);
                         callback.OnProgressChanged("Đang cài đặt.",
-                            extractingFileIndex / totalFiles, relativeFilePath);
+                            currentProgress / totalProgress,
+                            extractedFilePath: "",
+                            copiedFilePath: relativeFilePath);
                     }
                     catch (IOException)
                     {
@@ -420,13 +502,13 @@ namespace ArtUpdater
 
                 // Cleanup
                 callback.OnProgressChanged("Đang dọn dẹp.",
-                           1d, "");
+                           1d, "", "");
                 Directory.Delete(extractPath, true);
                 Directory.Delete(backupPath, true);
 
                 mLogger.I("Update applied successfully!");
                 CurrentApplyUpdateStatus = ApplyUpdateStatus.Success;
-                callback.OnProgressChanged("Cập nhật thành công.", 1d, "");
+                callback.OnProgressChanged("Cập nhật thành công.", 1d, "", "");
                 return true;
             }
             catch (TaskCanceledException)
@@ -531,4 +613,14 @@ namespace ArtUpdater
             return "Unknown Process";
         }
     }
+
+    class VersionInfo
+    {
+        [JsonPropertyName("startupFile")]
+        public string StartupFile { get; set; }
+
+        [JsonPropertyName("excludedFiles")]
+        public string[] ExcludedFiles { get; set; }
+    }
+
 }
