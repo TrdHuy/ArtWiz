@@ -14,12 +14,13 @@ namespace ArtUpdater
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, UpdaterCallback
+    public partial class MainWindow : Window, IUpdaterCallback
     {
+        private static Logger mLogger = new Logger(nameof(MainWindow));
         private const int WM_NCRBUTTONUP = 0x00A5; // Mã sự kiện chuột phải nhả ra
         private const int HTCAPTION = 2; // Thanh tiêu đề (caption)
         private Storyboard mRotatingAnimation;
-
+        private string mTargetFullPath = "";
         public MainWindow()
         {
             InitializeComponent();
@@ -54,6 +55,7 @@ namespace ArtUpdater
         }
         #endregion
 
+        #region IUpdaterCallback
         public void OnError(string step, string message)
         {
             Dispatcher.Invoke(() =>
@@ -80,12 +82,7 @@ namespace ArtUpdater
                     ConfirmButton.Visibility = Visibility.Collapsed;
                     CancelButton.Visibility = Visibility.Visible;
                 }
-                if (currentProgress == 1)
-                {
-                    ConfirmButton.Visibility = Visibility.Visible;
-                    CancelButton.Visibility = Visibility.Collapsed;
-                    StopLoadingAnimation();
-                }
+
                 TitleContentTextBlock.Text = step;
                 TaskProgressbar.Value = currentProgress * 100d;
                 if (!string.IsNullOrEmpty(extractedFilePath))
@@ -143,11 +140,27 @@ namespace ArtUpdater
             }, System.Windows.Threading.DispatcherPriority.Render);
         }
 
+        public void OnSuccess(string message, string targetFullPath)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ConfirmButton.Visibility = Visibility.Visible;
+                CancelButton.Visibility = Visibility.Collapsed;
+                StopLoadingAnimation();
+            }, System.Windows.Threading.DispatcherPriority.Render);
+            mTargetFullPath = targetFullPath;
+        }
+        #endregion
+
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(App.ZipFilePath) ||
                 string.IsNullOrEmpty(App.InstallPath))
             {
+                TitleContentTextBlock.Text = "Lỗi nghiêm trọng!";
+                OtherTextBlock.Text = "Không tìm thấy file cập nhật";
+                OtherTextBlock.Visibility = Visibility.Visible;
+                ExtractDetailTextBlock.Visibility = Visibility.Collapsed;
                 // TODO Hiển thị không thể update
                 return;
             }
@@ -163,6 +176,19 @@ namespace ArtUpdater
                     RunAppUpdater();
                     break;
                 case Updater.ApplyUpdateStatus.Success:
+                    if (string.IsNullOrEmpty(mTargetFullPath))
+                    {
+                        mLogger.E("target full path is null after install update");
+                        this.Close();
+                        return;
+                    }
+                    if (!File.Exists(mTargetFullPath))
+                    {
+                        mLogger.E($"Failed to start target file, not found {mTargetFullPath}!");
+                        this.Close();
+                        return;
+                    }
+                    StartTartgetExeAfterInstall(mTargetFullPath);
                     this.Close();
                     break;
             }
@@ -242,10 +268,28 @@ namespace ArtUpdater
             });
         }
 
+        public void StartTartgetExeAfterInstall(string fullTargetPath)
+        {
+            string updaterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ArtUpdater.exe");
+
+            if (!File.Exists(updaterPath))
+            {
+                mLogger.E($"Failed to start target exe, target path {fullTargetPath} not found!");
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = fullTargetPath,
+                UseShellExecute = false
+            });
+        }
+
+
     }
 
 
-    interface UpdaterCallback
+    interface IUpdaterCallback
     {
         void OnProgressChanged(string step,
             double currentProgress,
@@ -253,10 +297,10 @@ namespace ArtUpdater
             string copiedFilePath);
 
         void OnError(string step, string message);
-
         void OnWait(string message);
         void OnCancelling(string message, string fileRestoredPath, double progress);
         void OnCancelled(string message);
+        void OnSuccess(string message, string targetFullPath);
     }
 
 
@@ -290,7 +334,7 @@ namespace ArtUpdater
 
         public static async Task<bool> ApplyUpdateAsync(string zipFilePath,
             string installPath,
-            UpdaterCallback callback,
+            IUpdaterCallback callback,
             int delayOnEachExtractedFileMillisec = 300)
         {
             await mUpdateLock.WaitAsync(); // Chờ đến khi có thể chạy
@@ -507,8 +551,9 @@ namespace ArtUpdater
                 Directory.Delete(backupPath, true);
 
                 mLogger.I("Update applied successfully!");
-                CurrentApplyUpdateStatus = ApplyUpdateStatus.Success;
                 callback.OnProgressChanged("Cập nhật thành công.", 1d, "", "");
+                callback.OnSuccess("Cập nhật thành công.", Path.Combine(installPath, versionInfo.StartupFile));
+                CurrentApplyUpdateStatus = ApplyUpdateStatus.Success;
                 return true;
             }
             catch (TaskCanceledException)

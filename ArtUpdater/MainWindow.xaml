@@ -152,7 +152,7 @@
 							</TransformGroup>
 						</Image.RenderTransform>
 
-						<Image.Triggers>
+						<!--<Image.Triggers>
 							<EventTrigger RoutedEvent="Loaded">
 								<BeginStoryboard x:Name="RotationBeginStoryboard"
 												 Storyboard="{StaticResource RotationStoryboard}" />
@@ -160,7 +160,7 @@
 							<EventTrigger RoutedEvent="Unloaded">
 								<StopStoryboard BeginStoryboardName="RotationBeginStoryboard" />
 							</EventTrigger>
-						</Image.Triggers>
+						</Image.Triggers>-->
 					</Image>
 
 					<TextBlock Text="Update"

@@ -39,10 +39,13 @@ namespace ArtUpdater
 
             }
             // FOR TEST ONLY 
-            //    ZipFilePath = "C:\\Users\\Hp\\Desktop\\temp\\test\\bin\\Rampart\\ArtWiz\\SPRNetToolTest\\Resources\\ArtWiz.zip";
-            //    InstallPath = "C:\\Users\\Hp\\Desktop\\temp\\test\\bin\\Rampart\\ArtWiz\\SPRNetTool\\bin\\x64\\Debug\\ForTestUpdater";
-            //    PrioritySearchingProcess = new List<string> { "ArtWiz" };
+#if DEBUG
+            ZipFilePath = "C:\\Users\\Hp\\Desktop\\temp\\test\\bin\\Rampart\\ArtWiz\\SPRNetToolTest\\Resources\\ArtWiz.zip";
+            InstallPath = "C:\\Users\\Hp\\Desktop\\temp\\test\\bin\\Rampart\\ArtWiz\\SPRNetTool\\bin\\x64\\Debug\\ForTestUpdater";
+            PrioritySearchingProcess = new List<string> { "ArtWiz" };
+#endif
         }
+
     }
 
 }
