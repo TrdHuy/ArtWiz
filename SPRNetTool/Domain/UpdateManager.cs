@@ -75,6 +75,8 @@ namespace ArtWiz.Domain
         public async Task<string> DownloadAndApplyUpdateAsync(string downloadUrl)
         {
             var tempDirectory = Path.Combine(Path.GetTempPath(), "Updater");
+            var installPath = AppDomain.CurrentDomain.BaseDirectory;
+
             if (!Directory.Exists(tempDirectory))
             {
                 Directory.CreateDirectory(tempDirectory);
@@ -93,7 +95,7 @@ namespace ArtWiz.Domain
                     }
                 }
 
-                StartUpdater("test", "test2");
+                StartUpdater(tempFilePath, installPath);
                 return tempFilePath;
             }
             catch (Exception ex)
@@ -113,9 +115,11 @@ namespace ArtWiz.Domain
                 Console.WriteLine("Updater.exe not found!");
                 return;
             }
-
+            var prioritySearchingProcess = "ArtWiz";
             // Đảm bảo đường dẫn có dấu cách được xử lý đúng
-            string arguments = $"\"{zipFilePath}\" \"{installPath}\"";
+            installPath = installPath.TrimEnd('\\'); // Xóa dấu \ ở cuối nếu có
+            string arguments = $"\"{zipFilePath}\" \"{installPath}\" \"{prioritySearchingProcess}\"";
+
 
             Process.Start(new ProcessStartInfo
             {

@@ -19,6 +19,11 @@ namespace ArtUpdater
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            mLogger.I($"OnStartup ArtUpdater: argsLenght={e.Args.Length}");
+            for (int i = 0; i < e.Args.Length; i++)
+            {
+                mLogger.I($"Arg {i}: {e.Args[i]}");
+            }
 
             if (e.Args.Length >= 2)
             {
