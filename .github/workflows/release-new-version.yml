@@ -1,0 +1,73 @@
+name: ReleaseNewVersion
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch for release'
+        required: true
+     
+
+jobs:
+  version_bump:
+    runs-on: windows-latest
+    env:
+     ISLOCAL: false
+     BUILD_PERMISSION_JSON: ${{ vars.BUILD_PERMISSION_JSON }}
+     GITHUB_TOKEN: ${{ secrets.WORK_FLOW_ACCESS_TOKEN }}
+     TARGET_BRANCH: ${{ github.event.inputs.branch || 'dev' }}
+     TARGET_MODULE: ArtWiz
+     TRIGGER_ACTOR: ${{ github.triggering_actor }}
+     VERSION_UP_ISSUE_ID: "#52"
+     EXCLUDE_ISSUE_ID: "12,52"
+     AUTO_DECIDE_VERSION_UP: true
+     REPO_OWNER: ${{ github.repository_owner }}
+     REPO_NAME: ArtWiz  # Github event ko có giá trị này :((
+     TARGET_RELEASED_BRANCH: ${{ github.event.inputs.branch || 'dev' }}
+     VERSION_UP_TYPE: ${{ github.event.inputs.type || 'patch' }}
+     CS_VERSION_UP_FILE_PATH: SPRNetTool\ArtWiz.csproj
+    steps:
+      - name: verify build permission
+        shell: powershell
+        run: |
+            $Headers = @{
+                Authorization = "token ${{ env.GITHUB_TOKEN }}"
+            }
+            $Uri = "https://raw.githubusercontent.com/TrdHuy/_TrdBuildPlugin/master/DotNet/BuildPermissionCheckHelper.ps1"
+            Invoke-RestMethod -Uri $Uri -Headers $Headers -OutFile BuildPermissionCheckHelper.ps1
+            & .\BuildPermissionCheckHelper.ps1
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with: 
+            fetch-depth: 0
+            ref: ${{ env.TARGET_BRANCH }}
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+            dotnet-version: 8.0.x
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+      - name: Executing release
+        run: |
+            $Headers = @{
+                Authorization = "token ${{ env.GITHUB_TOKEN }}"
+            }
+            $Uri = "https://raw.githubusercontent.com/TrdHuy/_TrdBuildPlugin/master/DotNet/ReleaseDotnetFollowDezoneProcess.ps1"
+            Invoke-RestMethod -Uri $Uri -Headers $Headers -OutFile ReleaseDotnetFollowDezoneProcess.ps1
+            & .\ReleaseDotnetFollowDezoneProcess.ps1 -githubToken "${{ env.GITHUB_TOKEN }}" `
+                -repoOwner "TrdHuy" `
+                -repoName "ArtWiz" `
+                -branch "${{ env.TARGET_BRANCH }}" `
+                -projectPath "SPRNetTool\ArtWiz.csproj" `
+                -outputBasePath "SPRNetTool\ArtWiz.csproj" `
+                -zipBasePath "SPRNetTool\publish" `
+                -issueId "52" `
+                -configuration @("Release") `
+                -platform @("x64", "x32") `
+                -versionProperties @{ "startupFile" = "ArtWiz.exe"; "excludedFiles" = @("ArtUpdater.exe", "ArtUpdater.dll", "version.json") } `
+                -buildProperties @{ "DezoneAdminToken" = "${{ env.GITHUB_TOKEN }}"; "ShouldResolveDezonePkgReferences" = "none"; "DezoneResourceKey" = "${{ secrets.DEZ_CLIENT_RES_KEY }}"; "ShouldSkipDezVersionCheck" = $true } `
+                -versionHubGithubToken "${{ env.GITHUB_TOKEN }}" `
+                -versionHubRepoOwner "Dezone99" `
+                -versionHubRepoName "ArtWiz-VersionHub" `
+                -versionHubBranch "main" `
+                -versionHubReleaseNote "Release new version"
