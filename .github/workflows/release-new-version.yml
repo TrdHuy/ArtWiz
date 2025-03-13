@@ -65,7 +65,7 @@ jobs:
                 -configuration @("Release") `
                 -platform @("x64", "x86") `
                 -versionProperties @{ "startupFile" = "ArtWiz.exe"; "excludedFiles" = @("ArtUpdater.exe", "ArtUpdater.dll", "version.json") } `
-                -buildProperties @{ "DezoneAdminToken" = "${{ env.GITHUB_TOKEN }}"; "ShouldResolveDezonePkgReferences" = "true"; "DezoneResourceKey" = "${{ secrets.DEZ_CLIENT_RES_KEY }}"; "ShouldSkipDezVersionCheck" = $true } `
+                -buildProperties @{ "DezoneAdminToken" = "${{ env.GITHUB_TOKEN }}"; "ShouldResolveDezonePkgReferences" = "none"; "DezoneResourceKey" = "${{ secrets.DEZ_CLIENT_RES_KEY }}"; "ShouldSkipDezVersionCheck" = $true } `
                 -versionHubGithubToken "${{ env.GITHUB_TOKEN }}" `
                 -versionHubRepoOwner "Dezone99" `
                 -versionHubRepoName "ArtWiz-VersionHub" `
