@@ -63,7 +63,7 @@ jobs:
                 -zipBasePath "SPRNetTool\publish" `
                 -issueId "52" `
                 -configuration @("Release") `
-                -platform @("x64", "x32") `
+                -platform @("x64", "x86") `
                 -versionProperties @{ "startupFile" = "ArtWiz.exe"; "excludedFiles" = @("ArtUpdater.exe", "ArtUpdater.dll", "version.json") } `
                 -buildProperties @{ "DezoneAdminToken" = "${{ env.GITHUB_TOKEN }}"; "ShouldResolveDezonePkgReferences" = "true"; "DezoneResourceKey" = "${{ secrets.DEZ_CLIENT_RES_KEY }}"; "ShouldSkipDezVersionCheck" = $true } `
                 -versionHubGithubToken "${{ env.GITHUB_TOKEN }}" `
