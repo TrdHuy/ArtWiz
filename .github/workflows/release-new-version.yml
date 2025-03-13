@@ -59,7 +59,7 @@ jobs:
                 -repoName "ArtWiz" `
                 -branch "${{ env.TARGET_BRANCH }}" `
                 -projectPath "SPRNetTool\ArtWiz.csproj" `
-                -outputBasePath "SPRNetTool\ArtWiz.csproj" `
+                -outputBasePath "SPRNetTool\publish" `
                 -zipBasePath "SPRNetTool\publish" `
                 -issueId "52" `
                 -configuration @("Release") `
