@@ -47,6 +47,11 @@ jobs:
             dotnet-version: 8.0.x
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
+      - name: Restore nuget
+        run: |
+            dotnet nuget remove source "trdhuy-nuget-package-source"
+            dotnet nuget add source "https://nuget.pkg.github.com/TrdHuy/index.json" --name "trdhuy-nuget-package-source" --username "trdtranduchuy@gmail.com" --password "${{ env.GITHUB_TOKEN }}"
+            dotnet restore
       - name: Executing release
         run: |
             $Headers = @{
