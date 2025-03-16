@@ -10,8 +10,6 @@
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<DebugType>none</DebugType>
 		<!-- Không tạo file .pdb -->
-		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
-		<!-- Không tạo .deps.json -->
 		<CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
 	</PropertyGroup>
 	<ItemGroup>

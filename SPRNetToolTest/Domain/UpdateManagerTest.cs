@@ -26,12 +26,13 @@ namespace ArtWizTest.Domain
             _mockHttp = new MockHttpMessageHandler();
         }
 
+
         #region CheckForUpdateAsync test
         [Test]
         public async Task Test_NullVersionData()
         {
 
-            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/latest-version.json";
+            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/versions.json";
             string mockJson = @"{
   ""latestVersion"": ""1.1.1.1"",
   ""downloadUrl"": ""https://artwiz.com/download"",
@@ -61,14 +62,18 @@ namespace ArtWizTest.Domain
         [Test]
         public async Task Test_BranchNotFound()
         {
-            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/latest-version.json";
-            string mockJson = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
-            {
-                { "2.x", new UpdateInfo { LatestVersion = "2.1.0.0",
-                    DownloadUrl = "https://mockupdate.com/update.zip",
-                    ReleaseNotes = "New features" } }
-            });
-
+            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/versions.json";
+            string mockJson = @"{
+  ""2.x"": [
+    {
+      ""version"": ""2.1.0.9"",
+      ""downloadUrl"": [
+        ""https://github.com/TrdHuy/ArtWiz/releases/download/product_v1.0.0.9/ArtWiz.rar""
+      ],
+      ""releaseNotes"": ""First release.""
+    }
+  ]
+}";
             _mockHttp.When(mockUrl)
                  .Respond(req => new HttpResponseMessage
                  {
@@ -85,12 +90,18 @@ namespace ArtWizTest.Domain
         public async Task Test_NoUpdateAvailable()
         {
 
-            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/latest-version.json";
-            string mockJson = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
-            {
-                { "1.x", new UpdateInfo { LatestVersion = "1.5.3.0", DownloadUrl = "", ReleaseNotes = "" } }
-            });
-
+            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/versions.json";
+            string mockJson = @"{
+  ""1.x"": [
+    {
+      ""version"": ""1.5.3.0"",
+      ""downloadUrl"": [
+        ""https://github.com/TrdHuy/ArtWiz/releases/download/product_v1.0.0.9/ArtWiz.rar""
+      ],
+      ""releaseNotes"": ""First release.""
+    }
+  ]
+}";
             _mockHttp.When(mockUrl)
                  .Respond(req => new HttpResponseMessage
                  {
@@ -107,11 +118,18 @@ namespace ArtWizTest.Domain
         [Test]
         public async Task Test_UpdateAvailableButNotForced()
         {
-            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/latest-version.json";
-            string mockJson = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
-            {
-                { "1.x", new UpdateInfo { LatestVersion = "1.5.3.1", DownloadUrl = "https://mockupdate.com/update.zip", ReleaseNotes = "Bug fix" } }
-            });
+            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/versions.json";
+            string mockJson = @"{
+  ""1.x"": [
+    {
+      ""version"": ""1.5.3.1"",
+      ""downloadUrl"": [
+        ""https://github.com/TrdHuy/ArtWiz/releases/download/product_v1.0.0.9/ArtWiz.rar""
+      ],
+      ""releaseNotes"": ""First release.""
+    }
+  ]
+}";
 
             _mockHttp.When(mockUrl)
                  .Respond(req => new HttpResponseMessage
@@ -130,11 +148,18 @@ namespace ArtWizTest.Domain
         [Test]
         public async Task Test_ForcedUpdateAvailable()
         {
-            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/latest-version.json";
-            string mockJson = JsonSerializer.Serialize(new Dictionary<string, UpdateInfo>
-            {
-                { "1.x", new UpdateInfo { LatestVersion = "1.5.4.0", DownloadUrl = "https://mockupdate.com/update.zip", ReleaseNotes = "New features" } }
-            });
+            string mockUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/versions.json";
+            string mockJson = @"{
+  ""1.x"": [
+    {
+      ""version"": ""1.5.4.0"",
+      ""downloadUrl"": [
+        ""https://github.com/TrdHuy/ArtWiz/releases/download/product_v1.0.0.9/ArtWiz.rar""
+      ],
+      ""releaseNotes"": ""First release.""
+    }
+  ]
+}";
             // Cấu hình mock server trả về JSON string
             _mockHttp.When(mockUrl)
                      .Respond(req => new HttpResponseMessage

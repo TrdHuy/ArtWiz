@@ -37,7 +37,12 @@ namespace ArtWiz.Data.Domain.UpdateManager
             Detail = "unknown exception!",
             Name = "UNKNOWN_EXCEPTION",
         };
-
+        public static UpdateResultErrorCode NO_UPDATE_AVAILABLE = new UpdateResultErrorCode
+        {
+            Code = 4,
+            Detail = "No update available!",
+            Name = "NO_UPDATE_AVAILABLE",
+        };
         // Override Equals để so sánh dựa trên Code
         public override bool Equals(object? obj)
         {
