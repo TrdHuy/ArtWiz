@@ -429,10 +429,10 @@ namespace ArtUpdater
                     {
                         if (!entry.FullName.EndsWith("/") && !versionInfo.ExcludedFiles.Contains(entry.FullName))
                         {
-                            string destinationPath = Path.Combine(extractPath, entry.FullName);
-
+                            string destinationPath = Path.GetFullPath(Path.Combine(extractPath, entry.FullName));
+                            string fullDestDirPath = Path.GetFullPath(extractPath + Path.DirectorySeparatorChar);
                             // Kiểm tra: Nếu file nằm ngoài extractPath => chặn lại
-                            if (!destinationPath.StartsWith(Path.GetFullPath(extractPath)))
+                            if (!destinationPath.StartsWith(fullDestDirPath))
                             {
                                 throw new InvalidOperationException($"Zip Slip detected: {entry.FullName}");
                             }
