@@ -39,8 +39,8 @@ namespace ArtWiz.View
             double newX = Owner.Left;
             double newY = Owner.Top;
             // Di chuyển window B tương ứng với vị trí của window A
-            this.Left = newX + offsetX; // offsetX là khoảng cách ngang giữa A và B
-            this.Top = newY + offsetY; // offsetY là khoảng cách dọc giữa A và B
+            this.Left = newX + offsetX; // mOwnerWindowLocationOffsetX là khoảng cách ngang giữa A và B
+            this.Top = newY + offsetY; // mOwnerWindowLocationOffsetY là khoảng cách dọc giữa A và B
         }
 
         protected override void OnClosed(EventArgs e)

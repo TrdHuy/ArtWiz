@@ -12,14 +12,15 @@
 					   MinHeight="340"
 					   CornerRadius="8"
 					   Title="Select Options"
-					   WindowStartupLocation="CenterScreen"
+					   WindowStartupLocation="CenterOwner"
 					   WindowStyle="None"
 					   Height="Auto"
 					   FontFamily="{StaticResource ResourceKey={x:Static def:Definitions.FontFiraSans_Regular}}"
 					   Background="{StaticResource {x:Static def:Definitions.PanelBackgroundLevel0_1}}"
 					   BorderBrush="{StaticResource {x:Static def:Definitions.PanelBackgroundLevel0_10}}"
 					   BorderThickness="1.5"
-					   MinWidth="510">
+					   MinWidth="510"
+					   WindowBarHeight="0">
 	<Window.Resources>
 
 		<Style x:Key="OptionMarkFocusVisual">
@@ -479,7 +480,7 @@
 						Orientation="Horizontal"
 						HorizontalAlignment="Right"
 						Margin="0,20,0,0">
-				<Button Content="Confirm"
+				<Button Content="Xác nhận"
 						Style="{StaticResource ButtonStyle}"
 						atp:AttachedProperites.OnButtonHoverForeground="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0_10}}"
 						atp:AttachedProperites.OnButtonPressedBackground="{StaticResource {x:Static def:Definitions.ButtonAndIconBrushLevel0_1}}"
@@ -488,7 +489,7 @@
 						Foreground="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0_10}}"
 						BorderThickness="0"
 						Click="ButtonAgreeClick" />
-				<Button Content="Cancel"
+				<Button Content="Hủy"
 						atp:AttachedProperites.OnButtonHoverForeground="{StaticResource {x:Static def:Definitions.TextForegroundBrushLevel0_10}}"
 						atp:AttachedProperites.OnButtonPressedBackground="{StaticResource {x:Static def:Definitions.ButtonAndIconBrushLevel2}}"
 						atp:AttachedProperites.OnButtonHoverBackground="{StaticResource {x:Static def:Definitions.ButtonAndIconBrushLevel2_m8}}"

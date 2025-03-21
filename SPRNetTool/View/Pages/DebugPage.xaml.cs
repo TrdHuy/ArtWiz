@@ -214,7 +214,7 @@ namespace ArtWiz.View.Pages
                         break;
                 }
             });
-            var res = inputWindow.Show();
+            var res = inputWindow.ShowDialog();
             if (res == Res.CANCEL) return;
 
             LoadingWindow l = new LoadingWindow(ownerWindow, "Optimizing!");
@@ -542,7 +542,7 @@ namespace ArtWiz.View.Pages
                     }
                 }
             });
-            Res res = inputWindow.Show();
+            Res res = inputWindow.ShowDialog();
             if (res == Res.CANCEL) return;
 
             SaveFileDialog saveFile = new SaveFileDialog();

@@ -168,7 +168,7 @@ namespace ArtWiz.View.Pages
                                     }
                                 }
                             }, title: "Lưu với định dạng");
-                            Res res = inputWindow.Show();
+                            Res res = inputWindow.ShowDialog();
                             if (res == Res.CANCEL) return;
 
                             SaveFileDialog saveFile = new SaveFileDialog();
