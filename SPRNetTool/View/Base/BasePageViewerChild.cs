@@ -23,6 +23,10 @@ namespace ArtWiz.View.Base
         {
         }
 
+        public virtual void OnReceivedMessage(int msg, object data)
+        {
+        }
+
         public IPageViewer OwnerPage
         {
             get => (IPageViewer)GetValue(OwnerPageProperty);
@@ -33,6 +37,8 @@ namespace ArtWiz.View.Base
         public Dispatcher ViewElementDispatcher => Dispatcher;
 
         public object ViewModel => DataContext;
+
+
 
     }
 }

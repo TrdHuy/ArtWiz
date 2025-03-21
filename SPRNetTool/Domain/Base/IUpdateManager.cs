@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ArtWiz.Domain.Base
 {
-    internal interface IUpdateManager
+    public  interface IUpdateManager : IObservableDomain
     {
         Task<UpdateResult> CheckForUpdateAsync();
         Task<string> DownloadAndApplyUpdateAsync(string updateUrl);

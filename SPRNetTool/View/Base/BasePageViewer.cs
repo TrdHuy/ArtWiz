@@ -53,5 +53,9 @@ namespace ArtWiz.View.Base
         {
             return null;
         }
+
+        public virtual void OnReceivedMessage(int msg, object data)
+        {
+        }
     }
 }

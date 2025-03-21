@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using static ArtWiz.View.InputWindow;
 using static ArtWiz.View.Widgets.PaletteEditor;
 using ArtWiz.ViewModel.SprEditor;
+using System.Diagnostics;
 
 namespace ArtWiz.View.Pages
 {

@@ -63,6 +63,10 @@ namespace ArtWiz.View.Base
         {
             base.OnInitialized(e);
             ViewModel.IfIs<IArtWizViewModel>((it) => it.OnArtWizViewModelOwnerCreate(this));
-        }      
+        }
+
+        public virtual void OnReceivedMessage(int msg, object data)
+        {
+        }
     }
 }

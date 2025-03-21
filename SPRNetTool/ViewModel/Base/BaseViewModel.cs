@@ -9,6 +9,7 @@ namespace ArtWiz.ViewModel.Base
         private ISprEditorBitmapDisplayManager? bitmapDisplayManager;
         private ISprWorkManager? sprWorkManager;
         private IPakWorkManager? pakWorkManager;
+        private IUpdateManager? updateManager;
         private IDeviceConfigManager? deviceConfigManager;
         private IBlockPreviewerAnimationManager? blockPreviewerAnimationManager;
 
@@ -66,6 +67,18 @@ namespace ArtWiz.ViewModel.Base
                     .DomainContext
                     .GetDomain<IPakWorkManager>()
                     .Also(it => pakWorkManager = it);
+            }
+        }
+
+        protected IUpdateManager UpdateManager
+        {
+            get
+            {
+                return updateManager ??
+                    IDomainAccessors
+                    .DomainContext
+                    .GetDomain<IUpdateManager>()
+                    .Also(it => updateManager = it);
             }
         }
         #endregion

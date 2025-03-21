@@ -7,7 +7,9 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+using ArtWiz.Data;
 using ArtWiz.Data.Domain.UpdateManager;
 using ArtWiz.Domain.Base;
 using ArtWiz.LogUtil;
@@ -16,70 +18,38 @@ namespace ArtWiz.Domain
 {
     public class UpdateManager : BaseDomain, IUpdateManager
     {
-        private static Logger logger = new Logger(nameof(UpdateManager));
-        private const string UpdateInfoUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/versions.json";
+        private static Logger mLogger = new Logger(nameof(UpdateManager));
+        private const string mUpdateInfoUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/versions.json";
+        private static readonly Cache<UpdateResult?> mUpdateCache = new Cache<UpdateResult?>(TimeSpan.FromMinutes(10));
+        private static readonly SemaphoreSlim mUpdateLock = new SemaphoreSlim(1, 1);
 
         public UpdateManager()
         {
         }
 
-        //public async Task<UpdateResult> CheckForUpdateAsync()
-        //{
-        //    try
-        //    {
-        //        using (var client = GetHttpClient())
-        //        {
-        //            string jsonData = await GetStringFromHttpUrl(UpdateInfoUrl, client);
-        //            Dictionary<string, UpdateInfo>? versionData;
-        //            try
-        //            {
-        //                versionData = JsonSerializer.Deserialize<Dictionary<string, UpdateInfo>>(jsonData);
-        //            }
-        //            catch (JsonException ex)
-        //            {
-        //                logger.E($"Invalid JSON format: {ex.Message}");
-        //                versionData = null;
-        //            }
-
-        //            if (versionData == null)
-        //                return UpdateResult.Error(UpdateResultErrorCode.FAILED_TO_GET_VERSION_DATA_FROM_SERVER);
-
-        //            string currentVersion = GetCurrentVersion();
-        //            string branch = GetVersionBranch(currentVersion);
-
-        //            if (!versionData.ContainsKey(branch))
-        //            {
-        //                logger.E($"No update information found for branch: {branch}");
-        //                return UpdateResult.Error(UpdateResultErrorCode.BRANCH_NOT_FOUND);
-        //            }
-
-        //            var updateInfo = versionData[branch];
-        //            string latestVersion = updateInfo?.LatestVersion ?? "";
-
-        //            bool isNewVersion = IsNewVersion(latestVersion, currentVersion);
-        //            bool needToForceUpdate = IsMajorMinorPatchChanged(latestVersion, currentVersion);
-
-        //            return new UpdateResult(isNeedToUpdate: isNewVersion,
-        //                     needToForceUpdate: needToForceUpdate,
-        //                     downloadUrl: updateInfo?.DownloadUrl ?? "",
-        //                     releaseNotes: updateInfo?.ReleaseNotes ?? "",
-        //                     latestVersion: latestVersion);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.E($"Error checking for update: {ex.Message}");
-        //        return UpdateResult.Error(UpdateResultErrorCode.UNKNOWN_EXCEPTION);
-        //    }
-        //}
-
         public async Task<UpdateResult> CheckForUpdateAsync()
         {
+            if (mUpdateCache.IsValid)
+            {
+                mLogger.I("Using cached update check result.");
+                return mUpdateCache.Value!;
+            }
+
+            // Chỉ cho phép một luồng chạy
+            await mUpdateLock.WaitAsync();
             try
             {
+                if (mUpdateCache.IsValid)
+                {
+                    mLogger.I("Using cached update check result (after waiting).");
+                    return mUpdateCache.Value!;
+                }
+
+                mLogger.I("Checking for update...");
+
                 using (var client = GetHttpClient())
                 {
-                    string jsonData = await GetStringFromHttpUrl(UpdateInfoUrl, client);
+                    string jsonData = await GetStringFromHttpUrl(mUpdateInfoUrl, client);
                     Dictionary<string, List<UpdateInfo>>? versionData;
 
                     try
@@ -88,29 +58,26 @@ namespace ArtWiz.Domain
                     }
                     catch (JsonException ex)
                     {
-                        logger.E($"Invalid JSON format: {ex.Message}");
+                        mLogger.E($"Invalid JSON format: {ex.Message}");
                         return UpdateResult.Error(UpdateResultErrorCode.FAILED_TO_GET_VERSION_DATA_FROM_SERVER);
                     }
 
                     if (versionData == null || versionData.Count == 0)
                         return UpdateResult.Error(UpdateResultErrorCode.FAILED_TO_GET_VERSION_DATA_FROM_SERVER);
 
-                    // Lấy phiên bản hiện tại và nhánh phiên bản phù hợp
                     string currentVersion = GetCurrentVersion();
                     string branch = GetVersionBranch(currentVersion);
 
                     if (!versionData.ContainsKey(branch))
                     {
-                        logger.E($"No update information found for branch: {branch}");
+                        mLogger.E($"No update information found for branch: {branch}");
                         return UpdateResult.Error(UpdateResultErrorCode.BRANCH_NOT_FOUND);
                     }
 
-                    // Lấy danh sách phiên bản trong nhánh
                     var branchVersions = versionData[branch];
 
-                    // Tìm phiên bản mới nhất trong nhánh đó
                     var latestUpdate = branchVersions
-                        .OrderByDescending(v => Version.Parse(v.Version)) // Sắp xếp giảm dần theo version
+                        .OrderByDescending(v => Version.Parse(v.Version))
                         .FirstOrDefault();
 
                     if (latestUpdate == null)
@@ -118,24 +85,28 @@ namespace ArtWiz.Domain
 
                     string latestVersion = latestUpdate.Version;
 
-                    // So sánh với phiên bản hiện tại
                     bool isNewVersion = IsNewVersion(latestVersion, currentVersion);
                     bool needToForceUpdate = IsMajorMinorPatchChanged(latestVersion, currentVersion);
 
-                    return new UpdateResult(isNeedToUpdate: isNewVersion,
-                             needToForceUpdate: needToForceUpdate,
-                             downloadUrl: latestUpdate.DownloadUrl.FirstOrDefault() ?? "",
-                             releaseNotes: latestUpdate.ReleaseNotes,
-                             latestVersion: latestVersion);
+                    mUpdateCache.Value = new UpdateResult(isNeedToUpdate: isNewVersion,
+                        needToForceUpdate: needToForceUpdate,
+                        downloadUrl: latestUpdate.DownloadUrl.FirstOrDefault() ?? "",
+                        releaseNotes: latestUpdate.ReleaseNotes,
+                        latestVersion: latestVersion);
+
+                    return mUpdateCache.Value;
                 }
             }
             catch (Exception ex)
             {
-                logger.E($"Error checking for update: {ex.Message}");
+                mLogger.E($"Error checking for update: {ex.Message}");
                 return UpdateResult.Error(UpdateResultErrorCode.UNKNOWN_EXCEPTION);
             }
+            finally
+            {
+                mUpdateLock.Release();
+            }
         }
-
         public async Task<string> DownloadAndApplyUpdateAsync(string downloadUrl)
         {
             var tempDirectory = Path.Combine(Path.GetTempPath(), "Updater");

@@ -54,7 +54,7 @@ namespace ArtWiz.View
         {
             base.Show();
             offsetX = Left - Owner.Left;
-            offsetY = Left - Owner.Left;
+            offsetY = Top - Owner.Top;
             await Task.Delay(delay);
             await block.Invoke(OnProgressBarChanged);
             callback?.Invoke();

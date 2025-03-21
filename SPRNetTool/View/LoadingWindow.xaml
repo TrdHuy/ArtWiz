@@ -24,7 +24,7 @@
 
 			<StackPanel Orientation="Vertical"
 						VerticalAlignment="Center">
-				<Path Width="50"
+				<!--<Path Width="50"
 					  Height="50"
 					  Stretch="Uniform"
 					  x:Name="RotatingIcon"
@@ -35,7 +35,9 @@
 					<Path.Resources>
 						<Storyboard x:Key="RotationStoryboard"
 									RepeatBehavior="Forever">
-							<!-- Animation quay tròn -->
+							-->
+				<!-- Animation quay tròn -->
+				<!--
 							<DoubleAnimation Storyboard.TargetName="RotatingTransform"
 											 Storyboard.TargetProperty="Angle"
 											 From="0"
@@ -43,7 +45,9 @@
 											 Duration="0:0:1"
 											 RepeatBehavior="Forever" />
 
-							<!--Animation phóng to & thu nhỏ-->
+							-->
+				<!--Animation phóng to & thu nhỏ-->
+				<!--
 							<DoubleAnimation Storyboard.TargetName="ScalingTransform"
 											 Storyboard.TargetProperty="ScaleX"
 											 From="0.7"
@@ -62,7 +66,9 @@
 						</Storyboard>
 					</Path.Resources>
 
-					<!-- Tách riêng RotateTransform và ScaleTransform -->
+					-->
+				<!-- Tách riêng RotateTransform và ScaleTransform -->
+				<!--
 					<Path.RenderTransform>
 						<TransformGroup>
 							<RotateTransform x:Name="RotatingTransform" />
@@ -79,7 +85,91 @@
 							<StopStoryboard BeginStoryboardName="RotationBeginStoryboard" />
 						</EventTrigger>
 					</Path.Triggers>
-				</Path>
+				</Path>-->
+				<Image Height="40"
+					   Width="40"
+					   x:Name="LogoImage"
+					   RenderTransformOrigin="0.4,0.53"
+					   VerticalAlignment="Center"
+					   Source="/ArtWiz;component/resources/logo_40.png">
+					<Image.Resources>
+						<Storyboard x:Key="RotationStoryboard"
+									RepeatBehavior="Forever">
+
+							<DoubleAnimationUsingKeyFrames Storyboard.TargetName="RotatingTransform"
+														   Storyboard.TargetProperty="Angle"
+														   RepeatBehavior="Forever">
+								<!-- Xoay nhanh dần 3 vòng -->
+								<EasingDoubleKeyFrame KeyTime="0:0:1.5"
+													  Value="1080">
+									<EasingDoubleKeyFrame.EasingFunction>
+										<SineEase EasingMode="EaseOut" />
+									</EasingDoubleKeyFrame.EasingFunction>
+								</EasingDoubleKeyFrame>
+
+								<!-- Chậm dần 3 vòng -->
+								<EasingDoubleKeyFrame KeyTime="0:0:3.5"
+													  Value="2160">
+									<EasingDoubleKeyFrame.EasingFunction>
+										<SineEase EasingMode="EaseIn" />
+									</EasingDoubleKeyFrame.EasingFunction>
+								</EasingDoubleKeyFrame>
+
+								<!-- Xoay nhanh dần lại 3 vòng -->
+								<EasingDoubleKeyFrame KeyTime="0:0:5"
+													  Value="3240">
+									<EasingDoubleKeyFrame.EasingFunction>
+										<SineEase EasingMode="EaseOut" />
+									</EasingDoubleKeyFrame.EasingFunction>
+								</EasingDoubleKeyFrame>
+
+								<!-- Chậm dần lại 3 vòng -->
+								<EasingDoubleKeyFrame KeyTime="0:0:7.0"
+													  Value="4320">
+									<EasingDoubleKeyFrame.EasingFunction>
+										<SineEase EasingMode="EaseIn" />
+									</EasingDoubleKeyFrame.EasingFunction>
+								</EasingDoubleKeyFrame>
+							</DoubleAnimationUsingKeyFrames>
+						
+
+							<!--Animation phóng to & thu nhỏ-->
+							<DoubleAnimation Storyboard.TargetName="ScalingTransform"
+											 Storyboard.TargetProperty="ScaleX"
+											 From="0.7"
+											 To="1.2"
+											 AutoReverse="True"
+											 RepeatBehavior="Forever"
+											 Duration="0:0:0.875" />
+
+							<DoubleAnimation Storyboard.TargetName="ScalingTransform"
+											 Storyboard.TargetProperty="ScaleY"
+											 From="0.7"
+											 To="1.2"
+											 AutoReverse="True"
+											 RepeatBehavior="Forever"
+											 Duration="0:0:0.875" />
+						</Storyboard>
+					</Image.Resources>
+
+					<!-- Tách riêng RotateTransform và ScaleTransform -->
+					<Image.RenderTransform>
+						<TransformGroup>
+							<RotateTransform x:Name="RotatingTransform" />
+							<ScaleTransform x:Name="ScalingTransform" />
+						</TransformGroup>
+					</Image.RenderTransform>
+
+					<Image.Triggers>
+						<EventTrigger RoutedEvent="Loaded">
+							<BeginStoryboard x:Name="RotationBeginStoryboard"
+											 Storyboard="{StaticResource RotationStoryboard}" />
+						</EventTrigger>
+						<EventTrigger RoutedEvent="Unloaded">
+							<StopStoryboard BeginStoryboardName="RotationBeginStoryboard" />
+						</EventTrigger>
+					</Image.Triggers>
+				</Image>
 
 				<TextBlock Text="Loading, please wait..."
 						   x:Name="TitleView"

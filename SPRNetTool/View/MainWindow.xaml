@@ -10,6 +10,7 @@
 					   xmlns:vm="clr-namespace:ArtWiz.ViewModel"
 					   xmlns:def="clr-namespace:ArtWiz"
 					   mc:Ignorable="d"
+					   d:DataContext="{d:DesignInstance vm:MainWindowViewModel, IsDesignTimeCreatable=False}"
 					   FontFamily="Calibri"
 					   Height="900"
 					   BorderThickness="1"
@@ -23,7 +24,8 @@
 	<Window.Resources>
 		<cvt:FormulaConverter x:Key="FormulaConverter" />
 	</Window.Resources>
-	<Grid Background="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0}}">
+	<Grid Background="{StaticResource ResourceKey={x:Static def:Definitions.PanelBackgroundLevel0}}"
+		  IsEnabled="{Binding Is}">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
 			<RowDefinition Height="*" />
