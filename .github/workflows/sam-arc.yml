@@ -41,7 +41,7 @@ jobs:
       - name: Install .NET Core
         uses: actions/setup-dotnet@v3
         with:
-            dotnet-version: 6.0.x
+            dotnet-version: 8.0.x
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
 
@@ -88,7 +88,8 @@ jobs:
         run: |
             ./arcrunner.bat
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
             name: ArcReport # Artifact name        
-            path: .sam-dir\sam-result # Directory containing files to upload
+            path: .sam-dir/sam-result # Directory containing files to upload
+

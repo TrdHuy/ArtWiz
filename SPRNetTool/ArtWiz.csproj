@@ -242,6 +242,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="DezoneBuildPlugin" Version="8.8.0" PrivateAssets="all" ExcludeAssets="runtime"/>
+	  <PackageReference Include="DezoneBuildPlugin" Version="8.8.1" ExcludeAssets="runtime"/>
 	</ItemGroup>
 </Project>
