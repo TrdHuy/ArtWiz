@@ -13,7 +13,8 @@
 					   WindowStartupLocation="CenterScreen"
 					   FontFamily="{StaticResource ResourceKey={x:Static def:Definitions.FontFiraSans_Regular}}"
 					   BorderBrush="{StaticResource {x:Static def:Definitions.PanelBackgroundLevel0_1}}"
-					   Width="350">
+					   Width="350"
+					   WindowBarHeight="40">
 
 	<Window.Resources>
 		<Style TargetType="FrameworkElement"

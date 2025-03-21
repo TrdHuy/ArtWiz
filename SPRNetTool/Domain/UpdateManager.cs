@@ -49,7 +49,26 @@ namespace ArtWiz.Domain
 
                 using (var client = GetHttpClient())
                 {
-                    string jsonData = await GetStringFromHttpUrl(mUpdateInfoUrl, client);
+                    await Task.Delay(5000);
+                    //string jsonData = await GetStringFromHttpUrl(mUpdateInfoUrl, client);
+                    string jsonData = @"{
+  ""1.x"": [
+    {
+      ""version"": ""1.0.8.2"",
+      ""releaseNotes"": ""Release new version"",
+      ""downloadUrl"": [
+""https://github.com/TrdHuy/ArtWiz/releases/download/product_v1.0.0.9/ArtWiz.rar""
+]
+    },
+    {
+      ""version"": ""1.0.0.9"",
+      ""releaseNotes"": ""First release."",
+      ""downloadUrl"": [
+        ""https://github.com/TrdHuy/ArtWiz/releases/download/product_v1.0.0.9/ArtWiz.rar""
+      ]
+    }
+  ]
+}";
                     Dictionary<string, List<UpdateInfo>>? versionData;
 
                     try

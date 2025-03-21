@@ -286,6 +286,8 @@ namespace ArtWiz.View
         private Action? CancelButtonClicked;
         private Res curRes = Res.CANCEL;
         private ArtWizWindowViewModel mInputWindowViewModel;
+        private double mOwnerWindowLocationOffsetX = 0d;
+        private double mOwnerWindowLocationOffsetY = 0d;
 
 #if DEBUG
         public InputWindow()
@@ -323,8 +325,14 @@ namespace ArtWiz.View
         {
             InitializeComponent();
             Init(src, owner, agreeButtonClicked, cancelButtonClicked, title, des);
+            if (Owner != null || Owner is IWindowViewer)
+            {
+                Owner.LocationChanged += Owner_LocationChanged;
+                (Owner as IWindowViewer)?.DisableWindow(true);
+            }
         }
 
+       
         private void Init(List<InputBuilder.InputOption>? src,
             Window? owner,
             Action<Dictionary<string, object>>? agreeButtonClicked,
@@ -451,7 +459,28 @@ namespace ArtWiz.View
 
         }
 
-        public new Res Show()
+        private void Owner_LocationChanged(object? sender, EventArgs e)
+        {
+            // Lấy vị trí mới của window A
+            double newX = Owner.Left;
+            double newY = Owner.Top;
+            // Di chuyển window B tương ứng với vị trí của window A
+            this.Left = newX + mOwnerWindowLocationOffsetX; // mOwnerWindowLocationOffsetX là khoảng cách ngang giữa A và B
+            this.Top = newY + mOwnerWindowLocationOffsetY; // mOwnerWindowLocationOffsetY là khoảng cách dọc giữa A và B
+        }
+
+        public new void Show()
+        {
+            base.Show();
+            if (Owner != null)
+            {
+                (Owner as IWindowViewer)?.DisableWindow(true);
+                mOwnerWindowLocationOffsetX = Left - Owner.Left;
+                mOwnerWindowLocationOffsetY = Top - Owner.Top;
+            }
+        }
+
+        public new Res ShowDialog()
         {
             if (Owner != null)
             {

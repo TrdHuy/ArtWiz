@@ -15,5 +15,11 @@ namespace ArtWiz.ViewModel.Base
             var updateManager = DomainContext.GetDomain<IUpdateManager>();
             return await updateManager.CheckForUpdateAsync();
         }
+
+        async Task<string> DownloadAndApplyUpdateAsync(string downloadUrl)
+        {
+            var updateManager = DomainContext.GetDomain<IUpdateManager>();
+            return await updateManager.DownloadAndApplyUpdateAsync(downloadUrl);
+        }
     }
 }

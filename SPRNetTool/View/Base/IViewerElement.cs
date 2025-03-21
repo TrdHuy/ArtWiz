@@ -9,7 +9,7 @@ namespace ArtWiz.View.Base
 
         public void NotifyMessage(int msg, object data)
         {
-            ViewElementDispatcher.Invoke(() =>
+            ViewElementDispatcher.BeginInvoke(() =>
             {
                 OnReceivedMessage(msg, data);
             });

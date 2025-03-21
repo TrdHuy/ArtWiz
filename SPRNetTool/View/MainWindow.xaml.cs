@@ -39,7 +39,7 @@ namespace ArtWiz.View
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            LoadingWindow l = new LoadingWindow(this);
+            LoadingWindow l = new LoadingWindow(this, tilte: "Đang kiểm tra phiên bản cập nhật.");
             l.Show(block: async (notifyProgressChanged) =>
             {
                 if (DataContext is ICheckAppUpdateViewModel cast)
@@ -250,14 +250,24 @@ namespace ArtWiz.View
                                 , owner: this
                                 , agreeButtonClicked: (_) =>
                                 {
-                                    
+                                    if (DataContext is ICheckAppUpdateViewModel cast)
+                                    {
+                                        Task.Run(async () =>
+                                        {
+                                            await cast.DownloadAndApplyUpdateAsync(result.DownloadUrl);
+                                        });
+                                    }
                                 }
                                 , cancelButtonClicked: () =>
                                 {
-
+                                    if (result.NeedToForceUpdate)
+                                    {
+                                        this.Close();
+                                    }
                                 }
                                 , title: "Thông báo cập nhật!"
                                 , des: $"Phiên bản mới: {result.LatestVersion}");
+                            inputWindow.Show();
                         }
                     }
                     break;
