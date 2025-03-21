@@ -29,7 +29,7 @@ namespace ArtUpdater
             mRotatingAnimation = (Storyboard)LogoImage.FindResource("RotationStoryboard");
 
 #if DEBUG
-            TestButton.Visibility = Visibility.Visible;
+            //TestButton.Visibility = Visibility.Visible;
 #endif
         }
 
@@ -430,6 +430,12 @@ namespace ArtUpdater
                         if (!entry.FullName.EndsWith("/") && !versionInfo.ExcludedFiles.Contains(entry.FullName))
                         {
                             string destinationPath = Path.Combine(extractPath, entry.FullName);
+
+                            // Kiểm tra: Nếu file nằm ngoài extractPath => chặn lại
+                            if (!destinationPath.StartsWith(Path.GetFullPath(extractPath)))
+                            {
+                                throw new InvalidOperationException($"Zip Slip detected: {entry.FullName}");
+                            }
 
                             // Đảm bảo thư mục đích tồn tại
                             string directoryPath = Path.GetDirectoryName(destinationPath);
