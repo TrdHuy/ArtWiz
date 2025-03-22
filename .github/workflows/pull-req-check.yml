@@ -30,7 +30,6 @@ jobs:
             echo "Commit Message: $title (Matched)"
             issue_number=$(echo "$title" | grep -oE '\[#([0-9]+)\]' | sed 's/\[#\([0-9]\+\)\]/\1/')
             if [[ -n "$issue_number" ]]; then
-              # Kiểm tra sự tồn tại của issue bằng GitHub API 
               apiUrl=https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/issues/$issue_number
               response=$(curl -s $apiUrl)
               echo $apiUrl
@@ -70,11 +69,13 @@ jobs:
       with:
         fetch-depth: 0
 
-    # Install the .NET Core workload
-    - name: Install .NET Core
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
+
+    - name: Install .NET 8 WindowsDesktop workload
+      run: dotnet workload install windowsdesktop
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
@@ -94,5 +95,4 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     - name: Execute unit tests
-      run: dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} -p:Platform=${{ matrix.platformTarget }} /p:DezoneAdminToken=${{ secrets.WORK_FLOW_ACCESS_TOKEN }} /p:ShouldResolveDezonePkgReferences=none /p:DezoneResourceKey=${{ secrets.DEZ_CLIENT_RES_KEY }} /p:ShouldSkipDezVersionCheck=true
-
+      run: dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --runtime win-${{ matrix.platformTarget }} /p:Platform=${{ matrix.platformTarget }} /p:DezoneAdminToken=${{ secrets.WORK_FLOW_ACCESS_TOKEN }} /p:ShouldResolveDezonePkgReferences=none /p:DezoneResourceKey=${{ secrets.DEZ_CLIENT_RES_KEY }} /p:ShouldSkipDezVersionCheck=true
