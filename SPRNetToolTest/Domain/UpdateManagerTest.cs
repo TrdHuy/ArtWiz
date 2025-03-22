@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -227,6 +227,10 @@ namespace ArtWizTest.Domain
             return base.GetCurrentVersion();
         }
 
+        protected override void StartUpdater(string zipFilePath, string installPath)
+        {
+        }
+        
     }
 
     public class UpdateManagerWithFaultyHttp : UpdateManager
