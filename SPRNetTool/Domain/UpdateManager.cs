@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -20,8 +20,8 @@ namespace ArtWiz.Domain
     {
         private static Logger mLogger = new Logger(nameof(UpdateManager));
         private const string mUpdateInfoUrl = "https://raw.githubusercontent.com/Dezone99/ArtWiz-VersionHub/refs/heads/main/versions.json";
-        private static readonly Cache<UpdateResult?> mUpdateCache = new Cache<UpdateResult?>(TimeSpan.FromMinutes(10));
-        private static readonly SemaphoreSlim mUpdateLock = new SemaphoreSlim(1, 1);
+        private readonly Cache<UpdateResult?> mUpdateCache = new Cache<UpdateResult?>(TimeSpan.FromMinutes(10));
+        private readonly SemaphoreSlim mUpdateLock = new SemaphoreSlim(1, 1);
 
         public UpdateManager()
         {
@@ -141,7 +141,7 @@ namespace ArtWiz.Domain
         }
 
 
-        public void StartUpdater(string zipFilePath, string installPath)
+        protected virtual void StartUpdater(string zipFilePath, string installPath)
         {
             string updaterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ArtUpdater.exe");
 
