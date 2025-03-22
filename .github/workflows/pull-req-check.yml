@@ -74,9 +74,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Install .NET 8 WindowsDesktop workload
-      run: dotnet workload install windowsdesktop
-
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
