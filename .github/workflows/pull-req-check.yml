@@ -92,4 +92,4 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     - name: Execute unit tests
-      run: dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --runtime win-${{ matrix.platformTarget }} /p:Platform=${{ matrix.platformTarget }} /p:DezoneAdminToken=${{ secrets.WORK_FLOW_ACCESS_TOKEN }} /p:ShouldResolveDezonePkgReferences=none /p:DezoneResourceKey=${{ secrets.DEZ_CLIENT_RES_KEY }} /p:ShouldSkipDezVersionCheck=true
+      run: dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} -p:Platform=${{ matrix.platformTarget }} /p:DezoneAdminToken=${{ secrets.WORK_FLOW_ACCESS_TOKEN }} /p:ShouldResolveDezonePkgReferences=none /p:DezoneResourceKey=${{ secrets.DEZ_CLIENT_RES_KEY }} /p:ShouldSkipDezVersionCheck=true
