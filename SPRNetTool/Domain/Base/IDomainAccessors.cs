@@ -31,6 +31,9 @@ namespace ArtWiz.Domain.Base
                     {
                         typeof(IBlockPreviewerAnimationManager), BuildValue(null, () => new BlockPreviewerAnimationManager())
                     },
+                    {
+                        typeof(IUpdateManager), BuildValue(null, () => new UpdateManager())
+                    },
                 };
             }
 

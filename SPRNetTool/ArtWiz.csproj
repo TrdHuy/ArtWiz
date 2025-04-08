@@ -89,6 +89,9 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\ArtUpdater\ArtUpdater.csproj" />
+	</ItemGroup>
+	<ItemGroup>
 		<Content Include="Resources\12345.spr">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>

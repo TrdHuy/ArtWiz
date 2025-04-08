@@ -14,6 +14,7 @@
 		<BuildTag>ARTWIZ_TEST_BUILD_TAG</BuildTag>
 		<WizMachineVersion>1.0.16</WizMachineVersion>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<None Remove="Resources\1.bin" />
 		<None Remove="Resources\1.png" />
@@ -25,6 +26,7 @@
 		<None Remove="Resources\4.bin" />
 		<None Remove="Resources\5.bin" />
 		<None Remove="Resources\alpha.spr" />
+		<None Remove="Resources\ArtWiz.zip" />
 		<None Remove="Resources\test.bin" />
 		<None Remove="Resources\test.png" />
 		<None Remove="Resources\test.spr" />
@@ -61,6 +63,9 @@
 		<Content Include="Resources\alpha.spr">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<Content Include="Resources\ArtWiz.zip">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Resources\test.bin">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
@@ -76,6 +81,7 @@
 		<PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
 		<PackageReference Include="NUnit.Analyzers" Version="3.6.1" />
 		<PackageReference Include="coverlet.collector" Version="3.2.0" />
+		<PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
 	</ItemGroup>
 	
 	<ItemGroup>

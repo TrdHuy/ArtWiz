@@ -10,6 +10,7 @@
 					   xmlns:vm="clr-namespace:ArtWiz.ViewModel"
 					   xmlns:def="clr-namespace:ArtWiz"
 					   mc:Ignorable="d"
+					   d:DataContext="{d:DesignInstance vm:MainWindowViewModel, IsDesignTimeCreatable=False}"
 					   FontFamily="Calibri"
 					   Height="900"
 					   BorderThickness="1"

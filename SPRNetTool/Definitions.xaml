@@ -169,7 +169,7 @@
 					 x:Key="{x:Static local:Definitions.TextForegroundBrushLevel0_5}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.TextForegroundColorLevel0_10}}"
 					 x:Key="{x:Static local:Definitions.TextForegroundBrushLevel0_10}" />
-	
+
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ButtonAndIconColorLevel0}}"
 					 x:Key="{x:Static local:Definitions.ButtonAndIconBrushLevel0}" />
 	<SolidColorBrush Color="{StaticResource ResourceKey={x:Static local:Definitions.ButtonAndIconColorLevel0_1}}"
@@ -942,7 +942,7 @@
 								<Grid x:Name="TitleBartGrid"
 									  Grid.Row="0"
 									  Visibility="{Binding IsTitleBarHidden, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static cvt:InvisibleType.REVERSE_COLLAPSED}}"
-									  Height="{Binding ElementName=WindowTitleBar, Path=WindowBarHeight}"
+									  Height="{TemplateBinding WindowBarHeight}"
 									  Background="{StaticResource ResourceKey={x:Static local:Definitions.PanelBackgroundLevel0_4}}"
 									  VerticalAlignment="Stretch">
 
@@ -955,21 +955,8 @@
 									</Grid.ColumnDefinitions>
 
 									<wg:WindowTitleBar x:Name="WindowTitleBar"
-													   Height="{Binding ElementName=WindowTitleBar, Path=WindowBarHeight}">
-										<wg:WindowTitleBar.Style>
-											<Style TargetType="wg:WindowTitleBar">
-												<Setter Property="WindowBarHeight"
-														Value="69" />
-												<!-- Giá trị mặc định -->
-												<Style.Triggers>
-													<DataTrigger Binding="{Binding IsCloseButtonUsedOnlyOnTitleBar}"
-																 Value="True">
-														<Setter Property="WindowBarHeight"
-																Value="40" />
-													</DataTrigger>
-												</Style.Triggers>
-											</Style>
-										</wg:WindowTitleBar.Style>
+													   WindowBarHeight="{TemplateBinding WindowBarHeight}"
+													   Height="{TemplateBinding WindowBarHeight}">
 									</wg:WindowTitleBar>
 
 								</Grid>

@@ -10,6 +10,23 @@ namespace ArtWiz.View.Base
     public abstract class BaseArtWizWindow : CyberWindow, IWindowViewer, IArtWizViewModelOwner
     {
         #region Public properites
+        public static readonly DependencyProperty WindowBarHeightProperty =
+            DependencyProperty.Register(
+                "WindowBarHeight",
+                typeof(double),
+                typeof(BaseArtWizWindow),
+                new FrameworkPropertyMetadata(
+                    69d,
+                    FrameworkPropertyMetadataOptions.AffectsRender
+                )
+            );
+
+        public double WindowBarHeight
+        {
+            get { return (double)GetValue(WindowBarHeightProperty); }
+            set { SetValue(WindowBarHeightProperty, value); }
+        }
+
         public static readonly DependencyProperty CornerRadiusProperty
             = DependencyProperty.Register("CornerRadius", typeof(CornerRadius), typeof(BaseArtWizWindow),
                                           new FrameworkPropertyMetadata(
@@ -27,6 +44,8 @@ namespace ArtWiz.View.Base
             get { return (CornerRadius)GetValue(CornerRadiusProperty); }
             set { SetValue(CornerRadiusProperty, value); }
         }
+
+
         #endregion
 
         public Dispatcher ViewElementDispatcher => Dispatcher;
@@ -63,6 +82,10 @@ namespace ArtWiz.View.Base
         {
             base.OnInitialized(e);
             ViewModel.IfIs<IArtWizViewModel>((it) => it.OnArtWizViewModelOwnerCreate(this));
-        }      
+        }
+
+        public virtual void OnReceivedMessage(int msg, object data)
+        {
+        }
     }
 }

@@ -1,12 +1,16 @@
-﻿using ArtWiz.Utils;
+﻿using ArtWiz.Data.Domain.UpdateManager;
+using ArtWiz.Utils;
 using ArtWiz.View.Base;
 using ArtWiz.View.Pages;
 using ArtWiz.View.Pages.PakEditor;
 using ArtWiz.View.Utils;
 using ArtWiz.View.Widgets;
+using ArtWiz.ViewModel;
+using ArtWiz.ViewModel.Base;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shell;
@@ -16,8 +20,9 @@ namespace ArtWiz.View
 {
     public partial class MainWindow : BaseArtWizWindow
     {
-        private double previousePageContentScrollViewHeightCache = -1d;
+        private const int CHECK_UPDATE_FINISHED_MSG = 0;
 
+        private double previousePageContentScrollViewHeightCache = -1d;
         private Menu? _mainMenu;
         private MenuItem? _sprWorkSpaceItem;
         private MenuItem? _devModeMenuItem;
@@ -29,6 +34,20 @@ namespace ArtWiz.View
         {
             InitializeComponent();
             SetPageContent(new SprEditorPage((IWindowViewer)this));
+            Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadingWindow l = new LoadingWindow(this, tilte: "Đang kiểm tra phiên bản cập nhật.");
+            l.Show(block: async (notifyProgressChanged) =>
+            {
+                if (DataContext is ICheckAppUpdateViewModel cast)
+                {
+                    var result = await cast.CheckAppUpdateAsync();
+                    (this as IViewerElement)?.NotifyMessage(CHECK_UPDATE_FINISHED_MSG, result);
+                }
+            });
         }
 
         private void SetPageContent(object content)
@@ -218,6 +237,42 @@ namespace ArtWiz.View
             return base.ProcessHitTest(mousePositionFromScreen);
         }
 
+        public override void OnReceivedMessage(int msg, object data)
+        {
+            switch (msg)
+            {
+                case CHECK_UPDATE_FINISHED_MSG:
+                    if (data is UpdateResult result)
+                    {
+                        if (result.IsNeedToUpdate)
+                        {
+                            InputWindow inputWindow = new InputWindow(src: null
+                                , owner: this
+                                , agreeButtonClicked: (_) =>
+                                {
+                                    if (DataContext is ICheckAppUpdateViewModel cast)
+                                    {
+                                        Task.Run(async () =>
+                                        {
+                                            await cast.DownloadAndApplyUpdateAsync(result.DownloadUrl);
+                                        });
+                                    }
+                                }
+                                , cancelButtonClicked: () =>
+                                {
+                                    if (result.NeedToForceUpdate)
+                                    {
+                                        this.Close();
+                                    }
+                                }
+                                , title: "Thông báo cập nhật!"
+                                , des: $"Phiên bản mới: {result.LatestVersion}");
+                            inputWindow.Show();
+                        }
+                    }
+                    break;
+            }
+        }
         #region Menu Item Processing
         private void TraverseMenuItems(Menu menu, bool isInit = false)
         {

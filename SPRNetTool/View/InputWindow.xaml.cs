@@ -286,6 +286,8 @@ namespace ArtWiz.View
         private Action? CancelButtonClicked;
         private Res curRes = Res.CANCEL;
         private ArtWizWindowViewModel mInputWindowViewModel;
+        private double mOwnerWindowLocationOffsetX = 0d;
+        private double mOwnerWindowLocationOffsetY = 0d;
 
 #if DEBUG
         public InputWindow()
@@ -300,7 +302,7 @@ namespace ArtWiz.View
                 .AddRadioOptions("Opt1", SavingDes, "p1")
                 .Build();
             var checkedContent = "";
-            Init(inputSrc, null, (res) =>
+            Init(null, null, (res) =>
             {
                 if (res != null)
                 {
@@ -314,7 +316,7 @@ namespace ArtWiz.View
         }
 #endif
         public InputWindow(
-            List<InputBuilder.InputOption> src
+            List<InputBuilder.InputOption>? src
             , Window? owner = null
             , Action<Dictionary<string, object>>? agreeButtonClicked = null
             , Action? cancelButtonClicked = null
@@ -323,16 +325,21 @@ namespace ArtWiz.View
         {
             InitializeComponent();
             Init(src, owner, agreeButtonClicked, cancelButtonClicked, title, des);
+            if (Owner != null || Owner is IWindowViewer)
+            {
+                Owner.LocationChanged += Owner_LocationChanged;
+                (Owner as IWindowViewer)?.DisableWindow(true);
+            }
         }
 
-        private void Init(List<InputBuilder.InputOption> src,
+       
+        private void Init(List<InputBuilder.InputOption>? src,
             Window? owner,
             Action<Dictionary<string, object>>? agreeButtonClicked,
             Action? cancelButtonClicked,
             string title,
             string des)
         {
-            if (src.Count == 0) throw new Exception("Source is empty");
             Owner = owner;
 
             mInputWindowViewModel = new ArtWizWindowViewModel();
@@ -342,108 +349,138 @@ namespace ArtWiz.View
             AgreeButtonClicked = agreeButtonClicked;
             CancelButtonClicked = cancelButtonClicked;
 
-            foreach (var item in src)
-            {
-                var newItemVM = new ItemViewModel()
-                {
-                    Description = item.Description,
-                    Title = item.Title,
-                    ContentType = item.Let((it) =>
-                    {
-                        switch (it)
-                        {
-                            case InputBuilder.TextInputOption:
-                                return ContentType.TEXT;
-                            case InputBuilder.ComboInputOption:
-                                return ContentType.COMBO;
-                            case InputBuilder.CheckBoxInputOption:
-                                return ContentType.CHECKBOX;
-                            case InputBuilder.InlineRadioInputOption:
-                                return ContentType.INLINE_RADIO;
-                            case InputBuilder.RadioInputOption:
-                                return ContentType.RADIO;
-
-                        }
-                        return ContentType.TEXT;
-                    }),
-                    Content = item.Let((it) =>
-                    {
-                        switch (it)
-                        {
-                            case InputBuilder.TextInputOption:
-                                return (it as InputBuilder.TextInputOption)?.InputDefault ?? "";
-                        }
-                        return "";
-                    }),
-                    ComboOptions = item.IfIsThenLet<InputBuilder.ComboInputOption, ObservableCollection<string>>(it2 =>
-                             new ObservableCollection<string>(it2.Options)),
-                    ComboSelection = item.IfIsThenLet<InputBuilder.ComboInputOption, int>(it2 =>
-                             it2.InputDefault),
-                    CheckContent = item.Let((it) =>
-                    {
-                        switch (it)
-                        {
-                            case InputBuilder.ComboInputOption:
-                                return (it as InputBuilder.CheckBoxInputOption)?.InputDefault ?? false;
-                        }
-                        return false;
-                    }),
-                    TextCondition = item.Let((it) =>
-                    {
-                        switch (it)
-                        {
-                            case InputBuilder.TextInputOption:
-                                return (it as InputBuilder.TextInputOption)?.PreviewInputCondition;
-                        }
-                        return null;
-                    }),
-                    CheckCondition = item.Let((it) =>
-                    {
-                        switch (it)
-                        {
-                            case InputBuilder.CheckBoxInputOption:
-                                return (it as InputBuilder.CheckBoxInputOption)?.SupportCondition;
-                        }
-                        return null;
-                    }),
-                    CheckChangedCallback = item.Let((it) =>
-                    {
-                        switch (it)
-                        {
-                            case InputBuilder.CheckBoxInputOption:
-                                return (it as InputBuilder.CheckBoxInputOption)?.Callback;
-                        }
-                        return null;
-                    }),
-
-                    InlineRadioOptions = item.IfIsThenLet<InputBuilder.InlineRadioInputOption, ObservableCollection<string>>(it2 =>
-                             new ObservableCollection<string>(it2.Options)),
-                    RadioOptionGroup = item.Let((it) =>
-                    {
-                        switch (it)
-                        {
-                            case InputBuilder.RadioInputOption cast:
-                                return cast.OptionGroup;
-                        }
-                        return "";
-                    })
-
-                };
-                InputSource.Add(newItemVM);
-            }
-            TitleListView.ItemsSource = InputSource;
-            InputListView.ItemsSource = InputSource;
-
-            foreach (var item in InputSource)
-            {
-                item.CheckChangedCallback?.Invoke(InputSource, Convert.ToBoolean(item.CheckContent));
-            }
-
             HeaderTextBlock.Text = title;
             DescriptionTextBlock.Text = des;
+
+            if (src == null || src != null && src.Count == 0)
+            {
+                InputContentArea.Visibility = Visibility.Collapsed;
+                InputContentAreaRowDef.Height = GridLength.Auto;
+                this.MinHeight = 220;
+            }
+            else if (src != null && src.Count > 0)
+            {
+                foreach (var item in src)
+                {
+                    var newItemVM = new ItemViewModel()
+                    {
+                        Description = item.Description,
+                        Title = item.Title,
+                        ContentType = item.Let((it) =>
+                        {
+                            switch (it)
+                            {
+                                case InputBuilder.TextInputOption:
+                                    return ContentType.TEXT;
+                                case InputBuilder.ComboInputOption:
+                                    return ContentType.COMBO;
+                                case InputBuilder.CheckBoxInputOption:
+                                    return ContentType.CHECKBOX;
+                                case InputBuilder.InlineRadioInputOption:
+                                    return ContentType.INLINE_RADIO;
+                                case InputBuilder.RadioInputOption:
+                                    return ContentType.RADIO;
+
+                            }
+                            return ContentType.TEXT;
+                        }),
+                        Content = item.Let((it) =>
+                        {
+                            switch (it)
+                            {
+                                case InputBuilder.TextInputOption:
+                                    return (it as InputBuilder.TextInputOption)?.InputDefault ?? "";
+                            }
+                            return "";
+                        }),
+                        ComboOptions = item.IfIsThenLet<InputBuilder.ComboInputOption, ObservableCollection<string>>(it2 =>
+                                 new ObservableCollection<string>(it2.Options)),
+                        ComboSelection = item.IfIsThenLet<InputBuilder.ComboInputOption, int>(it2 =>
+                                 it2.InputDefault),
+                        CheckContent = item.Let((it) =>
+                        {
+                            switch (it)
+                            {
+                                case InputBuilder.ComboInputOption:
+                                    return (it as InputBuilder.CheckBoxInputOption)?.InputDefault ?? false;
+                            }
+                            return false;
+                        }),
+                        TextCondition = item.Let((it) =>
+                        {
+                            switch (it)
+                            {
+                                case InputBuilder.TextInputOption:
+                                    return (it as InputBuilder.TextInputOption)?.PreviewInputCondition;
+                            }
+                            return null;
+                        }),
+                        CheckCondition = item.Let((it) =>
+                        {
+                            switch (it)
+                            {
+                                case InputBuilder.CheckBoxInputOption:
+                                    return (it as InputBuilder.CheckBoxInputOption)?.SupportCondition;
+                            }
+                            return null;
+                        }),
+                        CheckChangedCallback = item.Let((it) =>
+                        {
+                            switch (it)
+                            {
+                                case InputBuilder.CheckBoxInputOption:
+                                    return (it as InputBuilder.CheckBoxInputOption)?.Callback;
+                            }
+                            return null;
+                        }),
+
+                        InlineRadioOptions = item.IfIsThenLet<InputBuilder.InlineRadioInputOption, ObservableCollection<string>>(it2 =>
+                                 new ObservableCollection<string>(it2.Options)),
+                        RadioOptionGroup = item.Let((it) =>
+                        {
+                            switch (it)
+                            {
+                                case InputBuilder.RadioInputOption cast:
+                                    return cast.OptionGroup;
+                            }
+                            return "";
+                        })
+
+                    };
+                    InputSource.Add(newItemVM);
+                }
+                TitleListView.ItemsSource = InputSource;
+                InputListView.ItemsSource = InputSource;
+                foreach (var item in InputSource)
+                {
+                    item.CheckChangedCallback?.Invoke(InputSource, Convert.ToBoolean(item.CheckContent));
+                }
+            }
+
         }
 
-        public new Res Show()
+        private void Owner_LocationChanged(object? sender, EventArgs e)
+        {
+            // Lấy vị trí mới của window A
+            double newX = Owner.Left;
+            double newY = Owner.Top;
+            // Di chuyển window B tương ứng với vị trí của window A
+            this.Left = newX + mOwnerWindowLocationOffsetX; // mOwnerWindowLocationOffsetX là khoảng cách ngang giữa A và B
+            this.Top = newY + mOwnerWindowLocationOffsetY; // mOwnerWindowLocationOffsetY là khoảng cách dọc giữa A và B
+        }
+
+        public new void Show()
+        {
+            base.Show();
+            if (Owner != null)
+            {
+                (Owner as IWindowViewer)?.DisableWindow(true);
+                mOwnerWindowLocationOffsetX = Left - Owner.Left;
+                mOwnerWindowLocationOffsetY = Top - Owner.Top;
+            }
+        }
+
+        public new Res ShowDialog()
         {
             if (Owner != null)
             {

@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using static ArtWiz.View.InputWindow;
 using static ArtWiz.View.Widgets.PaletteEditor;
 using ArtWiz.ViewModel.SprEditor;
+using System.Diagnostics;
 
 namespace ArtWiz.View.Pages
 {
@@ -167,7 +168,7 @@ namespace ArtWiz.View.Pages
                                     }
                                 }
                             }, title: "Lưu với định dạng");
-                            Res res = inputWindow.Show();
+                            Res res = inputWindow.ShowDialog();
                             if (res == Res.CANCEL) return;
 
                             SaveFileDialog saveFile = new SaveFileDialog();

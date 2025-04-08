@@ -577,7 +577,7 @@ namespace ArtWiz.Domain
         {
             base.NotifyChanged(args);
             //var changedEvent = ((BitmapDisplayMangerChangedArg)args).Event;
-            //logger.D($"ChangedEvent: dec={changedEvent},bin={Convert.ToString(changedEvent.Value, 2)}");
+            //mLogger.D($"ChangedEvent: dec={changedEvent},bin={Convert.ToString(changedEvent.Value, 2)}");
         }
 
         protected override FrameRGBA? GetFrameData(uint frameIndex)

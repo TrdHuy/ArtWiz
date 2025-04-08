@@ -6,5 +6,15 @@ namespace ArtWiz.View.Base
     {
         public Dispatcher ViewElementDispatcher { get; }
         public object ViewModel { get; }
+
+        public void NotifyMessage(int msg, object data)
+        {
+            ViewElementDispatcher.BeginInvoke(() =>
+            {
+                OnReceivedMessage(msg, data);
+            });
+        }
+
+        void OnReceivedMessage(int msg, object data);
     }
 }
